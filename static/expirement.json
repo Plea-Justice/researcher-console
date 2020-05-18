@@ -1,64 +1,5 @@
 [
   {
-    "name": "Experimental Condition 4",
-    "description": "This file describes the outline of experimental condition number 7.",
-    "scenes": [
-      {
-        "name": "Introduction",
-        "clip": "IntroClip0"
-      }
-    ]
-  },
-  {
-    "name": "Experimental Condition 3",
-    "description": "This file describes the outline of experimental condition number 7.",
-    "scenes": [
-      {
-        "name": "Introduction",
-        "clip": "IntroClip0"
-      },
-      {
-        "name": "Judge_1",
-        "actor": "judgeActor",
-        "fg": "None",
-        "bg": "None",
-        "script": "Good afternoon.@9 What is the nature of this case,@5 Mr. Clark?"
-      },
-      {
-        "name": "Prosecutor Says Hello",
-        "actor": "prosecutorActor",
-        "fg": "None",
-        "bg": "meetingroom",
-        "script": "Hello, my name is Mr. Clark."
-      }
-    ]
-  },
-  {
-    "name": "Experimental Condition 2",
-    "description": "This file describes the outline of experimental condition number 7.",
-    "scenes": [
-      {
-        "name": "Introduction",
-        "clip": "IntroClip0"
-      },
-      {
-        "name": "Prosecutor Says Hello",
-        "actor": "prosecutorActor",
-        "fg": "None",
-        "bg": "meetingroom",
-        "script": "Hello, my name is Mr. Clark."
-      },
-      {
-        "name": "Clip1",
-        "clip": "Scenario1_Intro_Figure0"
-      },
-      {
-        "name": "Clip1",
-        "clip": "Scenario1_Intro_Figure0"
-      }
-    ]
-  },
-  {
     "name": "Experimental Condition 1",
     "description": "This object describes the outline of a single experimental condition.",
     "scenes": [
@@ -91,6 +32,65 @@
         "name": "Decision1",
         "script": "Select @4accept @4or @4reject.",
         "buttons": ["Accept", "Reject"]
+      }
+    ]
+  },
+  {
+    "name": "Experimental Condition 2",
+    "description": "This file describes the outline of experimental condition number 7.",
+    "scenes": [
+      {
+        "name": "Introduction",
+        "clip": "IntroClip0"
+      },
+      {
+        "name": "Prosecutor Says Hello",
+        "actor": "prosecutorActor",
+        "fg": "None",
+        "bg": "meetingroom",
+        "script": "Hello, my name is Mr. Clark."
+      },
+      {
+        "name": "Clip1",
+        "clip": "Scenario1_Intro_Figure0"
+      },
+      {
+        "name": "Clip1",
+        "clip": "Scenario1_Intro_Figure0"
+      }
+    ]
+  },
+  {
+    "name": "Experimental Condition 3",
+    "description": "This file describes the outline of experimental condition number 7.",
+    "scenes": [
+      {
+        "name": "Introduction",
+        "clip": "IntroClip0"
+      },
+      {
+        "name": "Judge_1",
+        "actor": "judgeActor",
+        "fg": "None",
+        "bg": "None",
+        "script": "Good afternoon.@9 What is the nature of this case,@5 Mr. Clark?"
+      },
+      {
+        "name": "Prosecutor Says Hello",
+        "actor": "prosecutorActor",
+        "fg": "None",
+        "bg": "meetingroom",
+        "script": "Hello, my name is Mr. Clark."
+      }
+    ]
+  },
+  {
+    "name": "Experimental Condition 4",
+    "description": "This file describes the outline of experimental condition number 7.",
+    "scenes": [
+      {
+        "name": "Introduction",
+        "clip": "IntroClip0"
       }
     ]
   }

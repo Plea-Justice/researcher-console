@@ -1,0 +1,23 @@
+{
+  "condition": {
+    "name": "string",
+    "description": "string",
+    "scenes": "array"
+  },
+
+  "scene": {
+    "name": "string",
+    "actor": "string",
+    "fg": "image",
+    "bg": "image",
+    "script": "text",
+    "clip": "video",
+    "button": "logical"
+  },
+
+  "sceneTypes": {
+    "dialogue": ["actor", "fg", "bg", "script"],
+    "clip": ["clip"],
+    "question": ["button"]
+  }
+}

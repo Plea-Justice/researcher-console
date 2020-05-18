@@ -1,25 +1,17 @@
 <template>
   <div class="column">
-    <div class="rows" v-if="master">
+    <div class="rows">
       <StoryCard
-        class="row"
-        v-for="scene in frame.scenes"
-        :key="`${scene.conditionName}_${scene.sceneName}`"
-        :title="`${scene.conditionName} ${scene.sceneName}`"
-        :icon="(({ name, ...scene }) => scene)(scene.props)"
+        v-for="(scene, index) in condition.scenes"
+        :key="`${condition.name}_${scene.name}_${index}`"
+        :title="`${condition.name} ${scene.name}`"
+        :icon="(({ name, ...scene }) => scene)(scene)"
+        :spec="spec"
       />
     </div>
-    <div class="rows" v-else>
-      <StoryCard
-        class="row"
-        :title="
-          (scene => `${scene.conditionName} ${scene.sceneName}`)(getBaseScene())
-        "
-        :icon="(({ name, ...scene }) => scene)(getBaseScene().props)"
-      />
-    </div>
-    <button @click="expand">Expand</button>
   </div>
+
+  <!--<button @click="expand">Expand</button>-->
 </template>
 
 <script>
@@ -29,12 +21,12 @@ export default {
   name: "StoryFrame",
   components: { StoryCard },
   props: {
-    frame: {
+    condition: {
       type: Object,
       required: true
     },
-    master: {
-      type: Boolean,
+    spec: {
+      type: Object,
       required: true
     }
   },

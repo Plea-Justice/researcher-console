@@ -1,13 +1,26 @@
 <template>
   <section class="section">
-    <b-button @click="expand">Expand All</b-button>
+    <div class="story-menu">
+      <b-button @click="expand">Expand All</b-button>
+    </div>
+
     <div class="columns">
       <StoryFrame
+        v-for="condition in conditions"
+        :key="condition.name"
+        :condition="condition"
+        :spec="spec"
+      />
+
+      <!--
+      <StoryFrame
+
         v-for="(sceneFrame, index) in scenesTree"
         :key="`${index}_${sceneFrame.length}`"
         :frame="sceneFrame"
         :master="isExpanded"
       />
+      -->
     </div>
   </section>
 </template>
@@ -30,9 +43,14 @@ export default {
       this.isExpanded = !this.isExpanded;
     }
   },
-  async asyncData({ $axios }) {
+  async asyncData({ params, $axios }) {
+    //TODO: make this a global state
+    const spec = await (() =>
+      import(`~/data/spec.json`).then(m => m.default || m))();
+
     let conditions = await $axios.$get("/expirement.json");
 
+    /*
     const baseIndex = conditions.reduce(
       (p, c, i, a) => (a[p].length > c.length ? p : i),
       0
@@ -51,31 +69,6 @@ export default {
               }
             : false
         )
-        .filter(e => e);
-
-      //TODO: define this layout as a struct os object or something so it's more repeatable?
-
-      const baseScene = {
-        conditionName: conditions[baseIndex].name,
-        sceneName: scene.name,
-        props: (({ name, ...props }) => props)(scene)
-      };
-      const branchLen = sceneBranch.length;
-      const isEven = branchLen % 2 === 0;
-      let midIndex = 0;
-      if (!branchLen) {
-        //if isEmpty or === 1
-        sceneBranch = [...sceneBranch, baseScene];
-      } else {
-        // index if Even else if Odd
-        midIndex = isEven ? branchLen / 2 : (branchLen + 1) / 2;
-
-        sceneBranch = [
-          ...sceneBranch.slice(0, midIndex),
-          baseScene,
-          ...sceneBranch.slice(midIndex)
-        ];
-      }
 
       return {
         baseIndex: midIndex,
@@ -83,8 +76,9 @@ export default {
         scenes: sceneBranch
       };
     });
+    */
 
-    return { scenesTree };
+    return { spec, conditions };
   },
   head() {
     return {
@@ -100,3 +94,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.story-menu {
+  margin-bottom: 1.5rem;
+}
+</style>

@@ -15,7 +15,7 @@
     "@nuxtjs/pwa": "^3.0.0-0",
     "lodash": "^4.17.15",
     "nuxt": "^2.0.0",
-    "nuxt-buefy": "^0.3.2"
+    "nuxt-buefy": "^0.3.30"
   },
   "devDependencies": {}
 }
