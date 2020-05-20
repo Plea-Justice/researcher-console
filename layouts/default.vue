@@ -1,17 +1,13 @@
 <template>
   <div>
     <nav
-      class="navbar header has-shadow is-primary"
+      class="navbar header has-shadow is-dark"
       role="navigation"
       aria-label="main navigation"
     >
       <div class="navbar-brand">
         <n-link class="navbar-item" to="/">
-          <img
-            src="~assets/buefy.png"
-            alt="Buefy"
-            height="28"
-          >
+          Plea Simulation Researcher Console
         </n-link>
 
         <div class="navbar-burger">
@@ -20,6 +16,33 @@
           <span />
         </div>
       </div>
+
+      <div class="navbar-menu">
+        <div class="navbar-start">
+          <div class="navbar-item">
+            <UploadButton />
+          </div>
+        </div>
+
+        <div class="navbar-end">
+          <div class="navbar-item">
+            
+          </div>
+          <div class="navbar-item">
+            <button class="button is-primary">
+              <b-icon size="is-small" icon="folder-download" />
+              <span>Download Package</span>
+            </button>
+          </div>
+          <div class="navbar-item">
+            <button class="button is-danger">
+              <b-icon size="is-small" icon="exit-run" />
+              <span>Log Out</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
     </nav>
 
   <!--
@@ -45,7 +68,11 @@
 </template>
 
 <script>
+import UploadButton from '~/components/UploadButton'
 export default {
+  components: {
+    UploadButton
+  },
   data() {
     return {
       items: [
