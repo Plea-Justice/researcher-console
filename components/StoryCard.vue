@@ -5,80 +5,23 @@
         <!-- TODO: regex title -->
         <small class="card-header-title has-text-grey">{{ title }}</small>
         <span class="card-header-icon">
-          <b-button @click="expand">{{ isExpanded ? "-" : "+" }}</b-button>
+          <b-button @click="expand" :icon-left="`chevron-${isExpanded ? 'up' : 'down'}`"></b-button>
         </span>
       </header>
 
       <div v-if="isExpanded" class="card-content">
-        <!--FIXME: add the condition and scene name to every key-->
-
-        <p>{{ formData }}</p>
-        <!--<p v-for="(id, index) in formData" :key="index">{{ id[index] }}</p>-->
-
-        <!-- TODO: make props compatible with array or single values -->
-        <b-field>
-          <b-radio-button
-            class="is-capitalized"
-            v-for="key in Object.keys(spec.sceneTypes)"
-            :key="key"
-            :native-value="key"
-            v-model="selectedType"
-          >{{ key }}</b-radio-button>
-        </b-field>
-
-        <form>
-          <b-field v-for="[key, value, index] in getSceneAttributes(selectedType)" :key="key">
-            <b-input
-              v-if="key != 'name' && value == 'string'"
-              :placeholder="key"
-              :v-model="formData[index]"
-            />
-
-            <b-select
-              v-if="value == 'image'"
-              :placeholder="key"
-              :v-model="formData[index]"
-              icon="wallpaper"
-            >
-              <option value="1">Test</option>
-            </b-select>
-
-            <b-select
-              v-if="value == 'video'"
-              :placeholder="key"
-              :v-model="formData[index]"
-              icon="movie_creation"
-            >
-              <option value="1">Test</option>
-            </b-select>
-
-            <textarea
-              v-if="value == 'text'"
-              :v-model="formData[index]"
-              class="textarea has-fixed-size"
-              placeholder="script"
-            />
-
-            <div v-if="value == 'logical'" :v-model="formData[index]">
-              <h3>Buttons</h3>
-
-              <p v-if="!assets.buttons">No buttons addded</p>
-
-              <div class="buttons">
-                <b-button v-for="button in assets.buttons" :key="`${button}-button`">{{ button }}</b-button>
-              </div>
-              <b-button type="is-primary">Add Button</b-button>
-            </div>
-          </b-field>
-        </form>
+        <SceneForm :assets="assets" :spec="spec" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import SceneForm from "~/components/SceneForm";
+
 export default {
   name: "StoryCard",
+  components: { SceneForm },
   props: {
     title: {
       type: String,
@@ -107,42 +50,10 @@ export default {
       }
     }
   },
-  data() {
-    //TODO: handle this
-    // Build key list
-    const sceneAssets = Object.keys(this.assets).filter(
-      key => this.assets[key] != "None"
-    );
-
-    // --- Internal States ---
-
-    // Defaults Scene type selection toggle to the first one that is defines in ~/data/spec.json
-    const selectedType = Object.keys(this.spec.sceneTypes)[0];
-    let formData = [];
-
-    return { sceneAssets, selectedType, formData };
-  },
   methods: {
     expand() {
       this.isExpanded = !this.isExpanded;
     },
-
-    getSceneAttributes(sceneType) {
-      //TODO: add handling for None and Erroneous types
-      // TODO: fix this up, just loop the whole thing once?
-
-      //const index = spec.scene.some(asset => asset == "actor");
-      return Object.values(this.spec.sceneTypes[sceneType]).map(
-        (key, index) => [
-          key,
-          this.spec.scene[key],
-          Object.keys(this.spec.scene).findIndex(function(asset) {
-            return asset == key;
-          })
-        ]
-      );
-    },
-
     async getAsset(assetName) {
       console.log(assetName);
       const { name, ...b } = assetName;
@@ -161,6 +72,7 @@ export default {
 
 <style scoped>
 /* TODO: set horizontal styling column properties */
+/* TODO: Use calculated value, based on max number of conditions visible defined by a media query */
 /*.column {
   flex-basis: 20%;
   flex-grow: 0;

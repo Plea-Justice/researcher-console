@@ -1,7 +1,7 @@
 <template>
   <!-- TODO: investigate .is-desktop attribute for columns -->
   <div class="columns">
-    <b-button @click="expand">{{ `${isExpanded ? "Collapse" : "Expand"} Frame`}}</b-button>
+    <b-button @click="expand" :icon-left="`chevron-${isExpanded ? 'up' : 'down'}`"></b-button>
 
     <StoryCard
       v-for="(scene, index) in frame.scenes"

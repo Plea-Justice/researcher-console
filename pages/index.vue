@@ -25,7 +25,7 @@
 
 <script>
 export default {
-  name: "Login Page",
+  name: "LoginPage",
   data() {
     return {
       name: ""
