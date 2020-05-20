@@ -8,15 +8,15 @@
   "scene": {
     "name": "string",
     "actor": "string",
-    "fg": "image",
-    "bg": "image",
+    "foreground": "image",
+    "background": "image",
     "script": "text",
     "clip": "video",
     "button": "logical"
   },
 
   "sceneTypes": {
-    "dialogue": ["actor", "fg", "bg", "script"],
+    "dialogue": ["actor", "foreground", "background", "script"],
     "clip": ["clip"],
     "question": ["button"]
   }

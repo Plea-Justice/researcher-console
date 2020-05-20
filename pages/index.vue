@@ -6,6 +6,7 @@
       </div>
 
       <b-field type="username">
+        <!-- FIXME: Should this and password be the same field or seperate fields-->
         <b-input placeholder="User ID" v-model="name" />
       </b-field>
 
@@ -13,12 +14,7 @@
         <b-input type="password" placeholder="Password" password-reveal />
       </b-field>
 
-      <b-button
-        tag="input"
-        native-type="submit"
-        type="is-primary"
-        value="Login"
-      />
+      <b-button tag="input" native-type="submit" type="is-primary" value="Login" />
 
       <hr />
 

@@ -1,40 +1,33 @@
 <template>
   <section class="section">
     <div class="story-menu">
-      <b-button @click="expand">Expand All</b-button>
+      <b-button @click="expand">{{ `${isExpanded ? "Collapse" : "Expand"} All` }}</b-button>
     </div>
 
     <div class="columns">
-      <StoryFrame
-        v-for="condition in conditions"
-        :key="condition.name"
-        :condition="condition"
-        :spec="spec"
-      />
-
-      <!--
-      <StoryFrame
-
-        v-for="(sceneFrame, index) in scenesTree"
-        :key="`${index}_${sceneFrame.length}`"
-        :frame="sceneFrame"
-        :master="isExpanded"
-      />
-      -->
+      <div class="column" v-for="{ name } in conditions" :key="name">
+        <h1>{{name}}</h1>
+      </div>
     </div>
+
+    <StoryFrame
+      v-for="(frame, index) in arr"
+      :key="`frame_${index}`"
+      :frame="frame"
+      :allExpanded="isExpanded"
+      :spec="spec"
+    />
   </section>
 </template>
 
 <script>
-import isEqual from "lodash/isEqual";
-
 import StoryFrame from "~/components/StoryFrame";
 
 export default {
   name: "StoryBoard",
   components: { StoryFrame },
   data() {
-    let isExpanded = false;
+    const isExpanded = true;
 
     return { isExpanded };
   },
@@ -48,37 +41,35 @@ export default {
     const spec = await (() =>
       import(`~/data/spec.json`).then(m => m.default || m))();
 
-    let conditions = await $axios.$get("/expirement.json");
+    const conditions = await $axios.$get("/expirement.json");
+
+    //TODO: clean this so map isn't needed and reduces directly
+    const maxColLength = conditions
+      .map(condition => condition.scenes.length)
+      .reduce((a, b) => Math.max(a, b));
+
+    let arr = [];
+    for (let i = 0; i < maxColLength; i++) {
+      let arr2 = [];
+      for (let j = 0; j < conditions.length; j++) {
+        if (conditions[j].scenes[i]) {
+          arr2.push(conditions[j].scenes[i]);
+        }
+      }
+      arr.push({ frameIndex: i, scenes: arr2 });
+    }
+
+    /*const length = conditions.reduce((a, b) =>
+      console.log({ scene: a.scenes + b.scenes })
+    );*/
 
     /*
     const baseIndex = conditions.reduce(
       (p, c, i, a) => (a[p].length > c.length ? p : i),
       0
-    );
+    );*/
 
-    const scenesTree = conditions[baseIndex].scenes.map((scene, idx) => {
-      let sceneBranch = conditions
-        .map(condition =>
-          idx != baseIndex &&
-          condition.scenes[idx] &&
-          !isEqual(condition.scenes[idx], scene)
-            ? {
-                conditionName: condition.name,
-                sceneName: condition.scenes[idx].name,
-                props: (({ name, ...props }) => props)(condition.scenes[idx])
-              }
-            : false
-        )
-
-      return {
-        baseIndex: midIndex,
-        isEven: isEven,
-        scenes: sceneBranch
-      };
-    });
-    */
-
-    return { spec, conditions };
+    return { spec, conditions, arr };
   },
   head() {
     return {

@@ -1,17 +1,17 @@
 <template>
-  <div class="column">
-    <div class="rows">
-      <StoryCard
-        v-for="(scene, index) in condition.scenes"
-        :key="`${condition.name}_${scene.name}_${index}`"
-        :title="`${condition.name} ${scene.name}`"
-        :icon="(({ name, ...scene }) => scene)(scene)"
-        :spec="spec"
-      />
-    </div>
-  </div>
+  <!-- TODO: investigate .is-desktop attribute for columns -->
+  <div class="columns">
+    <b-button @click="expand">{{ `${isExpanded ? "Collapse" : "Expand"} Frame`}}</b-button>
 
-  <!--<button @click="expand">Expand</button>-->
+    <StoryCard
+      v-for="(scene, index) in frame.scenes"
+      :key="`frame_${frame.frameIndex}_condition_${index}`"
+      :title="`${scene.name}`"
+      :assets="(({ name, ...scene }) => scene)(scene)"
+      :frameExpanded="isExpanded"
+      :spec="spec"
+    />
+  </div>
 </template>
 
 <script>
@@ -21,8 +21,12 @@ export default {
   name: "StoryFrame",
   components: { StoryCard },
   props: {
-    condition: {
+    frame: {
       type: Object,
+      required: true
+    },
+    allExpanded: {
+      type: Boolean,
       required: true
     },
     spec: {
@@ -30,20 +34,20 @@ export default {
       required: true
     }
   },
+  computed: {
+    isExpanded: {
+      get() {
+        return this.allExpanded;
+      },
+      set(newValue) {
+        return (this.allExpanded = newValue);
+      }
+    }
+  },
   methods: {
-    getBaseScene() {
-      return this.frame.scenes[this.frame.baseIndex];
-    },
     expand() {
-      this.master = !this.master;
+      this.isExpanded = !this.isExpanded;
     }
   }
 };
 </script>
-
-<style scoped>
-.column {
-  flex-basis: 20%;
-  flex-grow: 0;
-}
-</style>
