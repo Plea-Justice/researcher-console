@@ -36,7 +36,7 @@ export default {
       required: true
     },
     spec: {
-      tupe: Object,
+      type: Object,
       required: true
     }
   },
