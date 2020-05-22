@@ -10,6 +10,7 @@
       :assets="(({ name, ...scene }) => scene)(scene)"
       :frameExpanded="isExpanded"
       :spec="spec"
+      :manifest="manifest"
     />
   </div>
 </template>
@@ -30,6 +31,10 @@ export default {
       required: true
     },
     spec: {
+      type: Object,
+      required: true
+    },
+    manifest: {
       type: Object,
       required: true
     }

@@ -10,36 +10,40 @@
       >{{ key }}</b-radio-button>
     </b-field>
 
-    <!--
+    <!-- Debug: formData output
       <p v-for="{ key, value } in formData" :key="key">{{ `${key}: ${value}` }}</p>
     -->
 
-    <form>
+    <form @submit.prevent="onSubmit">
       <b-field v-for="asset in validFields" :key="asset.key">
-        <b-input
+        <FileSelector
           v-if="asset.key != 'name' && asset.type == 'string'"
+          :assetType="asset.key"
           :placeholder="asset.key"
-          v-model="formData[asset.index].value"
+          icon="file-image"
+          v-model="asset.value"
+          :manifest="manifest"
         />
 
-        <b-select
+        <FileSelector
           v-if="asset.type == 'image'"
+          :assetType="asset.key"
           :placeholder="asset.key"
+          icon="file-image"
           v-model="asset.value"
-          icon="wallpaper"
-        >
-          <option value="1">Test</option>
-        </b-select>
+          :manifest="manifest"
+        />
 
-        <b-select
+        <FileSelector
           v-if="asset.type == 'video'"
+          :assetType="asset.key"
           :placeholder="asset.key"
+          icon="file-video"
           v-model="asset.value"
-          icon="movie_creation"
-        >
-          <option value="1">Test</option>
-        </b-select>
+          :manifest="manifest"
+        />
 
+        <!-- FIXME: have selector use asset instead of asset.value to bind reference? -->
         <textarea
           v-if="asset.type == 'text'"
           v-model="asset.value"
@@ -47,30 +51,35 @@
           placeholder="script"
         />
 
-        <div v-if="asset.type == 'logical'" :v-model="asset.value">
-          <h3>Buttons</h3>
+        <!-- FIXME: rename to buttons to be more specific? -->
+        <ButtonInput v-if="asset.type == 'logical'" v-model="asset.value" />
 
-          <p v-if="!assets.buttons">No buttons addded</p>
-
-          <div class="buttons">
-            <b-button v-for="button in assets.buttons" :key="`${button}-button`">{{ button }}</b-button>
-          </div>
-          <b-button type="is-primary">Add Button</b-button>
-        </div>
+        <!-- TODO: Display incorrect types/types that don't match anything -->
       </b-field>
+
+      <b-button tag="input" native-type="submit" type="is-primary" value="Save" />
+      <!-- Add last saved/auto save with button saving animation -->
     </form>
   </div>
 </template>
 
 <script>
+import FileSelector from "~/components/FileSelector";
+import ButtonInput from "~/components/ButtonInput";
+
 export default {
   name: "SceneForm",
+  components: { FileSelector, ButtonInput },
   props: {
     assets: {
       type: Object,
       required: true
     },
     spec: {
+      type: Object,
+      required: true
+    },
+    manifest: {
       type: Object,
       required: true
     }
@@ -86,8 +95,15 @@ export default {
     // FIXME: Resolve for what will happen on re-render, use computed values?
     //        Pass hidden prop into formData rather than unload whole component?
 
+    const sceneType = this.assets["type"];
+    const validSceneTypes = Object.keys(this.spec.sceneTypes);
     // Defaults Scene type selection toggle to the first one that is defines in ~/data/spec.json
-    const selectedType = Object.keys(this.spec.sceneTypes)[0];
+    // FIXME: make this a computed value
+    // TODO: pull object types out instead?
+    const selectedType =
+      sceneType && validSceneTypes.includes(sceneType)
+        ? sceneType
+        : validSceneTypes[0];
 
     // TODO: add name as an excluded type and update this elsewhere so it is consistent
     // TODO: make props compatible with array or single values
@@ -97,14 +113,16 @@ export default {
         key: key,
         type: value,
         //valid: this.spec.sceneTypes[selectedType].includes(key),
-        value: ""
+        value: this.assets[key] != "None" ? this.assets[key] : null
       })
     );
 
     return { selectedType, formData };
+  },
+  methods: {
+    onSubmit() {
+      console.log("Form Submitted");
+    }
   }
 };
 </script>
-
-<style>
-</style>

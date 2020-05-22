@@ -4,6 +4,7 @@
     "description": "This object describes the outline of a single experimental condition.",
     "scenes": [
       {
+        "type": "dialogue",
         "name": "Intro",
         "actor": "prosecutorActor",
         "foreground": "None",
@@ -11,6 +12,7 @@
         "script": "Good afternoon@9, my name is Mr. Clark and I will be prosecuting this case on behalf of the State of Massachusetts, your Honor."
       },
       {
+        "type": "dialogue",
         "name": "Judge_1",
         "actor": "judgeActor",
         "foreground": "None",
@@ -18,6 +20,7 @@
         "script": "Good afternoon.@9 What is the nature of this case,@5 Mr. Clark?"
       },
       {
+        "type": "dialogue",
         "name": "Prosecutor_1",
         "actor": "prosecutorActor",
         "foreground": "None",
@@ -25,10 +28,12 @@
         "script": "@U@3 is accused of being involved in a hit-and-run@2 occurring around 6 PM on the 26th day of June in the year 2019."
       },
       {
+        "type": "clip",
         "name": "Clip1",
         "clip": "Scenario1_Intro_Figure0"
       },
       {
+        "type": "logical",
         "name": "Decision1",
         "script": "Select @4accept @4or @4reject.",
         "buttons": ["Accept", "Reject"]
@@ -40,10 +45,12 @@
     "description": "This file describes the outline of experimental condition number 7.",
     "scenes": [
       {
+        "type": "clip",
         "name": "Introduction",
         "clip": "IntroClip0"
       },
       {
+        "type": "dialogue",
         "name": "Prosecutor Says Hello",
         "actor": "prosecutorActor",
         "foreground": "None",
@@ -55,8 +62,9 @@
         "clip": "Scenario1_Intro_Figure0"
       },
       {
-        "name": "Clip1",
-        "clip": "Scenario1_Intro_Figure0"
+        "type": "logical",
+        "name": "Decision1",
+        "script": "Select @4accept @4or @4reject."
       }
     ]
   },
@@ -65,10 +73,12 @@
     "description": "This object describes the outline of a single experimental condition.",
     "scenes": [
       {
+        "type": "clip",
         "name": "Clip1",
         "clip": "Scenario1_Intro"
       },
       {
+        "type": "logical",
         "name": "Decision1",
         "script": "Select @4accept @4or @4reject.",
         "buttons": ["Accept", "Reject"]

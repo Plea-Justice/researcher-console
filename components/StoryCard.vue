@@ -10,7 +10,7 @@
       </header>
 
       <div v-if="isExpanded" class="card-content">
-        <SceneForm :assets="assets" :spec="spec" />
+        <SceneForm :assets="assets" :spec="spec" :manifest="manifest" />
       </div>
     </div>
   </div>
@@ -36,16 +36,20 @@ export default {
       required: true
     },
     spec: {
-      tupe: Object,
+      type: Object,
+      required: true
+    },
+    manifest: {
+      type: Object,
       required: true
     }
   },
   computed: {
     isExpanded: {
-      get() {
+      get: function() {
         return this.frameExpanded;
       },
-      set(newValue) {
+      set: function(newValue) {
         this.frameExpanded = newValue;
       }
     }

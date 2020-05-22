@@ -12,12 +12,12 @@
     "background": "image",
     "script": "text",
     "clip": "video",
-    "button": "logical"
+    "buttons": "logical"
   },
 
   "sceneTypes": {
     "dialogue": ["actor", "foreground", "background", "script"],
     "clip": ["clip"],
-    "question": ["button"]
+    "question": ["script", "buttons"]
   }
 }

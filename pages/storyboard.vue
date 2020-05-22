@@ -16,6 +16,7 @@
       :frame="frame"
       :allExpanded="isExpanded"
       :spec="spec"
+      :manifest="manifest"
     />
   </section>
 </template>
@@ -39,7 +40,7 @@ export default {
   async asyncData({ params, $axios }) {
     //TODO: make this a global state
     const spec = await (() =>
-      import(`~/data/spec.json`).then(m => m.default || m))();
+      import(`~/assets/spec.json`).then(m => m.default || m))();
 
     const conditions = await $axios.$get("/expirement.json");
 
@@ -59,6 +60,7 @@ export default {
       arr.push({ frameIndex: i, scenes: arr2 });
     }
 
+    const manifest = await $axios.$get("/manifest.json");
     /*const length = conditions.reduce((a, b) =>
       console.log({ scene: a.scenes + b.scenes })
     );*/
@@ -69,7 +71,7 @@ export default {
       0
     );*/
 
-    return { spec, conditions, arr };
+    return { spec, conditions, arr, manifest };
   },
   head() {
     return {
