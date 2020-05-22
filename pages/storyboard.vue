@@ -26,6 +26,7 @@ import StoryFrame from "~/components/StoryFrame";
 
 export default {
   name: "StoryBoard",
+  layout: "StoryLayout",
   components: { StoryFrame },
   data() {
     const isExpanded = true;
