@@ -7,6 +7,7 @@
     >
       <div class="navbar-brand">
         <n-link class="navbar-item" to="/">
+          <!-- FIXME: use an environment variable -->
           Plea Simulation Researcher Console
         </n-link>
 
@@ -35,13 +36,12 @@
             </button>
           </div>
           <div class="navbar-item">
-              <b-icon size="is-small" icon="help-circle" />
+            <b-icon size="is-small" icon="help-circle" />
           </div>
         </div>
       </div>
-
     </nav>
-    
+
     <section>
       <div class="container column is-10">
         <nuxt />
@@ -51,8 +51,8 @@
 </template>
 
 <script>
-import UploadButton from '~/components/UploadButton'
-import DownloadButton from '~/components/DownloadButton'
+import UploadButton from "~/components/UploadButton";
+import DownloadButton from "~/components/DownloadButton";
 export default {
   components: {
     UploadButton,

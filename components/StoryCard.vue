@@ -1,27 +1,92 @@
 <template>
-  <div class="column">
-    <div class="card has-radius-large">
-      <header class="card-header has-top-radius-large">
-        <!-- TODO: regex title -->
-        <small class="card-header-title has-text-grey">{{ title }}</small>
+  <!-- TODO: put parent in frame -->
+  <!-- /* TODO: Use calculated value, based on max number of conditions visible defined by a media query */ -->
+
+  <div :class="{ 'card-collapsed': !isExpanded }" class="tile is-child card has-radius-large">
+    <form @submit.prevent="onSubmit">
+      <!-- Card Header -->
+      <header
+        :class="{ 'card-header-collapsed': !isExpanded }"
+        class="card-header has-top-radius-large"
+      >
+        <!-- TODO: regex title? -->
+        <div class="card-header-title">
+          <b-input v-model="formData[nameIndex].value" placeholder="name" />
+        </div>
+
         <span class="card-header-icon">
           <b-button @click="expand" :icon-left="`chevron-${isExpanded ? 'up' : 'down'}`"></b-button>
         </span>
       </header>
 
-      <div v-if="isExpanded" class="card-content">
-        <SceneForm :assets="assets" :spec="spec" :manifest="manifest" />
+      <!-- Card Body -->
+      <div v-show="isExpanded" class="card-content">
+        <!-- Scene Type Toggle -->
+        <b-field class="toggle-button is-capitalized">
+          <b-radio-button
+            v-for="key in validSceneTypes"
+            :key="key"
+            :native-value="key"
+            v-model="selectedType"
+          >{{ key }}</b-radio-button>
+        </b-field>
+
+        <!-- Debug: formData output
+          <p v-for="{ key, value } in formData" :key="key">{{ `${key}: ${value}` }}</p>
+        -->
+
+        <!-- Main Form -->
+        <b-field v-for="asset in validFields" :key="asset.key">
+          <FileSelector
+            v-if="asset.type == 'image'"
+            :assetType="asset.key"
+            :placeholder="asset.key"
+            icon="file-image"
+            v-model="asset.value"
+            :manifest="manifest"
+          />
+
+          <FileSelector
+            v-if="asset.type == 'video'"
+            :assetType="asset.key"
+            :placeholder="asset.key"
+            icon="file-video"
+            v-model="asset.value"
+            :manifest="manifest"
+          />
+
+          <textarea
+            v-if="asset.type == 'text'"
+            v-model="asset.value"
+            class="textarea has-fixed-size"
+            placeholder="script"
+          />
+
+          <ButtonInput v-if="asset.type == 'buttons'" v-model="asset.value" />
+
+          <!-- TODO: Display error for incorrect types/types that don't match anything -->
+        </b-field>
       </div>
-    </div>
+    </form>
+
+    <!-- Card Footer -->
+    <footer v-show="isExpanded" class="card-footer">
+      <!-- Form Submit Button -->
+      <div class="card-footer-item submit-button">
+        <b-button tag="input" native-type="submit" type="is-primary" value="Save" />
+        <!-- TODO: Add last saved/auto save with button saving animation -->
+      </div>
+    </footer>
   </div>
 </template>
 
 <script>
-import SceneForm from "~/components/SceneForm";
+import FileSelector from "~/components/FileSelector";
+import ButtonInput from "~/components/ButtonInput";
 
 export default {
   name: "StoryCard",
-  components: { SceneForm },
+  components: { FileSelector, ButtonInput },
   props: {
     title: {
       type: String,
@@ -44,6 +109,28 @@ export default {
       required: true
     }
   },
+  data() {
+    const sceneType = this.assets["type"];
+    const validSceneTypes = Object.keys(this.spec.sceneTypes);
+
+    // Defaults Scene type selection toggle to the first one that is defines in ~/data/spec.json
+    const selectedType =
+      sceneType && validSceneTypes.includes(sceneType)
+        ? sceneType
+        : validSceneTypes[0];
+
+    // TODO: add name as an excluded type and update this elsewhere so it is consistent
+    // TODO: make props compatible with array or single values
+    const formData = Object.entries(this.spec.scene).map(([key, value]) => ({
+      key: key,
+      type: value,
+      value: this.assets[key] != "None" ? this.assets[key] : null
+    }));
+
+    const nameIndex = formData.findIndex(obj => obj.key == "name");
+
+    return { validSceneTypes, selectedType, formData, nameIndex };
+  },
   computed: {
     isExpanded: {
       get: function() {
@@ -52,11 +139,19 @@ export default {
       set: function(newValue) {
         this.frameExpanded = newValue;
       }
+    },
+    validFields: function() {
+      return this.formData.filter(({ key }) =>
+        this.spec.sceneTypes[this.selectedType].includes(key)
+      );
     }
   },
   methods: {
     expand() {
       this.isExpanded = !this.isExpanded;
+    },
+    onSubmit() {
+      console.log("Form Submitted");
     },
     async getAsset(assetName) {
       console.log(assetName);
@@ -75,32 +170,36 @@ export default {
 </script>
 
 <style scoped>
-/* TODO: set horizontal styling column properties */
-/* TODO: Use calculated value, based on max number of conditions visible defined by a media query */
-/*.column {
-  flex-basis: 20%;
-  flex-grow: 0;
-}*/
+/* Fix for card footer */
+.tile.is-child.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
 /* FIXME: use Bulma SASS $radius-large variable */
 .has-radius-large {
   border-radius: 6px;
 }
 
-.has-top-radius-large {
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
+.card-collapsed {
+  box-shadow: none;
+  -webkit-box-shadow: none;
 }
 
-.card-header-button {
-  align-self: center;
+/* FIXME: reference .has-radius-large class */
+.card-header-collapsed {
+  border-radius: 6px; /* Should follow .has-radius-large class */
+  box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+  -webkit-box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1),
+    0 0 0 1px rgba(10, 10, 10, 0.1);
 }
 
 .toggle-button {
-  text-transform: capitalize;
+  justify-content: center !important;
 }
 
-.buttons {
-  justify-content: center;
+.submit-button {
+  justify-content: start !important;
 }
 </style>

@@ -33,7 +33,7 @@
         "clip": "Scenario1_Intro_Figure0"
       },
       {
-        "type": "logical",
+        "type": "buttons",
         "name": "Decision1",
         "script": "Select @4accept @4or @4reject.",
         "buttons": ["Accept", "Reject"]
@@ -62,7 +62,7 @@
         "clip": "Scenario1_Intro_Figure0"
       },
       {
-        "type": "logical",
+        "type": "buttons",
         "name": "Decision1",
         "script": "Select @4accept @4or @4reject."
       }
@@ -78,7 +78,7 @@
         "clip": "Scenario1_Intro"
       },
       {
-        "type": "logical",
+        "type": "buttons",
         "name": "Decision1",
         "script": "Select @4accept @4or @4reject.",
         "buttons": ["Accept", "Reject"]

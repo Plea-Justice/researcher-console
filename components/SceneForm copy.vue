@@ -126,8 +126,8 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .toggle-button {
-  justify-content: center !important;
+  justify-content: center;
 }
 </style>

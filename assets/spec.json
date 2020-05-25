@@ -6,13 +6,13 @@
   },
 
   "scene": {
-    "name": "string",
-    "actor": "string",
+    "name": "special",
+    "actor": "image",
     "foreground": "image",
     "background": "image",
     "script": "text",
     "clip": "video",
-    "buttons": "logical"
+    "buttons": "buttons"
   },
 
   "sceneTypes": {

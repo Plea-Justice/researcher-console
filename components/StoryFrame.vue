@@ -1,17 +1,22 @@
 <template>
-  <!-- TODO: investigate .is-desktop attribute for columns -->
-  <div class="columns">
+  <div>
     <b-button @click="expand" :icon-left="`chevron-${isExpanded ? 'up' : 'down'}`"></b-button>
 
-    <StoryCard
-      v-for="(scene, index) in frame.scenes"
-      :key="`frame_${frame.frameIndex}_condition_${index}`"
-      :title="`${scene.name}`"
-      :assets="(({ name, ...scene }) => scene)(scene)"
-      :frameExpanded="isExpanded"
-      :spec="spec"
-      :manifest="manifest"
-    />
+    <div class="tile is-ancestor">
+      <div
+        v-for="(scene, index) in frame.scenes"
+        :key="`frame_${frame.frameIndex}_condition_${index}`"
+        class="tile is-parent is-4"
+      >
+        <StoryCard
+          :title="`${scene.name}`"
+          :assets="scene"
+          :frameExpanded="isExpanded"
+          :spec="spec"
+          :manifest="manifest"
+        />
+      </div>
+    </div>
   </div>
 </template>
 

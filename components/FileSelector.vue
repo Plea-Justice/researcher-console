@@ -6,13 +6,14 @@
     v-model="value"
     :icon="icon"
   >
-    <!-- fix me don't release value on emit, release something else, $event.target.value? -->
+    <!-- FIXME: don't release value on emit, release something else, $event.target.value? -->
 
     <!-- TODO: can key just be index, would this be safe after new assets are added? -->
     <!-- FIXME: handle when preset (given from expirements.json) doesn't exists in available files (manifest) -->
 
     <option v-for="file in getPaths(assetType)" :key="file" :value="file">{{ file }}</option>
   </b-select>
+  <!-- FIXME: make this a disabled error selector instead -->
   <p v-else>Oops... no files for "{{ assetType }}" exists</p>
 </template>
 

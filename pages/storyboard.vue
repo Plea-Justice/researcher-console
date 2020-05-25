@@ -1,23 +1,28 @@
 <template>
   <section class="section">
-    <div class="story-menu">
-      <b-button @click="expand">{{ `${isExpanded ? "Collapse" : "Expand"} All` }}</b-button>
-    </div>
-
-    <div class="columns">
-      <div class="column" v-for="{ name } in conditions" :key="name">
-        <h1>{{name}}</h1>
+    <div class="container">
+      <div class="story-menu">
+        <b-button @click="expand">{{ `${isExpanded ? "Collapse" : "Expand"} All` }}</b-button>
       </div>
-    </div>
 
-    <StoryFrame
-      v-for="(frame, index) in arr"
-      :key="`frame_${index}`"
-      :frame="frame"
-      :allExpanded="isExpanded"
-      :spec="spec"
-      :manifest="manifest"
-    />
+        <div class="tile is-ancestor">
+          <div v-for="{ name } in conditions" :key="name" class="tile is-parent is-4">
+          <div class="tile is-child has-text-centered subtitle">
+            <h1>{{name}}</h1>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      <StoryFrame
+        v-for="(frame, index) in arr"
+        :key="`frame_${index}`"
+        :frame="frame"
+        :allExpanded="isExpanded"
+        :spec="spec"
+        :manifest="manifest"
+      />
+    </div>
   </section>
 </template>
 
