@@ -1,20 +1,16 @@
 <template>
-  <b-select
-    v-if="assetsExists"
-    @input="$emit('input', value)"
-    :placeholder="placeholder"
-    v-model="value"
-    :icon="icon"
-  >
-    <!-- FIXME: don't release value on emit, release something else, $event.target.value? -->
-
-    <!-- TODO: can key just be index, would this be safe after new assets are added? -->
-    <!-- FIXME: handle when preset (given from expirements.json) doesn't exists in available files (manifest) -->
-
-    <option v-for="file in getPaths(assetType)" :key="file" :value="file">{{ file }}</option>
-  </b-select>
-  <!-- FIXME: make this a disabled error selector instead -->
-  <p v-else>Oops... no files for "{{ assetType }}" exists</p>
+  <!-- TODO: use scoped slots? -->
+  <b-field :type="error.flag ? 'is-danger' : null" :message="error.flag ? error.message : null">
+    <b-select
+      @input="$emit('input', selectedValue)"
+      :placeholder="placeholderText"
+      v-model="selectedValue"
+      :icon="icon"
+    >
+      <option v-if="error.flag" :value="selectedValue">{{ selectedValue }}</option>
+      <option v-else v-for="file in files" :key="file" :value="file">{{ file }}</option>
+    </b-select>
+  </b-field>
 </template>
 
 <script>
@@ -38,15 +34,34 @@ export default {
       required: true
     }
   },
-  computed: {
-    assetsExists() {
-      const assets = this.manifest[this.assetType + "s"];
-      return assets != undefined && assets != [];
-    }
+  data() {
+    const selectedValue = this.value;
+
+    return { selectedValue };
   },
-  methods: {
-    getPaths(assetName) {
-      return this.manifest[assetName + "s"];
+  computed: {
+    files() {
+      return this.manifest[this.assetType + "s"];
+    },
+    placeholderText() {
+      return this.placeholder ? this.placeholder : this.assetType;
+    },
+    error() {
+      let isError = true;
+      let message = null;
+
+      if (this.files == undefined || this.files == []) {
+        message = `No files for "${this.placeholderText}"`;
+      } else if (this.value && !this.files.includes(this.value)) {
+        message = `File "${this.value}" does not exist`;
+      } else {
+        isError = false;
+      }
+
+      return {
+        flag: isError,
+        message: message
+      };
     }
   }
 };
