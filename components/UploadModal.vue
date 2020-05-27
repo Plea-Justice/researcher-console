@@ -27,7 +27,7 @@
             <div class="tags">
                 <span v-for="(file, index) in uploadFiles"
                     :key="index"
-                    class="tag is-primary" >
+                    class="tag is-primary is-medium" >
                     {{file.name}}
                     <button class="delete is-small"
                         type="button"
@@ -37,8 +37,8 @@
             </div>
         </div>
         <footer class="card-footer">
-                <a href="#" class="card-footer-item" @click="$parent.close()">Cancel</a>
-                <a href="#" class="card-footer-item" @click="$parent.close()">Done</a>
+                <a class="card-footer-item" @click="$parent.close()">Cancel</a>
+                <a class="card-footer-item" @click="$parent.close()">Done</a>
         </footer>
     </div>
 </template>
@@ -53,7 +53,7 @@ export default {
     },
     methods: {
         deleteUploadedFile(index) {
-            this.dropFiles.splice(index, 1)
+            this.uploadFiles.splice(index, 1);
         }
     }
 }

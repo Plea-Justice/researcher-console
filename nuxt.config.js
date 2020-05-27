@@ -44,6 +44,8 @@ export default {
     '@nuxtjs/axios',
     //FIXME: re-enable
     //'@nuxtjs/pwa',
+    // Doc: https://auth.nuxtjs.org/guide
+    '@nuxtjs/auth'
   ],
   /*
   ** Axios module configuration
@@ -51,6 +53,34 @@ export default {
   */
   axios: {
     baseURL: '/'
+  },
+   /*
+  ** Auth module configuration
+  ** See https://auth.nuxtjs.org/guide/setup.html
+  */
+  auth: {
+    redirect: {
+      login: '/',
+      logout: '/',
+      callback: '/',
+      home: '/storyboard'
+    },
+    strategies: {
+      local: {
+        endpoints: {
+          login: { url: '/api/auth/login', method: 'post', propertyName: 'token' },
+          logout: { url: '/api/auth/logout', method: 'post' },
+          user: { url: '/api/auth/user', method: 'get', propertyName: 'user' }
+        }
+      },
+      github: {
+        client_id: '5b11f740c52d7131f0c4',
+        client_secret: '120910c708118fc93c564588c498262701d822d3'
+      },
+    }
+  },
+  router: {
+    // middleware: ['auth']
   },
   /*
   ** Build configuration

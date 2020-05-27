@@ -30,7 +30,10 @@
             <DownloadButton />
           </div>
           <div class="navbar-item">
-            <button class="button is-danger">
+            <p class="is-large">{{ Username Here <!-- this.$auth.user.name -->}}</p>
+          </div>
+          <div class="navbar-item">
+            <button class="button is-danger" v-on:click="logout">
               <b-icon size="is-small" icon="exit-run" />
               <span>Log Out</span>
             </button>
@@ -57,6 +60,11 @@ export default {
   components: {
     UploadButton,
     DownloadButton
+  },
+  methods:{
+    async logout() {
+      await this.$auth.logout();
+    }
   }
 };
 </script>
