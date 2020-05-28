@@ -9,13 +9,16 @@
         :class="{ 'card-header-collapsed': !isExpanded }"
         class="card-header has-top-radius-large"
       >
-        <!-- TODO: regex title? -->
         <div class="card-header-title">
           <b-input v-model="formData[nameIndex].value" placeholder="name" />
         </div>
 
         <span class="card-header-icon">
-          <b-button @click="expand" :icon-left="`chevron-${isExpanded ? 'up' : 'down'}`"></b-button>
+          <b-button
+            @click="expand()"
+            :icon-left="`chevron-${isExpanded ? 'up' : 'down'}`"
+            size="is-medium"
+          />
         </span>
       </header>
 
@@ -40,7 +43,6 @@
           <FileSelector
             v-if="asset.type == 'image'"
             :assetType="asset.key"
-            :placeholder="asset.key"
             icon="file-image"
             v-model="asset.value"
             :manifest="manifest"
@@ -49,7 +51,6 @@
           <FileSelector
             v-if="asset.type == 'video'"
             :assetType="asset.key"
-            :placeholder="asset.key"
             icon="file-video"
             v-model="asset.value"
             :manifest="manifest"
@@ -72,15 +73,32 @@
     <!-- Card Footer -->
     <footer v-show="isExpanded" class="card-footer">
       <!-- Form Submit Button -->
-      <div class="card-footer-item submit-button">
+      <div class="card-footer-item flex-left no-border">
         <b-button tag="input" native-type="submit" type="is-primary" value="Save" />
-        <!-- TODO: Add last saved/auto save with button saving animation -->
+        <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
+      </div>
+      <div class="card-footer-item buttons flex-right">
+        <b-button
+          v-if="sceneIndex.frameIndex != 0"
+          size="is-large"
+          icon-right="chevron-up"
+          class="move-button"
+          @click="moveSceneUp(sceneIndex)"
+        />
+        <b-button
+          v-if="sceneIndex.frameIndex != frameSize - 1"
+          size="is-large"
+          icon-right="chevron-down"
+          class="move-button"
+          @click="moveSceneDown()"
+        />
       </div>
     </footer>
   </div>
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
 import FileSelector from "~/components/FileSelector";
 import ButtonInput from "~/components/ButtonInput";
 
@@ -88,6 +106,10 @@ export default {
   name: "StoryCard",
   components: { FileSelector, ButtonInput },
   props: {
+    sceneIndex: {
+      type: Object,
+      required: true
+    },
     title: {
       type: String,
       required: true
@@ -144,7 +166,10 @@ export default {
       return this.formData.filter(({ key }) =>
         this.spec.sceneTypes[this.selectedType].includes(key)
       );
-    }
+    },
+    ...mapGetters({
+      frameSize: "scenes/frameSize"
+    })
   },
   methods: {
     expand() {
@@ -153,6 +178,10 @@ export default {
     onSubmit() {
       console.log("Form Submitted");
     },
+    ...mapActions({
+      moveSceneUp: "scenes/moveSceneUp",
+      moveSceneDown: "scenes/moveSceneDown"
+    }),
     async getAsset(assetName) {
       console.log(assetName);
       const { name, ...b } = assetName;
@@ -199,7 +228,20 @@ export default {
   justify-content: center !important;
 }
 
-.submit-button {
-  justify-content: start !important;
+.flex-left {
+  justify-content: flex-start !important;
+}
+
+.no-border {
+  border: none;
+}
+
+.flex-right {
+  justify-content: flex-end !important;
+}
+
+.move-button {
+  font-size: unset;
+  border: none;
 }
 </style>
