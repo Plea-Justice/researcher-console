@@ -14,7 +14,10 @@
         <b-input type="password" placeholder="Password" password-reveal />
       </b-field>
 
-      <b-button tag="input" native-type="submit" type="is-primary" value="Login" />
+      <b-button tag="input" native-type="submit" type="is-primary" value="Local Login" />
+      <b-button type="is-primary" icon-left="github" v-on:click="loginWithGitHub">
+        Login with GitHub
+      </b-button>
 
       <hr />
 
@@ -36,6 +39,9 @@ export default {
     onSubmit() {
       this.$router.push("/storyboard");
       this.name = "";
+    },
+    loginWithGitHub() {
+      this.$auth.loginWith('github');
     }
   },
   head() {
