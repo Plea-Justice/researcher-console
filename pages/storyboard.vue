@@ -2,23 +2,18 @@
   <section class="section">
     <div class="container">
       <div class="story-menu">
-        <b-button @click="expand">{{ `${isExpanded ? "Collapse" : "Expand"} All` }}</b-button>
+        <b-button @click="expand">
+          {{
+          `${isExpanded ? "Collapse" : "Expand"} All`
+          }}
+        </b-button>
         <b-button @click="addCondition(spec.scene)">Add Condition</b-button>
-      </div>
-
-      <div class="tile is-ancestor">
-        <div v-for="name in conditionNames" :key="name" class="tile is-parent is-4">
-          <div class="tile is-child has-text-centered subtitle">
-            <h1>{{name}}</h1>
-          </div>
-        </div>
       </div>
     </div>
 
     <StoryFrame
-      v-for="(frame, index) in frames"
-      :key="`frame_${frame.frameIndex}`"
-      :frameIndex="index"
+      v-for="frame in frames"
+      :key="`frame_${frame.index}`"
       :frame="frame"
       :allExpanded="isExpanded"
       :spec="spec"

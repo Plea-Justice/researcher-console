@@ -3,7 +3,7 @@
   <!-- /* TODO: Use calculated value, based on max number of conditions visible defined by a media query */ -->
 
   <div :class="{ 'card-collapsed': !isExpanded }" class="tile is-child card has-radius-large">
-    <form @submit.prevent="onSubmit">
+    <form @submit.prevent="onSubmit()">
       <!-- Card Header -->
       <header
         :class="{ 'card-header-collapsed': !isExpanded }"
@@ -24,6 +24,7 @@
 
       <!-- Card Body -->
       <div v-show="isExpanded" class="card-content">
+        <p>{{ scene.index.frame }},{{ scene.index.scene }}</p>
         <!-- Scene Type Toggle -->
         <b-field class="toggle-button is-capitalized">
           <b-radio-button
@@ -73,24 +74,25 @@
     <!-- Card Footer -->
     <footer v-show="isExpanded" class="card-footer">
       <!-- Form Submit Button -->
-      <div class="card-footer-item flex-left no-border">
+      <div class="card-footer-item buttons footer-buttons-left">
         <b-button tag="input" native-type="submit" type="is-primary" value="Save" />
         <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
+        <b-button @click="removeScene(scene.index)" type="is-danger" icon-right="delete" />
       </div>
       <div class="card-footer-item buttons flex-right">
         <b-button
-          v-if="sceneIndex.frameIndex != 0"
+          v-if="scene.index.frame != 0"
           size="is-large"
           icon-right="chevron-up"
           class="move-button"
-          @click="moveSceneUp(sceneIndex)"
+          @click="moveSceneUp(scene.index)"
         />
         <b-button
-          v-if="sceneIndex.frameIndex != frameSize - 1"
+          v-if="scene.index.frame != frameSize - 1"
           size="is-large"
           icon-right="chevron-down"
           class="move-button"
-          @click="moveSceneDown()"
+          @click="moveSceneDown(scene.index)"
         />
       </div>
     </footer>
@@ -106,15 +108,7 @@ export default {
   name: "StoryCard",
   components: { FileSelector, ButtonInput },
   props: {
-    sceneIndex: {
-      type: Object,
-      required: true
-    },
-    title: {
-      type: String,
-      required: true
-    },
-    assets: {
+    scene: {
       type: Object,
       required: true
     },
@@ -132,7 +126,7 @@ export default {
     }
   },
   data() {
-    const sceneType = this.assets["type"];
+    const sceneType = this.scene.props["type"];
     const validSceneTypes = Object.keys(this.spec.sceneTypes);
 
     // Defaults Scene type selection toggle to the first one that is defines in ~/data/spec.json
@@ -146,7 +140,7 @@ export default {
     const formData = Object.entries(this.spec.scene).map(([key, value]) => ({
       key: key,
       type: value,
-      value: this.assets[key] != "None" ? this.assets[key] : null
+      value: this.scene.props[key] != "None" ? this.scene.props[key] : null
     }));
 
     const nameIndex = formData.findIndex(obj => obj.key == "name");
@@ -180,7 +174,8 @@ export default {
     },
     ...mapActions({
       moveSceneUp: "scenes/moveSceneUp",
-      moveSceneDown: "scenes/moveSceneDown"
+      moveSceneDown: "scenes/moveSceneDown",
+      removeScene: "scenes/removeScene"
     }),
     async getAsset(assetName) {
       console.log(assetName);
@@ -228,12 +223,11 @@ export default {
   justify-content: center !important;
 }
 
-.flex-left {
+.footer-buttons-left {
   justify-content: flex-start !important;
-}
-
-.no-border {
   border: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
 }
 
 .flex-right {
