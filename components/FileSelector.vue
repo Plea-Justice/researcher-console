@@ -8,7 +8,7 @@
       :icon="icon"
     >
       <option v-if="error.flag" :value="selectedValue">{{ selectedValue }}</option>
-      <option v-else v-for="file in files" :key="file" :value="file">{{ file }}</option>
+      <option v-for="file in files" :key="file" :value="file">{{ file }}</option>
     </b-select>
   </b-field>
 </template>
@@ -51,7 +51,7 @@ export default {
       let message = null;
 
       if (this.files == undefined || this.files == []) {
-        message = `No files for "${this.placeholderText}"`;
+        message = `No files for "${this.placeholderText}" exists`;
       } else if (this.value && !this.files.includes(this.value)) {
         message = `File "${this.value}" does not exist`;
       } else {

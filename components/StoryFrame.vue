@@ -8,44 +8,56 @@
         <div class="buttons">
           <!-- Collapse Button -->
           <b-button
-            @click="expand()"
-            :icon-left="`chevron-${isExpanded ? 'up' : 'down'}`"
+            @click="collapse()"
+            :icon-left="`chevron-${isCollapsed ? 'down' : 'up'}`"
             size="is-medium"
-            class="space-left"
-            :class="{ 'space-bottom': isExpanded, 'no-space-bottom': !isExpanded }"
+            class="space-button"
+            :class="isCollapsed ? 'no-space-bottom' : 'space-bottom'"
           />
 
           <!-- Frame up/down buttons -->
           <b-button
-            v-if="frame.index != 0 && isExpanded"
+            v-if="frame.index != 0 && !isCollapsed"
             @click="moveFrameUp(frame.index)"
             size="is-large"
             icon-right="chevron-up"
             class="move-button"
           />
           <b-button
-            v-if="frame.index != frameSize - 1 && isExpanded"
+            v-if="frame.index != frameSize - 1 && !isCollapsed"
             @click="moveFrameDown(frame.index)"
             size="is-large"
             icon-right="chevron-down"
             class="move-button"
           />
         </div>
+
+        <p>{{ frame.index }}</p>
       </aside>
 
       <!-- Condition Columns -->
       <div class="column is-11 tile is-ancestor">
+        <!-- FIXME: handle keys more reliably, use Unique ID? -->
         <div
           v-for="(scene, index) in frame.scenes"
           :key="`frame_${scene.index.frame}_condition_${scene.index.scene}_${scene.props.name}`"
           class="tile is-parent is-4 is-relative"
         >
-          <h1
-            v-if="frame.index == 0"
-            class="has-text-centered subtitle absolute-title"
-          >{{ conditionNames[scene.index.scene] }}</h1>
+          <div v-if="frame.index == 0" class="has-text-centered subtitle absolute-title">
+            <b-button
+              @click="removeCondition(scene.index.scene)"
+              class="close-button"
+              icon-right="close"
+            />
+            <h1 class="subtitle">{{ conditionNames[index] }}</h1>
+          </div>
 
-          <StoryCard :scene="scene" :frameExpanded="isExpanded" :spec="spec" :manifest="manifest" />
+          <StoryCard
+            :scene="scene"
+            :frameCollapsed="isCollapsed"
+            :spec="spec"
+            :manifest="manifest"
+          />
 
           <b-button
             @click="addScene({ index: scene.index, scene: spec.scene })"
@@ -71,7 +83,7 @@ export default {
       type: Object,
       required: true
     },
-    allExpanded: {
+    allCollapsed: {
       type: Boolean,
       required: true
     },
@@ -84,14 +96,14 @@ export default {
       required: true
     }
   },
+  data() {
+    const selfCollapsed = false;
+
+    return { selfCollapsed };
+  },
   computed: {
-    isExpanded: {
-      get() {
-        return this.allExpanded;
-      },
-      set(newValue) {
-        return (this.allExpanded = newValue);
-      }
+    isCollapsed() {
+      return this.allCollapsed || this.selfCollapsed;
     },
     ...mapGetters({
       conditionNames: "scenes/conditionNames",
@@ -99,20 +111,22 @@ export default {
     })
   },
   methods: {
-    expand() {
-      this.isExpanded = !this.isExpanded;
+    collapse() {
+      this.selfCollapsed = !this.selfCollapsed;
     },
     ...mapActions({
       moveFrameUp: "scenes/moveFrameUp",
       moveFrameDown: "scenes/moveFrameDown",
-      addScene: "scenes/addScene"
+      addScene: "scenes/addScene",
+      removeCondition: "scenes/removeCondition"
     })
   }
 };
 </script>
 
 <style scoped>
-.space-left {
+.space-button {
+  margin-top: 0.75rem;
   margin-left: 0.25rem;
 }
 
@@ -125,13 +139,23 @@ export default {
 }
 
 .absolute-title {
-  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
   width: 100%;
+  position: absolute;
   /* z-index: 1; */
   bottom: 100%;
   /* left: 50%;
   transform: translateX(-50%); */
   margin-bottom: 2.5rem;
+}
+
+.close-button {
+  font-size: unset;
+  border: none;
+  color: red;
+  padding-right: 0.5rem;
 }
 
 .absolute-button {

@@ -2,28 +2,32 @@
   <!-- TODO: put parent in frame -->
   <!-- /* TODO: Use calculated value, based on max number of conditions visible defined by a media query */ -->
 
-  <div :class="{ 'card-collapsed': !isExpanded }" class="tile is-child card has-radius-large">
+  <div :class="{ 'card-collapsed': isCollapsed }" class="tile is-child card has-radius-large">
     <form @submit.prevent="onSubmit()">
       <!-- Card Header -->
       <header
-        :class="{ 'card-header-collapsed': !isExpanded }"
+        :class="{ 'card-header-collapsed': isCollapsed }"
         class="card-header has-top-radius-large"
       >
+        <div class="card-header-icon">
+          <b-button @click="removeScene(scene.index)" type="is-danger" icon-right="close" />
+        </div>
+
         <div class="card-header-title">
           <b-input v-model="formData[nameIndex].value" placeholder="name" />
         </div>
 
         <span class="card-header-icon">
           <b-button
-            @click="expand()"
-            :icon-left="`chevron-${isExpanded ? 'up' : 'down'}`"
+            @click="collapse()"
+            :icon-left="`chevron-${isCollapsed ? 'down' : 'up'}`"
             size="is-medium"
           />
         </span>
       </header>
 
       <!-- Card Body -->
-      <div v-show="isExpanded" class="card-content">
+      <div v-show="!isCollapsed" class="card-content">
         <p>{{ scene.index.frame }},{{ scene.index.scene }}</p>
         <!-- Scene Type Toggle -->
         <b-field class="toggle-button is-capitalized">
@@ -72,12 +76,11 @@
     </form>
 
     <!-- Card Footer -->
-    <footer v-show="isExpanded" class="card-footer">
+    <footer v-show="!isCollapsed" class="card-footer">
       <!-- Form Submit Button -->
-      <div class="card-footer-item buttons footer-buttons-left">
+      <div class="card-footer-item footer-buttons-left">
         <b-button tag="input" native-type="submit" type="is-primary" value="Save" />
         <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
-        <b-button @click="removeScene(scene.index)" type="is-danger" icon-right="delete" />
       </div>
       <div class="card-footer-item buttons flex-right">
         <b-button
@@ -112,7 +115,7 @@ export default {
       type: Object,
       required: true
     },
-    frameExpanded: {
+    frameCollapsed: {
       type: Boolean,
       required: true
     },
@@ -126,6 +129,8 @@ export default {
     }
   },
   data() {
+    const selfCollapsed = false;
+
     const sceneType = this.scene.props["type"];
     const validSceneTypes = Object.keys(this.spec.sceneTypes);
 
@@ -145,18 +150,19 @@ export default {
 
     const nameIndex = formData.findIndex(obj => obj.key == "name");
 
-    return { validSceneTypes, selectedType, formData, nameIndex };
+    return {
+      selfCollapsed,
+      validSceneTypes,
+      selectedType,
+      formData,
+      nameIndex
+    };
   },
   computed: {
-    isExpanded: {
-      get: function() {
-        return this.frameExpanded;
-      },
-      set: function(newValue) {
-        this.frameExpanded = newValue;
-      }
+    isCollapsed() {
+      return this.frameCollapsed || this.selfCollapsed;
     },
-    validFields: function() {
+    validFields() {
       return this.formData.filter(({ key }) =>
         this.spec.sceneTypes[this.selectedType].includes(key)
       );
@@ -166,8 +172,8 @@ export default {
     })
   },
   methods: {
-    expand() {
-      this.isExpanded = !this.isExpanded;
+    collapse() {
+      if (!this.frameCollapsed) this.selfCollapsed = !this.selfCollapsed;
     },
     onSubmit() {
       console.log("Form Submitted");
@@ -226,8 +232,6 @@ export default {
 .footer-buttons-left {
   justify-content: flex-start !important;
   border: none;
-  padding-bottom: 0;
-  margin-bottom: 0;
 }
 
 .flex-right {

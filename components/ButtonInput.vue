@@ -3,6 +3,8 @@
     <h3>Buttons</h3>
     <hr />
 
+    <!-- FIXME: doesn't emit? -->
+
     <div v-if="!showButtonInput">
       <b-button type="is-primary" icon-right="plus" @click="openButtonInput()"></b-button>
       <p v-if="(buttons.length == 0)" class="button-side-text">No buttons</p>
@@ -109,6 +111,7 @@ export default {
       return valid;
     },
     addButton() {
+      // FIXME: consider ordering of buttons
       if (this.validateName()) {
         this.buttons.unshift(this.newButtonName);
         this.newButtonName = "";
@@ -116,6 +119,8 @@ export default {
         this.error && this.lowerError();
 
         this.showButtonInput = false;
+
+        this.$emit("input", this.buttons);
       }
     },
     renameButton(name, index) {

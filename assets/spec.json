@@ -18,6 +18,6 @@
   "sceneTypes": {
     "dialogue": ["actor", "foreground", "background", "script"],
     "clip": ["clip"],
-    "question": ["script", "buttons"]
+    "question": ["background", "script", "buttons"]
   }
 }
