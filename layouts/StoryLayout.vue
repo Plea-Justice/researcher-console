@@ -45,7 +45,7 @@
     </nav>
 
     <section>
-      <div class="container column is-10">
+      <div class="container">
         <nuxt />
       </div>
     </section>

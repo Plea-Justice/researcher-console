@@ -8,23 +8,23 @@
         <div class="buttons">
           <!-- Collapse Button -->
           <b-button
-            @click="expand()"
-            :icon-left="`chevron-${isExpanded ? 'up' : 'down'}`"
+            @click="collapse()"
+            :icon-left="`chevron-${isCollapsed ? 'down' : 'up'}`"
             size="is-medium"
-            class="space-left"
-            :class="{ 'space-bottom': isExpanded, 'no-space-bottom': !isExpanded }"
+            class="space-button"
+            :class="isCollapsed ? 'no-space-bottom' : 'space-bottom'"
           />
 
           <!-- Frame up/down buttons -->
           <b-button
-            v-if="frame.index != 0 && isExpanded"
+            v-if="!isFirst && !isCollapsed"
             @click="moveFrameUp(frame.index)"
             size="is-large"
             icon-right="chevron-up"
             class="move-button"
           />
           <b-button
-            v-if="frame.index != frameSize - 1 && isExpanded"
+            v-if="!isLast && !isCollapsed"
             @click="moveFrameDown(frame.index)"
             size="is-large"
             icon-right="chevron-down"
@@ -37,17 +37,32 @@
       <div class="column is-11 tile is-ancestor">
         <div
           v-for="(scene, index) in frame.scenes"
-          :key="`frame_${scene.index.frame}_condition_${scene.index.scene}_${scene.props.name}`"
-          class="tile is-parent is-4 is-relative"
+          :key="`scene_${scene.id}`"
+          class="tile is-parent is-4 is-relative min-scene-size"
         >
-          <h1
-            v-if="frame.index == 0"
-            class="has-text-centered subtitle absolute-title"
-          >{{ conditionNames[scene.index.scene] }}</h1>
+          <!-- If first row show condition names -->
+          <div v-if="frame.index == 0" class="has-text-centered subtitle absolute-title">
+            <b-button
+              @click="removeCondition(scene.index.scene)"
+              class="close-button"
+              icon-right="close"
+            />
+            <h1 class="subtitle">{{ conditionNames[index] }}</h1>
+          </div>
 
-          <StoryCard :scene="scene" :frameExpanded="isExpanded" :spec="spec" :manifest="manifest" />
+          <!-- If a blank scene occurs -->
+          <StoryCard v-if="scene.props == null" :frameCollapsed="isCollapsed" isBlank="false" />
+
+          <StoryScene
+            v-if="scene.props != null"
+            :frameCollapsed="isCollapsed"
+            :scene="scene"
+            :spec="spec"
+            :manifest="manifest"
+          />
 
           <b-button
+            v-if="scene.props != null"
             @click="addScene({ index: scene.index, scene: spec.scene })"
             icon-left="plus"
             size="is-medium"
@@ -62,16 +77,17 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import StoryCard from "~/components/StoryCard";
+import StoryScene from "~/components/StoryScene";
 
 export default {
   name: "StoryFrame",
-  components: { StoryCard },
+  components: { StoryCard, StoryScene },
   props: {
     frame: {
       type: Object,
       required: true
     },
-    allExpanded: {
+    allCollapsed: {
       type: Boolean,
       required: true
     },
@@ -84,35 +100,48 @@ export default {
       required: true
     }
   },
+  data() {
+    const selfCollapsed = false;
+
+    return { selfCollapsed };
+  },
   computed: {
-    isExpanded: {
-      get() {
-        return this.allExpanded;
-      },
-      set(newValue) {
-        return (this.allExpanded = newValue);
-      }
+    isCollapsed() {
+      return this.allCollapsed || this.selfCollapsed;
     },
     ...mapGetters({
       conditionNames: "scenes/conditionNames",
-      frameSize: "scenes/frameSize"
-    })
+      isFirstFrame: "scenes/isFirstFrame",
+      isLastFrame: "scenes/isLastFrame"
+    }),
+    isFirst() {
+      return this.isFirstFrame(this.frame.index);
+    },
+    isLast() {
+      return this.isLastFrame(this.frame.index);
+    }
   },
   methods: {
-    expand() {
-      this.isExpanded = !this.isExpanded;
+    collapse() {
+      this.selfCollapsed = !this.selfCollapsed;
     },
     ...mapActions({
       moveFrameUp: "scenes/moveFrameUp",
       moveFrameDown: "scenes/moveFrameDown",
-      addScene: "scenes/addScene"
+      addScene: "scenes/addScene",
+      removeCondition: "scenes/removeCondition"
     })
   }
 };
 </script>
 
 <style scoped>
-.space-left {
+.min-scene-size {
+  min-width: 300px;
+}
+
+.space-button {
+  margin-top: 0.75rem;
   margin-left: 0.25rem;
 }
 
@@ -125,13 +154,23 @@ export default {
 }
 
 .absolute-title {
-  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
   width: 100%;
+  position: absolute;
   /* z-index: 1; */
   bottom: 100%;
   /* left: 50%;
   transform: translateX(-50%); */
   margin-bottom: 2.5rem;
+}
+
+.close-button {
+  font-size: unset;
+  border: none;
+  color: red;
+  padding-right: 0.5rem;
 }
 
 .absolute-button {
