@@ -2,6 +2,7 @@
   <!-- /* TODO: Use calculated value, based on max number of conditions visible defined by a media query */ -->
 
   <div :class="{ 'card-collapsed': isCollapsed }" class="tile is-child card has-radius-large">
+<<<<<<< HEAD
     <!-- Card Header -->
     <header
       v-show="!isBlank"
@@ -17,6 +18,74 @@
       </span>
       <slot name="header" />
     </header>
+=======
+    <form @submit.prevent="onSubmit()">
+      <!-- Card Header -->
+      <header
+        :class="{ 'card-header-collapsed': isCollapsed }"
+        class="card-header has-top-radius-large"
+      >
+        <div class="card-header-icon">
+          <b-button @click="removeScene(scene.index)" type="is-danger" icon-right="close" />
+        </div>
+
+        <div class="card-header-title">
+          <b-input v-model="formData[nameIndex].value" placeholder="name" />
+        </div>
+
+        <span class="card-header-icon">
+          <b-button
+            @click="collapse()"
+            :icon-left="`chevron-${isCollapsed ? 'down' : 'up'}`"
+            size="is-medium"
+          />
+        </span>
+      </header>
+
+      <!-- Card Body -->
+      <div v-show="!isCollapsed" class="card-content">
+        <p>{{ scene.index.frame }},{{ scene.index.scene }}</p>
+        <!-- Scene Type Toggle -->
+        <b-field class="toggle-button is-capitalized">
+          <b-radio-button
+            v-for="key in validSceneTypes"
+            :key="key"
+            :native-value="key"
+            v-model="selectedType"
+          >{{ key }}</b-radio-button>
+        </b-field>
+
+        <!-- Debug: formData output
+          <p v-for="{ key, value } in formData" :key="key">{{ `${key}: ${value}` }}</p>
+        -->
+
+        <!-- Main Form -->
+        <b-field v-for="asset in validFields" :key="asset.key">
+          <FileSelector
+            v-if="asset.type == 'image'"
+            :assetType="asset.key"
+            icon="file-image"
+            v-model="asset.value"
+            :manifest="manifest"
+          />
+
+          <FileSelector
+            v-if="asset.type == 'video'"
+            :assetType="asset.key"
+            icon="file-video"
+            v-model="asset.value"
+            :manifest="manifest"
+          />
+
+          <textarea
+            v-if="asset.type == 'text'"
+            v-model="asset.value"
+            class="textarea has-fixed-size"
+            placeholder="script"
+          />
+
+          <ButtonInput v-if="asset.type == 'buttons'" v-model="asset.value" />
+>>>>>>> 18a91d48761d0ed8dd78072fd8d19591c2afb5b9
 
     <!-- Card Body -->
     <div v-show="!isCollapsed" class="card-content card-content-top">
@@ -25,7 +94,31 @@
 
     <!-- Card Footer -->
     <footer v-show="!isCollapsed" class="card-footer">
+<<<<<<< HEAD
       <slot name="footer" />
+=======
+      <!-- Form Submit Button -->
+      <div class="card-footer-item footer-buttons-left">
+        <b-button tag="input" native-type="submit" type="is-primary" value="Save" />
+        <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
+      </div>
+      <div class="card-footer-item buttons flex-right">
+        <b-button
+          v-if="scene.index.frame != 0"
+          size="is-large"
+          icon-right="chevron-up"
+          class="move-button"
+          @click="moveSceneUp(scene.index)"
+        />
+        <b-button
+          v-if="scene.index.frame != frameSize - 1"
+          size="is-large"
+          icon-right="chevron-down"
+          class="move-button"
+          @click="moveSceneDown(scene.index)"
+        />
+      </div>
+>>>>>>> 18a91d48761d0ed8dd78072fd8d19591c2afb5b9
     </footer>
   </div>
 </template>
@@ -38,6 +131,13 @@ export default {
   name: "StoryCard",
   components: { FileSelector, ButtonInput },
   props: {
+<<<<<<< HEAD
+=======
+    scene: {
+      type: Object,
+      required: true
+    },
+>>>>>>> 18a91d48761d0ed8dd78072fd8d19591c2afb5b9
     frameCollapsed: {
       type: Boolean,
       required: true
@@ -49,19 +149,66 @@ export default {
   },
   data() {
     const selfCollapsed = false;
+<<<<<<< HEAD
 
     return {
       selfCollapsed
+=======
+
+    const sceneType = this.scene.props["type"];
+    const validSceneTypes = Object.keys(this.spec.sceneTypes);
+
+    // Defaults Scene type selection toggle to the first one that is defines in ~/data/spec.json
+    const selectedType =
+      sceneType && validSceneTypes.includes(sceneType)
+        ? sceneType
+        : validSceneTypes[0];
+
+    // TODO: add name as an excluded type and update this elsewhere so it is consistent
+    // TODO: make props compatible with array or single values
+    const formData = Object.entries(this.spec.scene).map(([key, value]) => ({
+      key: key,
+      type: value,
+      value: this.scene.props[key] != "None" ? this.scene.props[key] : null
+    }));
+
+    const nameIndex = formData.findIndex(obj => obj.key == "name");
+
+    return {
+      selfCollapsed,
+      validSceneTypes,
+      selectedType,
+      formData,
+      nameIndex
+>>>>>>> 18a91d48761d0ed8dd78072fd8d19591c2afb5b9
     };
   },
   computed: {
     isCollapsed() {
       return this.frameCollapsed || this.selfCollapsed;
+<<<<<<< HEAD
     }
+=======
+    },
+    validFields() {
+      return this.formData.filter(({ key }) =>
+        this.spec.sceneTypes[this.selectedType].includes(key)
+      );
+    },
+    ...mapGetters({
+      frameSize: "scenes/frameSize"
+    })
+>>>>>>> 18a91d48761d0ed8dd78072fd8d19591c2afb5b9
   },
   methods: {
     collapse() {
       if (!this.frameCollapsed) this.selfCollapsed = !this.selfCollapsed;
+<<<<<<< HEAD
+=======
+    },
+    onSubmit() {
+      console.log("Form Submitted");
+>>>>>>> 18a91d48761d0ed8dd78072fd8d19591c2afb5b9
     },
     async getAsset(assetName) {
       console.log(assetName);
@@ -105,7 +252,26 @@ export default {
     0 0 0 1px rgba(10, 10, 10, 0.1);
 }
 
+<<<<<<< HEAD
 .card-content-top {
   margin-bottom: auto;
+=======
+.toggle-button {
+  justify-content: center !important;
+}
+
+.footer-buttons-left {
+  justify-content: flex-start !important;
+  border: none;
+}
+
+.flex-right {
+  justify-content: flex-end !important;
+}
+
+.move-button {
+  font-size: unset;
+  border: none;
+>>>>>>> 18a91d48761d0ed8dd78072fd8d19591c2afb5b9
 }
 </style>
