@@ -123,7 +123,7 @@ export const mutations = {
       })
     }
 
-    // Increment conditionLengths
+    // // Remove last item and increment conditionLengths
     state.conditionLengths[index.scene] += 1
 
     // If a rhs column is extended add a blank scene(s) to left
