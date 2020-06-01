@@ -31,10 +31,13 @@
             class="move-button"
           />
         </div>
+
+        <p>{{ frame.index }}</p>
       </aside>
 
       <!-- Condition Columns -->
       <div class="column is-11 tile is-ancestor">
+        <!-- FIXME: handle keys more reliably, use Unique ID? -->
         <div
           v-for="(scene, index) in frame.scenes"
           :key="`scene_${scene.id}`"
