@@ -21,7 +21,8 @@
             :key="key"
             :native-value="key"
             v-model="selectedType"
-          >{{ key }}</b-radio-button>
+            >{{ key }}</b-radio-button
+          >
         </b-field>
 
         <!-- Main Form -->
@@ -60,8 +61,17 @@
     <template v-slot:footer>
       <!-- Form Submit Button -->
       <div class="card-footer-item buttons footer-buttons-left">
-        <b-button @click="removeScene(scene.index)" type="is-danger" icon-right="close" />
-        <b-button tag="input" native-type="submit" type="is-primary" value="Save" />
+        <b-button
+          @click="removeScene(scene.index)"
+          type="is-danger"
+          icon-right="close"
+        />
+        <b-button
+          tag="input"
+          native-type="submit"
+          type="is-primary"
+          value="Save"
+        />
         <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
       </div>
 

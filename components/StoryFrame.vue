@@ -40,7 +40,11 @@
         <!-- FIXME: handle keys more reliably, use Unique ID? -->
         <div
           v-for="(scene, index) in frame.scenes"
-          :key="`frame_${scene.index.frame}_condition_${scene.index.scene}_${scene.props ? scene.props.name : `blank_${scene.id}` }`"
+          :key="
+            `frame_${scene.index.frame}_condition_${scene.index.scene}_${
+              scene.props ? scene.props.name : `blank_${scene.id}`
+            }`
+          "
           class="tile is-parent is-4 is-relative min-scene-size"
         >
           <!-- If first row show condition names -->
@@ -54,7 +58,11 @@
           </div>
 
           <!-- If a blank scene occurs -->
-          <StoryCard v-if="scene.props == null" :frameCollapsed="isCollapsed" :isBlank="true" />
+          <StoryCard
+            v-if="scene.props == null"
+            :frameCollapsed="isCollapsed"
+            :isBlank="true"
+          />
 
           <StoryScene
             v-if="scene.props != null"
