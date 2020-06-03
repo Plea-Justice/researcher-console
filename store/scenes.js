@@ -117,6 +117,19 @@ export const mutations = {
       state.frames[i].scenes.splice(conditionIndex, 1);
   },
   newScene: (state, { index, scene }) => {
+    function fillBlankScenes(frameIndex) {
+      // Fill gaps with blank scenes
+      const frameLength = state.frames[frameIndex].scenes.length
+      for(let i = frameLength; i < index.scene; i++) {
+        state.frames[frameIndex].scenes.push({
+          id: state.idCounter,
+          index: { scene: i, frame: frameIndex },
+          props: null
+        })
+      }
+      state.idCounter++;
+    }
+
     const items = state.conditionLengths[index.scene]
 
     // Add a new frame if needed
@@ -128,6 +141,10 @@ export const mutations = {
 
     // Do any shifting needed
     for(let i = items - 1; i >= index.frame; i--) {
+      // Fill gaps with blank scenes
+      if(state.frames[i + 1].scenes.length < index.scene)
+        fillBlankScenes(i + 1)
+
       //console.log("Replacing " + (i + 1) + " with " + i + ": " + state.frames[i].scenes[index.scene].props.name)
       state.frames[i + 1].scenes.splice(index.scene, 1, {
         id: state.frames[i].scenes[index.scene].id,
@@ -137,15 +154,7 @@ export const mutations = {
     }
 
     // Fill gaps with blank scenes
-    const frameLength = state.frames[index.frame].scenes.length
-    for(let i = frameLength; i < index.scene; i++) {
-      state.frames[index.frame].scenes.push({
-        id: state.idCounter,
-        index: { scene: i, frame: index.frame },
-        props: null
-      })
-    }
-    state.idCounter++;
+    fillBlankScenes(index.frame);
 
     // Increment conditionLengths
     state.conditionLengths.splice(index.scene, 1, state.conditionLengths[index.scene] + 1)
@@ -187,24 +196,25 @@ export const mutations = {
     // --- Cleanup ----
 
     // If bottom frame is now empty remove it
-    if(state.conditionLengths.reduce((a, b) => Math.max(a, b)) < state.frames.length)
+    const maxConditionLength = state.conditionLengths.reduce((a, b) => Math.max(a, b))
+    if(state.frames.length > maxConditionLength)
       state.frames.pop()
 
     // If deleted scene leaves a chain of un-needed blank scenes on the right remove them
     const targetFrame = state.frames[index.frame]
-    const lastFrame = state.frames[conditionLength - 1]
+    const lastFrame = state.frames[conditionLength]
 
-    // Do this for the target frame the scene deleted from
-    for(let i = targetFrame.scenes.length - 1; targetFrame.scenes[i].props == null; i--)
-    targetFrame.scenes.pop()
+    // Do this for the target frame the scene deleted from (unless the targetFrame was deleted due to being empty)
+    if(index.frame < maxConditionLength) {
+      for(let i = targetFrame.scenes.length - 1; targetFrame.scenes[i].props == null; i--)
+        targetFrame.scenes.pop()
+    }
 
     // Do this for the frame of the last condition scene (unless the last condition scene already occurred, in which case this is redundant)
-    if(conditionLength > 0) {
+    if(conditionLength > 0 && conditionLength < maxConditionLength) {
       for(let i = lastFrame.scenes.length - 1; lastFrame.scenes[i].props == null; i--)
         lastFrame.scenes.pop()
     }
-
-    //console.log(state.frames.map(frame => frame.scenes.map(scene => scene.props ? scene.props.name : "Blank")))
   },
   moveFrame: (state, { fromIndex, toIndex }) => {
     state.frames[fromIndex] = {
