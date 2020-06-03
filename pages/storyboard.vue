@@ -30,7 +30,10 @@
 </template>
 
 <script>
+// Import VueX
 import { mapGetters, mapActions } from "vuex";
+
+// Import Components
 import StoryFrame from "~/components/StoryFrame";
 
 export default {

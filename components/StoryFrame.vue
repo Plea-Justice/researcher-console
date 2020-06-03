@@ -40,11 +40,11 @@
         <!-- FIXME: handle keys more reliably, use Unique ID? -->
         <div
           v-for="(scene, index) in frame.scenes"
-          :key="`scene_${scene.id}`"
+          :key="`frame_${scene.index.frame}_condition_${scene.index.scene}_${scene.props ? scene.props.name : `blank_${scene.id}` }`"
           class="tile is-parent is-4 is-relative min-scene-size"
         >
           <!-- If first row show condition names -->
-          <div v-if="frame.index == 0" class="has-text-centered subtitle absolute-title">
+          <div v-if="isFirst" class="has-text-centered subtitle absolute-title">
             <b-button
               @click="removeCondition(scene.index.scene)"
               class="close-button"
@@ -54,7 +54,7 @@
           </div>
 
           <!-- If a blank scene occurs -->
-          <StoryCard v-if="scene.props == null" :frameCollapsed="isCollapsed" isBlank="false" />
+          <StoryCard v-if="scene.props == null" :frameCollapsed="isCollapsed" :isBlank="true" />
 
           <StoryScene
             v-if="scene.props != null"
@@ -78,7 +78,10 @@
 </template>
 
 <script>
+// Import VueX
 import { mapGetters, mapActions } from "vuex";
+
+// Import Components
 import StoryCard from "~/components/StoryCard";
 import StoryScene from "~/components/StoryScene";
 
@@ -114,14 +117,14 @@ export default {
     },
     ...mapGetters({
       conditionNames: "scenes/conditionNames",
-      isFirstFrame: "scenes/isFirstFrame",
-      isLastFrame: "scenes/isLastFrame"
+      getIsFirst: "scenes/isFirst",
+      getIsLast: "scenes/isLast"
     }),
     isFirst() {
-      return this.isFirstFrame(this.frame.index);
+      return this.getIsFirst(this.index);
     },
     isLast() {
-      return this.isLastFrame(this.frame.index);
+      return this.getIsLast(this.index);
     }
   },
   methods: {

@@ -68,14 +68,14 @@
       <!-- Move Up/Down Buttons -->
       <div class="card-footer-item buttons flex-right">
         <b-button
-          v-if="!isFirstFrame"
+          v-if="!isFirst"
           size="is-large"
           icon-right="chevron-up"
           class="move-button"
           @click="moveSceneUp(scene.index)"
         />
         <b-button
-          v-if="!isLastFrame"
+          v-if="!isLast"
           size="is-large"
           icon-right="chevron-down"
           class="move-button"
@@ -150,14 +150,15 @@ export default {
       );
     },
     ...mapGetters({
-      getisFirstFrame: "scenes/isFirstFrame",
-      getisLastFrame: "scenes/isLastFrame"
+      isMoveableScene: "scenes/isMoveableScene",
+      getisFirst: "scenes/isFirst",
+      getisLast: "scenes/isLast"
     }),
-    isFirstFrame() {
-      return this.getisFirstFrame(this.scene.index.frame);
+    isFirst() {
+      return this.getisFirst(this.scene.index.frame);
     },
-    isLastFrame() {
-      return this.getisLastFrame(this.scene.index.frame);
+    isLast() {
+      return this.getisLast(this.scene.index);
     }
   },
   methods: {

@@ -6,10 +6,24 @@ export const state = () => ({
 });
 
 export const getters = {
+  // General
   conditionNames: (state) => state.conditionNames,
   frames: (state) => state.frames,
-  isFirstFrame: (state) => (index) => index == 0,
-  isLastFrame: (state) => (index) => index == state.frames.length - 1
+
+  // Frame & Scene
+  isFirst: (state) => (index) => (
+    typeof index == 'object' ?
+    index.frame == 0 : // Scene
+    index == 0         // Frame
+  ),
+  isLast: (state) => (index) => (
+    typeof index == 'object' ?
+    index.frame == state.conditionLengths[index.scene] - 1 :  // Scene
+    index == state.frames.length - 1                          // Frame
+  ),
+
+  // Scene
+  isBlank: (state) => (index) => state.frames[index.frame].scenes[index.scene].props == null,
 };
 
 export const actions = {
@@ -64,16 +78,12 @@ export const mutations = {
       let arr2 = [];
       for (let j = 0; j < conditions.length; j++) {
         if (conditions[j].scenes[i]) {
-<<<<<<< HEAD
           arr2.push({
             id: state.idCounter,
             index: { scene: j, frame: i },
             props: conditions[j].scenes[i]
           });
           state.idCounter++;
-=======
-          arr2.push({ index: { scene: j, frame: i }, props: conditions[j].scenes[i] });
->>>>>>> 18a91d48761d0ed8dd78072fd8d19591c2afb5b9
         }
       }
       arr.push({ index: i, scenes: arr2 });
@@ -88,17 +98,11 @@ export const mutations = {
     // TODO: have formal condition name format
     state.conditionNames.push(`Experimental Condition ${newIndex}`)
     state.frames[0].scenes.push({
-<<<<<<< HEAD
       id: state.idCounter,
       index: { scene: newIndex, frame: 0 },
       props: scene
     })
     state.idCounter++;
-=======
-      index: { scene: newIndex, frame: 0 },
-      props: scene
-    })
->>>>>>> 18a91d48761d0ed8dd78072fd8d19591c2afb5b9
 
     // Adjust ConditionLengths to have a new condition
     state.conditionLengths.push(1)
@@ -106,15 +110,11 @@ export const mutations = {
   deleteCondition: (state, conditionIndex) => {
     // Remove conditionName and conditionLength
     state.conditionNames.splice(conditionIndex, 1)
-    const items = state.conditionLengths.splice(conditionIndex, 1)
+    const sceneIndex = state.conditionLengths.splice(conditionIndex, 1)
 
     // Remove all scenes for that condition
-    for(let i = 0; i < items; i++)
-<<<<<<< HEAD
+    for(let i = 0; i < sceneIndex; i++)
       state.frames[i].scenes.splice(conditionIndex, 1);
-=======
-      state.frames[i].scenes.splice(conditionIndex, 1)
->>>>>>> 18a91d48761d0ed8dd78072fd8d19591c2afb5b9
   },
   newScene: (state, { index, scene }) => {
     const items = state.conditionLengths[index.scene]
@@ -126,73 +126,87 @@ export const mutations = {
         scenes: []
       });
 
-<<<<<<< HEAD
     // Do any shifting needed
-=======
-    //FIXME: add blank scenes when needs to shift
->>>>>>> 18a91d48761d0ed8dd78072fd8d19591c2afb5b9
-    let i;
-    for(i = items - 1; i >= index.frame; i--) {
+    for(let i = items - 1; i >= index.frame; i--) {
       //console.log("Replacing " + (i + 1) + " with " + i + ": " + state.frames[i].scenes[index.scene].props.name)
       state.frames[i + 1].scenes.splice(index.scene, 1, {
-<<<<<<< HEAD
         id: state.frames[i].scenes[index.scene].id,
-=======
->>>>>>> 18a91d48761d0ed8dd78072fd8d19591c2afb5b9
         index: { scene: index.scene, frame: i + 1 },
         props: state.frames[i].scenes[index.scene].props
       })
     }
 
-    // // Remove last item and increment conditionLengths
-    state.conditionLengths[index.scene] += 1
-<<<<<<< HEAD
-
-    // If a rhs column is extended add a blank scene(s) to left
-    const isScattered = state.conditionLengths.reduce((a, b) => Math.max(a, b)) <= state.conditionLengths[index.scene]
-    if(index.scene > 0 && isScattered) {
-      for(i = 0; i < index.scene; i++) {
-        state.frames[index.frame].scenes.push({
-          id: -1,
-          index: { scene: i, frame: index.frame },
-          props: null
-        })
-      }
+    // Fill gaps with blank scenes
+    const frameLength = state.frames[index.frame].scenes.length
+    for(let i = frameLength; i < index.scene; i++) {
+      state.frames[index.frame].scenes.push({
+        id: state.idCounter,
+        index: { scene: i, frame: index.frame },
+        props: null
+      })
     }
+    state.idCounter++;
 
-    // Replace last item
+    // Increment conditionLengths
+    state.conditionLengths.splice(index.scene, 1, state.conditionLengths[index.scene] + 1)
+
+    // Replace last item with new scene
     state.frames[index.frame].scenes.splice(index.scene, 1, { id: state.idCounter, index, props: scene })
     state.idCounter++
-=======
-    state.frames[index.frame].scenes.splice(index.scene, 1, { index, props: scene })
->>>>>>> 18a91d48761d0ed8dd78072fd8d19591c2afb5b9
   },
   deleteScene: (state, index) => {
-    const items = state.conditionLengths[index.scene];
+    let conditionLength = state.conditionLengths[index.scene];
 
-    let i;
-    for(i = index.frame; i < items - 1; i++) {
-      //console.log("Replacing " + i + ": " + state.frames[i].scenes[index.scene].props.name + " -> " + (i + 1) + ": " + state.frames[i + 1].scenes[index.scene].props.name)
+    //console.log(state.frames.map(frame => frame.scenes.map(scene => scene.props ? scene.props.name : "Blank")))
+
+    // Do any shifting up needed
+    for(let i = index.frame; i < conditionLength - 1; i++) {
       state.frames[i].scenes.splice(index.scene, 1, {
         index: { scene: index.scene, frame: i },
         props: state.frames[i + 1].scenes[index.scene].props
       })
     };
 
-    // Remove last scene and decrement conditionLengths counter
-    state.frames[items - 1].scenes.pop();
-    state.conditionLengths[index.scene] -= 1;
+    // If is the last scene in a condition (can't shift up) and not the rightmost scene, replace last scene with blank to make a gap
+    if(index.frame <= conditionLength - 1 && index.scene < state.frames[conditionLength - 1].scenes.length - 1) {
+      state.frames[conditionLength - 1].scenes.splice(index.scene, 1, {
+        id: state.idCounter,
+        index: { scene: index.scene, frame: conditionLength - 1 },
+        props: null
+    });
+    state.idCounter++;
+    // Otherwise just remove scene
+    } else {
+      state.frames[conditionLength - 1].scenes.splice(index.scene, 1);
+    }
 
+    // Decrement conditionLengths counter & update internal var
+    state.conditionLengths.splice(index.scene, 1, conditionLength - 1)
+    conditionLength = state.conditionLengths[index.scene];
+
+    // --- Cleanup ----
+
+    // If bottom frame is now empty remove it
     if(state.conditionLengths.reduce((a, b) => Math.max(a, b)) < state.frames.length)
       state.frames.pop()
+
+    // If deleted scene leaves a chain of un-needed blank scenes on the right remove them
+    const targetFrame = state.frames[index.frame]
+    const lastFrame = state.frames[conditionLength - 1]
+
+    // Do this for the target frame the scene deleted from
+    for(let i = targetFrame.scenes.length - 1; targetFrame.scenes[i].props == null; i--)
+    targetFrame.scenes.pop()
+
+    // Do this for the frame of the last condition scene (unless the last condition scene already occurred, in which case this is redundant)
+    if(conditionLength > 0) {
+      for(let i = lastFrame.scenes.length - 1; lastFrame.scenes[i].props == null; i--)
+        lastFrame.scenes.pop()
+    }
+
+    //console.log(state.frames.map(frame => frame.scenes.map(scene => scene.props ? scene.props.name : "Blank")))
   },
   moveFrame: (state, { fromIndex, toIndex }) => {
-    //state.frames[fromIndex].frameIndex = toIndex
-    //state.frames[toIndex].frameIndex = fromIndex
-<<<<<<< HEAD
-
-    //state.frames[fromIndex] = state.frames.splice(toIndex, 1, state.frames[fromIndex])[0]
-
     state.frames[fromIndex] = {
       index: fromIndex,
       scenes: state.frames.splice(toIndex, 1, {
@@ -200,33 +214,14 @@ export const mutations = {
         scenes: state.frames[fromIndex].scenes
       })[0].scenes
     }
-=======
->>>>>>> 18a91d48761d0ed8dd78072fd8d19591c2afb5b9
-
-    //state.frames = [ state.frames[targetIndex], state.frames[targetIndex - 1] ] = [ state.frames[targetIndex - 1], state.frames[targetIndex] ]
-    /*
-    moveFrame: (state, { fromIndex, toIndex }) => {
-      state.frames[fromIndex] = {
-        index: toIndex,
-        scenes: state.frames.splice(toIndex, 1, {
-            index: fromIndex,
-            scenes: state.frames[fromIndex].scenes
-          })[0].scenes
-    }
-      */
   },
   moveScene: (state, { sceneIndex, fromIndex, toIndex }) => {
     state.frames[toIndex].scenes
     .splice(sceneIndex, 1, {
-<<<<<<< HEAD
       id: state.frames[fromIndex].scenes[sceneIndex].id,
       index: { scene: sceneIndex, frame: toIndex },
       props: state.frames[fromIndex].scenes.splice(sceneIndex, 1, {
           id: state.frames[toIndex].scenes[sceneIndex].id,
-=======
-      index: { scene: sceneIndex, frame: toIndex },
-      props: state.frames[fromIndex].scenes.splice(sceneIndex, 1, {
->>>>>>> 18a91d48761d0ed8dd78072fd8d19591c2afb5b9
           index: { scene: sceneIndex, frame: fromIndex },
           props: state.frames[toIndex].scenes[sceneIndex].props
         })[0].props
