@@ -2,17 +2,25 @@
   <section class="section">
     <div class="container">
       <nav class="level">
-        <div class="level-left level-item buttons">
-          <b-button @click="collapse()">
-            {{
-            `${isCollapsed ? "Expand": "Collapse"} All`
-            }}
+        <div class="level-left">
+          <div class="level-item">
+            <b-button type="is-primary">Save</b-button>
+          </div>
+          <b-button class="level-item" @click="collapse()">
+            {{ `${isCollapsed ? "Expand" : "Collapse"} All` }}
           </b-button>
-          <b-button @click="addCondition(spec.scene)">Add Condition</b-button>
+          <b-button class="level-item" @click="addCondition(spec.scene)">
+            Add Condition
+          </b-button>
         </div>
-        <b-field class="name">
-          <b-input placeholder="Filter"></b-input>
-        </b-field>
+
+        <div class="level-right">
+          <div class="level-item">
+            <b-field class="name">
+              <b-input icon="filter-outline" placeholder="Filter"></b-input>
+            </b-field>
+          </div>
+        </div>
       </nav>
     </div>
 

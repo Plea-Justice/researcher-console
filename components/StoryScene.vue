@@ -79,17 +79,19 @@
       <div class="card-footer-item buttons flex-right">
         <b-button
           v-if="!isFirst"
+          @click="moveSceneUp(scene.index)"
+          type="is-text"
           size="is-large"
           icon-right="chevron-up"
           class="move-button"
-          @click="moveSceneUp(scene.index)"
         />
         <b-button
           v-if="!isLast"
+          @click="moveSceneDown(scene.index)"
+          type="is-text"
           size="is-large"
           icon-right="chevron-down"
           class="move-button"
-          @click="moveSceneDown(scene.index)"
         />
       </div>
     </template>
@@ -165,7 +167,7 @@ export default {
       getisLast: "scenes/isLast"
     }),
     isFirst() {
-      return this.getisFirst(this.scene.index.frame);
+      return this.getisFirst(this.scene.index);
     },
     isLast() {
       return this.getisLast(this.scene.index);
@@ -185,6 +187,10 @@ export default {
 </script>
 
 <style scoped>
+.start-content-top {
+  margin-bottom: auto;
+}
+
 .toggle-button {
   justify-content: center !important;
 }
@@ -202,6 +208,5 @@ export default {
 
 .move-button {
   font-size: unset;
-  border: none;
 }
 </style>

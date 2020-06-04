@@ -1,7 +1,10 @@
 <template>
   <!-- /* TODO: Use calculated value, based on max number of conditions visible defined by a media query */ -->
 
-  <div :class="{ 'card-collapsed': isCollapsed }" class="tile is-child card has-radius-large">
+  <div
+    :class="{ 'card-collapsed': isCollapsed }"
+    class="tile is-child card has-radius-large"
+  >
     <!-- Card Header -->
     <header
       v-show="!isBlank"
@@ -19,7 +22,7 @@
     </header>
 
     <!-- Card Body -->
-    <div v-show="!isCollapsed" class="card-content card-content-top">
+    <div v-show="!isCollapsed" class="card-content full-height">
       <slot />
     </div>
 
@@ -105,7 +108,7 @@ export default {
     0 0 0 1px rgba(10, 10, 10, 0.1);
 }
 
-.card-content-top {
-  margin-bottom: auto;
+.full-height {
+  height: 100%;
 }
 </style>

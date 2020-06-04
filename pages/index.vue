@@ -1,12 +1,11 @@
 <template>
   <section class="section login-wrapper">
-    <form class="box has-text-centered login" @submit.prevent="onSubmit">
+    <form class="box has-text-centered login" @submit.prevent="loginEmail()">
       <div class="block">
         <b-icon icon="account-circle" size="is-large" />
       </div>
 
-      <b-field type="username">
-        <!-- FIXME: Should this and password be the same field or seperate fields-->
+      <b-field>
         <b-input placeholder="User ID" v-model="name" />
       </b-field>
 
@@ -14,10 +13,19 @@
         <b-input type="password" placeholder="Password" password-reveal />
       </b-field>
 
-      <b-button tag="input" native-type="submit" type="is-primary" value="Local Login" />
-      <b-button type="is-primary" icon-left="github" v-on:click="loginWithGitHub">
-        Login with GitHub
-      </b-button>
+      <div class="buttons is-centered">
+        <b-button @click="loginEmail" type="is-primary" expanded>
+          Email Login
+        </b-button>
+        <b-button
+          @click="loginGitHub()"
+          type="is-primary"
+          icon-left="github"
+          expanded
+        >
+          Github Login
+        </b-button>
+      </div>
 
       <hr />
 
@@ -29,23 +37,24 @@
 <script>
 export default {
   name: "LoginPage",
-  layout: 'LoginLayout',
+  layout: "LoginLayout",
   data() {
     return {
       name: ""
     };
   },
   methods: {
-    onSubmit() {
+    loginEmail() {
       this.$router.push("/storyboard");
       this.name = "";
     },
-    loginWithGitHub() {
-      this.$auth.loginWith('github');
+    loginGitHub() {
+      this.$auth.loginWith("github");
     }
   },
   head() {
     return {
+      //FIXME: use env var
       title: `PleaBargain | ${this.name}`,
       meta: [
         {

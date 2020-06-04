@@ -1,6 +1,4 @@
 <template>
-  <!-- FIXME: create and use isFirst, isLast helper functions -->
-
   <div class="section">
     <div class="box columns">
       <!-- Sidebar -->
@@ -16,9 +14,11 @@
           />
 
           <!-- Frame up/down buttons -->
+          <!-- FIXME: make these buttons move your view up/down using internal anchors/references -->
           <b-button
             v-if="!isFirst && !isCollapsed"
             @click="moveFrameUp(frame.index)"
+            type="is-text"
             size="is-large"
             icon-right="chevron-up"
             class="move-button"
@@ -26,6 +26,7 @@
           <b-button
             v-if="!isLast && !isCollapsed"
             @click="moveFrameDown(frame.index)"
+            type="is-text"
             size="is-large"
             icon-right="chevron-down"
             class="move-button"
@@ -50,9 +51,11 @@
           <!-- If first row show condition names -->
           <div v-if="isFirst" class="has-text-centered subtitle absolute-title">
             <b-button
-              @click="removeCondition(scene.index.scene)"
-              class="close-button"
+              @click="removeCondition(index.scene.index)"
+              type="is-text"
+              size="is-medium"
               icon-right="close"
+              class="close-button"
             />
             <h1 class="subtitle">{{ conditionNames[index] }}</h1>
           </div>
@@ -61,8 +64,18 @@
           <StoryCard
             v-if="scene.props == null"
             :frameCollapsed="isCollapsed"
-            :isBlank="true"
-          />
+            :isFirst="isFirst"
+            isBlank="true"
+          >
+            <div class="center-wrapper">
+              <b-button
+                v-if="isFirst"
+                type="is-light"
+                icon-left="plus"
+                size="is-large"
+              />
+            </div>
+          </StoryCard>
 
           <StoryScene
             v-if="scene.props != null"
@@ -75,6 +88,7 @@
           <b-button
             v-if="scene.props != null"
             @click="addScene({ index: scene.index, scene: spec.scene })"
+            type="is-light"
             icon-left="plus"
             size="is-medium"
             class="absolute-button"
@@ -129,10 +143,10 @@ export default {
       getIsLast: "scenes/isLast"
     }),
     isFirst() {
-      return this.getIsFirst(this.index);
+      return this.getIsFirst(this.frame.index);
     },
     isLast() {
-      return this.getIsLast(this.index);
+      return this.getIsLast(this.frame.index);
     }
   },
   methods: {
@@ -181,10 +195,12 @@ export default {
 }
 
 .close-button {
-  font-size: unset;
-  border: none;
   color: red;
-  padding-right: 0.5rem;
+  padding: 0.5rem;
+}
+
+.close-button:hover {
+  color: red;
 }
 
 .absolute-button {
@@ -194,5 +210,12 @@ export default {
   left: 50%;
   transform: translateX(-50%);
   margin-top: 2rem;
+}
+
+.center-wrapper {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

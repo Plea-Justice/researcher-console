@@ -1,78 +1,95 @@
 <template>
   <div>
-    <nav
-      class="navbar header has-shadow is-fixed-top is-dark"
-      role="navigation"
-      aria-label="main navigation"
-    >
-      <div class="navbar-brand">
-        <n-link class="navbar-item" to="/">
-          {{ scenario_name }}
-        </n-link>
+    <b-navbar type="is-dark">
+      <template slot="brand">
+        <b-navbar-item tag="div">
+          <n-link class="navbar-item" to="/">
+            <h1 class="has-text-light">{{ scenarioName }}</h1>
+          </n-link>
+        </b-navbar-item>
+      </template>
 
-        <div class="navbar-burger">
-          <span />
-          <span />
-          <span />
-        </div>
-      </div>
+      <template slot="start">
+        <b-navbar-item tag="div">
+          <div class="buttons">
+            <!-- Upload Button -->
+            <b-button
+              @click="uploadModal()"
+              type="is-primary"
+              icon-left="file-upload"
+            >
+              Upload Asset
+            </b-button>
 
-      <div class="navbar-menu">
-        <div class="navbar-start">
-          <div class="navbar-item">
-            <UploadButton />
+            <!-- Download Button -->
+            <b-button
+              @click="downloadZip()"
+              type="is-primary"
+              icon-left="folder-download"
+            >
+              Download Package
+            </b-button>
           </div>
-        </div>
+        </b-navbar-item>
+      </template>
 
-        <div class="navbar-end">
-          <div class="navbar-item">
-            <DownloadButton />
-          </div>
-          <div class="navbar-item">
-            <p class="is-large">{{ Username Here <!-- this.$auth.user.name -->}}</p>
-          </div>
-          <div class="navbar-item">
-            <button class="button is-danger" v-on:click="logout">
-              <b-icon size="is-small" icon="exit-run" />
-              <span>Log Out</span>
-            </button>
-          </div>
-          <div class="navbar-item" >
-            <HelpSidebar v-bind:helpinfo="helpinfo" />
-          </div>
-        </div>
-      </div>
-    </nav>
+      <template slot="end">
+        <b-navbar-item tag="div">
+          <div class="buttons">
+            <!-- Logout Button -->
+            <b-button @click="logout()" type="is-danger" icon-left="exit-run">
+              Log Out, UserName {{/* this.$auth.user.name */}}
+            </b-button>
 
-    <section>
-      <div class="container">
-        <nuxt />
-      </div>
+            <!-- Help Menu -->
+            <HelpSidebar :helpInfo="helpInfo" />
+          </div>
+        </b-navbar-item>
+      </template>
+    </b-navbar>
+
+    <section class="main-content container">
+      <nuxt />
     </section>
   </div>
 </template>
 
 <script>
-import UploadButton from "~/components/UploadButton";
-import DownloadButton from "~/components/DownloadButton";
+// Import Components
+import UploadModal from "~/components/UploadModal";
 import HelpSidebar from "~/components/HelpSidebar";
+
 export default {
   components: {
-    UploadButton,
-    DownloadButton,
+    UploadModal,
     HelpSidebar
   },
   data() {
     return {
       // FIXME: Name should come from manifest or user directory.
-      scenario_name: "Grant Study, Hit and Run",
-      helpinfo: "Variable for information about the storyboard page would appear here with links to the wiki. Click the study name to return to the scenario selection screen."
-    }
+      scenarioName: "Grant Study, Hit and Run",
+      helpInfo:
+        "Variable for information about the storyboard page would appear here with links to the wiki. Click the study name to return to the scenario selection screen."
+    };
   },
-  methods:{
+  methods: {
     async logout() {
       await this.$auth.logout();
       this.$router.push("/");
+    },
+    uploadModal() {
+      this.$buefy.modal.open({
+        parent: this,
+        component: UploadModal,
+        hasModalCard: true,
+        trapFocus: true
+      });
+    },
+    downloadZip() {
+      this.$buefy.toast.open({
+        message: "Zip download will begin momentarily.",
+        type: "is-success"
+      });
     }
   }
 };

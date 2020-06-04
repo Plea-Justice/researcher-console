@@ -92,6 +92,7 @@ export const mutations = {
     state.frames = arr;
   },
   newCondition: (state, scene) => {
+    //console.log(state.conditionNames.length)
     const newIndex = state.conditionNames.length + 1
 
     // Add condition name and first empty scene to condition
@@ -108,6 +109,8 @@ export const mutations = {
     state.conditionLengths.push(1)
   },
   deleteCondition: (state, conditionIndex) => {
+    console.log(conditionIndex)
+
     // Remove conditionName and conditionLength
     state.conditionNames.splice(conditionIndex, 1)
     const sceneIndex = state.conditionLengths.splice(conditionIndex, 1)
