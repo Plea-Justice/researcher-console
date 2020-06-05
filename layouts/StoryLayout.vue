@@ -13,22 +13,14 @@
         <b-navbar-item tag="div">
           <div class="buttons">
             <!-- Upload Button -->
-            <b-button
-              @click="uploadModal()"
-              type="is-primary"
-              icon-left="file-upload"
-            >
-              Upload Asset
-            </b-button>
+            <b-button @click="uploadModal()" type="is-primary" icon-left="file-upload">Upload Asset</b-button>
 
             <!-- Download Button -->
             <b-button
               @click="downloadZip()"
               type="is-primary"
               icon-left="folder-download"
-            >
-              Download Package
-            </b-button>
+            >Download Package</b-button>
           </div>
         </b-navbar-item>
       </template>
@@ -37,9 +29,11 @@
         <b-navbar-item tag="div">
           <div class="buttons">
             <!-- Logout Button -->
-            <b-button @click="logout()" type="is-danger" icon-left="exit-run">
-              Log Out, UserName {{/* this.$auth.user.name */}}
-            </b-button>
+            <b-button
+              @click="logout()"
+              type="is-danger"
+              icon-left="exit-run"
+            >Log Out, UserName {{/* this.$auth.user.name */}}</b-button>
 
             <!-- Help Menu -->
             <HelpSidebar :helpInfo="helpInfo" />
@@ -48,7 +42,7 @@
       </template>
     </b-navbar>
 
-    <section class="main-content container">
+    <section class="main-content container scrollable">
       <nuxt />
     </section>
   </div>
@@ -94,3 +88,10 @@ export default {
   }
 };
 </script>
+
+<style>
+.scrollable {
+  overflow-y: hidden;
+  margin-right: 0;
+}
+</style>

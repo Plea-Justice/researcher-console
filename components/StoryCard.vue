@@ -1,10 +1,6 @@
 <template>
   <!-- /* TODO: Use calculated value, based on max number of conditions visible defined by a media query */ -->
-
-  <div
-    :class="{ 'card-collapsed': isCollapsed }"
-    class="tile is-child card has-radius-large"
-  >
+  <div :class="{ 'card-collapsed': isCollapsed }" class="card has-radius-large">
     <!-- Card Header -->
     <header
       v-show="!isBlank"
@@ -83,8 +79,10 @@ export default {
 </script>
 
 <style scoped>
-/* Fix for card footer */
-.tile.is-child.card {
+/* Fix for card footer when using tiles */
+.card {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

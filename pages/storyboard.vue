@@ -1,30 +1,36 @@
 <template>
   <section class="section">
-    <div class="container">
-      <nav class="level">
-        <div class="level-left">
-          <div class="level-item">
-            <b-button type="is-primary">Save</b-button>
-          </div>
-          <b-button class="level-item" @click="collapse()">
-            {{ `${isCollapsed ? "Expand" : "Collapse"} All` }}
-          </b-button>
-          <b-button class="level-item" @click="addCondition(spec.scene)">
-            Add Condition
-          </b-button>
+    <nav class="level container">
+      <div class="level-left">
+        <div class="level-item">
+          <b-button type="is-primary">Save</b-button>
         </div>
+        <b-button
+          class="level-item"
+          @click="collapse()"
+        >{{ `${isCollapsed ? "Expand" : "Collapse"} All` }}</b-button>
+        <b-button class="level-item" @click="addCondition(spec.scene)">Add Condition</b-button>
+      </div>
 
-        <div class="level-right">
-          <div class="level-item">
-            <b-field class="name">
-              <b-input icon="filter-outline" placeholder="Filter"></b-input>
-            </b-field>
-          </div>
+      <div class="level-right">
+        <div class="level-item">
+          <b-field class="name">
+            <b-input icon="filter-outline" placeholder="Filter"></b-input>
+          </b-field>
         </div>
-      </nav>
-    </div>
+      </div>
+    </nav>
 
     <div class="section">
+      <div class="columns">
+        <div class="column is-1" />
+        <h1
+          v-for="conditionName in conditionNames"
+          :key="conditionName"
+          class="column is-4 subtitle"
+        >{{ conditionName }}</h1>
+      </div>
+
       <StoryFrame
         v-for="(frame, index) in frames"
         :key="`frame_${index}`"

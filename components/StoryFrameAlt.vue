@@ -1,9 +1,10 @@
 <template>
-  <section class="section">
-    <div class="columns box relative-box">
-      <div :style="numColumns" class="box absolute-box" />
-      <!-- Sidebar -->
-      <aside class="column is-1">
+  <div class="tile is-ancestor">
+    <div class="tile is-parent is-vertical is-1">
+      <div class="tile is-child hidden no-grow">.</div>
+      <aside class="tile is-child relative-box">
+        <div class="box absolute-box" />
+
         <div class="buttons">
           <!-- Collapse Button -->
           <b-button
@@ -37,17 +38,22 @@
         <p>{{ frame.index }}</p>
       </aside>
 
-      <!-- Condition Columns -->
-      <div class="column is-11 tile is-ancestor">
-        <!-- FIXME: handle keys more reliably, use Unique ID? -->
-        <div
-          v-for="scene in frame.scenes"
-          :key="
+      <b-button class="tile is-child no-grow hidden" size="is-medium">.</b-button>
+    </div>
+    <div class="tile is-11">
+      <div
+        v-for="(scene, index) in frame.scenes"
+        :key="
             `frame_${scene.index.frame}_condition_${scene.index.scene}_${
               scene.props ? scene.props.name : `blank_${scene.id}`
             }`"
-          class="tile is-parent is-4 is-relative min-scene-size"
-        >
+        class="tile is-parent is-vertical is-4"
+      >
+        <h1
+          v-if="isFirst"
+          class="tile is-child no-grow subtitle has-text-centered"
+        >{{ conditionNames[index] }}</h1>
+        <div class="tile is-child">
           <!-- If a blank scene occurs -->
           <StoryCard
             v-if="scene.props == null"
@@ -67,19 +73,19 @@
             :spec="spec"
             :manifest="manifest"
           />
-
+        </div>
+        <div class="tile is-child no-grow has-text-centered">
           <b-button
             v-if="scene.props != null"
             @click="addScene({ index: scene.index, scene: spec.scene })"
             type="is-light"
             icon-left="plus"
             size="is-medium"
-            class="absolute-button"
           />
         </div>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script>
@@ -152,19 +158,37 @@ export default {
 </script>
 
 <style scoped>
+.hidden {
+  visibility: hidden;
+}
+
+.variable-columns {
+  width: calc(100% + 100% * var(--num-columns) * (11 / 12) * (4 / 12));
+}
+
+.no-grow {
+  flex-grow: 0;
+}
+
+.box-offset {
+  padding-left: 1.25rem;
+}
+
+.scene {
+  padding: 0.75rem;
+}
+
 .relative-box {
   position: relative;
-  /* Ghost visuals */
-  border: none;
-  box-shadow: none;
 }
 
 .absolute-box {
   position: absolute;
   margin-left: -1.25rem;
   margin-top: -1.25rem;
-  height: 100%;
-  width: calc(100% + 100% * var(--num-columns) * (11 / 12) * (4 / 12));
+  height: calc(100% + 2.5rem);
+  width: calc((100% + 1.5rem) * 12 + 2.5rem);
+  /* width: calc(100% + 100% * var(--num-columns) * (11 / 12) * (4 / 12)); */
   /* calc(100% + 100% * (11 / 12) * (4 / 12)) */
 }
 

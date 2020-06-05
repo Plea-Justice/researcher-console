@@ -1,5 +1,10 @@
 <template>
-  <section class="section login-wrapper">
+  <section class="login-wrapper">
+    <h1 class="title login-title">
+      <!-- FIXME: use an environment variable -->
+      Plea Simulation Researcher Console
+    </h1>
+
     <form class="box has-text-centered login" @submit.prevent="loginEmail()">
       <div class="block">
         <b-icon icon="account-circle" size="is-large" />
@@ -14,17 +19,8 @@
       </b-field>
 
       <div class="buttons is-centered">
-        <b-button @click="loginEmail" type="is-primary" expanded>
-          Email Login
-        </b-button>
-        <b-button
-          @click="loginGitHub()"
-          type="is-primary"
-          icon-left="github"
-          expanded
-        >
-          Github Login
-        </b-button>
+        <b-button @click="loginEmail" type="is-primary" expanded>Email Login</b-button>
+        <b-button @click="loginGitHub()" type="is-primary" icon-left="github" expanded>Github Login</b-button>
       </div>
 
       <hr />
@@ -70,8 +66,15 @@ export default {
 
 <style scope>
 .login-wrapper {
+  height: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
+}
+
+.login-title {
+  margin-bottom: 8rem;
 }
 
 .login {

@@ -2,13 +2,9 @@
   <!-- FIXME: clean this up -->
   <div class="flex-wrapper">
     <section class="hero-wrapper">
-      <div class="hero hero-extend-height is-primary is-bold">
+      <div class="hero full-height is-primary is-bold">
         <div class="hero-body">
-          <div class="container">
-            <h1 class="title has-text-centered">
-              <!-- FIXME: use an environment variable -->
-              Plea Simulation Researcher Console
-            </h1>
+          <div class="container full-height">
             <nuxt />
           </div>
         </div>
@@ -28,7 +24,7 @@
   flex-grow: 1;
 }
 
-.hero-extend-height {
+.full-height {
   height: 100%;
 }
 </style>
