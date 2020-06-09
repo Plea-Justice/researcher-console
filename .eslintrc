@@ -1,0 +1,18 @@
+{
+  "extends": ["wesbos"],
+  "rules": {
+    "no-console": 2,
+    // Allow ++, -- at the end of for loops
+    "no-plusplus": [2, { "allowForLoopAfterthoughts": true }],
+    // Prevents state in VueX stores from throwing errors
+    "no-shadow": ["error", { "allow": ["state"] }],
+    "prettier/prettier": [
+      "error",
+      {
+        "trailingComma": "es5",
+        "singleQuote": true,
+        "printWidth": 120
+      }
+    ]
+  }
+}
