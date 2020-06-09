@@ -86,6 +86,24 @@ export default {
   ** Build configuration
   */
   build: {
+    postcss: {
+      // Add plugin names as key and arguments as value
+      // Install them before as dependencies with npm or yarn
+      plugins: {
+        'postcss-import': {},
+        'postcss-url': {},
+        'postcss-preset-env': this.preset,
+        'cssnano': { preset: 'default' } // disabled in dev mode
+      },
+      order: 'presetEnvAndCssnanoLast',
+      preset: {
+        // Change the postcss-preset-env settings
+        stage: 2,
+        autoprefixer: {
+          grid: true
+        }
+      },
+    },
     /*
     ** You can extend webpack config here
     */

@@ -1,15 +1,12 @@
 <template>
   <!-- FIXME: clean this up -->
-  <div class="flex-wrapper">
-    <section class="hero-wrapper">
-      <div class="hero full-height is-primary is-bold">
-        <div class="hero-body">
-          <div class="container full-height">
-            <nuxt />
-          </div>
-        </div>
+
+  <div class="hero is-primary is-bold is-fullheight">
+    <div class="hero-body">
+      <div class="container">
+        <nuxt />
       </div>
-    </section>
+    </div>
   </div>
 </template>
 

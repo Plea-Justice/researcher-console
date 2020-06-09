@@ -1,8 +1,9 @@
 <template>
-  <section class="section">
+  <section class="section container">
     <nav class="level container">
       <div class="level-left">
         <div class="level-item">
+          <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
           <b-button type="is-primary">Save</b-button>
         </div>
         <b-button
@@ -22,13 +23,12 @@
     </nav>
 
     <div class="section">
-      <div class="columns">
-        <div class="column is-1" />
+      <div class="condition-titles">
         <h1
-          v-for="conditionName in conditionNames"
-          :key="conditionName"
-          class="column is-4 subtitle"
-        >{{ conditionName }}</h1>
+          v-for="i in numConditions"
+          :key="i"
+          class="condition-title subtitle"
+        >{{ "Condition " + i }}</h1>
       </div>
 
       <StoryFrame
@@ -69,7 +69,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      conditionNames: "scenes/conditionNames",
+      numConditions: "scenes/numConditions",
       frames: "scenes/frames"
     })
   },
@@ -98,3 +98,18 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.condition-titles {
+  display: flex;
+  flex-direction: row;
+  column-gap: 30px;
+  margin-left: 90px;
+  margin-bottom: 25px;
+}
+
+.condition-title {
+  flex: 0 0 350px;
+  text-align: center;
+}
+</style>

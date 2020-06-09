@@ -1,85 +1,76 @@
 <template>
-  <section class="section">
-    <div class="columns box relative-box">
-      <div :style="numColumns" class="box absolute-box" />
-      <!-- Sidebar -->
-      <aside class="column is-1">
-        <div class="buttons">
-          <!-- Collapse Button -->
-          <b-button
-            @click="collapse()"
-            :icon-left="`chevron-${isCollapsed ? 'down' : 'up'}`"
-            size="is-medium"
-            class="space-button"
-            :class="isCollapsed ? 'no-space-bottom' : 'space-bottom'"
-          />
+  <div class="frame" :style="numColumns">
+    <!-- Sidebar -->
+    <aside class="sidebar is-relative">
+      <div class="box absolute-box" />
 
-          <!-- Frame up/down buttons -->
-          <!-- FIXME: make these buttons move your view up/down using internal anchors/references -->
-          <b-button
-            v-if="!isFirst && !isCollapsed"
-            @click="moveFrameUp(frame.index)"
-            type="is-text"
-            size="is-large"
-            icon-right="chevron-up"
-            class="move-button"
-          />
-          <b-button
-            v-if="!isLast && !isCollapsed"
-            @click="moveFrameDown(frame.index)"
-            type="is-text"
-            size="is-large"
-            icon-right="chevron-down"
-            class="move-button"
-          />
-        </div>
+      <div class="buttons">
+        <!-- Collapse Button -->
+        <b-button
+          @click="collapse()"
+          :icon-left="`chevron-${isCollapsed ? 'down' : 'up'}`"
+          size="is-medium"
+          class="space-button"
+          :class="isCollapsed ? 'no-space-bottom' : 'space-bottom'"
+        />
 
-        <p>{{ frame.index }}</p>
-      </aside>
+        <!-- Frame up/down buttons -->
+        <!-- FIXME: make these buttons move your view up/down using internal anchors/references -->
+        <b-button
+          v-if="!isFirst && !isCollapsed"
+          @click="moveFrameUp(frame.index)"
+          type="is-text"
+          size="is-large"
+          icon-right="chevron-up"
+          class="move-button"
+        />
+        <b-button
+          v-if="!isLast && !isCollapsed"
+          @click="moveFrameDown(frame.index)"
+          type="is-text"
+          size="is-large"
+          icon-right="chevron-down"
+          class="move-button"
+        />
+      </div>
+    </aside>
+    <div
+      class="scene"
+      v-for="scene in frame.scenes"
+      :key="
+        `frame_${scene.index.frame}_condition_${scene.index.scene}_${
+          scene.props ? scene.props.name : `blank_${scene.id}`
+        }`
+      "
+    >
+      <div class="scene-card">
+        <!-- FIXME: fully move out blank scene handling (Have to adjusts StoryScene) scoped prop vars? -->
+        <StoryCard
+          v-if="scene.props == null"
+          :frameCollapsed="isCollapsed"
+          :sceneIndex="scene.index"
+        />
 
-      <!-- Condition Columns -->
-      <div class="column is-11 tile is-ancestor">
-        <!-- FIXME: handle keys more reliably, use Unique ID? -->
-        <div
-          v-for="scene in frame.scenes"
-          :key="
-            `frame_${scene.index.frame}_condition_${scene.index.scene}_${
-              scene.props ? scene.props.name : `blank_${scene.id}`
-            }`"
-          class="tile is-parent is-4 is-relative min-scene-size"
-        >
-          <!-- If a blank scene occurs -->
-          <StoryCard
-            v-if="scene.props == null"
-            :frameCollapsed="isCollapsed"
-            :isFirst="isFirst"
-            isBlank="true"
-          >
-            <div class="center-wrapper">
-              <b-button v-if="isFirst" type="is-light" icon-left="plus" size="is-large" />
-            </div>
-          </StoryCard>
+        <StoryScene
+          v-else
+          :frameCollapsed="isCollapsed"
+          :scene="scene"
+          :spec="spec"
+          :manifest="manifest"
+        />
+      </div>
 
-          <StoryScene
-            v-if="scene.props != null"
-            :frameCollapsed="isCollapsed"
-            :scene="scene"
-            :spec="spec"
-            :manifest="manifest"
-          />
-
-          <b-button
-            v-if="scene.props != null"
-            @click="addScene({ index: scene.index, scene: spec.scene })"
-            type="is-light"
-            icon-left="plus"
-            size="is-medium"
-            class="absolute-button"
-          />
-        </div>
+      <div class="scene-button">
+        <b-button
+          v-if="scene.props != null"
+          @click="addScene({ index: scene.index, scene: spec.scene })"
+          type="is-light"
+          icon-left="plus"
+          size="is-medium"
+        />
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script>
@@ -123,7 +114,6 @@ export default {
       return this.allCollapsed || this.selfCollapsed;
     },
     ...mapGetters({
-      conditionNames: "scenes/conditionNames",
       getIsFirst: "scenes/isFirst",
       getIsLast: "scenes/isLast"
     }),
@@ -134,7 +124,7 @@ export default {
       return this.getIsLast(this.frame.index);
     },
     numColumns() {
-      return { "--num-columns": this.frame.scenes.length - 3 };
+      return { "--num-columns": this.frame.scenes.length };
     }
   },
   methods: {
@@ -152,24 +142,41 @@ export default {
 </script>
 
 <style scoped>
-.relative-box {
-  position: relative;
-  /* Ghost visuals */
-  border: none;
-  box-shadow: none;
+.frame {
+  display: flex;
+}
+
+.sidebar {
+  flex-basis: 60px;
+  margin-right: 15px;
+}
+
+.scene {
+  display: flex;
+  flex: 0 0 350px;
+  align-items: center;
+  flex-direction: column;
+  margin-right: 30px;
+}
+
+.scene-card {
+  width: 350px;
+  flex-grow: 1;
+}
+
+.scene-button {
+  display: flex;
+  align-items: center;
+  flex-grow: 0;
+  height: 125px;
 }
 
 .absolute-box {
   position: absolute;
   margin-left: -1.25rem;
   margin-top: -1.25rem;
-  height: 100%;
-  width: calc(100% + 100% * var(--num-columns) * (11 / 12) * (4 / 12));
-  /* calc(100% + 100% * (11 / 12) * (4 / 12)) */
-}
-
-.min-scene-size {
-  min-width: 300px;
+  height: calc(100% - 125px + 1.25rem * 2);
+  width: calc(100% + (350px + 30px) * var(--num-columns) + 1.25rem * 2);
 }
 
 .space-button {
@@ -185,19 +192,6 @@ export default {
   margin-bottom: 0;
 }
 
-.absolute-title {
-  display: flex;
-  justify-content: center;
-  align-items: baseline;
-  width: 100%;
-  position: absolute;
-  /* z-index: 1; */
-  bottom: 100%;
-  /* left: 50%;
-  transform: translateX(-50%); */
-  margin-bottom: 2.5rem;
-}
-
 .close-button {
   color: red;
   padding: 0.5rem;
@@ -205,21 +199,5 @@ export default {
 
 .close-button:hover {
   color: red;
-}
-
-.absolute-button {
-  position: absolute;
-  z-index: 1;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 2rem;
-}
-
-.center-wrapper {
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 </style>

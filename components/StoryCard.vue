@@ -1,35 +1,59 @@
 <template>
   <!-- /* TODO: Use calculated value, based on max number of conditions visible defined by a media query */ -->
-  <div :class="{ 'card-collapsed': isCollapsed }" class="card has-radius-large">
+  <!-- Non Blank Scene -->
+  <div v-if="!isBlank" class="card has-radius-large">
     <!-- Card Header -->
-    <header
-      v-show="!isBlank"
-      :class="{ 'card-header-collapsed': isCollapsed }"
-      class="card-header has-top-radius-large"
-    >
-      <span class="card-header-icon">
-        <b-button
-          @click="collapse()"
-          :icon-left="`chevron-${isCollapsed ? 'down' : 'up'}`"
-          size="is-medium"
-        />
-      </span>
+    <header class="card-header has-top-radius-large">
       <slot name="header" />
     </header>
 
     <!-- Card Body -->
-    <div v-show="!isCollapsed" class="card-content full-height">
+    <div v-show="!frameCollapsed" class="card-content full-height">
       <slot />
     </div>
 
     <!-- Card Footer -->
-    <footer v-show="!isCollapsed" class="card-footer">
-      <slot name="footer" />
+    <footer v-show="!frameCollapsed" class="card-footer">
+      <div class="card-footer-item buttons footer-buttons flex-left">
+        <b-button @click="removeScene(sceneIndex)" type="is-danger" icon-right="close" />
+        <slot name="footer" />
+      </div>
+
+      <!-- Move Up/Down Buttons -->
+      <div class="card-footer-item buttons flex-right">
+        <b-button
+          v-if="!isFirst"
+          @click="moveSceneUp(sceneIndex)"
+          type="is-text"
+          size="is-large"
+          icon-right="chevron-up"
+          class="move-button"
+        />
+        <b-button
+          v-if="!isLast"
+          @click="moveSceneDown(sceneIndex)"
+          type="is-text"
+          size="is-large"
+          icon-right="chevron-down"
+          class="move-button"
+        />
+      </div>
     </footer>
+  </div>
+
+  <!-- Blank Scene -->
+  <div v-else class="card has-radius-large">
+    <div v-if="isFirst" class="center-wrapper">
+      <b-button type="is-light" icon-left="plus" size="is-large" />
+    </div>
   </div>
 </template>
 
 <script>
+// Import VueX
+import { mapGetters, mapActions } from "vuex";
+
+// Import Components
 import FileSelector from "~/components/FileSelector";
 import ButtonInput from "~/components/ButtonInput";
 
@@ -41,39 +65,34 @@ export default {
       type: Boolean,
       required: true
     },
-    isBlank: {
-      type: Boolean,
+    sceneIndex: {
+      type: Object,
       required: false
     }
   },
-  data() {
-    const selfCollapsed = false;
-
-    return {
-      selfCollapsed
-    };
-  },
   computed: {
-    isCollapsed() {
-      return this.frameCollapsed || this.selfCollapsed;
+    ...mapGetters({
+      isMoveableScene: "scenes/isMoveableScene",
+      getisFirst: "scenes/isFirst",
+      getisLast: "scenes/isLast",
+      getisBlank: "scenes/isBlank"
+    }),
+    isFirst() {
+      return this.getisFirst(this.sceneIndex);
+    },
+    isLast() {
+      return this.getisLast(this.sceneIndex);
+    },
+    isBlank() {
+      return this.getisBlank(this.sceneIndex);
     }
   },
   methods: {
-    collapse() {
-      if (!this.frameCollapsed) this.selfCollapsed = !this.selfCollapsed;
-    },
-    async getAsset(assetName) {
-      console.log(assetName);
-      const { name, ...b } = assetName;
-      console.log("a: " + name);
-      console.log("b: " + b);
-
-      const asset =
-        assetName != "None"
-          ? await this.$axios.$get(`/assets/${assetName}`)
-          : "Error: asset is 'None' or missing asset field exists";
-      return asset;
-    }
+    ...mapActions({
+      moveSceneUp: "scenes/moveSceneUp",
+      moveSceneDown: "scenes/moveSceneDown",
+      removeScene: "scenes/removeScene"
+    })
   }
 };
 </script>
@@ -108,5 +127,30 @@ export default {
 
 .full-height {
   height: 100%;
+}
+
+.move-button {
+  font-size: unset;
+}
+
+.footer-buttons {
+  border: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.flex-left {
+  justify-content: flex-start !important;
+}
+
+.flex-right {
+  justify-content: flex-end !important;
+}
+
+.center-wrapper {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

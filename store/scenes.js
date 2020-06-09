@@ -1,5 +1,4 @@
 export const state = () => ({
-  conditionNames: [],
   conditionLengths: [],
   frames: [],
   idCounter: 1
@@ -7,7 +6,7 @@ export const state = () => ({
 
 export const getters = {
   // General
-  conditionNames: (state) => state.conditionNames,
+  numConditions: (state) => state.conditionLengths.length,
   frames: (state) => state.frames,
 
   // Frame & Scene
@@ -30,7 +29,6 @@ export const actions = {
   async getExperiment({ commit }) {
     const response = await this.$axios.$get('/experiment.json');
 
-    commit('setConditionNames', response);
     commit('setConditionLengths', response)
     commit('setFrames', response);
   },
@@ -63,9 +61,6 @@ export const actions = {
 }
 
 export const mutations = {
-  setConditionNames(state, conditions) {
-    state.conditionNames = conditions.map(condition => condition.name)
-  },
   setConditionLengths(state, conditions) {
     state.conditionLengths = conditions.map(condition => condition.scenes.length)
   },
@@ -92,12 +87,10 @@ export const mutations = {
     state.frames = arr;
   },
   newCondition: (state, scene) => {
-    //console.log(state.conditionNames.length)
-    const newIndex = state.conditionNames.length + 1
+    const newIndex = state.conditionLengths.length
 
     // Add condition name and first empty scene to condition
     // TODO: have formal condition name format
-    state.conditionNames.push(`Experimental Condition ${newIndex}`)
     state.frames[0].scenes.push({
       id: state.idCounter,
       index: { scene: newIndex, frame: 0 },
@@ -111,8 +104,7 @@ export const mutations = {
   deleteCondition: (state, conditionIndex) => {
     console.log(conditionIndex)
 
-    // Remove conditionName and conditionLength
-    state.conditionNames.splice(conditionIndex, 1)
+    // Remove conditionLength
     const sceneIndex = state.conditionLengths.splice(conditionIndex, 1)
 
     // Remove all scenes for that condition

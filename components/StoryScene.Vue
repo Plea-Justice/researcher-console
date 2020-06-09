@@ -1,8 +1,8 @@
 <template>
-  <StoryCard :frameCollapsed="frameCollapsed">
+  <StoryCard :frameCollapsed="frameCollapsed" :sceneIndex="scene.index">
     <!-- Header -->
     <template v-slot:header>
-      <div class="card-header-title">
+      <div class="card-header-title center-wrapper">
         <b-input v-model="formData[nameIndex].value" placeholder="name" />
       </div>
     </template>
@@ -21,8 +21,7 @@
             :key="key"
             :native-value="key"
             v-model="selectedType"
-            >{{ key }}</b-radio-button
-          >
+          >{{ key }}</b-radio-button>
         </b-field>
 
         <!-- Main Form -->
@@ -58,50 +57,14 @@
     </template>
 
     <!-- Footer -->
-    <template v-slot:footer>
+    <template v-slot:footer :sceneIndex="scene.index">
       <!-- Form Submit Button -->
-      <div class="card-footer-item buttons footer-buttons-left">
-        <b-button
-          @click="removeScene(scene.index)"
-          type="is-danger"
-          icon-right="close"
-        />
-        <b-button
-          tag="input"
-          native-type="submit"
-          type="is-primary"
-          value="Save"
-        />
-        <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
-      </div>
-
-      <!-- Move Up/Down Buttons -->
-      <div class="card-footer-item buttons flex-right">
-        <b-button
-          v-if="!isFirst"
-          @click="moveSceneUp(scene.index)"
-          type="is-text"
-          size="is-large"
-          icon-right="chevron-up"
-          class="move-button"
-        />
-        <b-button
-          v-if="!isLast"
-          @click="moveSceneDown(scene.index)"
-          type="is-text"
-          size="is-large"
-          icon-right="chevron-down"
-          class="move-button"
-        />
-      </div>
+      <b-button tag="input" native-type="submit" type="is-primary" value="Save" />
     </template>
   </StoryCard>
 </template>
 
 <script>
-// Import VueX
-import { mapGetters, mapActions } from "vuex";
-
 // Import Components
 import StoryCard from "~/components/StoryCard";
 import FileSelector from "~/components/FileSelector";
@@ -160,53 +123,23 @@ export default {
       return this.formData.filter(({ key }) =>
         this.spec.sceneTypes[this.selectedType].includes(key)
       );
-    },
-    ...mapGetters({
-      isMoveableScene: "scenes/isMoveableScene",
-      getisFirst: "scenes/isFirst",
-      getisLast: "scenes/isLast"
-    }),
-    isFirst() {
-      return this.getisFirst(this.scene.index);
-    },
-    isLast() {
-      return this.getisLast(this.scene.index);
     }
   },
   methods: {
     onSubmit() {
       console.log("Form Submitted");
-    },
-    ...mapActions({
-      moveSceneUp: "scenes/moveSceneUp",
-      moveSceneDown: "scenes/moveSceneDown",
-      removeScene: "scenes/removeScene"
-    })
+    }
   }
 };
 </script>
 
 <style scoped>
-.start-content-top {
-  margin-bottom: auto;
-}
-
 .toggle-button {
   justify-content: center !important;
 }
 
-.footer-buttons-left {
-  justify-content: flex-start !important;
-  border: none;
-  padding-bottom: 0;
-  margin-bottom: 0;
-}
-
-.flex-right {
-  justify-content: flex-end !important;
-}
-
-.move-button {
-  font-size: unset;
+.center-wrapper {
+  display: flex;
+  justify-content: center;
 }
 </style>
