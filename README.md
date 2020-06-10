@@ -6,6 +6,12 @@ The researcher console is a web-based interface for configuring the plea bargain
 
 > Demo example for Researcher Portal
 
+## Analyzing
+
+```bash
+  npx nuxt build --analyze
+```
+
 ## Build Setup
 
 ```bash

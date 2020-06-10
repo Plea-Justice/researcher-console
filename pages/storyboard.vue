@@ -1,11 +1,11 @@
 <template>
-  <section class="section container">
-    <nav class="level container">
+  <div>
+    <!-- Level Toolbar -->
+    <nav class="level section responsive-container">
+      <!-- Left Side Toolbar -->
       <div class="level-left">
-        <div class="level-item">
-          <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
-          <b-button type="is-primary">Save</b-button>
-        </div>
+        <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
+        <b-button type="is-primary" class="level-item">Save</b-button>
         <b-button
           class="level-item"
           @click="collapse()"
@@ -13,34 +13,38 @@
         <b-button class="level-item" @click="addCondition(spec.scene)">Add Condition</b-button>
       </div>
 
+      <!-- Right Side Toolbar -->
       <div class="level-right">
-        <div class="level-item">
-          <b-field class="name">
-            <b-input icon="filter-outline" placeholder="Filter"></b-input>
-          </b-field>
-        </div>
+        <b-field class="level-item">
+          <b-input icon="filter-outline" placeholder="Filter"></b-input>
+        </b-field>
       </div>
     </nav>
 
-    <div class="section">
-      <div class="condition-titles">
-        <h1
-          v-for="i in numConditions"
-          :key="i"
-          class="condition-title subtitle"
-        >{{ "Condition " + i }}</h1>
-      </div>
+    <!-- Story Wrapper -->
+    <div class="scrollable">
+      <section class="section responsive-container extend-frame">
+        <!-- Titles -->
+        <div class="condition-titles">
+          <h1
+            v-for="i in numConditions"
+            :key="i"
+            class="condition-title subtitle"
+          >{{ "Condition " + i }}</h1>
+        </div>
 
-      <StoryFrame
-        v-for="(frame, index) in frames"
-        :key="`frame_${index}`"
-        :allCollapsed="isCollapsed"
-        :frame="frame"
-        :spec="spec"
-        :manifest="manifest"
-      />
+        <!-- Frames -->
+        <StoryFrame
+          v-for="(frame, index) in frames"
+          :key="`frame_${index}`"
+          :allCollapsed="isCollapsed"
+          :frame="frame"
+          :spec="spec"
+          :manifest="manifest"
+        />
+      </section>
     </div>
-  </section>
+  </div>
 </template>
 
 <script>
@@ -100,16 +104,28 @@ export default {
 </script>
 
 <style scoped>
+.responsive-container {
+  margin: 0 4%;
+}
+
+.scrollable {
+  overflow-y: hidden;
+}
+
+.extend-frame {
+  width: max-content;
+}
+
 .condition-titles {
   display: flex;
   flex-direction: row;
-  column-gap: 30px;
-  margin-left: 90px;
+  margin-left: 75px;
   margin-bottom: 25px;
 }
 
 .condition-title {
   flex: 0 0 350px;
+  margin-right: 30px;
   text-align: center;
 }
 </style>

@@ -43,22 +43,20 @@
         }`
       "
     >
-      <div class="scene-card">
-        <!-- FIXME: fully move out blank scene handling (Have to adjusts StoryScene) scoped prop vars? -->
-        <StoryCard
-          v-if="scene.props == null"
-          :frameCollapsed="isCollapsed"
-          :sceneIndex="scene.index"
-        />
+      <!-- FIXME: fully move out blank scene handling (Have to adjusts StoryScene) scoped prop vars? -->
+      <StoryCard
+        v-if="scene.props == null"
+        :frameCollapsed="isCollapsed"
+        :sceneIndex="scene.index"
+      />
 
-        <StoryScene
-          v-else
-          :frameCollapsed="isCollapsed"
-          :scene="scene"
-          :spec="spec"
-          :manifest="manifest"
-        />
-      </div>
+      <StoryScene
+        v-else
+        :frameCollapsed="isCollapsed"
+        :scene="scene"
+        :spec="spec"
+        :manifest="manifest"
+      />
 
       <div class="scene-button">
         <b-button
@@ -157,11 +155,6 @@ export default {
   align-items: center;
   flex-direction: column;
   margin-right: 30px;
-}
-
-.scene-card {
-  width: 350px;
-  flex-grow: 1;
 }
 
 .scene-button {

@@ -8,7 +8,7 @@
     </header>
 
     <!-- Card Body -->
-    <div v-show="!frameCollapsed" class="card-content full-height">
+    <div v-show="!frameCollapsed" class="card-content flex-full-height">
       <slot />
     </div>
 
@@ -98,10 +98,12 @@ export default {
 </script>
 
 <style scoped>
-/* Fix for card footer when using tiles */
 .card {
-  width: 100%;
-  height: 100%;
+  /* Card Size */
+  width: 350px;
+  /* Make card full-height */
+  flex-grow: 1;
+  /* Fix for card footer when using tiles */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -125,8 +127,11 @@ export default {
     0 0 0 1px rgba(10, 10, 10, 0.1);
 }
 
-.full-height {
-  height: 100%;
+.flex-full-height {
+  display: flex;
+  flex-grow: 1;
+  align-items: baseline;
+  justify-content: center;
 }
 
 .move-button {

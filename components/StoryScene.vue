@@ -2,7 +2,7 @@
   <StoryCard :frameCollapsed="frameCollapsed" :sceneIndex="scene.index">
     <!-- Header -->
     <template v-slot:header>
-      <div class="card-header-title center-wrapper">
+      <div class="card-header-title">
         <b-input v-model="formData[nameIndex].value" placeholder="name" />
       </div>
     </template>
@@ -15,7 +15,7 @@
         -->
 
         <!-- Scene Type Toggle -->
-        <b-field class="toggle-button is-capitalized">
+        <b-field class="is-capitalized">
           <b-radio-button
             v-for="key in validSceneTypes"
             :key="key"
@@ -134,11 +134,7 @@ export default {
 </script>
 
 <style scoped>
-.toggle-button {
-  justify-content: center !important;
-}
-
-.center-wrapper {
+.flex-center {
   display: flex;
   justify-content: center;
 }
