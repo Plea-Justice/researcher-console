@@ -17,8 +17,8 @@ app.set('view engine', 'jade');
 // Use Morgan to log HTTP requests in Apache format.
 // Rotate logs daily.
 var accessLogStream = rfs.createStream('access.log', {
-  interval: config.keep_logs, // rotate daily
-  path: path.join(__dirname, config.log_dir)
+    interval: config.keep_logs, // rotate daily
+    path: path.join(__dirname, config.log_dir)
 });
 
 // app.use(logger('combined', { stream: accessLogStream }));
@@ -40,22 +40,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(config.api_mount_point, api);
 
 // Serve the client.
-app.use('/', express.static(config.client_dir));
+if (config.serve_client) {
+    app.use('/', express.static(config.client_dir));
+}
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+    next(createError(404));
 });
 
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
 });
 
 module.exports = app;

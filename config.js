@@ -15,6 +15,8 @@ module.exports = {
     keep_logs: '1d',
     log_dir: 'log',
 
+    // Serve the client? (Boolean)
+    serve_client: false,
     // Location of static client files.
     client_dir: '../client/dist'
 };
