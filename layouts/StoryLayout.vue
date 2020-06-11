@@ -42,9 +42,7 @@
       </template>
     </b-navbar>
 
-    <section class="main-content container scrollable">
-      <nuxt />
-    </section>
+    <nuxt />
   </div>
 </template>
 
@@ -88,10 +86,3 @@ export default {
   }
 };
 </script>
-
-<style>
-.scrollable {
-  overflow-y: hidden;
-  margin-right: 0;
-}
-</style>

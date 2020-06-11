@@ -1,7 +1,7 @@
 export const state = () => ({
   conditionLengths: [],
   frames: [],
-  idCounter: 1,
+  idCounter: 1
 });
 
 export const getters = {
@@ -20,7 +20,7 @@ export const getters = {
       : index === state.frames.length - 1, // Frame
 
   // Scene
-  isBlank: state => index => state.frames[index.frame].scenes[index.scene].props == null,
+  isBlank: state => index => state.frames[index.frame].scenes[index.scene].props == null
 };
 
 export const actions = {
@@ -55,7 +55,7 @@ export const actions = {
   },
   moveSceneDown({ commit }, index) {
     commit('moveScene', { sceneIndex: index.scene, fromIndex: index.frame, toIndex: index.frame + 1 });
-  },
+  }
 };
 
 export const mutations = {
@@ -74,7 +74,7 @@ export const mutations = {
           arr2.push({
             id: state.idCounter,
             index: { scene: j, frame: i },
-            props: conditions[j].scenes[i],
+            props: conditions[j].scenes[i]
           });
           state.idCounter += 1;
         }
@@ -92,7 +92,7 @@ export const mutations = {
     state.frames[0].scenes.push({
       id: state.idCounter,
       index: { scene: newIndex, frame: 0 },
-      props: scene,
+      props: scene
     });
     state.idCounter += 1;
 
@@ -114,7 +114,7 @@ export const mutations = {
         state.frames[frameIndex].scenes.push({
           id: state.idCounter,
           index: { scene: i, frame: frameIndex },
-          props: null,
+          props: null
         });
       }
       state.idCounter += 1;
@@ -126,7 +126,7 @@ export const mutations = {
     if (items >= state.frames.length)
       state.frames.push({
         index: state.frames.length,
-        scenes: [],
+        scenes: []
       });
 
     // Do any shifting needed
@@ -138,7 +138,7 @@ export const mutations = {
       state.frames[i + 1].scenes.splice(index.scene, 1, {
         id: state.frames[i].scenes[index.scene].id,
         index: { scene: index.scene, frame: i + 1 },
-        props: state.frames[i].scenes[index.scene].props,
+        props: state.frames[i].scenes[index.scene].props
       });
     }
 
@@ -161,7 +161,7 @@ export const mutations = {
     for (let i = index.frame; i < conditionLength - 1; i++) {
       state.frames[i].scenes.splice(index.scene, 1, {
         index: { scene: index.scene, frame: i },
-        props: state.frames[i + 1].scenes[index.scene].props,
+        props: state.frames[i + 1].scenes[index.scene].props
       });
     }
 
@@ -170,7 +170,7 @@ export const mutations = {
       state.frames[conditionLength - 1].scenes.splice(index.scene, 1, {
         id: state.idCounter,
         index: { scene: index.scene, frame: conditionLength - 1 },
-        props: null,
+        props: null
       });
       state.idCounter += 1;
       // Otherwise just remove scene
@@ -207,8 +207,8 @@ export const mutations = {
       index: fromIndex,
       scenes: state.frames.splice(toIndex, 1, {
         index: toIndex,
-        scenes: state.frames[fromIndex].scenes,
-      })[0].scenes,
+        scenes: state.frames[fromIndex].scenes
+      })[0].scenes
     };
   },
   moveScene: (state, { sceneIndex, fromIndex, toIndex }) => {
@@ -218,8 +218,8 @@ export const mutations = {
       props: state.frames[fromIndex].scenes.splice(sceneIndex, 1, {
         id: state.frames[toIndex].scenes[sceneIndex].id,
         index: { scene: sceneIndex, frame: fromIndex },
-        props: state.frames[toIndex].scenes[sceneIndex].props,
-      })[0].props,
+        props: state.frames[toIndex].scenes[sceneIndex].props
+      })[0].props
     });
-  },
+  }
 };

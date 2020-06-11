@@ -26,7 +26,7 @@
         />
         <b-button
           v-if="!isLast && !isCollapsed"
-          @click="moveFrameDown(frame.index)"
+          @click="moveDown()"
           type="is-text"
           size="is-large"
           icon-right="chevron-down"
@@ -43,22 +43,20 @@
         }`
       "
     >
-      <div class="scene-card">
-        <!-- FIXME: fully move out blank scene handling (Have to adjusts StoryScene) scoped prop vars? -->
-        <StoryCard
-          v-if="scene.props == null"
-          :frameCollapsed="isCollapsed"
-          :sceneIndex="scene.index"
-        />
+      <!-- FIXME: fully move out blank scene handling (Have to adjusts StoryScene) scoped prop vars? -->
+      <StoryCard
+        v-if="scene.props == null"
+        :frameCollapsed="isCollapsed"
+        :sceneIndex="scene.index"
+      />
 
-        <StoryScene
-          v-else
-          :frameCollapsed="isCollapsed"
-          :scene="scene"
-          :spec="spec"
-          :manifest="manifest"
-        />
-      </div>
+      <StoryScene
+        v-else
+        :frameCollapsed="isCollapsed"
+        :scene="scene"
+        :spec="spec"
+        :manifest="manifest"
+      />
 
       <div class="scene-button">
         <b-button
@@ -136,7 +134,19 @@ export default {
       moveFrameDown: "scenes/moveFrameDown",
       addScene: "scenes/addScene",
       removeCondition: "scenes/removeCondition"
-    })
+    }),
+    moveDown() {
+      this.moveFrameDown(this.frame.index);
+
+      console.log(this.$refs);
+
+      //const topPos = element.getBoundingClientRect().top + window.pageYOffset;
+      /*
+      window.scrollTo({
+        top: topPos, // scroll so that the element is at the top of the view
+        behavior: "smooth" // smooth scroll
+      }); */
+    }
   }
 };
 </script>
@@ -157,11 +167,6 @@ export default {
   align-items: center;
   flex-direction: column;
   margin-right: 30px;
-}
-
-.scene-card {
-  width: 350px;
-  flex-grow: 1;
 }
 
 .scene-button {
