@@ -6,7 +6,6 @@ var logger = require('morgan');
 var rfs = require('rotating-file-stream');
 
 var config = require('./config');
-var api = require(config.api_definition);
 
 var app = express();
 
@@ -24,6 +23,25 @@ var accessLogStream = rfs.createStream('access.log', {
 // app.use(logger('combined', { stream: accessLogStream }));
 app.use(logger('dev'));
 
+// Connect to the database.
+var mongoose = require('mongoose');
+mongoose.connect(config.mongo_uri, {useUnifiedTopology: true, useNewUrlParser: true});
+var database = mongoose.connection;
+database.on('error', ()=>console.log('Error connecting to database.'));
+database.once('open', ()=>console.log('Connected to database.'));
+
+// Set up a session store using the database.
+// The session middleware automatically manages cookies on req/res objects.
+var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
+app.use(session({
+    secret: config.session_secret,
+    resave: false,
+    saveUninitialized: false,
+    store: new MongoStore({ mongooseConnection: mongoose.connection })
+}));
+
+
 // Enable parsing of JSON payloads into req.body.
 app.use(express.json());
 
@@ -36,8 +54,8 @@ app.use(cookieParser());
 // Serve static files in public.
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve these routes defined elsewhere.
-app.use(config.api_mount_point, api);
+// Serve the api from the selected route at the selected mount point.
+app.use(config.api_mount_point, require(config.api_definition)({db: database, config: config}));
 
 // Serve the client.
 if (config.serve_client) {

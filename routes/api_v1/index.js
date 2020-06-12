@@ -2,21 +2,21 @@
  * See app.js for routing to this point.
  * Applicable documentation at https://expressjs.com/en/guide/routing.html.
  */
-var express = require('express');
-var router = express.Router();
 
-const { runInNewContext } = require('vm');
-const { config } = require('process');
+module.exports = function (options) {
+    var express = require('express');
+    var router = express.Router();
 
-// Authentication Route
-router.use('/auth', require('./auth'));
+    // Authentication Route
+    router.use('/auth', require('./auth')(options));
 
-// Scenario Route
-router.use('/s', require('./scenario'));
+    // Scenario Route
+    router.use('/s', require('./scenario')(options));
 
-// Default Route
-router.get('/', function(req, res, next) {
-    res.render('index', { title: 'Simulation Configuration API', name: module.filename });
-});
+    // Default Route
+    router.get('/', function (req, res) {
+        res.render('index', { title: 'Simulation Configuration API', name: module.filename });
+    });
 
-module.exports = router;
+    return router;
+};

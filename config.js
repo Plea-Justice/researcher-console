@@ -15,8 +15,20 @@ module.exports = {
     keep_logs: '1d',
     log_dir: 'log',
 
+    // MongoDB Settings
+    // Switch this to a different database for development.
+    mongo_uri: 'mongodb://localhost:27017/researcher',
+
+    // Data directory for uploaded assets and user files.
+    data_dir: 'data/',
+
+    // Secret for signing session id cookies.
+    // This should be random, non-guessable, and replaced with a new string for production.
+    session_secret: '371fe6a5-ceed-4ce6-871c-ae28f4d837de',
+
     // Serve the client? (Boolean)
     serve_client: false,
+    
     // Location of static client files.
     client_dir: '../client/dist'
 };
