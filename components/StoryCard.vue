@@ -67,7 +67,7 @@ export default {
     },
     sceneIndex: {
       type: Object,
-      required: false
+      required: true
     }
   },
   computed: {

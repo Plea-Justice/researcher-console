@@ -6,11 +6,10 @@
       <div class="level-left">
         <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
         <b-button @click="test()" type="is-primary" class="level-item">Save</b-button>
-        <b-button class="level-item" @click="collapse()">
-          {{
-          `${isCollapsed ? "Expand" : "Collapse"} All`
-          }}
-        </b-button>
+        <b-button
+          class="level-item"
+          @click="collapse()"
+        >{{ `${isCollapsed ? "Expand" : "Collapse"} All` }}</b-button>
         <b-button class="level-item" @click="addCondition(spec.scene)">Add Condition</b-button>
       </div>
 
@@ -39,6 +38,20 @@
       <section class="responsive-container extend-frame">
         <!-- Frames -->
         <div v-for="(frame, index) in frames" :key="`frame_${index}`">
+          <!--
+          <StoryFrame :frame="frame" :allCollapsed="isCollapsed">
+            <template v-slot:frame>
+              <div
+                v-for="scene in frame.scenes"
+                :key="`frame_${frame.index}_scene${scene.id}`"
+                class="scene"
+              >
+                <StoryCard :frameCollapsed="isCollapsed" :sceneIndex="scene.index" />
+              </div>
+            </template>
+          </StoryFrame>
+          -->
+
           <StoryFrame
             :ref="`frame_${index}`"
             :allCollapsed="isCollapsed"
@@ -58,11 +71,12 @@ import { mapGetters, mapActions } from "vuex";
 
 // Import Components
 import StoryFrame from "~/components/StoryFrame";
+import StoryCard from "~/components/StoryCard";
 
 export default {
   name: "StoryBoard",
   layout: "StoryLayout",
-  components: { StoryFrame },
+  components: { StoryFrame, StoryCard },
   data() {
     const isCollapsed = false;
 
@@ -114,6 +128,19 @@ export default {
 </script>
 
 <style scoped>
+.scene {
+  display: flex;
+  flex: 0 0 350px;
+  align-items: center;
+  flex-direction: column;
+  margin-right: 30px;
+}
+
+.test {
+  z-index: 100;
+  margin-bottom: 20px;
+}
+
 .responsive-container {
   margin: 0 4%;
 }

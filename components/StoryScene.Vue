@@ -21,7 +21,8 @@
             :key="key"
             :native-value="key"
             v-model="selectedType"
-          >{{ key }}</b-radio-button>
+            >{{ key }}</b-radio-button
+          >
         </b-field>
 
         <!-- Main Form -->
@@ -59,7 +60,12 @@
     <!-- Footer -->
     <template v-slot:footer :sceneIndex="scene.index">
       <!-- Form Submit Button -->
-      <b-button tag="input" native-type="submit" type="is-primary" value="Save" />
+      <b-button
+        tag="input"
+        native-type="submit"
+        type="is-primary"
+        value="Save"
+      />
     </template>
   </StoryCard>
 </template>

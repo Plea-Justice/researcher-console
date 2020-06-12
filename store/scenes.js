@@ -116,8 +116,8 @@ export const mutations = {
           index: { scene: i, frame: frameIndex },
           props: null
         });
+        state.idCounter += 1;
       }
-      state.idCounter += 1;
     }
 
     const items = state.conditionLengths[index.scene];
@@ -192,7 +192,7 @@ export const mutations = {
     const targetFrame = state.frames[index.frame];
     const lastFrame = state.frames[conditionLength];
 
-    // Do this for the target frame the scene deleted from (unless the targetFrame was deleted due to being empty)
+    // Do this for the target frame, the scene deleted from (unless the targetFrame was deleted due to being empty)
     if (index.frame < maxConditionLength) {
       for (let i = targetFrame.scenes.length - 1; targetFrame.scenes[i].props == null; i--) targetFrame.scenes.pop();
     }
@@ -203,13 +203,23 @@ export const mutations = {
     }
   },
   moveFrame: (state, { fromIndex, toIndex }) => {
-    state.frames[fromIndex] = {
+    // console.log(state.frames[fromIndex].scenes.length);
+    // console.log(state.frames[toIndex].scenes.length);
+
+    const minScenes = Math.min(state.frames[fromIndex].scenes.length, state.frames[toIndex].scenes.length);
+
+    for (let i = 0; i < minScenes; i++) {
+      state.frames[fromIndex].scenes[i].index.frame = toIndex;
+      state.frames[toIndex].scenes[i].index.frame = fromIndex;
+    }
+
+    state.frames.splice(fromIndex, 1, {
       index: fromIndex,
       scenes: state.frames.splice(toIndex, 1, {
         index: toIndex,
         scenes: state.frames[fromIndex].scenes
       })[0].scenes
-    };
+    });
   },
   moveScene: (state, { sceneIndex, fromIndex, toIndex }) => {
     state.frames[toIndex].scenes.splice(sceneIndex, 1, {
