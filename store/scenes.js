@@ -101,10 +101,19 @@ export const mutations = {
   },
   deleteCondition: (state, conditionIndex) => {
     // Remove conditionLength
-    const sceneIndex = state.conditionLengths.splice(conditionIndex, 1);
+    const scenesInCondition = state.conditionLengths.splice(conditionIndex, 1);
+
+    console.log(state.frames[0].scenes.map(scene => scene.id));
 
     // Remove all scenes for that condition
-    for (let i = 0; i < sceneIndex; i++) state.frames[i].scenes.splice(conditionIndex, 1);
+    for (let i = 0; i < scenesInCondition; i++) {
+      const tempFrame = Array.from(state.frames[i].scenes);
+      console.log(tempFrame.map(scene => scene.id));
+      state.frames.splice(i, 1, { index: i, scenes: tempFrame.splice(conditionIndex, 1) });
+    }
+
+    console.log(state.frames[0].scenes.map(scene => scene.id)[0]);
+    console.log(state.frames[0].scenes.map(scene => scene.id)[0]);
   },
   newScene: (state, { index, scene }) => {
     function fillBlankScenes(frameIndex) {

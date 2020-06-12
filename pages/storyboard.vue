@@ -26,11 +26,15 @@
     <!-- Titles -->
     <div class="sticky condition-bar">
       <div class="responsive-container condition-titles">
-        <h1
-          v-for="i in numConditions"
-          :key="i"
-          class="condition-title subtitle"
-        >{{ "Condition " + i }}</h1>
+        <div v-for="index in numConditions" :key="index" class="condition-title">
+          <b-button
+            @click="removeCondition(index - 1)"
+            type="is-text"
+            icon-left="close"
+            class="close-button"
+          />
+          <h1 class="subtitle">{{ "Condition " + index }}</h1>
+        </div>
       </div>
     </div>
 
@@ -106,7 +110,8 @@ export default {
       });
     },
     ...mapActions({
-      addCondition: "scenes/addCondition"
+      addCondition: "scenes/addCondition",
+      removeCondition: "scenes/removeCondition"
     })
   },
   async fetch({ store, params }) {
@@ -176,10 +181,22 @@ export default {
 }
 
 .condition-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   flex: 0 0 350px;
   margin-right: 30px;
-  margin-bottom: 0px;
-  text-align: center;
+}
+
+.close-button {
+  color: red;
+  /* Shift left so title is centerd */
+  width: 1rem;
+  margin-left: -1rem;
+}
+
+.close-button:hover {
+  color: red;
 }
 
 .scrollable {

@@ -132,8 +132,7 @@ export default {
     ...mapActions({
       moveFrameUp: "scenes/moveFrameUp",
       moveFrameDown: "scenes/moveFrameDown",
-      addScene: "scenes/addScene",
-      removeCondition: "scenes/removeCondition"
+      addScene: "scenes/addScene"
     }),
     moveDown() {
       this.moveFrameDown(this.frame.index);
@@ -195,14 +194,5 @@ export default {
 
 .no-space-bottom {
   margin-bottom: 0;
-}
-
-.close-button {
-  color: red;
-  padding: 0.5rem;
-}
-
-.close-button:hover {
-  color: red;
 }
 </style>
