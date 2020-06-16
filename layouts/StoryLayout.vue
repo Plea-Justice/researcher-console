@@ -33,7 +33,7 @@
               @click="logout()"
               type="is-danger"
               icon-left="exit-run"
-            >Log Out, UserName {{/* this.$auth.user.name */}}</b-button>
+            >Log Out, {{ this.$auth.user.name }}</b-button>
 
             <!-- Help Menu -->
             <HelpSidebar :helpInfo="helpInfo" />

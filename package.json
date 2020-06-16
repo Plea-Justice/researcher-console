@@ -1,7 +1,7 @@
 {
-  "name": "pleabargain-portal-demo",
+  "name": "researcher-console-frontend",
   "version": "1.0.0",
-  "description": "Demo example for Researcher Portal",
+  "description": "Plea simulation researcher portal.",
   "author": "marcebdev",
   "private": true,
   "scripts": {
