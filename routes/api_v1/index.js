@@ -10,6 +10,9 @@ module.exports = function (options) {
     // Authentication Route
     router.use('/auth', require('./auth')(options));
 
+    // All routes defined after this line will require authentication.
+    router.use(require('../../middleware/authenticateRoute'));
+
     // Scenario Route
     router.use('/s', require('./scenario')(options));
 
