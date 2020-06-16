@@ -62,14 +62,12 @@ export default {
     strategies: {
       local: {
         endpoints: {
-          login: { url: '/api/auth/login', method: 'post', propertyName: 'token' },
-          logout: { url: '/api/auth/logout', method: 'post' },
-          user: { url: '/api/auth/user', method: 'get', propertyName: 'user' }
+          login: { url: '/api/v1/auth/login', method: 'post' },
+          logout: { url: '/api/v1/auth/logout', method: 'post' },
+          user: { url: '/api/v1/auth/user', method: 'get', propertyName: 'return.user' },
+          tokenRequired: false,
+          tokenType: false
         }
-      },
-      github: {
-        client_id: '5b11f740c52d7131f0c4',
-        client_secret: '120910c708118fc93c564588c498262701d822d3'
       }
     }
   },

@@ -5,7 +5,7 @@
       Plea Simulation Researcher Console
     </h1>
 
-    <form class="box has-text-centered login" @submit.prevent="loginEmail()">
+    <form class="box has-text-centered login" @submit.prevent="login()">
       <div class="block">
         <b-icon icon="account-circle" size="is-large" />
       </div>
@@ -15,12 +15,17 @@
       </b-field>
 
       <b-field>
-        <b-input type="password" placeholder="Password" password-reveal />
+        <b-input type="password" placeholder="Password" password-reveal v-model="pass" />
       </b-field>
 
       <div class="buttons is-centered">
-        <b-button @click="loginEmail" type="is-primary" expanded>Email Login</b-button>
-        <b-button @click="loginGitHub()" type="is-primary" icon-left="github" expanded>Github Login</b-button>
+        <b-button @click="login" type="is-primary" icon-left="login-variant" expanded>Login</b-button>
+        <b-button
+          @click="register"
+          type="is-primary"
+          icon-left="account-plus"
+          expanded
+        >Create Account</b-button>
       </div>
 
       <hr />
@@ -36,16 +41,48 @@ export default {
   layout: "LoginLayout",
   data() {
     return {
-      name: ""
+      name: "",
+      pass: ""
     };
   },
   methods: {
-    loginEmail() {
-      this.$router.push("/storyboard");
+    async login() {
+      try {
+        await this.$auth.loginWith("local", {
+          data: {
+            username: this.name,
+            password: this.pass
+          }
+        });
+      } catch (err) {
+        this.$buefy.toast.open({
+          message: err.response.data.message,
+          type: "is-danger"
+        });
+      }
       this.name = "";
+      this.pass = "";
+      this.$router.push("/storyboard");
     },
-    loginGitHub() {
-      this.$auth.loginWith("github");
+    async register() {
+      try {
+        let r = await this.$axios.post("/api/v1/auth/register", {
+          username: this.name,
+          password: this.name
+        });
+
+        this.$buefy.toast.open({
+          message: r.data.message,
+          type: "is-success"
+        });
+      } catch (err) {
+        this.$buefy.toast.open({
+          message: err.response.data.message,
+          type: "is-danger"
+        });
+
+        console.log(err.response.data);
+      }
     }
   },
   head() {
