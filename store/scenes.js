@@ -1,26 +1,23 @@
+import Vue from 'vue'; // eslint-disable-line import/no-extraneous-dependencies
+
+// FIXME: fix nanoid warning
+import { nanoid } from 'nanoid/non-secure';
+
+// FIXME: make this a build time asset based on spec.json instead of using all of spec directly
+import defaultScene from '../assets/spec.json';
+
 export const state = () => ({
-  conditionLengths: [],
-  frames: [],
-  idCounter: 1
+  conditionsLengths: [],
+  frames: {},
+  frameList: [],
+  scenes: {}
 });
 
 export const getters = {
-  // General
-  numConditions: state => state.conditionLengths.length,
-  frames: state => state.frames,
-
-  // Frame & Scene
-  isFirst: state => index =>
-    typeof index === 'object'
-      ? index.frame === 0 // Scene
-      : index === 0, // Frame
-  isLast: state => index =>
-    typeof index === 'object'
-      ? index.frame === state.conditionLengths[index.scene] - 1 // Scene
-      : index === state.frames.length - 1, // Frame
-
-  // Scene
-  isBlank: state => index => state.frames[index.frame].scenes[index.scene].props == null
+  frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
+  sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
+  conditionsLength: state => state.frames[state.frameList[0]].scenes.length,
+  defaultScene: state => defaultScene
 };
 
 export const actions = {
@@ -30,31 +27,33 @@ export const actions = {
     commit('setConditionLengths', response);
     commit('setFrames', response);
   },
-  addCondition({ commit }, scene) {
-    // <!-- FIXME: Handle what is used as a new scene more reliably -->
-    commit('newCondition', scene);
+  addCondition({ commit }) {
+    commit('newCondition');
   },
   removeCondition({ commit }, index) {
-    commit('deleteCondition', index);
+    commit('deleteCondition', { index });
   },
-  addScene({ commit }, { index, scene }) {
-    // <!-- FIXME: Handle what is used as a new scene more reliably -->
-    commit('newScene', { index: { scene: index.scene, frame: index.frame + 1 }, scene });
+  moveFrameDown({ commit }, frameId) {
+    // Frame stack goes from 0 down incrementally, so add 1 to move down
+    commit('moveFrame', { frameId, modifier: 1 });
   },
-  removeScene({ commit }, index) {
-    commit('deleteScene', index);
+  moveFrameUp({ commit }, frameId) {
+    // Frame stack goes from 0 down incrementally, so add -1 to move up
+    commit('moveFrame', { frameId, modifier: -1 });
   },
-  moveFrameUp({ commit }, frameIndex) {
-    commit('moveFrame', { fromIndex: frameIndex, toIndex: frameIndex - 1 });
+  moveSceneDown({ commit }, { frame: frameId, scene: sceneId }) {
+    // Frame stack goes from 0 down incrementally, so add 1 to move down
+    commit('moveScene', { frameId, sceneId, modifier: 1 });
   },
-  moveFrameDown({ commit }, frameIndex) {
-    commit('moveFrame', { fromIndex: frameIndex, toIndex: frameIndex + 1 });
+  moveSceneUp({ commit }, { frame: frameId, scene: sceneId }) {
+    // Frame stack goes from 0 down incrementally, so add -1 to move up
+    commit('moveScene', { frameId, sceneId, modifier: -1 });
   },
-  moveSceneUp({ commit }, index) {
-    commit('moveScene', { sceneIndex: index.scene, fromIndex: index.frame, toIndex: index.frame - 1 });
+  addScene({ commit }, { frame: frameId, scene: sceneId }) {
+    commit('newScene', { frameId, sceneId });
   },
-  moveSceneDown({ commit }, index) {
-    commit('moveScene', { sceneIndex: index.scene, fromIndex: index.frame, toIndex: index.frame + 1 });
+  removeScene({ commit }, { frame: frameId, scene: sceneId }) {
+    commit('deleteScene', { frameId, sceneId });
   }
 };
 
@@ -63,182 +62,179 @@ export const mutations = {
     state.conditionLengths = conditions.map(condition => condition.scenes.length);
   },
   setFrames(state, conditions) {
-    const maxColLength = state.conditionLengths.reduce((a, b) => Math.max(a, b));
+    const tempFrames = {};
+    const tempScenes = {};
 
-    // TODO: improve this to use maps instead
-    const arr = [];
+    const maxColLength = conditions.map(condition => condition.scenes.length).reduce((a, b) => Math.max(a, b));
+
     for (let i = 0; i < maxColLength; i++) {
-      const arr2 = [];
+      const frameSceneList = [];
+
       for (let j = 0; j < conditions.length; j++) {
         if (conditions[j].scenes[i]) {
-          arr2.push({
-            id: state.idCounter,
-            index: { scene: j, frame: i },
-            props: conditions[j].scenes[i]
-          });
-          state.idCounter += 1;
+          // Set up scenes
+          const id = nanoid();
+
+          tempScenes[id] = { id, props: conditions[j].scenes[i] };
+          frameSceneList.push(id);
         }
       }
-      arr.push({ index: i, scenes: arr2 });
+      // Set up frame
+      const id = nanoid();
+      tempFrames[id] = { id, scenes: frameSceneList };
+
+      // Add id (in order) to frameList
+      state.frameList.push(id);
     }
 
-    state.frames = arr;
+    // Reactively set store states to the created normalized states
+    state.frames = Object.assign({}, state.frames, tempFrames);
+    state.scenes = Object.assign({}, state.scenes, tempScenes);
   },
-  newCondition: (state, scene) => {
-    const newIndex = state.conditionLengths.length;
+  newCondition(state) {
+    const id = nanoid();
+    const firstFrame = state.frames[state.frameList[0]];
 
-    // Add condition name and first empty scene to condition
-    // TODO: have formal condition name format
-    state.frames[0].scenes.push({
-      id: state.idCounter,
-      index: { scene: newIndex, frame: 0 },
-      props: scene
+    // Update frame[0]
+    firstFrame.scenes.push(id);
+
+    // Add scene to scenes
+    Vue.set(state.scenes, id, { id, props: defaultScene.scene });
+  },
+  deleteCondition(state, payload) {
+    state.frameList.forEach(frameId => {
+      // Remove scene from frame
+      const removedSceneId = state.frames[frameId].scenes.splice(payload.index, 1);
+
+      // Remove scene from scenes
+      Vue.delete(state.scenes, removedSceneId);
     });
-    state.idCounter += 1;
-
-    // Adjust ConditionLengths to have a new condition
-    state.conditionLengths.push(1);
   },
-  deleteCondition: (state, conditionIndex) => {
-    // Remove conditionLength
-    const scenesInCondition = state.conditionLengths.splice(conditionIndex, 1);
+  moveFrame(state, payload) {
+    const fromIndex = state.frameList.indexOf(payload.frameId);
 
-    console.log(state.frames[0].scenes.map(scene => scene.id));
+    const toIndex = fromIndex + payload.modifier;
 
-    // Remove all scenes for that condition
-    for (let i = 0; i < scenesInCondition; i++) {
-      const tempFrame = Array.from(state.frames[i].scenes);
-      console.log(tempFrame.map(scene => scene.id));
-      state.frames.splice(i, 1, { index: i, scenes: tempFrame.splice(conditionIndex, 1) });
+    // Swap 2 frames using splice
+    state.frameList.splice(fromIndex, 1, state.frameList.splice(toIndex, 1, payload.frameId)[0]);
+  },
+  moveScene(state, payload) {
+    // Lookup index of scene in frame to find scene position
+    const sceneIndex = state.frames[payload.frameId].scenes.indexOf(payload.sceneId);
+
+    // Lookup index of scene's frame to find next frame
+    const toFrameId = state.frameList[state.frameList.indexOf(payload.frameId) + payload.modifier];
+
+    // Swap 2 scenes using splice
+    state.frames[payload.frameId].scenes.splice(
+      sceneIndex,
+      1,
+      state.frames[toFrameId].scenes.splice(sceneIndex, 1, payload.sceneId)[0]
+    );
+  },
+  newScene(state, payload) {
+    // Add one to frameIndex as it should target the frame below the add button
+    const frameIndex = state.frameList.indexOf(payload.frameId) + 1;
+    const sceneIndex = state.frames[payload.frameId].scenes.indexOf(payload.sceneId);
+    const conditionLength = state.conditionLengths[sceneIndex];
+
+    // Add a new frame if adding to bottom or shifting to bottom
+    if (conditionLength >= state.frameList.length) {
+      // Construct frame at bottom with scenes already spaced
+      const id = nanoid();
+      Vue.set(state.frames, id, { id, scenes: Array(sceneIndex).fill(nanoid()) });
+      state.frameList.push(id);
+      // Add new scenes to state.scenes
+      state.frames[id].scenes.map(sceneId => Vue.set(state.scenes, sceneId, { id: sceneId, props: null }));
     }
 
-    console.log(state.frames[0].scenes.map(scene => scene.id)[0]);
-    console.log(state.frames[0].scenes.map(scene => scene.id)[0]);
-  },
-  newScene: (state, { index, scene }) => {
-    function fillBlankScenes(frameIndex) {
-      // Fill gaps with blank scenes
-      const frameLength = state.frames[frameIndex].scenes.length;
-      for (let i = frameLength; i < index.scene; i++) {
-        state.frames[frameIndex].scenes.push({
-          id: state.idCounter,
-          index: { scene: i, frame: frameIndex },
-          props: null
-        });
-        state.idCounter += 1;
+    // Do any shifting necessary
+    for (let i = conditionLength - 1; i >= frameIndex; i--) {
+      const currentFrame = state.frames[state.frameList[i]];
+      const nextFrame = state.frames[state.frameList[i + 1]];
+
+      // Fill frames that come before it with blanks, if necessary, to use as gaps
+      for (let j = nextFrame.length; j < sceneIndex; j++) {
+        const id = nanoid();
+        Vue.set(state.scenes, id, { id, props: null });
+        currentFrame.scenes.push(id);
       }
+
+      // Shift current frame down to next frame
+      nextFrame.scenes.splice(sceneIndex, 1, currentFrame.scenes[sceneIndex]);
     }
 
-    const items = state.conditionLengths[index.scene];
+    // Update conditionLengths
+    state.conditionLengths.splice(sceneIndex, 1, state.conditionLengths[sceneIndex] + 1);
 
-    // Add a new frame if needed
-    if (items >= state.frames.length)
-      state.frames.push({
-        index: state.frames.length,
-        scenes: []
-      });
+    // Add scene
+    const targetFrame = state.frames[state.frameList[frameIndex]];
 
-    // Do any shifting needed
-    for (let i = items - 1; i >= index.frame; i--) {
-      // Fill gaps with blank scenes
-      if (state.frames[i + 1].scenes.length < index.scene) fillBlankScenes(i + 1);
-
-      // console.log("Replacing " + (i + 1) + " with " + i + ": " + state.frames[i].scenes[index.scene].props.name)
-      state.frames[i + 1].scenes.splice(index.scene, 1, {
-        id: state.frames[i].scenes[index.scene].id,
-        index: { scene: index.scene, frame: i + 1 },
-        props: state.frames[i].scenes[index.scene].props
-      });
+    // If added scene needs to be spaced, add spacing
+    // FIXME: make this a more convenient function? Counter function?
+    for (let j = targetFrame.scenes.length; j < sceneIndex; j++) {
+      const id = nanoid();
+      Vue.set(state.scenes, id, { id, props: null });
+      targetFrame.scenes.push(id);
     }
 
-    // Fill gaps with blank scenes
-    fillBlankScenes(index.frame);
-
-    // Increment conditionLengths
-    state.conditionLengths.splice(index.scene, 1, state.conditionLengths[index.scene] + 1);
-
+    // Insert new scene
+    const id = nanoid();
+    Vue.set(state.scenes, id, { id, props: defaultScene.scene });
     // Replace last item with new scene
-    state.frames[index.frame].scenes.splice(index.scene, 1, { id: state.idCounter, index, props: scene });
-    state.idCounter += 1;
+    targetFrame.scenes.splice(sceneIndex, 1, id);
   },
-  deleteScene: (state, index) => {
-    let conditionLength = state.conditionLengths[index.scene];
+  deleteScene(state, payload) {
+    const frameIndex = state.frameList.indexOf(payload.frameId);
+    const sceneIndex = state.frames[payload.frameId].scenes.indexOf(payload.sceneId);
 
-    // console.log(state.frames.map(frame => frame.scenes.map(scene => scene.props ? scene.props.name : "Blank")))
+    const conditionLength = state.conditionLengths[sceneIndex];
 
     // Do any shifting up needed
-    for (let i = index.frame; i < conditionLength - 1; i++) {
-      state.frames[i].scenes.splice(index.scene, 1, {
-        index: { scene: index.scene, frame: i },
-        props: state.frames[i + 1].scenes[index.scene].props
-      });
+    for (let i = frameIndex; i < conditionLength - 1; i++) {
+      const currentFrame = state.frames[state.frameList[i]];
+      const nextFrame = state.frames[state.frameList[i + 1]];
+
+      currentFrame.scenes.splice(sceneIndex, 1, nextFrame.scenes[sceneIndex]);
     }
 
-    // If is the last scene in a condition (can't shift up) and not the rightmost scene, replace last scene with blank to make a gap
-    if (index.frame <= conditionLength - 1 && index.scene < state.frames[conditionLength - 1].scenes.length - 1) {
-      state.frames[conditionLength - 1].scenes.splice(index.scene, 1, {
-        id: state.idCounter,
-        index: { scene: index.scene, frame: conditionLength - 1 },
-        props: null
-      });
-      state.idCounter += 1;
-      // Otherwise just remove scene
+    // If not the bottom-most scene of a condition and not the rightmost scene, replace last scene with blank to make a gap
+    const bottomConditionFrame = state.frames[state.frameList[conditionLength - 1]];
+    if (frameIndex <= conditionLength - 1 && sceneIndex < bottomConditionFrame.scenes.length - 1) {
+      const id = nanoid();
+      Vue.set(state.scenes, id, { id, props: null });
+      bottomConditionFrame.scenes.splice(sceneIndex, 1, id);
     } else {
-      state.frames[conditionLength - 1].scenes.splice(index.scene, 1);
+      // Otherwise just remove scene
+      bottomConditionFrame.scenes.splice(sceneIndex, 1);
     }
 
     // Decrement conditionLengths counter & update internal var
-    state.conditionLengths.splice(index.scene, 1, conditionLength - 1);
-    conditionLength = state.conditionLengths[index.scene];
+    state.conditionLengths.splice(sceneIndex, 1, conditionLength - 1);
+    // conditionLength = state.conditionLengths[index.scene];
 
-    // --- Cleanup ----
+    /* ---- Cleanup ----- */
+    const targetFrame = state.frames[state.frameList[frameIndex]];
+    const lastFrameIndex = state.frameList.length - 1;
+    const lastFrame = state.frames[state.frameList[lastFrameIndex]];
 
-    // If bottom frame is now empty remove it
-    const maxConditionLength = state.conditionLengths.reduce((a, b) => Math.max(a, b));
-    if (state.frames.length > maxConditionLength) state.frames.pop();
-
-    // If deleted scene leaves a chain of un-needed blank scenes on the right remove them
-    const targetFrame = state.frames[index.frame];
-    const lastFrame = state.frames[conditionLength];
-
-    // Do this for the target frame, the scene deleted from (unless the targetFrame was deleted due to being empty)
-    if (index.frame < maxConditionLength) {
-      for (let i = targetFrame.scenes.length - 1; targetFrame.scenes[i].props == null; i--) targetFrame.scenes.pop();
+    // If the last frame isn't empty clean it
+    if (lastFrame.scenes.length > 0) {
+      for (let i = lastFrame.scenes.length - 1; i >= 0 && state.scenes[lastFrame.scenes[i]].props == null; i--) {
+        lastFrame.scenes.pop();
+      }
     }
 
-    // Do this for the frame of the last condition scene (unless the last condition scene already occurred, in which case this is redundant)
-    if (conditionLength > 0 && conditionLength < maxConditionLength) {
-      for (let i = lastFrame.scenes.length - 1; lastFrame.scenes[i].props == null; i--) lastFrame.scenes.pop();
-    }
-  },
-  moveFrame: (state, { fromIndex, toIndex }) => {
-    // console.log(state.frames[fromIndex].scenes.length);
-    // console.log(state.frames[toIndex].scenes.length);
-
-    const minScenes = Math.min(state.frames[fromIndex].scenes.length, state.frames[toIndex].scenes.length);
-
-    for (let i = 0; i < minScenes; i++) {
-      state.frames[fromIndex].scenes[i].index.frame = toIndex;
-      state.frames[toIndex].scenes[i].index.frame = fromIndex;
+    // If the last frame is now empty (after cleaning) or was empty delete it
+    if (lastFrame.scenes.length <= 0) {
+      state.frameList.pop();
+      Vue.delete(state.frames, lastFrame.id);
     }
 
-    state.frames.splice(fromIndex, 1, {
-      index: fromIndex,
-      scenes: state.frames.splice(toIndex, 1, {
-        index: toIndex,
-        scenes: state.frames[fromIndex].scenes
-      })[0].scenes
-    });
-  },
-  moveScene: (state, { sceneIndex, fromIndex, toIndex }) => {
-    state.frames[toIndex].scenes.splice(sceneIndex, 1, {
-      id: state.frames[fromIndex].scenes[sceneIndex].id,
-      index: { scene: sceneIndex, frame: toIndex },
-      props: state.frames[fromIndex].scenes.splice(sceneIndex, 1, {
-        id: state.frames[toIndex].scenes[sceneIndex].id,
-        index: { scene: sceneIndex, frame: fromIndex },
-        props: state.frames[toIndex].scenes[sceneIndex].props
-      })[0].props
-    });
+    // If targetFrame is not the lastFrame clean it as well
+    if (frameIndex !== lastFrameIndex) {
+      for (let i = targetFrame.scenes.length - 1; state.scenes[targetFrame.scenes[i]].props == null; i--)
+        targetFrame.scenes.pop();
+    }
   }
 };

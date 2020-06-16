@@ -18,7 +18,7 @@
         <!-- FIXME: make these buttons move your view up/down using internal anchors/references -->
         <b-button
           v-if="!isFirst && !isCollapsed"
-          @click="moveFrameUp(frame.index)"
+          @click="moveFrameUp(frame.id)"
           type="is-text"
           size="is-large"
           icon-right="chevron-up"
@@ -26,7 +26,7 @@
         />
         <b-button
           v-if="!isLast && !isCollapsed"
-          @click="moveDown()"
+          @click="moveFrameDown(frame.id)"
           type="is-text"
           size="is-large"
           icon-right="chevron-down"
@@ -34,34 +34,26 @@
         />
       </div>
     </aside>
-    <div
-      class="scene"
-      v-for="scene in frame.scenes"
-      :key="
-        `frame_${scene.index.frame}_condition_${scene.index.scene}_${
-          scene.props ? scene.props.name : `blank_${scene.id}`
-        }`
-      "
-    >
+    <div v-for="scene in getSceneSet" :key="scene.id" class="scene">
       <!-- FIXME: fully move out blank scene handling (Have to adjusts StoryScene) scoped prop vars? -->
-      <StoryCard
-        v-if="scene.props == null"
-        :frameCollapsed="isCollapsed"
-        :sceneIndex="scene.index"
-      />
 
       <StoryScene
-        v-else
+        v-if="scene.props != null"
         :frameCollapsed="isCollapsed"
         :scene="scene"
-        :spec="spec"
-        :manifest="manifest"
+        :id="{ frame: frame.id, scene: scene.id }"
+        :isFirst="isFirst"
+        :isLast="isLast"
       />
+
+      <StoryCard v-else :frameCollapsed="isCollapsed" />
+
+      <!--<StoryScene :frameCollapsed="isCollapsed" :scene="scene" />-->
 
       <div class="scene-button">
         <b-button
           v-if="scene.props != null"
-          @click="addScene({ index: scene.index, scene: spec.scene })"
+          @click="addScene({ scene: scene.id, frame: frame.id })"
           type="is-light"
           icon-left="plus"
           size="is-medium"
@@ -91,13 +83,15 @@ export default {
       type: Boolean,
       required: true
     },
-    spec: {
-      type: Object,
-      required: true
+    isFirst: {
+      type: Boolean,
+      required: false,
+      default: false
     },
-    manifest: {
-      type: Object,
-      required: true
+    isLast: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data() {
@@ -111,18 +105,14 @@ export default {
     isCollapsed() {
       return this.allCollapsed || this.selfCollapsed;
     },
-    ...mapGetters({
-      getIsFirst: "scenes/isFirst",
-      getIsLast: "scenes/isLast"
-    }),
-    isFirst() {
-      return this.getIsFirst(this.frame.index);
-    },
-    isLast() {
-      return this.getIsLast(this.frame.index);
-    },
     numColumns() {
       return { "--num-columns": this.frame.scenes.length };
+    },
+    ...mapGetters({
+      sceneSet: "scenes/sceneSet"
+    }),
+    getSceneSet() {
+      return this.sceneSet(this.frame.id);
     }
   },
   methods: {

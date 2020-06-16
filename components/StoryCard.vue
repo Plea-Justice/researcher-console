@@ -15,7 +15,11 @@
     <!-- Card Footer -->
     <footer v-show="!frameCollapsed" class="card-footer">
       <div class="card-footer-item buttons footer-buttons flex-left">
-        <b-button @click="removeScene(sceneIndex)" type="is-danger" icon-right="close" />
+        <b-button
+          @click="removeScene(id)"
+          type="is-danger"
+          icon-right="close"
+        />
         <slot name="footer" />
       </div>
 
@@ -23,7 +27,7 @@
       <div class="card-footer-item buttons flex-right">
         <b-button
           v-if="!isFirst"
-          @click="moveSceneUp(sceneIndex)"
+          @click="moveSceneUp(id)"
           type="is-text"
           size="is-large"
           icon-right="chevron-up"
@@ -31,7 +35,7 @@
         />
         <b-button
           v-if="!isLast"
-          @click="moveSceneDown(sceneIndex)"
+          @click="moveSceneDown(id)"
           type="is-text"
           size="is-large"
           icon-right="chevron-down"
@@ -51,7 +55,7 @@
 
 <script>
 // Import VueX
-import { mapGetters, mapActions } from "vuex";
+import { mapActions } from "vuex";
 
 // Import Components
 import FileSelector from "~/components/FileSelector";
@@ -65,26 +69,24 @@ export default {
       type: Boolean,
       required: true
     },
-    sceneIndex: {
+    isFirst: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    isLast: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    id: {
       type: Object,
-      required: true
+      required: false
     }
   },
   computed: {
-    ...mapGetters({
-      isMoveableScene: "scenes/isMoveableScene",
-      getisFirst: "scenes/isFirst",
-      getisLast: "scenes/isLast",
-      getisBlank: "scenes/isBlank"
-    }),
-    isFirst() {
-      return this.getisFirst(this.sceneIndex);
-    },
-    isLast() {
-      return this.getisLast(this.sceneIndex);
-    },
     isBlank() {
-      return this.getisBlank(this.sceneIndex);
+      return this.id ? false : true;
     }
   },
   methods: {

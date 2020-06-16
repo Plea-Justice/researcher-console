@@ -1,5 +1,10 @@
 <template>
-  <StoryCard :frameCollapsed="frameCollapsed" :sceneIndex="scene.index">
+  <StoryCard
+    :frameCollapsed="frameCollapsed"
+    :id="id"
+    :isFirst="isFirst"
+    :isLast="isLast"
+  >
     <!-- Header -->
     <template v-slot:header>
       <div class="card-header-title flex-center">
@@ -32,7 +37,7 @@
             :assetType="asset.key"
             icon="file-image"
             v-model="asset.value"
-            :manifest="manifest"
+            :manifest="staticManifest"
           />
 
           <FileSelector
@@ -40,7 +45,7 @@
             :assetType="asset.key"
             icon="file-video"
             v-model="asset.value"
-            :manifest="manifest"
+            :manifest="staticManifest"
           />
 
           <textarea
@@ -76,30 +81,42 @@ import StoryCard from "~/components/StoryCard";
 import FileSelector from "~/components/FileSelector";
 import ButtonInput from "~/components/ButtonInput";
 
+import manifest from "~/static/manifest.json";
+import spec from "~/assets/spec.json";
+
 export default {
   name: "StoryForm",
   components: { StoryCard, FileSelector, ButtonInput },
   props: {
-    scene: {
-      type: Object,
-      required: true
-    },
     frameCollapsed: {
       type: Boolean,
       required: true
     },
-    spec: {
+    scene: {
       type: Object,
       required: true
     },
-    manifest: {
+    id: {
       type: Object,
       required: true
+    },
+    isFirst: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    isLast: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data() {
+    // Create a static copy of manifest for children
+    const staticManifest = manifest;
+
     const sceneType = this.scene.props["type"];
-    const validSceneTypes = Object.keys(this.spec.sceneTypes);
+    const validSceneTypes = Object.keys(spec.sceneTypes);
 
     // Defaults Scene type selection toggle to the first one that is defines in ~/data/spec.json
     const selectedType =
@@ -109,7 +126,7 @@ export default {
 
     // TODO: add name as an excluded type and update this elsewhere so it is consistent
     // TODO: make props compatible with array or single values
-    const formData = Object.entries(this.spec.scene).map(([key, value]) => ({
+    const formData = Object.entries(spec.scene).map(([key, value]) => ({
       key: key,
       type: value,
       value: this.scene.props[key] != "None" ? this.scene.props[key] : null
@@ -118,6 +135,7 @@ export default {
     const nameIndex = formData.findIndex(obj => obj.key == "name");
 
     return {
+      staticManifest,
       validSceneTypes,
       selectedType,
       formData,
@@ -127,7 +145,7 @@ export default {
   computed: {
     validFields() {
       return this.formData.filter(({ key }) =>
-        this.spec.sceneTypes[this.selectedType].includes(key)
+        spec.sceneTypes[this.selectedType].includes(key)
       );
     }
   },
