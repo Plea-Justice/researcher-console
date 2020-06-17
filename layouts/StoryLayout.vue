@@ -33,7 +33,7 @@
               @click="logout()"
               type="is-danger"
               icon-left="exit-run"
-            >Log Out, {{ this.$auth.user.name }}</b-button>
+            >Log Out, {{ userName }}</b-button>
 
             <!-- Help Menu -->
             <HelpSidebar :helpInfo="helpInfo" />
@@ -63,6 +63,11 @@ export default {
       helpInfo:
         "Variable for information about the storyboard page would appear here with links to the wiki. Click the study name to return to the scenario selection screen."
     };
+  },
+  computed: {
+    userName() {
+      return this.$auth.user ? this.$auth.user.name : "Testing";
+    }
   },
   methods: {
     async logout() {

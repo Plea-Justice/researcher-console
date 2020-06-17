@@ -15,22 +15,23 @@
       </b-field>
 
       <b-field>
-        <b-input type="password" placeholder="Password" password-reveal v-model="pass" />
+        <b-input type="password" placeholder="Password" password-reveal v-model="password" />
       </b-field>
 
       <div class="buttons is-centered">
-        <b-button @click="login" type="is-primary" icon-left="login-variant" expanded>Login</b-button>
+        <!-- FIXME: should submit and let form login -->
+        <b-button @click="login()" type="is-primary" icon-right="login-variant" expanded>Login</b-button>
         <b-button
-          @click="register"
+          @click="register()"
           type="is-primary"
-          icon-left="account-plus"
+          icon-right="account-plus"
           expanded
         >Create Account</b-button>
       </div>
 
       <hr />
 
-      <n-link to="/" :prefetch="false">Create an account</n-link>
+      <b-button type="is-text" :prefetch="false">Create Account</b-button>
     </form>
   </section>
 </template>
@@ -42,16 +43,17 @@ export default {
   data() {
     return {
       name: "",
-      pass: ""
+      password: ""
     };
   },
   methods: {
     async login() {
+      // FIXME: 404 uncaught
       try {
         await this.$auth.loginWith("local", {
           data: {
             username: this.name,
-            password: this.pass
+            password: this.password
           }
         });
       } catch (err) {
@@ -60,19 +62,23 @@ export default {
           type: "is-danger"
         });
       }
+      //FIXME: hash
       this.name = "";
-      this.pass = "";
+      this.password = "";
+
+      //FIXME: redirect on 404
+      // Unprotected
       this.$router.push("/storyboard");
     },
     async register() {
       try {
-        let r = await this.$axios.post("/api/v1/auth/register", {
+        let response = await this.$axios.post("/api/v1/auth/register", {
           username: this.name,
           password: this.name
         });
 
         this.$buefy.toast.open({
-          message: r.data.message,
+          message: response.data.message,
           type: "is-success"
         });
       } catch (err) {
@@ -88,7 +94,7 @@ export default {
   head() {
     return {
       //FIXME: use env var
-      title: `PleaBargain | ${this.name}`,
+      title: `PleaBargain | Login`,
       meta: [
         {
           hid: "description",
