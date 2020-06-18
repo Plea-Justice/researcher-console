@@ -141,10 +141,13 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+$frame-box-padding: 1.25rem;
+$add-button-height: 105px;
+
 .frame {
   display: flex;
-  padding-top: calc(1.25rem + 1px);
+  padding-top: calc(#{$frame-box-padding} + 1px);
   max-width: max-content;
 }
 
@@ -166,17 +169,17 @@ export default {
   align-items: center;
   flex-grow: 0;
   /* FIXME: make button height a variable */
-  height: 105px;
-  padding-top: 1.25rem;
+  height: $add-button-height;
+  padding-top: $frame-box-padding;
 }
 
 .absolute-box {
   position: absolute;
-  margin-left: -1.25rem;
-  margin-top: -1.25rem;
+  margin-left: -$frame-box-padding;
+  margin-top: -$frame-box-padding;
   /* FIXME: make box padding a variable */
-  height: calc(100% - 105px + 1.25rem);
-  width: calc(100% - 1.25rem * 2);
+  height: calc(100% - #{$add-button-height} + #{$frame-box-padding});
+  width: calc(100% - #{$frame-box-padding} * 2);
   margin-bottom: 0;
 }
 

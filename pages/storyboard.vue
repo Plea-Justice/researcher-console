@@ -6,11 +6,12 @@
       <div class="level-left">
         <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
         <b-button type="is-primary" class="level-item">Save</b-button>
-        <b-button
-          class="level-item"
-          @click="collapse()"
-        >{{ `${isCollapsed ? "Expand" : "Collapse"} All` }}</b-button>
-        <b-button class="level-item" @click="addCondition(spec.scene)">Add Condition</b-button>
+        <b-button class="level-item" @click="collapse()">{{
+          `${isCollapsed ? "Expand" : "Collapse"} All`
+        }}</b-button>
+        <b-button class="level-item" @click="addCondition(spec.scene)"
+          >Add Condition</b-button
+        >
       </div>
 
       <!-- Right Side Toolbar -->
@@ -24,7 +25,11 @@
     <!-- Titles -->
     <div ref="titles" class="sticky condition-bar">
       <div class="responsive-container condition-titles">
-        <div v-for="index in conditionsLength" :key="index" class="condition-title">
+        <div
+          v-for="index in conditionsLength"
+          :key="index"
+          class="condition-title"
+        >
           <b-button
             @click="removeCondition(index - 1)"
             type="is-text"
@@ -132,7 +137,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .responsive-container {
   margin: 0 4%;
 }
@@ -181,10 +186,10 @@ export default {
   /* Shift left so title is centerd */
   width: 1rem;
   margin-left: -1rem;
-}
 
-.close-button:hover {
-  color: red;
+  &:hover {
+    color: red;
+  }
 }
 
 .scrollable {
