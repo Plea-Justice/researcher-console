@@ -1,19 +1,16 @@
 <template>
   <div>
     <!-- Level Toolbar -->
-    <nav class="level padded-responsive-container sticky toolbar">
+    <nav ref="toolbar" class="level padded-responsive-container sticky toolbar">
       <!-- Left Side Toolbar -->
       <div class="level-left">
         <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
-        <b-button @click="test()" type="is-primary" class="level-item"
-          >Save</b-button
-        >
-        <b-button class="level-item" @click="collapse()">{{
-          `${isCollapsed ? "Expand" : "Collapse"} All`
-        }}</b-button>
-        <b-button class="level-item" @click="addCondition(spec.scene)"
-          >Add Condition</b-button
-        >
+        <b-button type="is-primary" class="level-item">Save</b-button>
+        <b-button
+          class="level-item"
+          @click="collapse()"
+        >{{ `${isCollapsed ? "Expand" : "Collapse"} All` }}</b-button>
+        <b-button class="level-item" @click="addCondition(spec.scene)">Add Condition</b-button>
       </div>
 
       <!-- Right Side Toolbar -->
@@ -24,16 +21,10 @@
       </div>
     </nav>
 
-    <!-- Story Wrapper -->
-
     <!-- Titles -->
-    <div class="sticky condition-bar">
+    <div ref="titles" class="sticky condition-bar">
       <div class="responsive-container condition-titles">
-        <div
-          v-for="index in conditionsLength"
-          :key="index"
-          class="condition-title"
-        >
+        <div v-for="index in conditionsLength" :key="index" class="condition-title">
           <b-button
             @click="removeCondition(index - 1)"
             type="is-text"
@@ -47,12 +38,13 @@
 
     <!-- Scrolling Wrapper -->
     <div class="scrollable">
-      <section class="responsive-container extend-frame">
+      <section ref="frames" class="responsive-container">
         <!-- Frames -->
         <!-- TODO: internalize isFirst/isLast for Frame? -->
         <StoryFrame
           v-for="(frame, index) in frameSet"
-          :key="frame.id"
+          :key="`${frame.id}_${index}`"
+          @scroll-to="scrollToFrame($event)"
           :frame="frame"
           :allCollapsed="isCollapsed"
           :isFirst="index === 0"
@@ -69,12 +61,11 @@ import { mapGetters, mapActions } from "vuex";
 
 // Import Components
 import StoryFrame from "~/components/StoryFrame";
-import StoryCard from "~/components/StoryCard";
 
 export default {
   name: "StoryBoard",
   layout: "StoryLayout",
-  components: { StoryFrame, StoryCard },
+  components: { StoryFrame },
   data() {
     const isCollapsed = false;
 
@@ -95,6 +86,26 @@ export default {
     })
   },
   methods: {
+    scrollToFrame(frameIndex) {
+      const headerHeight =
+        this.$refs["toolbar"].clientHeight + this.$refs["titles"].clientHeight;
+
+      console.log("Parent");
+      console.log(
+        this.$refs.frames.children[frameIndex].getBoundingClientRect().top
+      );
+
+      const frameTopPos = this.$refs.frames.children[
+        frameIndex
+      ].getBoundingClientRect().top;
+
+      window.scrollTo({
+        top: frameTopPos - headerHeight + window.pageYOffset,
+        behavior: "smooth"
+      });
+
+      // Scroll so that the element is at the top of the view
+    },
     collapse() {
       this.isCollapsed = !this.isCollapsed;
     },
@@ -146,6 +157,7 @@ export default {
 .condition-bar {
   /* Sticky below toolbar */
   top: 5rem;
+  margin-bottom: 0.25rem;
 }
 
 .condition-titles {
@@ -177,10 +189,5 @@ export default {
 
 .scrollable {
   overflow-y: hidden;
-}
-
-.extend-frame {
-  width: max-content;
-  margin-top: 1.3rem;
 }
 </style>

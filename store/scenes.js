@@ -17,7 +17,8 @@ export const getters = {
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
   conditionsLength: state => state.frames[state.frameList[0]].scenes.length,
-  defaultScene: state => defaultScene
+  defaultScene: state => defaultScene,
+  getFrameIndex: state => frameId => state.frameList.indexOf(frameId)
 };
 
 export const actions = {

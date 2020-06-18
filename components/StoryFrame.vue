@@ -1,9 +1,9 @@
 <template>
-  <div class="frame" :style="numColumns">
+  <div class="frame is-relative" :style="numColumns">
+    <div ref="frameBox" class="box absolute-box" />
     <!-- Sidebar -->
-    <aside class="sidebar is-relative">
-      <div class="box absolute-box" />
-
+    <aside class="sidebar">
+      <!-- FIXME: move this to frame child -->
       <div class="buttons">
         <!-- Collapse Button -->
         <b-button
@@ -15,10 +15,9 @@
         />
 
         <!-- Frame up/down buttons -->
-        <!-- FIXME: make these buttons move your view up/down using internal anchors/references -->
         <b-button
           v-if="!isFirst && !isCollapsed"
-          @click="moveFrameUp(frame.id)"
+          @click="moveUp()"
           type="is-text"
           size="is-large"
           icon-right="chevron-up"
@@ -26,7 +25,7 @@
         />
         <b-button
           v-if="!isLast && !isCollapsed"
-          @click="moveFrameDown(frame.id)"
+          @click="moveDown()"
           type="is-text"
           size="is-large"
           icon-right="chevron-down"
@@ -50,7 +49,7 @@
 
       <!--<StoryScene :frameCollapsed="isCollapsed" :scene="scene" />-->
 
-      <div class="scene-button">
+      <div class="add-button">
         <b-button
           v-if="scene.props != null"
           @click="addScene({ scene: scene.id, frame: frame.id })"
@@ -109,10 +108,14 @@ export default {
       return { "--num-columns": this.frame.scenes.length };
     },
     ...mapGetters({
-      sceneSet: "scenes/sceneSet"
+      sceneSet: "scenes/sceneSet",
+      getFrameIndex: "scenes/getFrameIndex"
     }),
     getSceneSet() {
       return this.sceneSet(this.frame.id);
+    },
+    frameIndex() {
+      return this.getFrameIndex(this.frame.id);
     }
   },
   methods: {
@@ -124,17 +127,15 @@ export default {
       moveFrameDown: "scenes/moveFrameDown",
       addScene: "scenes/addScene"
     }),
+    moveUp() {
+      this.moveFrameUp(this.frame.id);
+      // emit the frameIndex that must be traveled to
+      this.$emit("scroll-to", this.frameIndex);
+    },
     moveDown() {
-      this.moveFrameDown(this.frame.index);
-
-      console.log(this.$refs);
-
-      //const topPos = element.getBoundingClientRect().top + window.pageYOffset;
-      /*
-      window.scrollTo({
-        top: topPos, // scroll so that the element is at the top of the view
-        behavior: "smooth" // smooth scroll
-      }); */
+      this.moveFrameDown(this.frame.id);
+      // emit the frameIndex that must be traveled to
+      this.$emit("scroll-to", this.frameIndex);
     }
   }
 };
@@ -143,6 +144,8 @@ export default {
 <style scoped>
 .frame {
   display: flex;
+  padding-top: calc(1.25rem + 1px);
+  max-width: max-content;
 }
 
 .sidebar {
@@ -158,19 +161,23 @@ export default {
   margin-right: 30px;
 }
 
-.scene-button {
+.add-button {
   display: flex;
   align-items: center;
   flex-grow: 0;
-  height: 125px;
+  /* FIXME: make button height a variable */
+  height: 105px;
+  padding-top: 1.25rem;
 }
 
 .absolute-box {
   position: absolute;
   margin-left: -1.25rem;
   margin-top: -1.25rem;
-  height: calc(100% - 125px + 1.25rem * 2);
-  width: calc(100% + (350px + 30px) * var(--num-columns) + 1.25rem * 2);
+  /* FIXME: make box padding a variable */
+  height: calc(100% - 105px + 1.25rem);
+  width: calc(100% - 1.25rem * 2);
+  margin-bottom: 0;
 }
 
 .space-button {
