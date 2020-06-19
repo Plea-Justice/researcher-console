@@ -16,6 +16,9 @@ module.exports = function (options) {
     // Scenario Route
     router.use('/s', require('./scenario')(options));
 
+    // Asset Route
+    router.use('/a', require('./assets')(options));
+
     // Default Route
     router.get('/', function (req, res) {
         res.render('index', { title: 'Simulation Configuration API', name: module.filename });

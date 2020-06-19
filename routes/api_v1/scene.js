@@ -9,9 +9,8 @@ module.exports = function (options) {
     var router = express.Router({ mergeParams: true });
 
     router.get('/', (req, res) => {
-        res.send('test');
+        res.send('scenario' + req.params.scenario_id + 'scene' + req.params.i);
     });
 
-    router.use('/:scene_id/c', require('./condition'));
     return router;
 };

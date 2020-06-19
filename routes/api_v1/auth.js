@@ -29,21 +29,39 @@ module.exports = function (options) {
     var bcrypt = require('bcrypt');
     var saltRounds = 10;
 
-    var User = require('../../models/m_user');
+    var UserModel = require('../../models/UserModel');
 
-    /* GET home page. */
+    /**
+     * Authentication route index. Displays help message referring to docs.
+     * @param void
+     */
     router.get('/', function (req, res) {
         res.render('index', { title: 'Authentication', name: module.filename });
     });
 
     /**
      * Get the user_id of the current session if the user is logged in.
-     * @return session.user_id
+     * @return {user: {name: String, user_id: String}}
      */
     router.get('/user', authenticateRoute, (req, res) => {
         // This route should only be accessible from an authenticated session.
-        if (!req.session.hasOwnProperty('user_id')) res.status(500).json({success: false, message: 'Session user_id not found.', return: null});
-        else res.status(200).json({success: true, message: 'User ID returned.', return: {user: {name: req.session.user_id}}});
+        if (!('user_id' in req.session))
+            res.status(500).json({
+                success: false,
+                message: 'Session user_id not found.',
+                return: null
+            });
+        else if (!('username' in req.session))
+            res.status(500).json({
+                success: false,
+                message: 'Session username not found.',
+                return: null
+            });
+        else
+            res.status(200).json({
+                success: true,
+                message: 'User info returned.',
+                return: {user: {name: req.session.username, user_id: req.session.user_id}}});
     });
 
     /**
@@ -56,21 +74,47 @@ module.exports = function (options) {
         const user = req.body.username;
         const pass = req.body.password;
 
-        User.findOne({ username: user }, (err, obj)=>{
+        UserModel.findOne({ username: user }, (err, obj)=>{
 
-            if (err) res.status(500).json({success: false, message: 'There was an error logging in.', return: null});
-            else if (!obj) res.status(401).json({success: false, message: 'The specified user does not exist.', return: null});
-            else bcrypt.compare(pass, obj.password, (err, same)=>{
+            if (err)
+                res.status(500).json({
+                    success: false,
+                    message: 'There was an error logging in.',
+                    return: err
+                });
+            else if (!obj)
+                res.status(401).json({
+                    success: false,
+                    message: 'The specified user does not exist.',
+                    return: null
+                });
+            else
+                bcrypt.compare(pass, obj.password, (err, same)=>{
 
-                if (err) res.status(500).json({success: false, message: 'There was an error logging in.', return: null});
-                else if (!same) res.status(401).json({success: false, message: 'Incorrect username or password.', return: null});
-                else {
-                    req.session.user_id = user;
-                    req.session.is_logged_in = true;
-                    res.json({success: true, message: 'Logged in.', return: null});
-                    
-                }
-            });
+                    if (err)
+                        res.status(500).json({
+                            success: false,
+                            message: 'There was an error logging in.',
+                            return: err
+                        });
+                    else if (!same)
+                        res.status(401).json({
+                            success: false,
+                            message: 'Incorrect username or password.',
+                            return: null
+                        });
+                    else {
+                        req.session.user_id = obj._id;
+                        req.session.username = obj.username;
+                        req.session.is_logged_in = true;
+                        
+                        res.status(200).json({
+                            success: true,
+                            message: 'Logged in.',
+                            return: null
+                        });
+                    }
+                });
         });
     });
 
@@ -81,8 +125,18 @@ module.exports = function (options) {
         console.log('User logout.');
 
         req.session.destroy((err)=>{
-            if (err) res.status(500).json({success: false, message: 'There was an error logging out.', return: null});
-            else res.status(200).json({success: true, message: 'Logged out.', return: null});
+            if (err)
+                res.status(500).json({
+                    success: false,
+                    message: 'There was an error logging out.',
+                    return: null
+                });
+            else
+                res.status(200).json({
+                    success: true,
+                    message: 'Logged out.',
+                    return: null
+                });
         });
     });
     
@@ -93,10 +147,23 @@ module.exports = function (options) {
     router.post('/register', CreateAccountReqLimit, (req, res) => {
         console.log('Registering new user.');
 
-        let user = new User({ username: req.body.username, password: bcrypt.hashSync(req.body.password, saltRounds) });
+        let user = new UserModel({
+            username: req.body.username,
+            password: bcrypt.hashSync(req.body.password, saltRounds)
+        });
         user.save((err) => {
-            if (err) res.status(500).json({success: false, message: 'There was an error registering the requested user.', return: err});
-            else res.status(201).json({success: true, message: 'User created', return: null});
+            if (err)
+                res.status(500).json({
+                    success: false,
+                    message: 'There was an error registering the requested user.',
+                    return: err
+                });
+            else
+                res.status(201).json({
+                    success: true,
+                    message: 'User account created. You may now login.',
+                    return: null
+                });
         });
     });
 
