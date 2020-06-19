@@ -1,17 +1,15 @@
 <template>
-  <div class="frame is-relative" :style="numColumns">
-    <div ref="frameBox" class="box absolute-box" />
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <!-- FIXME: move this to frame child -->
-      <div class="buttons">
+  <div class="frame-wrapper">
+    <div class="frame box" :style="numColumns">
+      <!-- Sidebar -->
+      <aside class="sidebar buttons">
+        <!-- FIXME: move this to frame child -->
         <!-- Collapse Button -->
         <b-button
           @click="collapse()"
           :icon-left="`chevron-${isCollapsed ? 'down' : 'up'}`"
           size="is-medium"
-          class="space-button"
-          :class="isCollapsed ? 'no-space-bottom' : 'space-bottom'"
+          class="sidebar-button-top"
         />
 
         <!-- Frame up/down buttons -->
@@ -20,44 +18,43 @@
           @click="moveUp()"
           type="is-text"
           size="is-large"
-          icon-right="chevron-up"
-          class="move-button"
+          icon-left="chevron-up"
+          class="sidebar-button"
         />
         <b-button
           v-if="!isLast && !isCollapsed"
           @click="moveDown()"
           type="is-text"
           size="is-large"
-          icon-right="chevron-down"
-          class="move-button"
+          icon-left="chevron-down"
+          class="sidebar-button"
         />
-      </div>
-    </aside>
-    <div v-for="scene in getSceneSet" :key="scene.id" class="scene">
-      <!-- FIXME: fully move out blank scene handling (Have to adjusts StoryScene) scoped prop vars? -->
 
-      <StoryScene
-        v-if="scene.props != null"
-        :frameCollapsed="isCollapsed"
-        :scene="scene"
-        :id="{ frame: frame.id, scene: scene.id }"
-        :isFirst="isFirst"
-        :isLast="isLast"
-      />
-
-      <StoryCard v-else :frameCollapsed="isCollapsed" />
-
-      <!--<StoryScene :frameCollapsed="isCollapsed" :scene="scene" />-->
-
-      <div class="add-button">
         <b-button
-          v-if="scene.props != null"
-          @click="addScene({ scene: scene.id, frame: frame.id })"
-          type="is-light"
-          icon-left="plus"
+          @click="removeBlock(frame.id)"
+          type="is-danger"
+          icon-left="close"
           size="is-medium"
+          class="sidebar-button-bottom"
         />
+      </aside>
+      <div v-for="scene in getSceneSet" :key="scene.id" class="scene">
+        <!-- FIXME: fully move out blank scene handling (Have to adjusts StoryScene) scoped prop vars? -->
+
+        <StoryScene
+          v-if="scene.props != null"
+          :frameCollapsed="isCollapsed"
+          :scene="scene"
+          :isFirst="isFirst"
+          :isLast="isLast"
+        />
+
+        <StoryCard v-else :frameCollapsed="isCollapsed" :id="scene.id" />
       </div>
+    </div>
+
+    <div class="frame-footer">
+      <b-button @click="addBlock(frame.id)" type="is-light" size="is-medium" icon-left="plus" />
     </div>
   </div>
 </template>
@@ -125,7 +122,8 @@ export default {
     ...mapActions({
       moveFrameUp: "scenes/moveFrameUp",
       moveFrameDown: "scenes/moveFrameDown",
-      addScene: "scenes/addScene"
+      addBlock: "scenes/addBlock",
+      removeBlock: "scenes/removeBlock"
     }),
     moveUp() {
       this.moveFrameUp(this.frame.id);
@@ -145,54 +143,53 @@ export default {
 $frame-box-padding: 1.25rem;
 $add-button-height: 105px;
 
+.frame-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+}
+
 .frame {
   display: flex;
-  padding-top: calc(#{$frame-box-padding} + 1px);
-  max-width: max-content;
+  height: max-content;
+  width: min-content;
+  /* Remove excessive right-padding */
+  padding-right: 0;
+  /* fix box model for box-shadow */
+  margin-top: 1px;
+  /* remove bottom margin from box */
+  margin-bottom: 0;
+}
+
+.frame-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .sidebar {
+  flex-direction: column;
   flex-basis: 60px;
   margin-right: 15px;
+  /* Get rid of margin-bottom creating needed whitespace */
+  margin-bottom: 0;
 }
 
 .scene {
   display: flex;
-  flex: 0 0 350px;
-  align-items: center;
-  flex-direction: column;
   margin-right: 30px;
 }
 
-.add-button {
-  display: flex;
-  align-items: center;
-  flex-grow: 0;
-  /* FIXME: make button height a variable */
-  height: $add-button-height;
-  padding-top: $frame-box-padding;
+.sidebar-button-top {
+  margin: 0 !important;
 }
 
-.absolute-box {
-  position: absolute;
-  margin-left: -$frame-box-padding;
-  margin-top: -$frame-box-padding;
-  /* FIXME: make box padding a variable */
-  height: calc(100% - #{$add-button-height} + #{$frame-box-padding});
-  width: calc(100% - #{$frame-box-padding} * 2);
-  margin-bottom: 0;
+.sidebar-button {
+  margin: 15px 0 0 0 !important;
 }
 
-.space-button {
-  margin-top: 0.75rem;
-  margin-left: 0.25rem;
-}
-
-.space-bottom {
-  margin-bottom: 2rem;
-}
-
-.no-space-bottom {
-  margin-bottom: 0;
+.sidebar-button-bottom {
+  margin: auto 0 0 0 !important;
 }
 </style>

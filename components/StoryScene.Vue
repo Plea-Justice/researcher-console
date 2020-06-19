@@ -1,15 +1,8 @@
 <template>
-  <StoryCard
-    :frameCollapsed="frameCollapsed"
-    :id="id"
-    :isFirst="isFirst"
-    :isLast="isLast"
-  >
+  <StoryCard :frameCollapsed="frameCollapsed" :id="scene.id" :isFirst="isFirst" :isLast="isLast">
     <!-- Header -->
     <template v-slot:header>
-      <div class="card-header-title flex-center">
-        <b-input v-model="formData[nameIndex].value" placeholder="name" />
-      </div>
+      <b-input v-model="formData[nameIndex].value" placeholder="name" />
     </template>
 
     <!-- Body -->
@@ -26,8 +19,7 @@
             :key="key"
             :native-value="key"
             v-model="selectedType"
-            >{{ key }}</b-radio-button
-          >
+          >{{ key }}</b-radio-button>
         </b-field>
 
         <!-- Main Form -->
@@ -63,14 +55,9 @@
     </template>
 
     <!-- Footer -->
-    <template v-slot:footer :sceneIndex="scene.index">
+    <template v-slot:footer-left :sceneIndex="scene.index">
       <!-- Form Submit Button -->
-      <b-button
-        tag="input"
-        native-type="submit"
-        type="is-primary"
-        value="Save"
-      />
+      <!--<b-button tag="input" native-type="submit" type="is-primary" value="Save" />-->
     </template>
   </StoryCard>
 </template>
@@ -93,10 +80,6 @@ export default {
       required: true
     },
     scene: {
-      type: Object,
-      required: true
-    },
-    id: {
       type: Object,
       required: true
     },
@@ -160,10 +143,5 @@ export default {
 <style scoped>
 .toggle-button {
   justify-content: center !important;
-}
-
-.flex-center {
-  display: flex;
-  justify-content: center;
 }
 </style>

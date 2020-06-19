@@ -3,9 +3,21 @@
   <!-- Non Blank Scene -->
   <div v-if="!isBlank" class="card has-radius-large">
     <!-- Card Header -->
-    <header class="card-header has-top-radius-large">
-      <slot name="header" />
+    <header v-if="!frameCollapsed" class="card-header has-top-radius-large">
+      <!-- Remove Scene -->
+      <div class="header-wrapper">
+        <b-button @click="removeScene(id)">Skip</b-button>
+        <slot name="header" />
+      </div>
     </header>
+
+    <!-- Card Body -->
+    <div v-else class="card-content flex-grow">
+      <div class="header-wrapper">
+        <b-button @click="removeScene(id)">Skip</b-button>
+        <slot name="header" />
+      </div>
+    </div>
 
     <!-- Card Body -->
     <div v-show="!frameCollapsed" class="card-content flex-grow">
@@ -15,47 +27,31 @@
     <!-- Card Footer -->
     <footer v-show="!frameCollapsed" class="card-footer">
       <div class="card-footer-item buttons footer-buttons flex-left">
-        <b-button
-          @click="removeScene(id)"
-          type="is-danger"
-          icon-right="close"
-        />
-        <slot name="footer" />
+        <slot name="footer-left" />
       </div>
 
       <!-- Move Up/Down Buttons -->
       <div class="card-footer-item buttons flex-right">
-        <b-button
-          v-if="!isFirst"
-          @click="moveSceneUp(id)"
-          type="is-text"
-          size="is-large"
-          icon-right="chevron-up"
-          class="move-button"
-        />
-        <b-button
-          v-if="!isLast"
-          @click="moveSceneDown(id)"
-          type="is-text"
-          size="is-large"
-          icon-right="chevron-down"
-          class="move-button"
-        />
+        <slot name="footer-right" />
       </div>
     </footer>
   </div>
 
   <!-- Blank Scene -->
   <div v-else class="card has-radius-large">
-    <div v-if="isFirst" class="center-wrapper">
-      <b-button type="is-light" icon-left="plus" size="is-large" />
-    </div>
+    <b-button
+      @click="addScene(id)"
+      class="center-button"
+      type="is-light"
+      icon-left="plus"
+      size="is-large"
+    />
   </div>
 </template>
 
 <script>
 // Import VueX
-import { mapActions } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 
 // Import Components
 import FileSelector from "~/components/FileSelector";
@@ -80,26 +76,30 @@ export default {
       default: false
     },
     id: {
-      type: Object,
+      type: String,
       required: false
     }
   },
   computed: {
+    ...mapGetters({
+      getIsBlank: "scenes/isBlank"
+    }),
     isBlank() {
-      return this.id ? false : true;
+      return this.getIsBlank(this.id);
     }
   },
   methods: {
     ...mapActions({
       moveSceneUp: "scenes/moveSceneUp",
       moveSceneDown: "scenes/moveSceneDown",
+      addScene: "scenes/addScene",
       removeScene: "scenes/removeScene"
     })
   }
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .card {
   /* Card Size */
   width: 350px;
@@ -116,25 +116,20 @@ export default {
   border-radius: 6px;
 }
 
-.card-collapsed {
-  box-shadow: none;
-  -webkit-box-shadow: none;
-}
+.header-wrapper {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  padding: 0.75rem;
 
-/* FIXME: reference .has-radius-large class */
-.card-header-collapsed {
-  border-radius: 6px; /* Should follow .has-radius-large class */
-  box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
-  -webkit-box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1),
-    0 0 0 1px rgba(10, 10, 10, 0.1);
+  /* everything except last child & > :not(:last-child) */
+  & > :nth-last-child(n + 2) {
+    margin-right: 0.75rem;
+  }
 }
 
 .flex-grow {
   flex-grow: 1;
-}
-
-.move-button {
-  font-size: unset;
 }
 
 .footer-buttons {
@@ -149,5 +144,11 @@ export default {
 
 .flex-right {
   justify-content: flex-end !important;
+}
+
+.center-button {
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 </style>
