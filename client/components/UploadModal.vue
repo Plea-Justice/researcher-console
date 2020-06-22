@@ -38,7 +38,7 @@
         </div>
         <footer class="card-footer">
                 <a class="card-footer-item" @click="$parent.close()">Cancel</a>
-                <a class="card-footer-item" @click="$parent.close()">Done</a>
+                <a class="card-footer-item" @click="upload(); $parent.close();">Done</a>
         </footer>
     </div>
 </template>
@@ -52,6 +52,33 @@ export default {
         }
     },
     methods: {
+        async upload() {
+            for (const file of this.uploadFiles) {
+                // TODO: This file upload size is defined in server config.js.
+                if (file.size > 1024 * 1024 * 20) {
+                    this.$buefy.toast.open({
+                        message: `${file.name} too large. Must be less than 20MiB in size.`,
+                        type: "is-danger"
+                    });
+                    continue;
+                }
+
+                try {
+                    const data = new FormData();
+                    data.append('upload', file);
+                    let response = await this.$axios.post("/api/v1/a", data);
+                    this.$buefy.toast.open({
+                        message: response.data.message,
+                        type: "is-success"
+                    });
+                } catch (err) {
+                    this.$buefy.toast.open({
+                        message: err.response.data.message,
+                        type: "is-danger"
+                    });
+                }
+            }
+        },
         deleteUploadedFile(index) {
             this.uploadFiles.splice(index, 1);
         }

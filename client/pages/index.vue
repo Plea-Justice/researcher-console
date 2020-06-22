@@ -74,7 +74,7 @@ export default {
       try {
         let response = await this.$axios.post("/api/v1/auth/register", {
           username: this.name,
-          password: this.name
+          password: this.password
         });
 
         this.$buefy.toast.open({
