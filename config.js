@@ -33,5 +33,5 @@ module.exports = {
     serve_client: true,
     
     // Location of static client files.
-    client_dir: '../client/dist'
+    client_dir: 'client/dist'
 };
