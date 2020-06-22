@@ -5,6 +5,7 @@
       <aside class="sidebar buttons">
         <!-- FIXME: move this to frame child -->
         <!-- Collapse Button -->
+        <!-- FIXME: if all scenes blank don't allow collapsing -->
         <b-button
           @click="collapse()"
           :icon-left="`chevron-${isCollapsed ? 'down' : 'up'}`"
@@ -54,7 +55,12 @@
     </div>
 
     <div class="frame-footer">
-      <b-button @click="addBlock(frame.id)" type="is-light" size="is-medium" icon-left="plus" />
+      <b-button
+        @click="addBlock(frame.id)"
+        type="is-light"
+        size="is-medium"
+        icon-left="plus"
+      />
     </div>
   </div>
 </template>
@@ -128,6 +134,7 @@ export default {
     moveUp() {
       this.moveFrameUp(this.frame.id);
       // emit the frameIndex that must be traveled to
+      // FIXME: this.$nextTick this
       this.$emit("scroll-to", this.frameIndex);
     },
     moveDown() {
@@ -189,6 +196,7 @@ $add-button-height: 105px;
   margin: 15px 0 0 0 !important;
 }
 
+/* FIXME: have a minimum margin somehow */
 .sidebar-button-bottom {
   margin: auto 0 0 0 !important;
 }

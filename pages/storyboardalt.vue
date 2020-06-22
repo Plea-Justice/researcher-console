@@ -1,16 +1,15 @@
 <template>
   <div>
     <!-- Level Toolbar -->
-    <nav ref="toolbar" class="level padded-responsive-container sticky toolbar">
+    <nav ref="toolbar" class="level sticky toolbar">
       <!-- Left Side Toolbar -->
       <div class="level-left">
         <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
         <b-button type="is-primary" class="level-item">Save</b-button>
-        <b-button class="level-item" @click="collapse()">
-          {{
-          `${isCollapsed ? "Expand" : "Collapse"} All`
-          }}
-        </b-button>
+        <b-button
+          class="level-item"
+          @click="collapse()"
+        >{{ `${isCollapsed ? "Expand" : "Collapse"} All` }}</b-button>
         <b-button class="level-item" @click="addCondition(spec.scene)">Add Condition</b-button>
       </div>
 
@@ -23,7 +22,7 @@
     </nav>
 
     <!-- Titles -->
-    <div ref="titles" class="sticky condition-bar">
+    <div ref="titles" :class="{ 'event-fixed': titlesFixed }" class="condition-bar sticky">
       <div class="responsive-container condition-titles">
         <div v-for="index in conditionsLength" :key="index" class="condition-title">
           <b-button
@@ -38,7 +37,8 @@
     </div>
 
     <!-- Scrolling Wrapper -->
-    <div @scroll="handleScroll($event)" ref="horizontalScroll" class="scrollable">
+    <div class="scrollable">
+      <!-- Frames Wrapper -->
       <section ref="frames" class="responsive-container">
         <!-- Frames -->
         <!-- TODO: internalize isFirst/isLast for Frame? -->
@@ -70,10 +70,24 @@ export default {
   name: "StoryBoard",
   layout: "StoryLayout",
   components: { StoryFrame },
+  created() {
+    // Create new scroll event
+    // TODO: $on?
+    //window.addEventListener("scroll", throttle(this.handleScroll, 100));
+  },
+  beforeDestroy() {
+    // Destroy scroll event
+    //window.removeEventListener("scroll", this.handleScroll);
+  },
   data() {
     const isCollapsed = false;
+    const titlesFixed = false;
 
-    return { isCollapsed };
+    this.$nextTick(() =>
+      console.log(this.$refs["titles"].getBoundingClientRect())
+    );
+
+    return { isCollapsed, titlesFixed };
   },
   async asyncData({ params, $axios }) {
     const spec = await (() =>
@@ -90,14 +104,31 @@ export default {
     })
   },
   methods: {
-    handleScroll: throttle(function(event) {
-      const leftScroll = event.target.scrollLeft;
+    // Handles created scroll event
+    // TODO: use resizeWindow listener to cache some of these values?
+    // TODO: do this by holding a 0 based value in data?
+    handleScroll() {
+      console.log(window.scrollY);
+      /*
+      if (!this.titlesFixed) {
+        const el = this.$refs["titles"];
+        const rect = el.getBoundingClientRect();
+        const vHeight =
+          window.innerHeight || document.documentElement.clientHeight;
 
-      // Target elements you want to move now
-      this.$refs.titles.scrollLeft = leftScroll;
-      //TODO: only update add button on current frame(s)
-    }, 20),
+        // If el fully within vertical viewport
+        this.titlesFixed = rect.top >= 0 && rect.bottom <= vHeight;
+      }*/
+      if (window.scrollY > 0 && !this.titlesFixed) {
+        const elHeight = this.$refs["titles"].clientHeight;
+        this.titlesFixed = true;
+        //window.scrollY += elHeight;
+        this.$refs["dummy-titles"].style.height = elHeight + "px";
+        console.log("Height: " + this.$refs["dummy-titles"].clientHeight);
+      }
+    },
     scrollToFrame(frameIndex) {
+      // TODO: use resizeWindow listener to cache these values?
       const headerHeight =
         this.$refs["toolbar"].clientHeight + this.$refs["titles"].clientHeight;
 
@@ -153,15 +184,20 @@ export default {
   background-color: #fffe;
 }
 
+.event-fixed {
+  //top: 0;
+  position: fixed;
+  z-index: 5;
+}
+
 .toolbar {
   /* Sticky below toolbar */
-  top: 0;
+  //top: 0;
   height: 5rem;
   background-color: whitesmoke;
 }
 
 .condition-bar {
-  overflow-x: hidden;
   /* Sticky below toolbar */
   top: 5rem;
   margin-bottom: 0.25rem;
@@ -196,5 +232,6 @@ export default {
 
 .scrollable {
   overflow-y: hidden;
+  position: relative;
 }
 </style>
