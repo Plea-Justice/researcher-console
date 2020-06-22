@@ -13,11 +13,11 @@ export const state = () => ({
   scenes: {}
 });
 
+// TODO: fix condition Lengths
 export const getters = {
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
-  conditionsLength: state => state.frames[state.frameList[0]].scenes.length,
-  defaultScene: state => defaultScene,
+  conditionsLength: state => state.conditionLengths.length,
   getFrameIndex: state => frameId => state.frameList.indexOf(frameId),
   isBlank: state => sceneId => state.scenes[sceneId].props === null
 };
@@ -158,8 +158,16 @@ export const mutations = {
   deleteBlock(state, payload) {
     const frameIndex = state.frameList.indexOf(payload.frameId);
 
-    state.frameList.splice(frameIndex, 1);
-    Vue.delete(state.frames, payload.frameId);
+    // If last frame replace scenes with empty scenes
+    if (state.frameList.length === 1) {
+      state.frames[payload.frameId].scenes.forEach(sceneId =>
+        Vue.set(state.scenes, sceneId, { id: sceneId, props: null })
+      );
+    } else {
+      // Otherwise remove frame
+      state.frameList.splice(frameIndex, 1);
+      Vue.delete(state.frames, payload.frameId);
+    }
   },
   newScene(state, payload) {
     // FIXME: remove frameId from scenes
