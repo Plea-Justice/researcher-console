@@ -77,7 +77,7 @@ export default {
    */
   // purgeCSS: { // your settings here },
   router: {
-    middleware: ['auth']
+    //middleware: ['auth']
   },
   /*
    ** Build configuration

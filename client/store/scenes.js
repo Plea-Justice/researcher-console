@@ -7,7 +7,7 @@ import { nanoid } from 'nanoid/non-secure';
 import defaultScene from '../assets/spec.json';
 
 export const state = () => ({
-  conditionsLengths: [],
+  conditionLengths: [],
   frames: {},
   frameList: [],
   scenes: {}
@@ -17,7 +17,7 @@ export const state = () => ({
 export const getters = {
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
-  conditionsLength: state => state.conditionLengths.length,
+  numConditions: state => state.conditionLengths.length,
   getFrameIndex: state => frameId => state.frameList.indexOf(frameId),
   isBlank: state => sceneId => state.scenes[sceneId].props === null
 };
@@ -103,20 +103,24 @@ export const mutations = {
     const id = nanoid();
     const firstFrame = state.frames[state.frameList[0]];
 
-    // Update frame[0]
-    firstFrame.scenes.push(id);
+    // Update condition lengths
+    state.conditionLengths.push(1);
 
-    // Add scene to scenes
+    // Create new scene for condition in first frame
     Vue.set(state.scenes, id, { id, props: defaultScene.scene });
+    firstFrame.scenes.push(id);
   },
   deleteCondition(state, payload) {
     state.frameList.forEach(frameId => {
-      // Remove scene from frame
+      // Remove that conditions scene's from each frame
       const removedSceneId = state.frames[frameId].scenes.splice(payload.index, 1);
 
       // Remove scene from scenes
       Vue.delete(state.scenes, removedSceneId);
     });
+
+    // Update conditionLengths
+    state.conditionLengths.splice(payload.index, 1);
   },
   moveFrame(state, payload) {
     const fromIndex = state.frameList.indexOf(payload.frameId);
@@ -178,3 +182,4 @@ export const mutations = {
     Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: null });
   }
 };
+
