@@ -73,7 +73,7 @@ export default {
                     });
                 } catch (err) {
                     this.$buefy.toast.open({
-                        message: err.response.data.message,
+                        message: (('response' in err) ? response.data.message : 'There was an error logging in.'),
                         type: "is-danger"
                     });
                 }
