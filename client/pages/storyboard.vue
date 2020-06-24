@@ -9,7 +9,7 @@
         <b-button class="level-item" @click="collapse()">
           {{ `${isCollapsed ? "Expand" : "Collapse"} All` }}
         </b-button>
-        <b-button class="level-item" @click="addCondition(spec.scene)"
+        <b-button class="level-item" @click="addCondition()"
           >Add Condition</b-button
         >
       </div>
@@ -82,14 +82,6 @@ export default {
     const isCollapsed = false;
 
     return { isCollapsed };
-  },
-  async asyncData({ params, $axios }) {
-    const spec = await (() =>
-      import(`~/assets/spec.json`).then(m => m.default || m))();
-
-    const manifest = await $axios.$get("/manifest.json");
-
-    return { spec, manifest };
   },
   computed: {
     ...mapGetters({

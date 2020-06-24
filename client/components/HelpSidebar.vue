@@ -27,6 +27,7 @@
 
 <script>
 export default {
+  name: "HelpSidebar",
   props: {
     helpInfo: String,
     required: false

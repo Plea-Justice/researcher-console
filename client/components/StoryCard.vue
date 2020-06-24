@@ -3,21 +3,13 @@
   <!-- Non Blank Scene -->
   <div v-if="!isBlank" class="card has-radius-large">
     <!-- Card Header -->
-    <header v-if="!frameCollapsed" class="card-header has-top-radius-large">
-      <!-- Remove Scene -->
+    <header :class="[frameCollapsed ? collapsedHeader : expandedHeader ]">
       <div class="header-wrapper">
-        <b-button @click="removeScene(id)">Skip</b-button>
+        <!-- Remove Scene -->
+        <b-button @click="removeScene(id)" type="is-danger" icon-left="close" />
         <slot name="header" />
       </div>
     </header>
-
-    <!-- Card Body -->
-    <div v-else class="card-content flex-grow">
-      <div class="header-wrapper">
-        <b-button @click="removeScene(id)">Skip</b-button>
-        <slot name="header" />
-      </div>
-    </div>
 
     <!-- Card Body -->
     <div v-show="!frameCollapsed" class="card-content flex-grow">
@@ -80,6 +72,12 @@ export default {
       required: false
     }
   },
+  data() {
+    const expandedHeader = "card-header";
+    const collapsedHeader = "card-content flex-grow";
+
+    return { expandedHeader, collapsedHeader };
+  },
   computed: {
     ...mapGetters({
       getIsBlank: "scenes/isBlank"
@@ -118,7 +116,7 @@ export default {
 
 .header-wrapper {
   display: flex;
-  align-items: center;
+  justify-content: center;
   flex-grow: 1;
   padding: 0.75rem;
 

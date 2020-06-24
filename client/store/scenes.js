@@ -30,7 +30,7 @@ export const actions = {
     commit('setFrames', response);
   },
   addCondition({ commit }) {
-    commit('newCondition');
+    commit('newCondition', { id: nanoid() });
   },
   removeCondition({ commit }, index) {
     commit('deleteCondition', { index });
@@ -67,6 +67,7 @@ export const actions = {
 
 export const mutations = {
   setConditionLengths(state, conditions) {
+    // Make this reactive
     state.conditionLengths = conditions.map(condition => condition.scenes.length);
   },
   setFrames(state, conditions) {
@@ -99,16 +100,16 @@ export const mutations = {
     state.frames = Object.assign({}, state.frames, tempFrames);
     state.scenes = Object.assign({}, state.scenes, tempScenes);
   },
-  newCondition(state) {
-    const id = nanoid();
+  newCondition(state, payload) {
+
     const firstFrame = state.frames[state.frameList[0]];
 
     // Update condition lengths
     state.conditionLengths.push(1);
 
     // Create new scene for condition in first frame
-    Vue.set(state.scenes, id, { id, props: defaultScene.scene });
-    firstFrame.scenes.push(id);
+    Vue.set(state.scenes, payload.id, { id: payload.id, props: defaultScene.scene });
+    firstFrame.scenes.push(payload.id);
   },
   deleteCondition(state, payload) {
     state.frameList.forEach(frameId => {

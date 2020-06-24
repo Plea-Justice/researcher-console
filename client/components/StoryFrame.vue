@@ -10,7 +10,6 @@
           @click="collapse()"
           :icon-left="`chevron-${isCollapsed ? 'down' : 'up'}`"
           size="is-medium"
-          class="sidebar-button-top"
         />
 
         <!-- Frame up/down buttons -->
@@ -20,7 +19,6 @@
           type="is-text"
           size="is-large"
           icon-left="chevron-up"
-          class="sidebar-button"
         />
         <b-button
           v-if="!isLast && !isCollapsed"
@@ -28,7 +26,6 @@
           type="is-text"
           size="is-large"
           icon-left="chevron-down"
-          class="sidebar-button"
         />
 
         <b-button
@@ -36,7 +33,6 @@
           type="is-danger"
           icon-left="close"
           size="is-medium"
-          class="sidebar-button-bottom"
         />
       </aside>
       <div v-for="scene in getSceneSet" :key="scene.id" class="scene">
@@ -55,12 +51,7 @@
     </div>
 
     <div class="frame-footer">
-      <b-button
-        @click="addBlock(frame.id)"
-        type="is-light"
-        size="is-medium"
-        icon-left="plus"
-      />
+      <b-button @click="addBlock(frame.id)" type="is-light" size="is-medium" icon-left="plus" />
     </div>
   </div>
 </template>
@@ -188,16 +179,17 @@ $add-button-height: 105px;
   margin-right: 30px;
 }
 
-.sidebar-button-top {
-  margin: 0 !important;
-}
+.sidebar {
+  & > :first-child {
+    margin: 0 0 10px 0 !important;
+  }
 
-.sidebar-button {
-  margin: 15px 0 0 0 !important;
-}
+  & > :nth-child(n + 2):nth-last-child(n + 2) {
+    margin: 0 0 10px 0 !important;
+  }
 
-/* FIXME: have a minimum margin somehow */
-.sidebar-button-bottom {
-  margin: auto 0 0 0 !important;
+  & > :last-child {
+    margin: auto 0 0 !important;
+  }
 }
 </style>
