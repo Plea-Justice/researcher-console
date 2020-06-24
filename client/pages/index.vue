@@ -49,7 +49,7 @@ export default {
   methods: {
     async login() {
       // FIXME: 404 uncaught
-      try {
+      try { 
         await this.$auth.loginWith("local", {
           data: {
             username: this.name,
@@ -58,7 +58,7 @@ export default {
         });
       } catch (err) {
         this.$buefy.toast.open({
-          message: (('response' in err) ? response.data.message : 'There was an error logging in.'),
+          message: ('response' in err && err.response != undefined) ? err.response.data.message : err,
           type: "is-danger"
         });
       }
@@ -83,11 +83,9 @@ export default {
         });
       } catch (err) {
         this.$buefy.toast.open({
-          message: (('response' in err) ? response.data.message : 'There was an error logging in.'),
+          message: ('response' in err && err.response != undefined) ? err.response.data.message : err,
           type: "is-danger"
         });
-
-        console.log(err.response.data);
       }
     }
   },

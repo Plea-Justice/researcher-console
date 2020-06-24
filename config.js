@@ -3,7 +3,7 @@
  */
 
 module.exports = {
-    // Server settings. 
+    // Server settings.
     port: 3000,
     host: 'locahost',
 
@@ -30,8 +30,8 @@ module.exports = {
     session_secret: '371fe6a5-ceed-4ce6-871c-ae28f4d837de',
 
     // Serve the client? (Boolean)
-    serve_client: true,
-    
+    serve_client: false,
+
     // Location of static client files.
     client_dir: 'client/dist'
 };

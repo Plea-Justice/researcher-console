@@ -38,7 +38,7 @@ app.use(session({
     secret: config.session_secret,
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 3600000 * 24 * 7 },
+    cookie: { maxAge: 3600000 * 24 * 7, sameSite: false},
     store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 
@@ -51,6 +51,10 @@ app.use(express.urlencoded({ extended: false }));
 
 // Enable parsing of Cookie header into req.cookies.
 app.use(cookieParser());
+
+// Enable Cross-Origin Requests
+var cors = require('cors');
+app.use(cors());
 
 // Serve static files in public.
 app.use(express.static(path.join(__dirname, 'public')));

@@ -46,7 +46,7 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL: '/'
+    baseURL: 'http://0.0.0.0:3000/api/v1/'
   },
   /*
    ** Auth module configuration
@@ -62,11 +62,12 @@ export default {
     strategies: {
       local: {
         endpoints: {
-          login: { url: '/api/v1/auth/login', method: 'post' },
-          logout: { url: '/api/v1/auth/logout', method: 'post' },
-          user: { url: '/api/v1/auth/user', method: 'get', propertyName: 'return.user' },
+          login: { url: '/auth/login', method: 'post' },
+          logout: { url: '/auth/logout', method: 'post' },
+          user: { url: '/auth/user', method: 'get', propertyName: 'return.user' },
           tokenRequired: false,
-          tokenType: false
+          tokenType: false,
+          cookie: false
         }
       }
     }
@@ -77,7 +78,7 @@ export default {
    */
   // purgeCSS: { // your settings here },
   router: {
-    //middleware: ['auth']
+    // middleware: ['auth']
   },
   /*
    ** Build configuration
