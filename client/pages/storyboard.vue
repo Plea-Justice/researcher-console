@@ -85,8 +85,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      frameSet: "scenes/frameSet",
-      numConditions: "scenes/numConditions"
+      frameSet: "scenario/frameSet",
+      numConditions: "scenario/numConditions"
     })
   },
   methods: {
@@ -116,21 +116,22 @@ export default {
       this.isCollapsed = !this.isCollapsed;
     },
     ...mapActions({
-      addCondition: "scenes/addCondition",
-      removeCondition: "scenes/removeCondition"
+      addCondition: "scenario/addCondition",
+      removeCondition: "scenario/removeCondition"
     })
   },
   async fetch({ store, params }) {
-    await store.dispatch("scenes/getExperiment");
+    await store.dispatch("scenario/getScenario");
   },
   head() {
+    // FIXME: use global var for title
     return {
       title: `PleaBargain | StoryBoard`,
       meta: [
         {
           hid: "description",
           name: "description",
-          content: "The StoryBoard Timeline"
+          content: "StoryBoard Timeline"
         }
       ]
     };

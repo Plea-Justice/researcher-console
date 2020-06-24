@@ -1,5 +1,6 @@
 export default {
   mode: 'spa',
+
   /*  Headers of the page */
   head: {
     title: process.env.npm_package_name || '',
@@ -46,7 +47,7 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL: 'http://0.0.0.0:3000/api/v1/'
+    baseURL: process.env.BASE_URL || 'https://0253b0f4-3cd3-43d0-848d-d7aacd8a2a71.mock.pstmn.io'
   },
   /*
    ** Auth module configuration

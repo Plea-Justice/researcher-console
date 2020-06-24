@@ -4,16 +4,17 @@ import Vue from 'vue'; // eslint-disable-line import/no-extraneous-dependencies
 import { nanoid } from 'nanoid/non-secure';
 
 // FIXME: make this a build time asset based on spec.json instead of using all of spec directly
+// Lazy load/code-split this?
 import defaultScene from '../assets/spec.json';
 
 export const state = () => ({
+  title: "",
   conditionLengths: [],
   frames: {},
   frameList: [],
   scenes: {}
 });
 
-// TODO: fix condition Lengths
 export const getters = {
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
@@ -23,11 +24,11 @@ export const getters = {
 };
 
 export const actions = {
-  async getExperiment({ commit }) {
-    const response = await this.$axios.$get('/experiment.json');
+  async getScenario({ commit }) {
+    // FIXME: allow this to capture any scenario
+    const response = await this.$axios.$get('/api/v1/s/5ef1f91bad02294216a0cada');
 
-    commit('setConditionLengths', response);
-    commit('setFrames', response);
+    commit('setScenario', response.return);
   },
   addCondition({ commit }) {
     commit('newCondition', { id: nanoid() });
@@ -51,11 +52,11 @@ export const actions = {
     // Frame stack goes from 0 down incrementally, so add -1 to move up
     commit('moveScene', { frameId, sceneId, modifier: -1 });
   },
-  addBlock({ commit }, frameId) {
-    commit('newBlock', { frameId });
+  addFrame({ commit }, frameId) {
+    commit('newFrame', { frameId });
   },
-  removeBlock({ commit }, frameId) {
-    commit('deleteBlock', { frameId });
+  removeFrame({ commit }, frameId) {
+    commit('deleteFrame', { frameId });
   },
   addScene({ commit }, sceneId) {
     commit('newScene', { sceneId });
@@ -66,39 +67,15 @@ export const actions = {
 };
 
 export const mutations = {
-  setConditionLengths(state, conditions) {
-    // Make this reactive
-    state.conditionLengths = conditions.map(condition => condition.scenes.length);
-  },
-  setFrames(state, conditions) {
-    const tempFrames = {};
-    const tempScenes = {};
+  setScenario(state, scenario) {
+    state.title = scenario.title;
 
-    const maxColLength = conditions.map(condition => condition.scenes.length).reduce((a, b) => Math.max(a, b));
+    state.conditionLengths = scenario.vuex_state.conditionLengths;
 
-    for (let i = 0; i < maxColLength; i++) {
-      const frameSceneList = [];
+    state.frames = scenario.vuex_state.frames;
+    state.frameList = scenario.vuex_state.frameList;
 
-      for (let j = 0; j < conditions.length; j++) {
-        if (conditions[j].scenes[i]) {
-          // Set up scenes
-          const id = nanoid();
-
-          tempScenes[id] = { id, props: conditions[j].scenes[i] };
-          frameSceneList.push(id);
-        }
-      }
-      // Set up frame
-      const id = nanoid();
-      tempFrames[id] = { id, scenes: frameSceneList };
-
-      // Add id (in order) to frameList
-      state.frameList.push(id);
-    }
-
-    // Reactively set store states to the created normalized states
-    state.frames = Object.assign({}, state.frames, tempFrames);
-    state.scenes = Object.assign({}, state.scenes, tempScenes);
+    state.scenes = scenario.vuex_state.scenes
   },
   newCondition(state, payload) {
 
@@ -145,10 +122,11 @@ export const mutations = {
       state.frames[toFrameId].scenes.splice(sceneIndex, 1, payload.sceneId)[0]
     );
   },
-  newBlock(state, payload) {
+  newFrame(state, payload) {
     // Inserting into next position, so get next index
     const frameIndex = state.frameList.indexOf(payload.frameId) + 1;
 
+    //FIXME: improve this
     const frameScenes = Array(state.frames[payload.frameId].scenes.length);
     for (let i = 0; i < frameScenes.length; i++) {
       const id = nanoid();
@@ -160,7 +138,7 @@ export const mutations = {
     Vue.set(state.frames, id, { id, scenes: frameScenes });
     state.frameList.splice(frameIndex, 0, id);
   },
-  deleteBlock(state, payload) {
+  deleteFrame(state, payload) {
     const frameIndex = state.frameList.indexOf(payload.frameId);
 
     // If last frame replace scenes with empty scenes

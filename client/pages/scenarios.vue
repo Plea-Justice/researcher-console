@@ -13,7 +13,12 @@
         <b-navbar-item tag="div">
           <div class="buttons">
             <!-- Upload Button -->
-            <b-button @click="uploadModal()" type="is-primary" icon-left="file-upload">Upload Asset</b-button>
+            <b-button
+              @click="uploadModal()"
+              type="is-primary"
+              icon-left="file-upload"
+              >Upload Asset</b-button
+            >
           </div>
         </b-navbar-item>
       </template>
@@ -22,11 +27,9 @@
         <b-navbar-item tag="div">
           <div class="buttons">
             <!-- Logout Button -->
-            <b-button
-              @click="logout()"
-              type="is-danger"
-              icon-left="exit-run"
-            >Log Out, {{ userName }}</b-button>
+            <b-button @click="logout()" type="is-danger" icon-left="exit-run"
+              >Log Out, {{ userName }}</b-button
+            >
 
             <!-- Help Menu -->
             <HelpSidebar :helpInfo="helpInfo" />
@@ -38,7 +41,12 @@
     <nav ref="toolbar" class="level toolbar">
       <!-- Left Side Toolbar -->
       <div class="level-left">
-        <b-button class="level-item" :disabled="openForm" @click="openScenarioForm()">Add Scenario</b-button>
+        <b-button
+          class="level-item"
+          :disabled="openForm"
+          @click="openScenarioForm()"
+          >Add Scenario</b-button
+        >
       </div>
 
       <!-- Right Side Toolbar -->
@@ -54,7 +62,11 @@
         <form v-show="openForm" ref="form" @submit.prevent="onSubmit()">
           <ScenarioCard v-model="scenarioData" />
         </form>
-        <ScenarioCard v-for="scenario in scenarioSet" :key="scenario.id" :scenario="scenario" />
+        <ScenarioCard
+          v-for="scenario in scenarioSet"
+          :key="scenario.id"
+          :scenario="scenario"
+        />
       </div>
     </section>
   </div>
@@ -107,6 +119,19 @@ export default {
     ...mapActions({
       addScenario: "scenarios/addScenario"
     })
+  },
+  head() {
+    return {
+      //FIXME: use env var
+      title: `PleaBargain | Scenarios`,
+      meta: [
+        {
+          hid: "description",
+          name: "description",
+          content: "List of available scenarios"
+        }
+      ]
+    };
   }
 };
 </script>

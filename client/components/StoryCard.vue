@@ -3,7 +3,7 @@
   <!-- Non Blank Scene -->
   <div v-if="!isBlank" class="card has-radius-large">
     <!-- Card Header -->
-    <header :class="[frameCollapsed ? collapsedHeader : expandedHeader ]">
+    <header :class="[frameCollapsed ? collapsedHeader : expandedHeader]">
       <div class="header-wrapper">
         <!-- Remove Scene -->
         <b-button @click="removeScene(id)" type="is-danger" icon-left="close" />
@@ -80,7 +80,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      getIsBlank: "scenes/isBlank"
+      getIsBlank: "scenario/isBlank"
     }),
     isBlank() {
       return this.getIsBlank(this.id);
@@ -88,10 +88,10 @@ export default {
   },
   methods: {
     ...mapActions({
-      moveSceneUp: "scenes/moveSceneUp",
-      moveSceneDown: "scenes/moveSceneDown",
-      addScene: "scenes/addScene",
-      removeScene: "scenes/removeScene"
+      moveSceneUp: "scenario/moveSceneUp",
+      moveSceneDown: "scenario/moveSceneDown",
+      addScene: "scenario/addScene",
+      removeScene: "scenario/removeScene"
     })
   }
 };

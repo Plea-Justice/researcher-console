@@ -15,18 +15,30 @@
       </b-field>
 
       <b-field>
-        <b-input type="password" placeholder="Password" password-reveal v-model="password" />
+        <b-input
+          type="password"
+          placeholder="Password"
+          password-reveal
+          v-model="password"
+        />
       </b-field>
 
       <div class="buttons is-centered">
         <!-- FIXME: should submit and let form login -->
-        <b-button @click="login()" type="is-primary" icon-right="login-variant" expanded>Login</b-button>
+        <b-button
+          @click="login()"
+          type="is-primary"
+          icon-right="login-variant"
+          expanded
+          >Login</b-button
+        >
         <b-button
           @click="register()"
           type="is-primary"
           icon-right="account-plus"
           expanded
-        >Create Account</b-button>
+          >Create Account</b-button
+        >
       </div>
 
       <hr />
@@ -49,7 +61,7 @@ export default {
   methods: {
     async login() {
       // FIXME: 404 uncaught
-      try { 
+      try {
         await this.$auth.loginWith("local", {
           data: {
             username: this.name,
@@ -58,7 +70,10 @@ export default {
         });
       } catch (err) {
         this.$buefy.toast.open({
-          message: ('response' in err && err.response != undefined) ? err.response.data.message : err,
+          message:
+            "response" in err && err.response != undefined
+              ? err.response.data.message
+              : err,
           type: "is-danger"
         });
       }
@@ -83,7 +98,10 @@ export default {
         });
       } catch (err) {
         this.$buefy.toast.open({
-          message: ('response' in err && err.response != undefined) ? err.response.data.message : err,
+          message:
+            "response" in err && err.response != undefined
+              ? err.response.data.message
+              : err,
           type: "is-danger"
         });
       }
@@ -97,7 +115,7 @@ export default {
         {
           hid: "description",
           name: "description",
-          content: "The Authentication Portal"
+          content: "Authentication Portal"
         }
       ]
     };

@@ -29,7 +29,7 @@
         />
 
         <b-button
-          @click="removeBlock(frame.id)"
+          @click="removeFrame(frame.id)"
           type="is-danger"
           icon-left="close"
           size="is-medium"
@@ -51,7 +51,12 @@
     </div>
 
     <div class="frame-footer">
-      <b-button @click="addBlock(frame.id)" type="is-light" size="is-medium" icon-left="plus" />
+      <b-button
+        @click="addFrame(frame.id)"
+        type="is-light"
+        size="is-medium"
+        icon-left="plus"
+      />
     </div>
   </div>
 </template>
@@ -102,8 +107,8 @@ export default {
       return { "--num-columns": this.frame.scenes.length };
     },
     ...mapGetters({
-      sceneSet: "scenes/sceneSet",
-      getFrameIndex: "scenes/getFrameIndex"
+      sceneSet: "scenario/sceneSet",
+      getFrameIndex: "scenario/getFrameIndex"
     }),
     getSceneSet() {
       return this.sceneSet(this.frame.id);
@@ -117,10 +122,10 @@ export default {
       this.selfCollapsed = !this.selfCollapsed;
     },
     ...mapActions({
-      moveFrameUp: "scenes/moveFrameUp",
-      moveFrameDown: "scenes/moveFrameDown",
-      addBlock: "scenes/addBlock",
-      removeBlock: "scenes/removeBlock"
+      moveFrameUp: "scenario/moveFrameUp",
+      moveFrameDown: "scenario/moveFrameDown",
+      addFrame: "scenario/addFrame",
+      removeFrame: "scenario/removeFrame"
     }),
     moveUp() {
       this.moveFrameUp(this.frame.id);

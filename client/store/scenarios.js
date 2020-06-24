@@ -16,7 +16,7 @@ export const getters = {
 export const actions = {
   async getScenarios({ commit }) {
     const response = await this.$axios.$get(
-      "https://0253b0f4-3cd3-43d0-848d-d7aacd8a2a71.mock.pstmn.io/api/v1/s"
+      "api/v1/s"
     );
 
     commit('setScenarios', response.return);
