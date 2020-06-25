@@ -50,7 +50,7 @@ import FileSelector from "~/components/FileSelector";
 import ButtonInput from "~/components/ButtonInput";
 
 export default {
-  name: "StoryCard",
+  name: "SceneCard",
   components: { FileSelector, ButtonInput },
   props: {
     frameCollapsed: {

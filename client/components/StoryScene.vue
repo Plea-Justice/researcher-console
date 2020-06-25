@@ -1,5 +1,5 @@
 <template>
-  <StoryCard :frameCollapsed="frameCollapsed" :id="scene.id" :isFirst="isFirst" :isLast="isLast">
+  <SceneCard :frameCollapsed="frameCollapsed" :id="scene.id" :isFirst="isFirst" :isLast="isLast">
     <!-- Header -->
     <template v-slot:header>
       <b-input v-model="formData[nameIndex].value" placeholder="name" />
@@ -59,12 +59,12 @@
       <!-- Form Submit Button -->
       <!--<b-button tag="input" native-type="submit" type="is-primary" value="Save" />-->
     </template>
-  </StoryCard>
+  </SceneCard>
 </template>
 
 <script>
 // Import Components
-import StoryCard from "~/components/StoryCard";
+import SceneCard from "~/components/SceneCard";
 import FileSelector from "~/components/FileSelector";
 import ButtonInput from "~/components/ButtonInput";
 
@@ -73,7 +73,7 @@ import spec from "~/assets/spec.json";
 
 export default {
   name: "StoryForm",
-  components: { StoryCard, FileSelector, ButtonInput },
+  components: { SceneCard, FileSelector, ButtonInput },
   props: {
     frameCollapsed: {
       type: Boolean,

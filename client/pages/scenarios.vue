@@ -1,59 +1,15 @@
 <template>
   <div>
-    <b-navbar type="is-dark">
-      <template slot="brand">
-        <b-navbar-item tag="div">
-          <n-link class="navbar-item" to="/">
-            <h1 class="subtitle has-text-light">Plea Bargain</h1>
-          </n-link>
-        </b-navbar-item>
+    <!-- FIXME: make this the current path -->
+    <NavBar help />
+
+    <ToolBar ref="toolbar">
+      <template v-slot:start>
+        <div class="level-item buttons">
+          <b-button class="level-item" :disabled="openForm" @click="openScenarioForm()">Add Scenario</b-button>
+        </div>
       </template>
-
-      <template slot="start">
-        <b-navbar-item tag="div">
-          <div class="buttons">
-            <!-- Upload Button -->
-            <b-button
-              @click="uploadModal()"
-              type="is-primary"
-              icon-left="file-upload"
-              >Upload Asset</b-button
-            >
-          </div>
-        </b-navbar-item>
-      </template>
-
-      <template slot="end">
-        <b-navbar-item tag="div">
-          <div class="buttons">
-            <!-- Logout Button -->
-            <b-button @click="logout()" type="is-danger" icon-left="exit-run"
-              >Log Out, {{ userName }}</b-button
-            >
-
-            <!-- Help Menu -->
-            <HelpSidebar :helpInfo="helpInfo" />
-          </div>
-        </b-navbar-item>
-      </template>
-    </b-navbar>
-
-    <nav ref="toolbar" class="level toolbar">
-      <!-- Left Side Toolbar -->
-      <div class="level-left">
-        <b-button
-          class="level-item"
-          :disabled="openForm"
-          @click="openScenarioForm()"
-          >Add Scenario</b-button
-        >
-      </div>
-
-      <!-- Right Side Toolbar -->
-      <div class="level-right">
-        <b-field class="level-item"></b-field>
-      </div>
-    </nav>
+    </ToolBar>
 
     <section class="section container">
       <h1 class="title">Scenarios</h1>
@@ -62,11 +18,7 @@
         <form v-show="openForm" ref="form" @submit.prevent="onSubmit()">
           <ScenarioCard v-model="scenarioData" />
         </form>
-        <ScenarioCard
-          v-for="scenario in scenarioSet"
-          :key="scenario.id"
-          :scenario="scenario"
-        />
+        <ScenarioCard v-for="scenario in scenarioSet" :key="scenario.id" :scenario="scenario" />
       </div>
     </section>
   </div>
@@ -77,11 +29,13 @@
 import { mapGetters, mapActions } from "vuex";
 
 // Import Components
+import NavBar from "~/components/NavBar";
+import ToolBar from "~/components/ToolBar";
 import ScenarioCard from "~/components/ScenarioCard";
 
 export default {
-  name: "ScenarioBoard",
-  components: { ScenarioCard },
+  name: "Scenarios",
+  components: { NavBar, ToolBar, ScenarioCard },
   async fetch({ store, params }) {
     await store.dispatch("scenarios/getScenarios");
   },
@@ -136,7 +90,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));

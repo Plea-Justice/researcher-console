@@ -1,50 +1,8 @@
 <template>
   <div>
-    <b-navbar type="is-dark">
-      <template slot="brand">
-        <b-navbar-item tag="div">
-          <n-link class="navbar-item" to="/scenarios">
-            <h1 class="subtitle has-text-light">{{ scenarioName }}</h1>
-          </n-link>
-        </b-navbar-item>
-      </template>
-
-      <template slot="start">
-        <b-navbar-item tag="div">
-          <div class="buttons">
-            <!-- Upload Button -->
-            <b-button
-              @click="uploadModal()"
-              type="is-primary"
-              icon-left="file-upload"
-              >Upload Asset</b-button
-            >
-
-            <!-- Download Button -->
-            <b-button
-              @click="downloadZip()"
-              type="is-primary"
-              icon-left="folder-download"
-              >Download Package</b-button
-            >
-          </div>
-        </b-navbar-item>
-      </template>
-
-      <template slot="end">
-        <b-navbar-item tag="div">
-          <div class="buttons">
-            <!-- Logout Button -->
-            <b-button @click="logout()" type="is-danger" icon-left="exit-run"
-              >Log Out, {{ userName }}</b-button
-            >
-
-            <!-- Help Menu -->
-            <HelpSidebar :helpInfo="helpInfo" />
-          </div>
-        </b-navbar-item>
-      </template>
-    </b-navbar>
+    <NavBar :title="scenarioName" path="/scenarios" help>
+      <template v-slot:start></template>
+    </NavBar>
 
     <nuxt />
   </div>
@@ -52,14 +10,10 @@
 
 <script>
 // Import Components
-import UploadModal from "~/components/UploadModal";
-import HelpSidebar from "~/components/HelpSidebar";
+import NavBar from "~/components/NavBar";
 
 export default {
-  components: {
-    UploadModal,
-    HelpSidebar
-  },
+  components: { NavBar },
   data() {
     return {
       // FIXME: Name should come from manifest or user directory.

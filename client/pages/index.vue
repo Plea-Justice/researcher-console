@@ -1,57 +1,49 @@
 <template>
-  <section class="login-wrapper">
-    <h1 class="title login-title">
-      <!-- FIXME: use an environment variable -->
-      Plea Simulation Researcher Console
-    </h1>
+  <div class="hero is-primary is-bold is-fullheight">
+    <div class="hero-body">
+      <section class="container login-wrapper">
+        <h1 class="title login-title">
+          <!-- FIXME: use an environment variable -->
+          Plea Simulation Researcher Console
+        </h1>
 
-    <form class="box has-text-centered login" @submit.prevent="login()">
-      <div class="block">
-        <b-icon icon="account-circle" size="is-large" />
-      </div>
+        <!-- Login Card -->
+        <form class="box has-text-centered" @submit.prevent="login()">
+          <div class="block">
+            <b-icon icon="account-circle" size="is-large" />
+          </div>
 
-      <b-field>
-        <b-input placeholder="User ID" v-model="name" />
-      </b-field>
+          <b-field>
+            <b-input placeholder="User ID" v-model="name" />
+          </b-field>
 
-      <b-field>
-        <b-input
-          type="password"
-          placeholder="Password"
-          password-reveal
-          v-model="password"
-        />
-      </b-field>
+          <b-field>
+            <b-input type="password" placeholder="Password" password-reveal v-model="password" />
+          </b-field>
 
-      <div class="buttons is-centered">
-        <!-- FIXME: should submit and let form login -->
-        <b-button
-          @click="login()"
-          type="is-primary"
-          icon-right="login-variant"
-          expanded
-          >Login</b-button
-        >
-        <b-button
-          @click="register()"
-          type="is-primary"
-          icon-right="account-plus"
-          expanded
-          >Create Account</b-button
-        >
-      </div>
+          <div class="buttons is-centered">
+            <!-- FIXME: should submit and let form login -->
+            <b-button @click="login()" type="is-primary" icon-right="login-variant" expanded>Login</b-button>
+            <b-button
+              @click="register()"
+              type="is-primary"
+              icon-right="account-plus"
+              expanded
+            >Create Account</b-button>
+          </div>
 
-      <hr />
+          <hr />
 
-      <b-button type="is-text" :prefetch="false">Create Account</b-button>
-    </form>
-  </section>
+          <b-button type="is-text" :prefetch="false">Create Account</b-button>
+        </form>
+      </section>
+    </div>
+  </div>
 </template>
 
 <script>
 export default {
   name: "LoginPage",
-  layout: "LoginLayout",
   data() {
     return {
       name: "",
@@ -133,10 +125,6 @@ export default {
 }
 
 .login-title {
-  margin-bottom: 8rem;
-}
-
-.login {
-  max-width: 40%;
+  text-align: center;
 }
 </style>

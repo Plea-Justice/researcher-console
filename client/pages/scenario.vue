@@ -1,35 +1,35 @@
 <template>
   <div>
-    <!-- Level Toolbar -->
-    <nav ref="toolbar" class="level padded-responsive-container sticky toolbar">
-      <!-- Left Side Toolbar -->
-      <div class="level-left">
+    <ToolBar ref="toolbar">
+      <template v-slot:start>
         <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
-        <b-button type="is-primary" class="level-item">Save</b-button>
-        <b-button class="level-item" @click="collapse()">
-          {{ `${isCollapsed ? "Expand" : "Collapse"} All` }}
-        </b-button>
-        <b-button class="level-item" @click="addCondition()"
-          >Add Condition</b-button
-        >
-      </div>
-
-      <!-- Right Side Toolbar -->
-      <div class="level-right">
+        <div class="level-item buttons">
+          <b-button type="is-primary">Save</b-button>
+          <b-button @click="collapse()">{{ `${isCollapsed ? "Expand" : "Collapse"} All` }}</b-button>
+          <b-button @click="addCondition()">Add Condition</b-button>
+        </div>
+      </template>
+      <template v-slot:end>
+        <div class="level-item">
+          <div class="buttons">
+            <b-button @click="uploadModal()" type="is-primary" icon-left="file-upload">Upload Asset</b-button>
+            <b-button
+              @click="downloadZip()"
+              type="is-primary"
+              icon-left="folder-download"
+            >Download Package</b-button>
+          </div>
+        </div>
         <b-field class="level-item">
           <b-input icon="filter-outline" placeholder="Filter"></b-input>
         </b-field>
-      </div>
-    </nav>
+      </template>
+    </ToolBar>
 
     <!-- Titles -->
     <div ref="titles" class="sticky condition-bar">
       <div class="responsive-container condition-titles">
-        <div
-          v-for="index in numConditions"
-          :key="index"
-          class="condition-title"
-        >
+        <div v-for="index in numConditions" :key="index" class="condition-title">
           <b-button
             @click="removeCondition(index - 1)"
             type="is-text"
@@ -42,15 +42,11 @@
     </div>
 
     <!-- Scrolling Wrapper -->
-    <div
-      @scroll="handleScroll($event)"
-      ref="horizontalScroll"
-      class="scrollable"
-    >
+    <div @scroll="handleScroll($event)" ref="horizontalScroll" class="scrollable">
       <section ref="frames" class="responsive-container">
         <!-- Frames -->
         <!-- TODO: internalize isFirst/isLast for Frame? -->
-        <StoryFrame
+        <SceneFrame
           v-for="(frame, index) in frameSet"
           :key="`${frame.id}_${index}`"
           @scroll-to="scrollToFrame($event)"
@@ -69,15 +65,18 @@
 import { mapGetters, mapActions } from "vuex";
 
 // Import Components
-import StoryFrame from "~/components/StoryFrame";
+import ToolBar from "~/components/ToolBar";
+import UploadModal from "~/components/UploadModal";
+import HelpSidebar from "~/components/HelpSidebar";
+import SceneFrame from "~/components/SceneFrame";
 
 // Import Helper Functions
 import { throttle } from "~/assets/util";
 
 export default {
-  name: "StoryBoard",
+  name: "Scenario",
   layout: "StoryLayout",
-  components: { StoryFrame },
+  components: { ToolBar, UploadModal, HelpSidebar, SceneFrame },
   data() {
     const isCollapsed = false;
 
@@ -151,21 +150,15 @@ export default {
 .sticky {
   position: sticky;
   z-index: 5;
-  background-color: #fffe;
-}
-
-.toolbar {
-  /* Sticky below toolbar */
-  top: 0;
-  height: 5rem;
-  background-color: whitesmoke;
 }
 
 .condition-bar {
+  margin-top: 2rem;
   overflow-x: hidden;
   /* Sticky below toolbar */
   top: 5rem;
   margin-bottom: 0.25rem;
+  background-color: #fffe;
 }
 
 .condition-titles {

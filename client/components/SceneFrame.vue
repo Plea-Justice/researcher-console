@@ -46,17 +46,12 @@
           :isLast="isLast"
         />
 
-        <StoryCard v-else :frameCollapsed="isCollapsed" :id="scene.id" />
+        <SceneCard v-else :frameCollapsed="isCollapsed" :id="scene.id" />
       </div>
     </div>
 
     <div class="frame-footer">
-      <b-button
-        @click="addFrame(frame.id)"
-        type="is-light"
-        size="is-medium"
-        icon-left="plus"
-      />
+      <b-button @click="addFrame(frame.id)" type="is-light" size="is-medium" icon-left="plus" />
     </div>
   </div>
 </template>
@@ -66,12 +61,12 @@
 import { mapGetters, mapActions } from "vuex";
 
 // Import Components
-import StoryCard from "~/components/StoryCard";
+import SceneCard from "~/components/SceneCard";
 import StoryScene from "~/components/StoryScene";
 
 export default {
-  name: "StoryFrame",
-  components: { StoryCard, StoryScene },
+  name: "SceneFrame",
+  components: { SceneCard, StoryScene },
   props: {
     frame: {
       type: Object,
