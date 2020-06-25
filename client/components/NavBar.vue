@@ -34,7 +34,7 @@
           >
 
           <!-- Help Menu -->
-          <HelpSidebar :helpInfo="helpInfo" />
+          <HelpSidebar v-if="help" :helpInfo="helpInfo" />
         </div>
       </b-navbar-item>
     </template>
@@ -63,9 +63,6 @@ export default {
       type: Boolean,
       required: false,
       default: false
-    },
-    data() {
-      helpInfo: "Variable for information about the storyboard page would appear here with links to the wiki. Click the study name to return to the scenario selection screen.";
     }
   },
   created() {
@@ -78,7 +75,9 @@ export default {
   },
   data() {
     return {
-      items: []
+      items: [],
+      helpInfo:
+        "Variable for information about the storyboard page would appear here with links to the wiki. Click the study name to return to the scenario selection screen."
     };
   },
   computed: {
