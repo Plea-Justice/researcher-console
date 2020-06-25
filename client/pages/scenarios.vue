@@ -6,7 +6,12 @@
     <ToolBar ref="toolbar">
       <template v-slot:start>
         <div class="level-item buttons">
-          <b-button class="level-item" :disabled="openForm" @click="openScenarioForm()">Add Scenario</b-button>
+          <b-button
+            class="level-item"
+            :disabled="openForm"
+            @click="openScenarioForm()"
+            >Add Scenario</b-button
+          >
         </div>
       </template>
     </ToolBar>
@@ -18,7 +23,11 @@
         <form v-show="openForm" ref="form" @submit.prevent="onSubmit()">
           <ScenarioCard v-model="scenarioData" />
         </form>
-        <ScenarioCard v-for="scenario in scenarioSet" :key="scenario.id" :scenario="scenario" />
+        <ScenarioCard
+          v-for="scenario in scenarioSet"
+          :key="scenario.id"
+          :scenario="scenario"
+        />
       </div>
     </section>
   </div>
@@ -42,7 +51,7 @@ export default {
   data() {
     const openForm = false;
     const scenarioData = {
-      name: "",
+      title: "",
       description: ""
     };
 

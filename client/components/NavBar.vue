@@ -16,9 +16,11 @@
         <b-navbar-item
           v-if="item.name != 'index'"
           :key="item.path"
+          tag="n-link"
           :to="item.path"
           class="is-capitalized"
-        >{{item.name}}</b-navbar-item>
+          >{{ item.name }}</b-navbar-item
+        >
       </template>
     </template>
 
@@ -27,7 +29,9 @@
         <div class="buttons">
           <slot name="end" />
           <!-- Logout Button -->
-          <b-button @click="logout()" type="is-danger" icon-left="exit-run">Log Out, {{ userName }}</b-button>
+          <b-button @click="logout()" type="is-danger" icon-left="exit-run"
+            >Log Out, {{ userName }}</b-button
+          >
 
           <!-- Help Menu -->
           <HelpSidebar :helpInfo="helpInfo" />
@@ -59,6 +63,9 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    data() {
+      helpInfo: "Variable for information about the storyboard page would appear here with links to the wiki. Click the study name to return to the scenario selection screen.";
     }
   },
   created() {

@@ -4,7 +4,12 @@
     <header class="card-header has-top-radius-large">
       <div class="header-wrapper">
         <h1 v-if="!isForm" class="subtitle">{{ scenario.title }}</h1>
-        <b-input v-else v-model="value.name" placeholder="name" class="flex-grow" />
+        <b-input
+          v-else
+          v-model="value.title"
+          placeholder="title"
+          class="flex-grow"
+        />
       </div>
     </header>
 

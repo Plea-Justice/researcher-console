@@ -5,19 +5,27 @@
         <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
         <div class="level-item buttons">
           <b-button type="is-primary">Save</b-button>
-          <b-button @click="collapse()">{{ `${isCollapsed ? "Expand" : "Collapse"} All` }}</b-button>
+          <b-button @click="collapse()">{{
+            `${isCollapsed ? "Expand" : "Collapse"} All`
+          }}</b-button>
           <b-button @click="addCondition()">Add Condition</b-button>
         </div>
       </template>
       <template v-slot:end>
         <div class="level-item">
           <div class="buttons">
-            <b-button @click="uploadModal()" type="is-primary" icon-left="file-upload">Upload Asset</b-button>
+            <b-button
+              @click="uploadModal()"
+              type="is-primary"
+              icon-left="file-upload"
+              >Upload Asset</b-button
+            >
             <b-button
               @click="downloadZip()"
               type="is-primary"
               icon-left="folder-download"
-            >Download Package</b-button>
+              >Download Package</b-button
+            >
           </div>
         </div>
         <b-field class="level-item">
@@ -29,7 +37,11 @@
     <!-- Titles -->
     <div ref="titles" class="sticky condition-bar">
       <div class="responsive-container condition-titles">
-        <div v-for="index in numConditions" :key="index" class="condition-title">
+        <div
+          v-for="index in numConditions"
+          :key="index"
+          class="condition-title"
+        >
           <b-button
             @click="removeCondition(index - 1)"
             type="is-text"
@@ -42,7 +54,11 @@
     </div>
 
     <!-- Scrolling Wrapper -->
-    <div @scroll="handleScroll($event)" ref="horizontalScroll" class="scrollable">
+    <div
+      @scroll="handleScroll($event)"
+      ref="horizontalScroll"
+      class="scrollable"
+    >
       <section ref="frames" class="responsive-container">
         <!-- Frames -->
         <!-- TODO: internalize isFirst/isLast for Frame? -->
@@ -97,22 +113,39 @@ export default {
       //TODO: only update add button on current frame(s)
     }, 20),
     scrollToFrame(frameIndex) {
-      const headerHeight =
-        this.$refs["toolbar"].clientHeight + this.$refs["titles"].clientHeight;
+      this.$nextTick(() => {
+        const headerHeight =
+          this.$refs["toolbar"].$el.clientHeight +
+          this.$refs["titles"].clientHeight;
 
-      const frameTopPos = this.$refs.frames.children[
-        frameIndex
-      ].getBoundingClientRect().top;
+        const frameTopPos = this.$refs.frames.children[
+          frameIndex
+        ].getBoundingClientRect().top;
 
-      window.scrollTo({
-        top: frameTopPos - headerHeight + window.pageYOffset,
-        behavior: "smooth"
+        window.scrollTo({
+          top: frameTopPos - headerHeight + window.pageYOffset,
+          behavior: "smooth"
+        });
       });
 
       // Scroll so that the element is at the top of the view
     },
     collapse() {
       this.isCollapsed = !this.isCollapsed;
+    },
+    uploadModal() {
+      this.$buefy.modal.open({
+        parent: this,
+        component: UploadModal,
+        hasModalCard: true,
+        trapFocus: true
+      });
+    },
+    downloadZip() {
+      this.$buefy.toast.open({
+        message: "Zip download will begin momentarily.",
+        type: "is-success"
+      });
     },
     ...mapActions({
       addCondition: "scenario/addCondition",
