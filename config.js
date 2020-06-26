@@ -20,7 +20,7 @@ module.exports = {
     mongo_uri: 'mongodb://localhost:27017/researcher',
 
     // Data directory for uploaded assets and user files.
-    data_dir: 'data/',
+    data_dir: './data/',
 
     // Maximum upload size in MiB.
     max_upload_mb: 20,
@@ -33,5 +33,8 @@ module.exports = {
     serve_client: false,
 
     // Location of static client files.
-    client_dir: 'client/dist'
+    client_dir: './client/dist/',
+
+    // Location of the simulation template with simulation as toplevel index.html.
+    sim_dir: '../simulation/src/'
 };

@@ -58,14 +58,14 @@ export default {
       login: '/',
       logout: '/',
       callback: '/',
-      home: '/storyboard'
+      home: '/scenarios'
     },
     strategies: {
       local: {
         endpoints: {
-          login: { url: '/auth/login', method: 'post' },
-          logout: { url: '/auth/logout', method: 'post' },
-          user: { url: '/auth/user', method: 'get', propertyName: 'return.user' },
+          login: { url: '/api/v1/auth/login', method: 'post' },
+          logout: { url: '/api/v1/auth/logout', method: 'post' },
+          user: { url: '/api/v1/auth/user', method: 'get', propertyName: 'return.user' },
           tokenRequired: false,
           tokenType: false,
           cookie: false

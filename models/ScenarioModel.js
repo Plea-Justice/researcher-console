@@ -14,7 +14,8 @@ var ScenarioSchema = new mongoose.Schema({
     user_id: {type: mongoose.SchemaTypes.ObjectId, required: true},
     title: {type: String, required: true},
     description: {type: String},
-    frames: {type: [FrameSchema]}
+    frames: {type: [FrameSchema]},
+    vuex_state: {type: Object}
 });
 
 var ScenarioModel = mongoose.model('Scenario', ScenarioSchema);
