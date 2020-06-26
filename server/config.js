@@ -33,7 +33,7 @@ module.exports = {
     serve_client: false,
 
     // Location of static client files.
-    client_dir: './client/dist/',
+    client_dir: '../client/dist/',
 
     // Location of the simulation template with simulation as toplevel index.html.
     sim_dir: '../simulation/src/'
