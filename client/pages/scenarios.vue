@@ -84,8 +84,7 @@ export default {
   },
   head() {
     return {
-      //FIXME: use env var
-      title: `PleaBargain | Scenarios`,
+      title: `${this.$siteConfig.title} | Scenarios`,
       meta: [
         {
           hid: "description",

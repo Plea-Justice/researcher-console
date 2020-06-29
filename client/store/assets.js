@@ -10,22 +10,21 @@ export const state = () => ({
 
 export const getters = {
   assetSet: state => state.assetList.map(id => state.assets[id])
-}
+};
 
 export const actions = {
   async getAssets({ commit }) {
-    const response = await this.$axios.$get("/api/v1/a");
-    commit('setAssets', response.return)
+    const response = await this.$axios.$get('/api/v1/a');
+    commit('setAssets', response.return);
   },
-  addAsset({ commit }, scenario) {
-    scenario.id = nanoid();
-    commit('newAsset', { scenario });
-    this.$axios.$post("/api/v1/a");
+  addAsset({ commit }, asset) {
+    asset.id = nanoid();
+    commit('newAsset', { asset });
+    this.$axios.$post('/api/v1/a');
   },
   removeAsset({ commit }, id) {
     commit('deleteAsset', { id });
-    //FIXME: fix this
-    //this.$axios.$delete(`/api/v1/s/${id}`)
+    // this.$axios.$delete(`/api/v1/a/${state.assets[id].name}`);
   }
 };
 
@@ -36,13 +35,15 @@ export const mutations = {
   },
   newAsset(state, payload) {
     // Add new asset to state
-    console.log("newAsset placeholder")
-    //Vue.set(state.scenarios, payload.scenario.id, payload.scenario);
-    //state.scenarioList.unshift(payload.scenario.id);
+    // FIXME: add asset
+    Vue.set(state.assets, payload.asset.id, payload.asset);
+    state.assetList.unshift(payload.asset.id);
   },
   deleteAsset(state, payload) {
     // Remove asset
-    state.assetList.splice(state.assetList.indexOf(payload.id), 1)
-    Vue.delete(state.assets, payload.id)
+    state.assetList.splice(state.assetList.indexOf(payload.id), 1);
+    Vue.delete(state.assets, payload.id);
+
+    this.$axios.$delete(`/api/v1/a/${state.assets[payload.id].name}`);
   }
-}
+};

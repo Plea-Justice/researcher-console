@@ -8,33 +8,32 @@ export const state = () => ({
 });
 
 export const getters = {
-  scenarioSet: state => state.scenarioList.map(scenarioId => state.scenarios[scenarioId]),
+  scenarioSet: state => state.scenarioList.map(scenarioId => state.scenarios[scenarioId])
 };
 
 export const actions = {
   async getScenarios({ commit }) {
-    const response = await this.$axios.$get("api/v1/s");
+    const response = await this.$axios.$get('api/v1/s');
     commit('setScenarios', response.return);
   },
   addScenario({ commit }, scenario) {
     scenario.id = nanoid();
     commit('newScenario', { scenario });
-    this.$axios.$post("/api/v1/s")
+    this.$axios.$post('/api/v1/s');
   },
   removeScenario({ commit }, id) {
     commit('deleteScenario', { id });
-    this.$axios.$delete(`/api/v1/s/${id}`)
+    this.$axios.$delete(`/api/v1/s/${id}`);
   }
 };
 
 export const mutations = {
   setScenarios(state, scenarios) {
-
     scenarios.forEach(scenario => {
       // Add each scenario to state
-      Vue.set(state.scenarios, scenario.id, scenario)
-      state.scenarioList.push(scenario.id)
-    })
+      Vue.set(state.scenarios, scenario.id, scenario);
+      state.scenarioList.push(scenario.id);
+    });
   },
   newScenario(state, payload) {
     // Add new scenario to state
@@ -43,8 +42,7 @@ export const mutations = {
   },
   deleteScenario(state, payload) {
     // Remove scenario
-    state.scenarioList.splice(state.scenarioList.indexOf(payload.id), 1)
-    Vue.delete(state.scenarios, payload.id)
+    state.scenarioList.splice(state.scenarioList.indexOf(payload.id), 1);
+    Vue.delete(state.scenarios, payload.id);
   }
 };
-

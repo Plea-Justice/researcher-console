@@ -147,9 +147,8 @@ export default {
     })
   },
   head() {
-    // FIXME: use global var for title
     return {
-      title: `PleaBargain | StoryBoard`,
+      title: `${this.$siteConfig.title} | StoryBoard`,
       meta: [
         {
           hid: "description",

@@ -2,7 +2,7 @@
   <b-navbar type="is-dark">
     <template slot="brand">
       <b-navbar-item :tag="path ? 'n-link' : 'div'" :to="path || null">
-        <h1 class="subtitle has-text-light">{{ title }}</h1>
+        <h1 class="subtitle has-text-light">{{ title || $siteConfig.title }}</h1>
       </b-navbar-item>
     </template>
 
@@ -19,8 +19,7 @@
           tag="n-link"
           :to="item.path"
           class="is-capitalized"
-          >{{ item.name }}</b-navbar-item
-        >
+        >{{ item.name }}</b-navbar-item>
       </template>
     </template>
 
@@ -29,9 +28,7 @@
         <div class="buttons">
           <slot name="end" />
           <!-- Logout Button -->
-          <b-button @click="logout()" type="is-danger" icon-left="exit-run"
-            >Log Out, {{ userName }}</b-button
-          >
+          <b-button @click="logout()" type="is-danger" icon-left="exit-run">Log Out, {{ userName }}</b-button>
 
           <!-- Help Menu -->
           <HelpSidebar v-if="help" :helpInfo="helpInfo" />
@@ -52,7 +49,7 @@ export default {
     title: {
       type: String,
       required: false,
-      default: "PleaBargain"
+      default: ""
     },
     path: {
       type: String,

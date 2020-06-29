@@ -73,8 +73,6 @@ export default {
       this.name = "";
       this.password = "";
 
-      //FIXME: redirect on 404
-      // Unprotected
       this.$router.push("/scenarios");
     },
     async register() {
@@ -101,8 +99,7 @@ export default {
   },
   head() {
     return {
-      //FIXME: use env var
-      title: `PleaBargain | Login`,
+      title: `${this.$siteConfig.title} | Login`,
       meta: [
         {
           hid: "description",

@@ -22,7 +22,7 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: [],
+  plugins: ['~/plugins/axios', '~/plugins/vue-prototype-config'],
   /*
    ** Nuxt.js dev-modules
    */
