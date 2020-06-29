@@ -25,13 +25,4 @@ export default {};
   height: 5rem;
   background-color: whitesmoke;
 }
-
-.sticky {
-  position: sticky;
-  z-index: 5;
-}
-
-.padded-responsive-container {
-  padding: 0 4%;
-}
 </style>

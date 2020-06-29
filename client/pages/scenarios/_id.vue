@@ -70,7 +70,6 @@ import { mapGetters, mapActions } from "vuex";
 // Import Components
 import ToolBar from "~/components/ToolBar";
 import UploadModal from "~/components/UploadModal";
-import HelpSidebar from "~/components/HelpSidebar";
 import SceneFrame from "~/components/SceneFrame";
 
 // Import Helper Functions
@@ -78,19 +77,19 @@ import { throttle } from "~/assets/util";
 
 export default {
   name: "Scenario",
-  layout: "StoryLayout",
-  components: { ToolBar, UploadModal, HelpSidebar, SceneFrame },
+  layout: "ScenarioLayout",
+  components: { ToolBar, UploadModal, SceneFrame },
+  data() {
+    return {
+      isCollapsed: false
+    };
+  },
   async fetch({ store, params }) {
-    await store.dispatch("scenario/getScenario");
+    await store.dispatch("scenario/getScenario", params.id);
     await store.dispatch("assets/getAssets");
   },
-  data() {
-    const isCollapsed = false;
-
-    return { isCollapsed };
-  },
   computed: {
-    // FIXME: make this 1 getter
+    // FIXME: make this 1 getter, formalize condition names
     ...mapGetters({
       scenarioMeta: "scenario/scenarioMeta",
       numConditions: "scenario/numConditions",
@@ -148,12 +147,12 @@ export default {
   },
   head() {
     return {
-      title: `${this.$siteConfig.title} | StoryBoard`,
+      title: `${this.$siteConfig.title} | ${this.scenarioMeta.title}`,
       meta: [
         {
           hid: "description",
           name: "description",
-          content: "StoryBoard Timeline"
+          content: "Scenario Chart"
         }
       ]
     };
@@ -162,19 +161,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.responsive-container {
-  margin: 0 4%;
-}
-
-.padded-responsive-container {
-  padding: 0 4%;
-}
-
-.sticky {
-  position: sticky;
-  z-index: 5;
-}
-
 .condition-bar {
   margin-top: 2rem;
   overflow-x: hidden;

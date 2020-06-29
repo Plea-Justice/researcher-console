@@ -2,39 +2,55 @@
   <div class="hero is-primary is-bold is-fullheight">
     <div class="hero-body">
       <section class="container login-wrapper">
-        <h1 class="title login-title">
-          <!-- FIXME: use an environment variable -->
-          Plea Simulation Researcher Console
-        </h1>
+        <h1 class="title login-title">Plea Simulation Researcher Console</h1>
 
         <!-- Login Card -->
-        <form class="box has-text-centered" @submit.prevent="login()">
+        <form class="box has-text-centered" @submit.prevent="isRegistration ? register() : login()">
           <div class="block">
             <b-icon icon="account-circle" size="is-large" />
           </div>
 
-          <b-field>
-            <b-input placeholder="User ID" v-model="name" />
+          <b-field v-if="isRegistration">
+            <b-input v-model="email" type="email" placeholder="Email"></b-input>
           </b-field>
 
           <b-field>
-            <b-input type="password" placeholder="Password" password-reveal v-model="password" />
+            <b-input v-model="name" placeholder="Username" />
           </b-field>
 
+          <b-field>
+            <b-input v-model="password" type="password" placeholder="Password" password-reveal />
+          </b-field>
           <div class="buttons is-centered">
             <!-- FIXME: should submit and let form login -->
-            <b-button @click="login()" type="is-primary" icon-right="login-variant" expanded>Login</b-button>
+
             <b-button
-              @click="register()"
+              v-if="!isRegistration"
+              tag="input"
+              native-type="submit"
+              value="Login"
+              icon-right="login-variant"
               type="is-primary"
-              icon-right="account-plus"
               expanded
-            >Create Account</b-button>
+            />
+
+            <b-button
+              v-else
+              tag="input"
+              native-type="submit"
+              value="Create Account"
+              icon-right="account-plus"
+              type="is-primary"
+              expanded
+            />
           </div>
 
           <hr />
 
-          <b-button type="is-text" :prefetch="false">Create Account</b-button>
+          <b-button
+            @click="setFormMode()"
+            type="is-text"
+          >{{ isRegistration ? "Login to existing account" : "Create an account" }}</b-button>
         </form>
       </section>
     </div>
@@ -46,11 +62,16 @@ export default {
   name: "LoginPage",
   data() {
     return {
+      isRegistration: false,
+      email: "",
       name: "",
       password: ""
     };
   },
   methods: {
+    setFormMode() {
+      this.isRegistration = !this.isRegistration;
+    },
     async login() {
       // FIXME: 404 uncaught
       try {
@@ -78,6 +99,7 @@ export default {
     async register() {
       try {
         let response = await this.$axios.post("/api/v1/auth/register", {
+          emai: this.email,
           username: this.name,
           password: this.password
         });
@@ -95,6 +117,10 @@ export default {
           type: "is-danger"
         });
       }
+
+      this.email = "";
+      this.name = "";
+      this.password = "";
     }
   },
   head() {

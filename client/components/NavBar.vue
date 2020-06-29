@@ -2,7 +2,9 @@
   <b-navbar type="is-dark">
     <template slot="brand">
       <b-navbar-item :tag="path ? 'n-link' : 'div'" :to="path || null">
-        <h1 class="subtitle has-text-light">{{ title || $siteConfig.title }}</h1>
+        <h1 class="subtitle has-text-light">
+          {{ title || $siteConfig.title }}
+        </h1>
       </b-navbar-item>
     </template>
 
@@ -12,14 +14,15 @@
           <slot name="start" />
         </div>
       </b-navbar-item>
-      <template v-for="item in items">
+      <template v-for="route in routes">
         <b-navbar-item
-          v-if="item.name != 'index'"
-          :key="item.path"
+          v-if="route.name != 'index'"
+          :key="route.path"
           tag="n-link"
-          :to="item.path"
+          :to="route.path"
           class="is-capitalized"
-        >{{ item.name }}</b-navbar-item>
+          >{{ route.name }}</b-navbar-item
+        >
       </template>
     </template>
 
@@ -28,7 +31,9 @@
         <div class="buttons">
           <slot name="end" />
           <!-- Logout Button -->
-          <b-button @click="logout()" type="is-danger" icon-left="exit-run">Log Out, {{ userName }}</b-button>
+          <b-button @click="logout()" type="is-danger" icon-left="exit-run"
+            >Log Out, {{ userName }}</b-button
+          >
 
           <!-- Help Menu -->
           <HelpSidebar v-if="help" :helpInfo="helpInfo" />
@@ -62,17 +67,18 @@ export default {
       default: false
     }
   },
-  created() {
-    this.$router.options.routes.forEach(route => {
-      this.items.push({
-        name: route.name,
-        path: route.path
-      });
-    });
-  },
   data() {
     return {
-      items: [],
+      routes: [
+        {
+          name: "assets",
+          path: "/assets"
+        },
+        {
+          name: "scenarios",
+          path: "/scenarios"
+        }
+      ],
       helpInfo:
         "Variable for information about the storyboard page would appear here with links to the wiki. Click the study name to return to the scenario selection screen."
     };

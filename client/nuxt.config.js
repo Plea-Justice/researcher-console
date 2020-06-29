@@ -18,7 +18,7 @@ export default {
   /*
    ** Global CSS
    */
-  css: [],
+  css: ['~/assets/common.scss'],
   /*
    ** Plugins to load before mounting the App
    */
@@ -28,7 +28,7 @@ export default {
    */
   buildModules: [
     // Doc: https://github.com/Developmint/nuxt-purgecss
-    // 'nuxt-purgecss'
+    // 'nuxt-purgecss',
   ],
   /*
    ** Nuxt.js modules
@@ -78,6 +78,10 @@ export default {
    ** See https://github.com/Developmint/nuxt-purgecss
    */
   // purgeCSS: { // your settings here },
+  /*
+   ** Style Resources configuration
+   ** See https://github.com/nuxt-community/style-resources-module
+   */
   router: {
     // middleware: ['auth']
   },
@@ -85,7 +89,7 @@ export default {
    ** Build configuration
    */
   build: {
-    // analyze: true,
+    analyze: true,
     minimize: true,
     optimization: {
       splitChunks: {

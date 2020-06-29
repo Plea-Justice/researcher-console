@@ -6,7 +6,12 @@
     <ToolBar ref="toolbar">
       <template v-slot:start>
         <div class="level-item buttons">
-          <b-button class="level-item" :disabled="openForm" @click="openScenarioForm()">Add Scenario</b-button>
+          <b-button
+            class="level-item"
+            :disabled="openForm"
+            @click="openScenarioForm()"
+            >Add Scenario</b-button
+          >
         </div>
       </template>
     </ToolBar>
@@ -24,7 +29,12 @@
             />
           </ItemCard>
         </form>
-        <ItemCard v-for="scenario in scenarioSet" :key="scenario.id" :item="scenario">
+        <ItemCard
+          v-for="scenario in scenarioSet"
+          :key="scenario.id"
+          :item="scenario"
+          link
+        >
           <p>{{ scenario.description }}</p>
         </ItemCard>
       </div>
@@ -50,7 +60,7 @@ export default {
   data() {
     const openForm = false;
     const scenarioData = {
-      title: "",
+      name: "",
       description: ""
     };
 
@@ -84,7 +94,7 @@ export default {
   },
   head() {
     return {
-      title: `${this.$siteConfig.title} | Scenarios`,
+      name: `${this.$siteConfig.title} | Scenarios`,
       meta: [
         {
           hid: "description",
@@ -102,11 +112,5 @@ export default {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 15px;
-}
-
-.toolbar {
-  height: 5rem;
-  padding: 0 4%;
-  background-color: whitesmoke;
 }
 </style>

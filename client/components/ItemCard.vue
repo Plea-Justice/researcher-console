@@ -3,8 +3,20 @@
     <!-- Card Header -->
     <header class="card-header has-top-radius-large">
       <div class="header-wrapper">
-        <h1 v-if="!isForm" class="subtitle">{{ item.name }}</h1>
-        <b-input v-else v-model="value.name" placeholder="title" class="flex-grow" />
+        <template v-if="!isForm">
+          <n-link v-if="link" :to="item.id" append>
+            <h1 class="subtitle">{{ item.name }}</h1>
+          </n-link>
+
+          <h1 v-else class="subtitle">{{ item.name }}</h1>
+        </template>
+
+        <b-input
+          v-else
+          v-model="value.name"
+          placeholder="title"
+          class="flex-grow"
+        />
       </div>
     </header>
 
@@ -44,6 +56,10 @@ export default {
   props: {
     item: {
       type: Object,
+      required: false
+    },
+    link: {
+      type: Boolean,
       required: false
     },
     value: {

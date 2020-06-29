@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- FIXME: make this the current path -->
     <NavBar help />
 
     <ToolBar ref="toolbar">
@@ -111,11 +110,5 @@ export default {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 15px;
-}
-
-.toolbar {
-  height: 5rem;
-  padding: 0 4%;
-  background-color: whitesmoke;
 }
 </style>

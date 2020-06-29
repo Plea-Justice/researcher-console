@@ -8,8 +8,8 @@ import { nanoid } from 'nanoid/non-secure';
 import defaultScene from '../assets/spec.json';
 
 export const state = () => ({
-  id: "",
-  title: "",
+  id: '',
+  title: '',
   conditionLengths: [],
   frames: {},
   frameList: [],
@@ -17,7 +17,10 @@ export const state = () => ({
 });
 
 export const getters = {
-  scenarioMeta: state => { state.id, state.title },
+  scenarioMeta: state => ({
+    id: state.id,
+    title: state.title
+  }),
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
   numConditions: state => state.conditionLengths.length,
@@ -26,9 +29,9 @@ export const getters = {
 };
 
 export const actions = {
-  async getScenario({ commit }) {
+  async getScenario({ commit }, id) {
     // FIXME: allow this to capture any scenario
-    const response = await this.$axios.$get('/api/v1/s/5ef1f91bad02294216a0cada');
+    const response = await this.$axios.$get(`/api/v1/s/${id}`);
 
     commit('setScenario', response.return);
   },
@@ -73,27 +76,26 @@ export const actions = {
 
 export const mutations = {
   setScenario(state, scenario) {
-    state.id = scenario._id
+    state.id = scenario._id;
     state.title = scenario.title;
     state.conditionLengths = scenario.vuex_state.conditionLengths;
-    state.scenes = scenario.vuex_state.scenes
+    state.scenes = scenario.vuex_state.scenes;
     state.frames = scenario.vuex_state.frames;
     state.frameList = scenario.vuex_state.frameList;
   },
   putScenario(state, id) {
     this.$axios.$put(`/api/v1/s/${id}`, {
       _id: id,
-      title: title,
+      title: state.title,
       vuex_state: {
         conditionLengths: state.conditionLengths,
         scenes: state.scenes,
         frames: state.frames,
-        frameList: state.frameList,
+        frameList: state.frameList
       }
     });
   },
   newCondition(state, payload) {
-
     const firstFrame = state.frames[state.frameList[0]];
 
     // Update condition lengths
@@ -141,7 +143,7 @@ export const mutations = {
     // Inserting into next position, so get next index
     const frameIndex = state.frameList.indexOf(payload.frameId) + 1;
 
-    //FIXME: improve this
+    // FIXME: improve this
     const frameScenes = Array(state.frames[payload.frameId].scenes.length);
     for (let i = 0; i < frameScenes.length; i++) {
       const id = nanoid();
@@ -176,4 +178,3 @@ export const mutations = {
     Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: null });
   }
 };
-
