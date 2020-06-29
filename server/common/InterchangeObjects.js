@@ -6,18 +6,17 @@
  */
 
 module.exports = {
-    Scenario: function (id, title, description) {
+    Scenario: function (id, title, description, data) {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.data = data || {
+            frames: {},
+            scenes: {},
+            frameList: [],
+            sceneList: [],
+            conditionLengths: []
+        };
     },
-
-    Frame: function (id, ) {
-
-    },
-
-    Scene: function (obj) {
-
-    }
 };
 

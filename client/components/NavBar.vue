@@ -82,7 +82,13 @@ export default {
   },
   computed: {
     userName() {
-      return this.$auth.user || "Testing";
+      return this.$auth.user ? this.$auth.user.name : "Testing";
+    }
+  },
+  methods: {
+    async logout() {
+      await this.$auth.logout();
+      this.$router.push("/");
     }
   }
 };

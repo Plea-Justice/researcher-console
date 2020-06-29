@@ -75,7 +75,7 @@ export default {
 
       //FIXME: redirect on 404
       // Unprotected
-      this.$router.push("/storyboard");
+      this.$router.push("/scenarios");
     },
     async register() {
       try {

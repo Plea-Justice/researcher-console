@@ -42,7 +42,8 @@ module.exports = function (options) {
         let scenario = new ScenarioModel({
             user_id: req.session.user_id,
             title: req.body.title,
-            description: req.body.description
+            description: req.body.description,
+            vuex_state: req.body.vuex_state
         });
 
         scenario.save((err, obj) => {
@@ -87,12 +88,41 @@ module.exports = function (options) {
     });
 
     /**
+     * Update a scenario.
+     * @param Fields of scenario object to update.
+    */
+    router.put('/:scenario_id', (req, res) => {
+        let id = req.params.scenario_id;
+
+        ScenarioModel.updateOne({_id: id}, {$set: {
+            title: req.body.title,
+            description: req.body.description,
+            vuex_state: req.body.vuex_state
+        }}, (err)=>{
+            if (err)
+                res.status(500).json({
+                    success: false,
+                    message: 'There was an error updating the scenario.',
+                    return: err
+                });            
+            else 
+                res.status(200).json({
+                    success: true,
+                    message: 'Scenario updated.',
+                    return: null
+                });
+        });
+    });
+    
+    /**
      * Delete a scenario.
      * @param void
      * @return 
      */
     router.delete('/:scenario_id', (req, res) => {
-        ScenarioModel.deleteOne(req.params.scenario_id, (err)=>{
+        let id = req.params.scenario_id;
+
+        ScenarioModel.deleteOne({_id: id}, (err)=>{
             if (err)
                 res.status(500).json({
                     success: false,
@@ -109,7 +139,8 @@ module.exports = function (options) {
     });
 
     // Sub-route to frame endpoint.
-    router.use('/:scenario_id/i', require('./frame'));
+    router.use('/:scenario_id/f', require('./frame')(options));
+    router.use('/:scenario_id/zip', require('./zip')(options));
 
     return router;
 };

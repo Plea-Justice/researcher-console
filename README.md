@@ -14,7 +14,7 @@ Additional Node based software will be installled by `npm`. MongoDB is only nece
 ### Building the Frontend
 
 ```bash
-# the client is within a subdirectory of the server.
+# switch to the client's directory.
 $ cd client/
 
 # install dependencies
@@ -38,6 +38,9 @@ The client is built using [Nuxt](https://nuxtjs.org), a framework for [Vue](http
 ### Running the Backend
 
 ```bash
+# switch to the server's directory.
+$ cd server/
+
 # install dependencies
 $ npm install
 
@@ -62,5 +65,5 @@ An interface for testing the backend exists at `public/test.html`, however using
 
 | Method | Endpoint | Function | Response |
 | --- | --- | --- | --- |
-| GET | /api/v1/scenario | Get the list of scenarios. | { [scenario uuids] } |
-| POST | /api/v1/scenario | Create a new scenario. | { uuid } |
+| GET | /api/v1/s | Get the list of scenarios. | { [scenario uuids] } |
+| POST | /api/v1/s | Create a new scenario. | { scenario } |
