@@ -1,6 +1,5 @@
 import Vue from 'vue'; // eslint-disable-line import/no-extraneous-dependencies
 
-// FIXME: fix nanoid warning
 import { nanoid } from 'nanoid/non-secure';
 
 export const state = () => ({
@@ -8,25 +7,23 @@ export const state = () => ({
   scenarioList: []
 });
 
-// TODO: fix condition Lengths
 export const getters = {
   scenarioSet: state => state.scenarioList.map(scenarioId => state.scenarios[scenarioId]),
 };
 
 export const actions = {
   async getScenarios({ commit }) {
-    const response = await this.$axios.$get(
-      "api/v1/s"
-    );
-
+    const response = await this.$axios.$get("api/v1/s");
     commit('setScenarios', response.return);
   },
   addScenario({ commit }, scenario) {
     scenario.id = nanoid();
     commit('newScenario', { scenario });
+    this.$axios.$post("/api/v1/s")
   },
   removeScenario({ commit }, id) {
     commit('deleteScenario', { id });
+    this.$axios.$delete(`/api/v1/s/${id}`)
   }
 };
 

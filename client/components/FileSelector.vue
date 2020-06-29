@@ -3,12 +3,12 @@
   <b-field :type="error.flag ? 'is-danger' : null" :message="error.flag ? error.message : null">
     <b-select
       @input="$emit('input', selectedValue)"
-      :placeholder="placeholderText"
+      :placeholder="placeholder"
       v-model="selectedValue"
       :icon="icon"
     >
       <option v-if="error.flag" :value="selectedValue">{{ selectedValue }}</option>
-      <option v-for="file in files" :key="file" :value="file">{{ file }}</option>
+      <option v-for="file in fileNames" :key="file" :value="file">{{ file }}</option>
     </b-select>
   </b-field>
 </template>
@@ -17,21 +17,17 @@
 export default {
   props: {
     value: {},
-    assetType: {
-      type: String,
+    fileNames: {
+      type: Array,
       required: true
     },
     placeholder: {
       type: String,
-      required: false
+      required: true
     },
     icon: {
       type: String,
       required: false
-    },
-    manifest: {
-      type: Object,
-      required: true
     }
   },
   data() {
@@ -40,19 +36,13 @@ export default {
     return { selectedValue };
   },
   computed: {
-    files() {
-      return this.manifest[this.assetType + "s"];
-    },
-    placeholderText() {
-      return this.placeholder ? this.placeholder : this.assetType;
-    },
     error() {
       let isError = true;
       let message = null;
 
-      if (this.files == undefined || this.files == []) {
-        message = `No files for "${this.placeholderText}" exists`;
-      } else if (this.value && !this.files.includes(this.value)) {
+      if (this.fileNames.length === 0) {
+        message = `No files for "${this.placeholder}" exists`;
+      } else if (this.value && !this.fileNames.includes(this.value)) {
         message = `File "${this.value}" does not exist`;
       } else {
         isError = false;

@@ -6,12 +6,7 @@
     <ToolBar ref="toolbar">
       <template v-slot:start>
         <div class="level-item buttons">
-          <b-button
-            class="level-item"
-            :disabled="openForm"
-            @click="openScenarioForm()"
-            >Add Scenario</b-button
-          >
+          <b-button class="level-item" :disabled="openForm" @click="openScenarioForm()">Add Scenario</b-button>
         </div>
       </template>
     </ToolBar>
@@ -21,13 +16,17 @@
 
       <div class="grid">
         <form v-show="openForm" ref="form" @submit.prevent="onSubmit()">
-          <ScenarioCard v-model="scenarioData" />
+          <ItemCard v-model="scenarioData">
+            <textarea
+              v-model="scenarioData.description"
+              class="textarea has-fixed-size"
+              placeholder="script"
+            />
+          </ItemCard>
         </form>
-        <ScenarioCard
-          v-for="scenario in scenarioSet"
-          :key="scenario.id"
-          :scenario="scenario"
-        />
+        <ItemCard v-for="scenario in scenarioSet" :key="scenario.id" :item="scenario">
+          <p>{{ scenario.description }}</p>
+        </ItemCard>
       </div>
     </section>
   </div>
@@ -40,11 +39,11 @@ import { mapGetters, mapActions } from "vuex";
 // Import Components
 import NavBar from "~/components/NavBar";
 import ToolBar from "~/components/ToolBar";
-import ScenarioCard from "~/components/ScenarioCard";
+import ItemCard from "~/components/ItemCard";
 
 export default {
   name: "Scenarios",
-  components: { NavBar, ToolBar, ScenarioCard },
+  components: { NavBar, ToolBar, ItemCard },
   async fetch({ store, params }) {
     await store.dispatch("scenarios/getScenarios");
   },

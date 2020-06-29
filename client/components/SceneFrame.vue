@@ -36,15 +36,8 @@
         />
       </aside>
       <div v-for="scene in getSceneSet" :key="scene.id" class="scene">
-        <!-- FIXME: fully move out blank scene handling (Have to adjusts StoryScene) scoped prop vars? -->
-
-        <StoryScene
-          v-if="scene.props != null"
-          :frameCollapsed="isCollapsed"
-          :scene="scene"
-          :isFirst="isFirst"
-          :isLast="isLast"
-        />
+        <!-- FIXME: fully move out blank scene handling (Have to adjusts SceneForm) scoped prop vars? -->
+        <SceneForm v-if="scene.props != null" :frameCollapsed="isCollapsed" :scene="scene" />
 
         <SceneCard v-else :frameCollapsed="isCollapsed" :id="scene.id" />
       </div>
@@ -62,11 +55,11 @@ import { mapGetters, mapActions } from "vuex";
 
 // Import Components
 import SceneCard from "~/components/SceneCard";
-import StoryScene from "~/components/StoryScene";
+import SceneForm from "~/components/SceneForm";
 
 export default {
   name: "SceneFrame",
-  components: { SceneCard, StoryScene },
+  components: { SceneCard, SceneForm },
   props: {
     frame: {
       type: Object,

@@ -8,6 +8,7 @@ import { nanoid } from 'nanoid/non-secure';
 import defaultScene from '../assets/spec.json';
 
 export const state = () => ({
+  id: "",
   title: "",
   conditionLengths: [],
   frames: {},
@@ -16,6 +17,7 @@ export const state = () => ({
 });
 
 export const getters = {
+  scenarioMeta: state => { state.id, state.title },
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
   numConditions: state => state.conditionLengths.length,
@@ -29,6 +31,9 @@ export const actions = {
     const response = await this.$axios.$get('/api/v1/s/5ef1f91bad02294216a0cada');
 
     commit('setScenario', response.return);
+  },
+  saveScenario({ commit }, id) {
+    commit('putScenario', id);
   },
   addCondition({ commit }) {
     commit('newCondition', { id: nanoid() });
@@ -68,14 +73,24 @@ export const actions = {
 
 export const mutations = {
   setScenario(state, scenario) {
+    state.id = scenario._id
     state.title = scenario.title;
-
     state.conditionLengths = scenario.vuex_state.conditionLengths;
-
+    state.scenes = scenario.vuex_state.scenes
     state.frames = scenario.vuex_state.frames;
     state.frameList = scenario.vuex_state.frameList;
-
-    state.scenes = scenario.vuex_state.scenes
+  },
+  putScenario(state, id) {
+    this.$axios.$put(`/api/v1/s/${id}`, {
+      _id: id,
+      title: title,
+      vuex_state: {
+        conditionLengths: state.conditionLengths,
+        scenes: state.scenes,
+        frames: state.frames,
+        frameList: state.frameList,
+      }
+    });
   },
   newCondition(state, payload) {
 

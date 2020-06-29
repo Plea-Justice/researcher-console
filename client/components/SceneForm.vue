@@ -1,5 +1,5 @@
 <template>
-  <SceneCard :frameCollapsed="frameCollapsed" :id="scene.id" :isFirst="isFirst" :isLast="isLast">
+  <SceneCard :frameCollapsed="frameCollapsed" :id="scene.id">
     <!-- Header -->
     <template v-slot:header>
       <b-input v-model="formData[nameIndex].value" placeholder="name" />
@@ -8,36 +8,24 @@
     <!-- Body -->
     <template v-slot:default>
       <form @submit.prevent="onSubmit()">
-        <!-- Debug: formData output
-          <p v-for="{ key, value } in formData" :key="key">{{ `${key}: ${value}` }}</p>
-        -->
-
         <!-- Scene Type Toggle -->
         <b-field class="is-capitalized toggle-button">
           <b-radio-button
-            v-for="key in validSceneTypes"
-            :key="key"
-            :native-value="key"
+            v-for="sceneType in validSceneTypes"
+            :key="sceneType"
+            :native-value="sceneType"
             v-model="selectedType"
-          >{{ key }}</b-radio-button>
+          >{{ sceneType }}</b-radio-button>
         </b-field>
 
         <!-- Main Form -->
         <b-field v-for="asset in validFields" :key="asset.key">
           <FileSelector
-            v-if="asset.type == 'image'"
-            :assetType="asset.key"
-            icon="file-image"
+            v-if="asset.type == 'image' || asset.type == 'video'"
             v-model="asset.value"
-            :manifest="staticManifest"
-          />
-
-          <FileSelector
-            v-if="asset.type == 'video'"
-            :assetType="asset.key"
-            icon="file-video"
-            v-model="asset.value"
-            :manifest="staticManifest"
+            :fileNames="assetNameByType[asset.key + 's'] || []"
+            :placeholder="asset.key"
+            :icon="getIcon(asset.type)"
           />
 
           <textarea
@@ -49,30 +37,27 @@
 
           <ButtonInput v-if="asset.type == 'buttons'" v-model="asset.value" />
 
-          <!-- TODO: Display error for incorrect types/types that don't match anything -->
+          <!-- TODO: Display error for incorrect types/types that don't match anything ? -->
         </b-field>
       </form>
-    </template>
-
-    <!-- Footer -->
-    <template v-slot:footer-left :sceneIndex="scene.index">
-      <!-- Form Submit Button -->
-      <!--<b-button tag="input" native-type="submit" type="is-primary" value="Save" />-->
     </template>
   </SceneCard>
 </template>
 
 <script>
+// Import VueX
+import { mapGetters } from "vuex";
+
 // Import Components
 import SceneCard from "~/components/SceneCard";
 import FileSelector from "~/components/FileSelector";
 import ButtonInput from "~/components/ButtonInput";
 
-import manifest from "~/static/manifest.json";
+// FIXME: formalize spec
 import spec from "~/assets/spec.json";
 
 export default {
-  name: "StoryForm",
+  name: "SceneForm",
   components: { SceneCard, FileSelector, ButtonInput },
   props: {
     frameCollapsed: {
@@ -82,43 +67,28 @@ export default {
     scene: {
       type: Object,
       required: true
-    },
-    isFirst: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    isLast: {
-      type: Boolean,
-      required: false,
-      default: false
     }
   },
   data() {
-    // Create a static copy of manifest for children
-    const staticManifest = manifest;
-
     const sceneType = this.scene.props["type"];
     const validSceneTypes = Object.keys(spec.sceneTypes);
 
-    // Defaults Scene type selection toggle to the first one that is defines in ~/data/spec.json
+    // Defaults Scene type selection toggle to the first one if none is defined
     const selectedType =
       sceneType && validSceneTypes.includes(sceneType)
         ? sceneType
         : validSceneTypes[0];
 
-    // TODO: add name as an excluded type and update this elsewhere so it is consistent
-    // TODO: make props compatible with array or single values
-    const formData = Object.entries(spec.scene).map(([key, value]) => ({
-      key: key,
-      type: value,
+    // TODO: make props compatible with array or single values ?
+    const formData = Object.entries(spec.scene).map(([key, type]) => ({
+      key,
+      type,
       value: this.scene.props[key] != "None" ? this.scene.props[key] : null
     }));
 
     const nameIndex = formData.findIndex(obj => obj.key == "name");
 
     return {
-      staticManifest,
       validSceneTypes,
       selectedType,
       formData,
@@ -130,9 +100,32 @@ export default {
       return this.formData.filter(({ key }) =>
         spec.sceneTypes[this.selectedType].includes(key)
       );
+    },
+    ...mapGetters({
+      assetSet: "assets/assetSet"
+    }),
+    assetNameByType() {
+      return this.assetSet.reduce(
+        (obj, item) => (
+          obj[item.type]
+            ? obj[item.type].push(item.name)
+            : (obj[item.type] = [item.name]),
+          obj
+        ),
+        {}
+      );
     }
   },
   methods: {
+    getIcon(fileType) {
+      let icon = null;
+      if (fileType === "image") {
+        ("file-image");
+      } else if (fileType === "video") {
+        ("file-video");
+      }
+      return icon;
+    },
     onSubmit() {
       console.log("Form Submitted");
     }

@@ -57,16 +57,6 @@ export default {
       type: Boolean,
       required: true
     },
-    isFirst: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    isLast: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
     id: {
       type: String,
       required: false
@@ -82,6 +72,7 @@ export default {
     ...mapGetters({
       getIsBlank: "scenario/isBlank"
     }),
+    // TODO: move isBlank logic directly to frame
     isBlank() {
       return this.getIsBlank(this.id);
     }

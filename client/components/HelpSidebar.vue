@@ -1,19 +1,9 @@
 <template>
   <section>
-    <b-sidebar
-      type="is-dark"
-      :fullheight="true"
-      :right="true"
-      :open.sync="open"
-    >
+    <b-sidebar type="is-dark" :fullheight="true" :right="true" :open.sync="open">
       <div class="column has-text-light has-text-left">
         <div class="has-text-right">
-          <b-button
-            @click="handleMenu()"
-            type="is-dark"
-            icon-left="help-circle"
-            size="medium"
-          />
+          <b-button @click="handleMenu()" type="is-dark" icon-left="help-circle" size="medium" />
         </div>
 
         <h3 class="title has-text-light">Help</h3>
@@ -30,7 +20,7 @@ export default {
   name: "HelpSidebar",
   props: {
     helpInfo: String,
-    required: false
+    required: true
   },
   data() {
     return {

@@ -2,34 +2,29 @@
   <div>
     <ToolBar ref="toolbar">
       <template v-slot:start>
-        <!-- TODO: Add last saved/auto save with button saving animation, disable button when fields aren't correct? -->
         <div class="level-item buttons">
-          <b-button type="is-primary">Save</b-button>
-          <b-button @click="collapse()">{{
+          <b-button @click="saveScenario(scenarioMeta.id)" type="is-primary">Save</b-button>
+          <b-button @click="collapse()">
+            {{
             `${isCollapsed ? "Expand" : "Collapse"} All`
-          }}</b-button>
+            }}
+          </b-button>
           <b-button @click="addCondition()">Add Condition</b-button>
         </div>
       </template>
       <template v-slot:end>
         <div class="level-item">
           <div class="buttons">
-            <b-button
-              @click="uploadModal()"
-              type="is-primary"
-              icon-left="file-upload"
-              >Upload Asset</b-button
-            >
+            <b-button @click="uploadModal()" type="is-primary" icon-left="file-upload">Upload Asset</b-button>
             <b-button
               @click="downloadZip()"
               type="is-primary"
               icon-left="folder-download"
-              >Download Package</b-button
-            >
+            >Download Package</b-button>
           </div>
         </div>
         <b-field class="level-item">
-          <b-input icon="filter-outline" placeholder="Filter"></b-input>
+          <b-input icon="filter-outline" placeholder="Filter" />
         </b-field>
       </template>
     </ToolBar>
@@ -37,11 +32,7 @@
     <!-- Titles -->
     <div ref="titles" class="sticky condition-bar">
       <div class="responsive-container condition-titles">
-        <div
-          v-for="index in numConditions"
-          :key="index"
-          class="condition-title"
-        >
+        <div v-for="index in numConditions" :key="index" class="condition-title">
           <b-button
             @click="removeCondition(index - 1)"
             type="is-text"
@@ -54,14 +45,10 @@
     </div>
 
     <!-- Scrolling Wrapper -->
-    <div
-      @scroll="handleScroll($event)"
-      ref="horizontalScroll"
-      class="scrollable"
-    >
+    <div @scroll="handleScroll($event)" ref="horizontalScroll" class="scrollable">
       <section ref="frames" class="responsive-container">
         <!-- Frames -->
-        <!-- TODO: internalize isFirst/isLast for Frame? -->
+        <!-- NOTE: for some reason keying without the index causes strange update bahvior conflicting with scrollToFrame -->
         <SceneFrame
           v-for="(frame, index) in frameSet"
           :key="`${frame.id}_${index}`"
@@ -93,15 +80,21 @@ export default {
   name: "Scenario",
   layout: "StoryLayout",
   components: { ToolBar, UploadModal, HelpSidebar, SceneFrame },
+  async fetch({ store, params }) {
+    await store.dispatch("scenario/getScenario");
+    await store.dispatch("assets/getAssets");
+  },
   data() {
     const isCollapsed = false;
 
     return { isCollapsed };
   },
   computed: {
+    // FIXME: make this 1 getter
     ...mapGetters({
-      frameSet: "scenario/frameSet",
-      numConditions: "scenario/numConditions"
+      scenarioMeta: "scenario/scenarioMeta",
+      numConditions: "scenario/numConditions",
+      frameSet: "scenario/frameSet"
     })
   },
   methods: {
@@ -149,11 +142,9 @@ export default {
     },
     ...mapActions({
       addCondition: "scenario/addCondition",
-      removeCondition: "scenario/removeCondition"
+      removeCondition: "scenario/removeCondition",
+      saveScenario: "scenario/saveScenario"
     })
-  },
-  async fetch({ store, params }) {
-    await store.dispatch("scenario/getScenario");
   },
   head() {
     // FIXME: use global var for title

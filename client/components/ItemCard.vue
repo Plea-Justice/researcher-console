@@ -3,25 +3,14 @@
     <!-- Card Header -->
     <header class="card-header has-top-radius-large">
       <div class="header-wrapper">
-        <h1 v-if="!isForm" class="subtitle">{{ scenario.title }}</h1>
-        <b-input
-          v-else
-          v-model="value.title"
-          placeholder="title"
-          class="flex-grow"
-        />
+        <h1 v-if="!isForm" class="subtitle">{{ item.name }}</h1>
+        <b-input v-else v-model="value.name" placeholder="title" class="flex-grow" />
       </div>
     </header>
 
     <!-- Card Body -->
     <div class="card-content flex-grow">
-      <p v-if="!isForm">{{ scenario.description }}</p>
-      <textarea
-        v-else
-        v-model="value.description"
-        class="textarea has-fixed-size"
-        placeholder="script"
-      />
+      <slot name="default" />
     </div>
 
     <!-- Card Footer -->
@@ -29,7 +18,7 @@
       <div class="card-footer-item buttons footer-buttons flex-left">
         <b-button
           v-if="!isForm"
-          @click="removeScenario(scenario.id)"
+          @click="$emit('remove', item.id)"
           type="is-danger"
           icon-left="close"
         />
@@ -51,9 +40,9 @@
 import { mapActions } from "vuex";
 
 export default {
-  name: "ScenarioCard",
+  name: "ItemCard",
   props: {
-    scenario: {
+    item: {
       type: Object,
       required: false
     },
@@ -66,11 +55,6 @@ export default {
     isForm() {
       return !!this.value;
     }
-  },
-  methods: {
-    ...mapActions({
-      removeScenario: "scenarios/removeScenario"
-    })
   }
 };
 </script>
