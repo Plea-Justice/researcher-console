@@ -7,7 +7,8 @@ module.exports = function (options) {
     var express = require('express');
     var router = express.Router();
 
-    var fs = require('fs');
+    var fs = require('fs-extra');
+    var path = require('path');
     var fileupload = require('express-fileupload');
     
     // express-fileupload middleware to handle asset uploads.
@@ -33,21 +34,41 @@ module.exports = function (options) {
      * Get a listing of the user's data assets.
      * @return [File names.]
      */
-    router.get('/', (req, res) => {
-        fs.readdir(`${options.config.data_dir}/${req.session.user_id}`, (err, obj)=>{
-            if (err)
-                res.status(500).json({
-                    success: false,
-                    message: 'There was an error reading from the asset data directory.',
-                    return: err
-                });
-            else
-                res.status(200).json({
-                    success: true,
-                    message: 'Asset list returned.',
-                    return: obj
-                });
-        });
+    router.get('/', async (req, res) => {
+        try {
+            let assets = {};
+            let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
+
+            await fs.mkdirp(path.join(user_data_dir, 'clips'));
+            await fs.mkdirp(path.join(user_data_dir, 'actors'));
+            await fs.mkdirp(path.join(user_data_dir, 'foregrounds'));
+            await fs.mkdirp(path.join(user_data_dir, 'backgrounds'));
+
+            let clips = await fs.readdir(path.join(user_data_dir, 'clips'));
+            let actors =  await fs.readdir(path.join(user_data_dir, 'actors'));
+            let fgs =  await fs.readdir(path.join(user_data_dir, 'foregrounds'));
+            let bgs =  await fs.readdir(path.join(user_data_dir, 'backgrounds'));
+            
+            // FIXME: Duplicate asset names possible.
+            // Also do not return extension. Separate arrays best rather than ID lookups.
+            clips.map(name => (assets[name] = {'name': name, 'type': 'clips'}));
+            actors.map(name => (assets[name] = {'name': name, 'type': 'actors'}));
+            fgs.map(name => (assets[name] = {'name': name, 'type': 'foregrounds'}));
+            bgs.map(name => (assets[name] = {'name': name, 'type': 'backgrounds'}));
+
+            let assetList = Array.prototype.concat(clips, actors, fgs, bgs);
+            res.status(200).json({
+                success: true,
+                message: 'Asset list returned.',
+                return: {assetList, assets}
+            });
+        } catch (err) {
+            res.status(500).json({
+                success: false,
+                message: 'There was an error reading from the asset data directory.',
+                return: err
+            });
+        }
     });
 
     /**
@@ -56,14 +77,27 @@ module.exports = function (options) {
      * @return Filename
      */
     router.post('/', (req, res) => {
+        let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
+
         if (!req.files || Object.keys(req.files).length === 0)
             res.status(400).json({
                 success: false,
                 message: 'No file was uploaded.',
                 return: null
             });
-        else
-            req.files.upload.mv(`${options.config.data_dir}/${req.session.user_id}/${req.files.upload.name}`, (err)=>{
+        else if (!req.body.type ||  !(
+            req.body.type === 'clips' ||
+            req.body.type === 'actors' ||
+            req.body.type === 'foregrounds' ||
+            req.body.type === 'backgrounds'
+        ))
+            res.status(400).json({
+                success: false,
+                message: 'Invalid asset type.',
+                return: null
+            });
+        else 
+            req.files.upload.mv(path.join(user_data_dir, `${req.body.type}/${req.files.upload.name}`), (err)=>{
                 if (err)
                     res.status(500).json({
                         success: false,
@@ -83,7 +117,8 @@ module.exports = function (options) {
      */
     router.delete('/:filename', (req, res) => {
         let file = req.params.filename;
-
+        let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
+        
         fs.unlink(`${options.config.data_dir}/${req.session.user_id}/${file}`, (err)=>{
             if (err)
                 res.status(500).json({
