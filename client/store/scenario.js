@@ -1,3 +1,4 @@
+/* eslint no-shadow: ["error", { "allow": ["state"] }] */
 import Vue from 'vue'; // eslint-disable-line import/no-extraneous-dependencies
 
 // FIXME: fix nanoid warning

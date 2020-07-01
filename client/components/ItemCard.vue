@@ -1,5 +1,10 @@
 <template>
   <div class="card has-radius-large">
+    <div
+      v-if="selection"
+      @click="$emit('click', item.id)"
+      class="selection-wrapper has-radius-large"
+    />
     <!-- Card Header -->
     <header class="card-header has-top-radius-large">
       <div class="header-wrapper">
@@ -12,6 +17,7 @@
         </template>
 
         <b-input
+          ref="form-card-input"
           v-else
           v-model="value.name"
           placeholder="title"
@@ -60,7 +66,14 @@ export default {
     },
     link: {
       type: Boolean,
-      required: false
+      required: false,
+      default: false
+    },
+    // Sets if component is in selection mode
+    selection: {
+      type: Boolean,
+      required: false,
+      default: false
     },
     value: {
       type: Object,
@@ -76,15 +89,31 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.selection-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #007aff50;
+  }
+
+  &:active {
+    background-color: #0a84ff64;
+  }
+}
+
 .card {
-  /* Card Size */
-  width: 350px;
-  /* Make card full-height */
-  flex-grow: 1;
-  /* Fix for card footer when using tiles */
+  // Fix for card footer when using tiles
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  // Make card full-height
+  flex-grow: 1;
+  // for selection wrapper
+  position: relative;
 }
 
 // Even out all padding between header, body, and footer

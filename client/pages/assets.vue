@@ -2,29 +2,40 @@
   <div>
     <NavBar help />
 
-    <ToolBar ref="toolbar">
+    <ToolBar>
       <template v-slot:start>
         <div class="level-item buttons">
           <b-button class="level-item" :disabled="openForm" @click="openAssetForm()">Add Asset</b-button>
         </div>
       </template>
+
+      <template v-slot:end>
+        <b-field v-if="validAssetTypes.length > 1">
+          <b-select placeholder="Asset Type" v-model="selectedAssetType">
+            <option value="all">all</option>
+            <option v-for="type in validAssetTypes" :key="type" :value="type">{{ type }}</option>
+          </b-select>
+        </b-field>
+      </template>
     </ToolBar>
 
     <section class="section container">
-      <h1 class="title">Assets</h1>
+      <h1
+        class="title is-capitalized"
+      >{{ selectedAssetType === "all" ? "Assets" : `Assets: ${selectedAssetType}` }}</h1>
 
       <div class="grid">
-        <form v-show="openForm" ref="form" @submit.prevent="onSubmit()">
-          <ItemCard v-model="assetData">
+        <form v-show="openForm" @submit.prevent="onSubmit()">
+          <ItemCard ref="form-card" v-model="assetData">
             <b-field label="Asset Type">
               <b-select placeholder="Select a type">
-                <!-- FIXME: populate this -->
+                <option v-for="type in allAssetTypes" :key="type" :value="type">{{ type }}</option>
               </b-select>
             </b-field>
           </ItemCard>
         </form>
         <ItemCard
-          v-for="asset in assetSet"
+          v-for="asset in filteredAssets"
           :key="asset.name"
           @remove="removeAsset($event)"
           :item="asset"
@@ -52,24 +63,50 @@ export default {
     await store.dispatch("assets/getAssets");
   },
   data() {
-    const openForm = false;
+    return {
+      openForm: false,
+      // TODO: Make this an enum?
+      selectedAssetType: "all",
 
-    //FIXME: make this dynamic
-    const assetData = {
-      name: "",
-      type: ""
+      //FIXME: make this dynamic
+      assetData: {
+        name: "",
+        type: ""
+      }
     };
-
-    return { openForm, assetData };
   },
   computed: {
     ...mapGetters({
+      allAssetTypes: "assets/allAssetTypes",
       assetSet: "assets/assetSet"
-    })
+    }),
+    assetSetByType() {
+      return this.assetSet.reduce(
+        (obj, item) => (
+          obj[item.type]
+            ? obj[item.type].push(item)
+            : (obj[item.type] = [item]),
+          obj
+        ),
+        {}
+      );
+    },
+    validAssetTypes() {
+      return Object.keys(this.assetSetByType).sort();
+    },
+    filteredAssets() {
+      return this.selectedAssetType === "all"
+        ? this.assetSet
+        : this.assetSetByType[this.selectedAssetType];
+    }
   },
   methods: {
     openAssetForm() {
       this.openForm = true;
+
+      this.$nextTick(() => {
+        console.log(this.$refs["form-card"].$refs["form-card-input"].focus());
+      });
     },
     onSubmit() {
       // Add the scenario to state

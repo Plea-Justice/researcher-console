@@ -30,6 +30,7 @@
   </div>
 
   <!-- Blank Scene -->
+  <!-- TODO: focus when adding scene -->
   <div v-else class="card has-radius-large">
     <b-button
       @click="addScene(id)"

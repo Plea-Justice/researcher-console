@@ -3,15 +3,20 @@
     <!-- FIXME: make this the current path -->
     <NavBar help />
 
-    <ToolBar ref="toolbar">
+    <ToolBar>
       <template v-slot:start>
         <div class="level-item buttons">
           <b-button
-            class="level-item"
-            :disabled="openForm"
-            @click="openScenarioForm()"
-            >Add Scenario</b-button
-          >
+            @click="toggleAddMode()"
+            :type="EnabledModeBtnType(Modes.ADD)"
+            :disabled="isDisabledMode(Modes.ADD)"
+          >Add</b-button>
+          <!-- Add button text labels on hover -->
+          <b-button
+            @click="toggleMode(Modes.DUPLICATE)"
+            :type="EnabledModeBtnType(Modes.DUPLICATE)"
+            :disabled="isDisabledMode(Modes.DUPLICATE)"
+          >Duplicate</b-button>
         </div>
       </template>
     </ToolBar>
@@ -20,10 +25,11 @@
       <h1 class="title">Scenarios</h1>
 
       <div class="grid">
-        <form v-show="openForm" ref="form" @submit.prevent="onSubmit()">
-          <ItemCard v-model="scenarioData">
+        <form v-show="mode === Modes.ADD" @submit.prevent="onSubmit()">
+          <ItemCard ref="form-card" v-model="scenarioData">
             <textarea
               v-model="scenarioData.description"
+              @remove="removeScenario($event)"
               class="textarea has-fixed-size"
               placeholder="script"
             />
@@ -32,7 +38,9 @@
         <ItemCard
           v-for="scenario in scenarioSet"
           :key="scenario.id"
+          @click="duplicate($event)"
           :item="scenario"
+          :selection="mode === Modes.DUPLICATE"
           link
         >
           <p>{{ scenario.description }}</p>
@@ -58,13 +66,20 @@ export default {
     await store.dispatch("scenarios/getScenarios");
   },
   data() {
-    const openForm = false;
-    const scenarioData = {
-      name: "",
-      description: ""
+    return {
+      Modes: {
+        DEFAULT: 0,
+        ADD: 1,
+        DUPLICATE: 2
+      },
+      // Set to DEFAULT mode
+      mode: 0,
+      // TODO: make this dynamic?
+      scenarioData: {
+        name: "",
+        description: ""
+      }
     };
-
-    return { openForm, scenarioData };
   },
   computed: {
     ...mapGetters({
@@ -72,8 +87,32 @@ export default {
     })
   },
   methods: {
-    openScenarioForm() {
-      this.openForm = true;
+    isDisabledMode(ownMode) {
+      return this.mode !== this.Modes.DEFAULT && this.mode !== ownMode;
+    },
+    EnabledModeBtnType(ownMode) {
+      return this.mode === ownMode ? "is-success" : "";
+    },
+    toggleMode(ownMode) {
+      this.mode =
+        this.mode === this.Modes.DEFAULT ? ownMode : this.Modes.DEFAULT;
+    },
+    toggleAddMode() {
+      this.toggleMode(this.Modes.ADD);
+
+      if (this.mode === this.Modes.ADD)
+        this.$nextTick(() => {
+          this.$refs["form-card"].$refs["form-card-input"].focus();
+        });
+    },
+    ...mapActions({
+      addScenario: "scenarios/addScenario",
+      removeScenario: "scenarios/removeScenario",
+      duplicateScenario: "scenarios/duplicateScenario"
+    }),
+    duplicate(eScenarioId) {
+      this.duplicateScenario(eScenarioId);
+      this.mode = this.Modes.DEFAULT;
     },
     onSubmit() {
       // Add the scenario to state
@@ -86,11 +125,8 @@ export default {
       };
 
       // Disable form
-      this.openForm = false;
-    },
-    ...mapActions({
-      addScenario: "scenarios/addScenario"
-    })
+      this.mode = this.Modes.DEFAULT;
+    }
   },
   head() {
     return {
