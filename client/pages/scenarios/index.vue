@@ -26,7 +26,7 @@
 
       <div class="grid">
         <form v-show="mode === Modes.ADD" @submit.prevent="onSubmit()">
-          <ItemCard ref="form-card" v-model="scenarioData">
+          <ItemCard ref="form-card" v-model="scenarioData" save>
             <textarea
               v-model="scenarioData.description"
               @remove="removeScenario($event)"
@@ -39,9 +39,12 @@
           v-for="scenario in scenarioSet"
           :key="scenario.id"
           @click="duplicate($event)"
+          @remove="removeScenario($event)"
           :item="scenario"
+          :id="scenario.id"
           :selection="mode === Modes.DUPLICATE"
           link
+          close
         >
           <p>{{ scenario.description }}</p>
         </ItemCard>

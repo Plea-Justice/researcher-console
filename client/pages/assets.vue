@@ -26,7 +26,7 @@
 
       <div class="grid">
         <form v-show="openForm" @submit.prevent="onSubmit()">
-          <ItemCard ref="form-card" v-model="assetData">
+          <ItemCard ref="form-card" v-model="assetData" save>
             <b-field label="Asset Type">
               <b-select placeholder="Select a type">
                 <option v-for="type in allAssetTypes" :key="type" :value="type">{{ type }}</option>
@@ -39,6 +39,8 @@
           :key="asset.name"
           @remove="removeAsset($event)"
           :item="asset"
+          :id="asset.id"
+          close
         >
           <p>Preview</p>
         </ItemCard>
@@ -105,7 +107,7 @@ export default {
       this.openForm = true;
 
       this.$nextTick(() => {
-        console.log(this.$refs["form-card"].$refs["form-card-input"].focus());
+        this.$refs["form-card"].$refs["form-card-input"].focus();
       });
     },
     onSubmit() {

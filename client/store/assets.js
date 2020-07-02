@@ -11,6 +11,7 @@ export const state = () => ({
 
 export const getters = {
   assetSet: state => state.assetList.map(id => state.assets[id]),
+  // FIXME: is this getter deprecate?
   assetSetByType: (state, getters) =>
     getters.assetSet.reduce(
       (obj, item) => (obj[item.type] ? obj[item.type].push(item) : (obj[item.type] = [item]), obj),

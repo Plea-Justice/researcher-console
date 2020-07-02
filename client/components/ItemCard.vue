@@ -1,47 +1,46 @@
 <template>
   <div class="card has-radius-large">
-    <div
-      v-if="selection"
-      @click="$emit('click', item.id)"
-      class="selection-wrapper has-radius-large"
-    />
+    <!-- Wrapper for highlighting a card -->
+    <div v-if="selection" @click="$emit('click', id)" class="selection-wrapper has-radius-large" />
+
     <!-- Card Header -->
-    <header class="card-header has-top-radius-large">
-      <div class="header-wrapper">
-        <template v-if="!isForm">
-          <n-link v-if="link" :to="item.id" append>
-            <h1 class="subtitle">{{ item.name }}</h1>
-          </n-link>
+    <!-- when collapsed style header as body -->
+    <header v-if="!blank" class="flex-header" :class="headerModeStyle">
+      <!-- When collapsed show remove button in header -->
+      <b-button v-if="collapsed" @click="$emit('remove', id)" type="is-danger" icon-left="close" />
 
-          <h1 v-else class="subtitle">{{ item.name }}</h1>
-        </template>
+      <template v-if="item">
+        <!-- If header's not in form mode print name w or w/o link -->
+        <n-link v-if="link" :to="id" append>
+          <h1 class="subtitle">{{ item.name }}</h1>
+        </n-link>
 
-        <b-input
-          ref="form-card-input"
-          v-else
-          v-model="value.name"
-          placeholder="title"
-          class="flex-grow"
-        />
-      </div>
+        <h1 v-else class="subtitle">{{ item.name }}</h1>
+      </template>
+
+      <!-- In form mode v-model item name as input -->
+      <b-input
+        v-else
+        ref="form-card-input"
+        v-model="value.name"
+        placeholder="title"
+        class="flex-grow"
+      />
     </header>
 
     <!-- Card Body -->
-    <div class="card-content flex-grow">
-      <slot name="default" />
+    <div v-if="!collapsed" :class="{ 'flex-center': blank }" class="card-content flex-grow">
+      <b-button v-if="blank" type="is-light" size="is-medium" icon-left="plus" />
+      <slot v-else name="default" />
     </div>
 
     <!-- Card Footer -->
-    <footer class="card-footer">
+    <footer v-if="(close || save) && !collapsed" class="card-footer">
       <div class="card-footer-item buttons footer-buttons flex-left">
+        <!-- Check if remove listener exists instead of using remove -->
+        <b-button v-if="close" @click="$emit('remove', id)" type="is-danger" icon-left="close" />
         <b-button
-          v-if="!isForm"
-          @click="$emit('remove', item.id)"
-          type="is-danger"
-          icon-left="close"
-        />
-        <b-button
-          v-else
+          v-if="save"
           class="is-fullwidth clear-button-margin"
           type="is-primary"
           tag="input"
@@ -60,11 +59,28 @@ import { mapActions } from "vuex";
 export default {
   name: "ItemCard",
   props: {
+    // Item's properties (used for name)
     item: {
       type: Object,
       required: false
     },
+    id: {
+      type: String,
+      required: false
+    },
+    // Sets if component should append id to route (for dynamic paging)
     link: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    // Sets if component should display form submit button
+    save: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    close: {
       type: Boolean,
       required: false,
       default: false
@@ -75,6 +91,17 @@ export default {
       required: false,
       default: false
     },
+    collapsed: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    blank: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    // v-model item's properties (used for name) in form mode
     value: {
       type: Object,
       required: false
@@ -83,6 +110,10 @@ export default {
   computed: {
     isForm() {
       return !!this.value;
+    },
+    headerModeStyle() {
+      // When collapsed style header as body
+      return this.collapsed ? "card-content flex-grow" : "card-header";
     }
   }
 };
@@ -134,16 +165,22 @@ export default {
   border-radius: 6px;
 }
 
-.header-wrapper {
-  width: 100%;
+// FIXME: Combine this with flex-center for less redundant styling
+.flex-header {
   display: flex;
   justify-content: center;
-  flex-grow: 1;
+  align-items: center;
 
   // Everything except last child & > :not(:last-child)
   & > :nth-last-child(n + 2) {
     margin-right: 0.75rem;
   }
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .flex-grow {

@@ -3,7 +3,6 @@
     <div class="frame box" :style="numColumns">
       <!-- Sidebar -->
       <aside class="sidebar buttons">
-        <!-- FIXME: move this to frame child -->
         <!-- Collapse Button -->
         <!-- FIXME: if all scenes blank don't allow collapsing -->
         <b-button
@@ -39,7 +38,7 @@
         <!-- FIXME: fully move out blank scene handling (Have to adjusts SceneForm) scoped prop vars? -->
         <SceneForm v-if="scene.props != null" :frameCollapsed="isCollapsed" :scene="scene" />
 
-        <SceneCard v-else :frameCollapsed="isCollapsed" :id="scene.id" />
+        <ItemCard v-else blank />
       </div>
     </div>
 
@@ -54,12 +53,12 @@
 import { mapGetters, mapActions } from "vuex";
 
 // Import Components
-import SceneCard from "~/components/SceneCard";
+import ItemCard from "~/components/ItemCard";
 import SceneForm from "~/components/SceneForm";
 
 export default {
   name: "SceneFrame",
-  components: { SceneCard, SceneForm },
+  components: { ItemCard, SceneForm },
   props: {
     frame: {
       type: Object,
@@ -170,6 +169,7 @@ $add-button-height: 105px;
 .scene {
   display: flex;
   margin-right: 30px;
+  width: 350px;
 }
 
 .sidebar {
