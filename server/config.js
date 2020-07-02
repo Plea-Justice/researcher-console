@@ -30,11 +30,11 @@ module.exports = {
     session_secret: '371fe6a5-ceed-4ce6-871c-ae28f4d837de',
 
     // Serve the client? (Boolean)
-    serve_client: false,
+    serve_client: true,
 
     // Location of static client files.
     client_dir: '../client/dist/',
 
     // Location of the simulation template with simulation as toplevel index.html.
-    sim_dir: '../simulation/src/'
+    sim_dir: '../../simulation/src/'
 };
