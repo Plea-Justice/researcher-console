@@ -1,13 +1,18 @@
 <template>
-  <ItemCard
-    :collapsed="frameCollapsed"
-    v-model="nameField"
-    close
-    :id="scene.id"
-    @remove="removeScene($event)"
-  >
-    <!-- Body -->
+  <GenericCard @remove="removeScene(scene.id)" :collapsed="collapsed" :focused="isBlank" close>
+    <!-- Card Header -->
+    <template v-slot:header>
+      <!-- Scene Name -->
+      <b-input
+        v-model="formData.name.value"
+        ref="focus-input"
+        placeholder="title"
+        class="flex-grow"
+      />
+    </template>
+
     <template v-slot:default>
+      <!-- FIXME: make form encompass everything -->
       <form @submit.prevent="onSubmit()">
         <!-- Scene Type Toggle -->
         <b-field class="is-capitalized toggle-button">
@@ -19,11 +24,8 @@
           >{{ sceneType }}</b-radio-button>
         </b-field>
 
-        <!-- FIXME: correctly v-model this property -->
-        <p>Debug: {{ formData["name"] }}</p>
-
         <!-- Main Form -->
-        <b-field v-for="field in validFields" :key="field">
+        <b-field v-for="field in validFields" :key="field" class="is-capitalized">
           <FileSelector
             v-if="formData[field].type == 'image' || formData[field].type == 'video'"
             v-model="formData[field].value"
@@ -45,7 +47,7 @@
         </b-field>
       </form>
     </template>
-  </ItemCard>
+  </GenericCard>
 </template>
 
 <script>
@@ -53,27 +55,31 @@
 import { mapGetters, mapActions } from "vuex";
 
 // Import Components
-import ItemCard from "~/components/ItemCard";
-import FileSelector from "~/components/FileSelector";
-import ButtonInput from "~/components/ButtonInput";
+import GenericCard from "~/components/cards/GenericCard";
+import FileSelector from "~/components/scene/FileSelector";
+import ButtonInput from "~/components/scene/ButtonInput";
 
 // FIXME: formalize spec
+// FIXME: code-split import this
 import spec from "~/assets/spec.json";
 
 export default {
-  name: "SceneForm",
-  components: { ItemCard, FileSelector, ButtonInput },
+  name: "Scene",
+  components: { GenericCard, FileSelector, ButtonInput },
   props: {
-    frameCollapsed: {
-      type: Boolean,
-      required: true
-    },
     scene: {
       type: Object,
       required: true
+    },
+    collapsed: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data() {
+    // TODO: use object syntax
+    // FIXME: make formData stateful to wether component exists
     const sceneType = this.scene.props["type"];
     const validSceneTypes = Object.keys(spec.sceneTypes);
 
@@ -101,14 +107,8 @@ export default {
     };
   },
   computed: {
-    //FIXME: use a computed property for this
-    nameField: {
-      get: function() {
-        return { name: this.formData["name"].value };
-      },
-      set: function(newValue) {
-        this.formData["name"].value = newValue;
-      }
+    isBlank() {
+      return this.scene.props == null;
     },
     validFields() {
       return spec.sceneTypes[this.selectedType];
@@ -129,6 +129,7 @@ export default {
     }
   },
   methods: {
+    // TODO: make this a enum?
     getIcon(fileType) {
       let icon = null;
       if (fileType === "image") {
@@ -140,11 +141,7 @@ export default {
     },
     ...mapActions({
       removeScene: "scenario/removeScene"
-    }),
-    onSubmit() {
-      //FIXME: complete this or remove it
-      console.log("Form Submitted");
-    }
+    })
   }
 };
 </script>

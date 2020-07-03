@@ -4,12 +4,13 @@
       <template v-slot:start>
         <div class="level-item buttons">
           <b-button @click="saveScenario(scenarioMeta.id)" type="is-primary">Save</b-button>
-          <b-button @click="collapse()">
-            {{
-            `${isCollapsed ? "Expand" : "Collapse"} All`
-            }}
-          </b-button>
+          <b-button @click="collapse()">{{ `${isCollapsed ? "Expand" : "Collapse"} All` }}</b-button>
           <b-button @click="addCondition()">Add Condition</b-button>
+          <b-button
+            @click="toggleMode(Modes.COPY)"
+            :type="EnabledModeBtnType(Modes.COPY)"
+            :disabled="isDisabledMode(Modes.COPY)"
+          >Copy</b-button>
         </div>
       </template>
       <template v-slot:end>
@@ -57,6 +58,7 @@
           :allCollapsed="isCollapsed"
           :isFirst="index === 0"
           :isLast="index === frameSet.length - 1"
+          :selection="mode === Modes.COPY"
         />
       </section>
     </div>
@@ -80,7 +82,16 @@ export default {
   layout: "ScenarioLayout",
   components: { ToolBar, UploadModal, SceneFrame },
   data() {
+    // FIXME: make this a mixin
     return {
+      Modes: {
+        DEFAULT: 0,
+        COPY: 1,
+        BIND: 2
+      },
+
+      // Set to DEFAULT mode
+      mode: 0,
       isCollapsed: false
     };
   },
@@ -97,6 +108,17 @@ export default {
     })
   },
   methods: {
+    // FIXME: make this a mixin or seperate component
+    isDisabledMode(ownMode) {
+      return this.mode !== this.Modes.DEFAULT && this.mode !== ownMode;
+    },
+    EnabledModeBtnType(ownMode) {
+      return this.mode === ownMode ? "is-success" : "";
+    },
+    toggleMode(ownMode) {
+      this.mode =
+        this.mode === this.Modes.DEFAULT ? ownMode : this.Modes.DEFAULT;
+    },
     handleScroll: throttle(function(event) {
       const leftScroll = event.target.scrollLeft;
 

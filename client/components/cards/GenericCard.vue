@@ -1,52 +1,29 @@
 <template>
+  <!-- FIXME: remove id from events -->
+
   <div class="card has-radius-large">
     <!-- Wrapper for highlighting a card -->
-    <div v-if="selection" @click="$emit('click', id)" class="selection-wrapper has-radius-large" />
+    <div v-if="selection" @click="$emit('selected')" class="selection-wrapper has-radius-large" />
 
     <!-- Card Header -->
     <!-- when collapsed style header as body -->
-    <header v-if="!blank" class="flex-header" :class="headerModeStyle">
+    <header v-if="!focused" class="card-header flex-header" :class="headerModeStyle">
+      <b-button v-if="collapsed" @click="$emit('remove')" type="is-danger" icon-left="close" />
+      <slot name="header" />
       <!-- When collapsed show remove button in header -->
-      <b-button v-if="collapsed" @click="$emit('remove', id)" type="is-danger" icon-left="close" />
-
-      <template v-if="item">
-        <!-- If header's not in form mode print name w or w/o link -->
-        <n-link v-if="link" :to="id" append>
-          <h1 class="subtitle">{{ item.name }}</h1>
-        </n-link>
-
-        <h1 v-else class="subtitle">{{ item.name }}</h1>
-      </template>
-
-      <!-- In form mode v-model item name as input -->
-      <b-input
-        v-else
-        ref="form-card-input"
-        v-model="value.name"
-        placeholder="title"
-        class="flex-grow"
-      />
     </header>
 
     <!-- Card Body -->
-    <div v-if="!collapsed" :class="{ 'flex-center': blank }" class="card-content flex-grow">
-      <b-button v-if="blank" type="is-light" size="is-medium" icon-left="plus" />
-      <slot v-else name="default" />
+    <div v-if="!collapsed" :class="{ 'flex-center': focused }" class="card-content flex-grow">
+      <slot name="default" />
     </div>
 
     <!-- Card Footer -->
-    <footer v-if="(close || save) && !collapsed" class="card-footer">
+    <footer v-if="(!collapsed && !focused)" class="card-footer">
       <div class="card-footer-item buttons footer-buttons flex-left">
         <!-- Check if remove listener exists instead of using remove -->
-        <b-button v-if="close" @click="$emit('remove', id)" type="is-danger" icon-left="close" />
-        <b-button
-          v-if="save"
-          class="is-fullwidth clear-button-margin"
-          type="is-primary"
-          tag="input"
-          native-type="submit"
-          value="Save"
-        />
+        <b-button v-if="close" @click="$emit('remove')" type="is-danger" icon-left="close" />
+        <slot name="footer" />
       </div>
     </footer>
   </div>
@@ -59,27 +36,7 @@ import { mapActions } from "vuex";
 export default {
   name: "ItemCard",
   props: {
-    // Item's properties (used for name)
-    item: {
-      type: Object,
-      required: false
-    },
-    id: {
-      type: String,
-      required: false
-    },
-    // Sets if component should append id to route (for dynamic paging)
-    link: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
     // Sets if component should display form submit button
-    save: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
     close: {
       type: Boolean,
       required: false,
@@ -91,26 +48,20 @@ export default {
       required: false,
       default: false
     },
+    // Sets wether to only show body
+    focused: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    // Sets if component is in a collapsed state (only header, with flex styling properties)
     collapsed: {
       type: Boolean,
       required: false,
       default: false
-    },
-    blank: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    // v-model item's properties (used for name) in form mode
-    value: {
-      type: Object,
-      required: false
     }
   },
   computed: {
-    isForm() {
-      return !!this.value;
-    },
     headerModeStyle() {
       // When collapsed style header as body
       return this.collapsed ? "card-content flex-grow" : "card-header";

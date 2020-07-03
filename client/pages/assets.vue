@@ -5,7 +5,7 @@
     <ToolBar>
       <template v-slot:start>
         <div class="level-item buttons">
-          <b-button class="level-item" :disabled="openForm" @click="openAssetForm()">Add Asset</b-button>
+          <b-button class="level-item" :disabled="addMode" @click="addAsset()">Add Asset</b-button>
         </div>
       </template>
 
@@ -25,8 +25,8 @@
       >{{ selectedAssetType === "all" ? "Assets" : `Assets: ${selectedAssetType}` }}</h1>
 
       <div class="grid">
-        <form v-show="openForm" @submit.prevent="onSubmit()">
-          <ItemCard ref="form-card" v-model="assetData" save>
+        <form v-show="addMode" @submit.prevent="onSubmit()">
+          <ItemCard ref="form-card" v-model="assetForm" save>
             <b-field label="Asset Type">
               <b-select placeholder="Select a type">
                 <option v-for="type in allAssetTypes" :key="type" :value="type">{{ type }}</option>
@@ -36,13 +36,12 @@
         </form>
         <ItemCard
           v-for="asset in filteredAssets"
-          :key="asset.name"
+          :key="asset.id"
           @remove="removeAsset($event)"
           :item="asset"
-          :id="asset.id"
           close
         >
-          <p>Preview</p>
+          <p>DEBUG: {{ asset }}</p>
         </ItemCard>
       </div>
     </section>
@@ -56,7 +55,7 @@ import { mapGetters, mapActions } from "vuex";
 // Import Components
 import NavBar from "~/components/NavBar";
 import ToolBar from "~/components/ToolBar";
-import ItemCard from "~/components/ItemCard";
+import ItemCard from "~/components/cards/ItemCard";
 
 export default {
   name: "Scenarios",
@@ -66,12 +65,12 @@ export default {
   },
   data() {
     return {
-      openForm: false,
+      addMode: false,
       // TODO: Make this an enum?
       selectedAssetType: "all",
 
       //FIXME: make this dynamic
-      assetData: {
+      assetForm: {
         name: "",
         type: ""
       }
@@ -103,8 +102,8 @@ export default {
     }
   },
   methods: {
-    openAssetForm() {
-      this.openForm = true;
+    addAsset() {
+      this.addMode = true;
 
       this.$nextTick(() => {
         this.$refs["form-card"].$refs["form-card-input"].focus();
@@ -112,17 +111,17 @@ export default {
     },
     onSubmit() {
       // Add the scenario to state
-      this.addAsset(this.assetData);
+      this.addAsset(this.assetForm);
 
       // Reset the inputs
       // FIXME: make this dynamic
-      this.assetData = {
+      this.assetForm = {
         name: "",
         type: ""
       };
 
       // Disable form
-      this.openForm = false;
+      this.addMode = false;
     },
     ...mapActions({
       addAsset: "assets/addAsset",

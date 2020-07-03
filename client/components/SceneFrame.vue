@@ -1,6 +1,7 @@
 <template>
   <div class="frame-wrapper">
-    <div class="frame box" :style="numColumns">
+    <div class="frame box">
+      <div :class="{ 'selection-wrapper': selection }" />
       <!-- Sidebar -->
       <aside class="sidebar buttons">
         <!-- Collapse Button -->
@@ -34,11 +35,25 @@
           size="is-medium"
         />
       </aside>
-      <div v-for="scene in getSceneSet" :key="scene.id" class="scene">
+      <div v-for="(scene, index) in getSceneSet" :key="scene.id" class="scene">
         <!-- FIXME: fully move out blank scene handling (Have to adjusts SceneForm) scoped prop vars? -->
-        <SceneForm v-if="scene.props != null" :frameCollapsed="isCollapsed" :scene="scene" />
+        <!-- <SceneForm v-if="scene.props != null" :frameCollapsed="isCollapsed" :scene="scene" /> -->
 
-        <ItemCard v-else blank />
+        <Scene
+          :ref="`scene_${scene.id}`"
+          v-if="scene.props !== null"
+          :scene="scene"
+          :collapsed="isCollapsed"
+        />
+
+        <GenericCard v-else focused>
+          <b-button
+            @click="addSceneHelper(index, scene.id)"
+            type="is-light"
+            size="is-medium"
+            icon-left="plus"
+          />
+        </GenericCard>
       </div>
     </div>
 
@@ -53,12 +68,12 @@
 import { mapGetters, mapActions } from "vuex";
 
 // Import Components
-import ItemCard from "~/components/ItemCard";
-import SceneForm from "~/components/SceneForm";
+import GenericCard from "~/components/cards/GenericCard";
+import Scene from "~/components/scene/Scene";
 
 export default {
   name: "SceneFrame",
-  components: { ItemCard, SceneForm },
+  components: { Scene, GenericCard },
   props: {
     frame: {
       type: Object,
@@ -77,6 +92,11 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    selection: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data() {
@@ -89,9 +109,6 @@ export default {
   computed: {
     isCollapsed() {
       return this.allCollapsed || this.selfCollapsed;
-    },
-    numColumns() {
-      return { "--num-columns": this.frame.scenes.length };
     },
     ...mapGetters({
       sceneSet: "scenario/sceneSet",
@@ -112,7 +129,8 @@ export default {
       moveFrameUp: "scenario/moveFrameUp",
       moveFrameDown: "scenario/moveFrameDown",
       addFrame: "scenario/addFrame",
-      removeFrame: "scenario/removeFrame"
+      removeFrame: "scenario/removeFrame",
+      addScene: "scenario/addScene"
     }),
     moveUp() {
       this.moveFrameUp(this.frame.id);
@@ -124,6 +142,13 @@ export default {
       this.moveFrameDown(this.frame.id);
       // emit the frameIndex that must be traveled to
       this.$emit("scroll-to", this.frameIndex);
+    },
+    addSceneHelper(sceneIndex, sceneId) {
+      this.addScene(sceneId);
+
+      this.$nextTick(() =>
+        this.$refs[`scene_${sceneId}`][0].$refs["focus-input"].focus()
+      );
     }
   }
 };
@@ -137,6 +162,23 @@ $add-button-height: 105px;
   display: flex;
   flex-direction: column;
   width: max-content;
+  position: relative;
+}
+
+.selection-wrapper {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 5;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #007aff50;
+  }
+
+  &:active {
+    background-color: #0a84ff64;
+  }
 }
 
 .frame {

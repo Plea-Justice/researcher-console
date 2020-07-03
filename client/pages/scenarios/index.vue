@@ -26,10 +26,9 @@
 
       <div class="grid">
         <form v-show="mode === Modes.ADD" @submit.prevent="onSubmit()">
-          <ItemCard ref="form-card" v-model="scenarioData" save>
+          <ItemCard ref="form-card" v-model="scenarioForm" save>
             <textarea
-              v-model="scenarioData.description"
-              @remove="removeScenario($event)"
+              v-model="scenarioForm.description"
               class="textarea has-fixed-size"
               placeholder="script"
             />
@@ -38,15 +37,16 @@
         <ItemCard
           v-for="scenario in scenarioSet"
           :key="scenario.id"
-          @click="duplicate($event)"
+          @selected="duplicate($event)"
           @remove="removeScenario($event)"
-          :item="scenario"
-          :id="scenario.id"
           :selection="mode === Modes.DUPLICATE"
-          link
+          :item="scenario"
           close
+          link
         >
           <p>{{ scenario.description }}</p>
+
+          <p>DEBUG: {{ scenario }}</p>
         </ItemCard>
       </div>
     </section>
@@ -60,7 +60,7 @@ import { mapGetters, mapActions } from "vuex";
 // Import Components
 import NavBar from "~/components/NavBar";
 import ToolBar from "~/components/ToolBar";
-import ItemCard from "~/components/ItemCard";
+import ItemCard from "~/components/cards/ItemCard";
 
 export default {
   name: "Scenarios",
@@ -78,7 +78,7 @@ export default {
       // Set to DEFAULT mode
       mode: 0,
       // TODO: make this dynamic?
-      scenarioData: {
+      scenarioForm: {
         name: "",
         description: ""
       }
@@ -90,6 +90,7 @@ export default {
     })
   },
   methods: {
+    // FIXME: make this a mixin or seperate component
     isDisabledMode(ownMode) {
       return this.mode !== this.Modes.DEFAULT && this.mode !== ownMode;
     },
@@ -119,10 +120,10 @@ export default {
     },
     onSubmit() {
       // Add the scenario to state
-      this.addScenario(this.scenarioData);
+      this.addScenario(this.scenarioForm);
 
       // Reset the inputs
-      this.scenarioData = {
+      this.scenarioForm = {
         name: "",
         description: ""
       };
