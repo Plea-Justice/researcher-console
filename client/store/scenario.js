@@ -1,7 +1,6 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
 import Vue from 'vue'; // eslint-disable-line import/no-extraneous-dependencies
 
-// FIXME: fix nanoid warning
 import { nanoid } from 'nanoid/non-secure';
 
 // FIXME: make this a build time asset based on spec.json instead of using all of spec directly
@@ -165,15 +164,22 @@ export const mutations = {
         Vue.set(state.scenes, sceneId, { id: sceneId, props: null })
       );
     } else {
-      // Otherwise remove frame
+      // Otherwise remove
+
+      // Remove scenes in frame
+      state.frames[payload.frameId].scenes.forEach(sceneId => Vue.delete(state.scenes, sceneId));
+
+      // Remove frame
       state.frameList.splice(frameIndex, 1);
       Vue.delete(state.frames, payload.frameId);
     }
   },
   newScene(state, payload) {
-    // FIXME: remove frameId from scenes
-    // FIXME: be more conservative with defaultScene
-    Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: defaultScene.scene });
+    // TODO: better default scene?
+    const newScene = defaultScene.scene;
+    newScene.name = 'Default Scene';
+
+    Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: newScene });
   },
   deleteScene(state, payload) {
     Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: null });

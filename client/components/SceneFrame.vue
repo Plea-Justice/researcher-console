@@ -5,7 +5,7 @@
       <!-- Sidebar -->
       <aside class="sidebar buttons">
         <!-- Collapse Button -->
-        <!-- FIXME: if all scenes blank don't allow collapsing -->
+        <!-- FIXME: if all scenes are blank don't allow collapsing -->
         <b-button
           @click="collapse()"
           :icon-left="`chevron-${isCollapsed ? 'down' : 'up'}`"
@@ -36,9 +36,6 @@
         />
       </aside>
       <div v-for="(scene, index) in getSceneSet" :key="scene.id" class="scene">
-        <!-- FIXME: fully move out blank scene handling (Have to adjusts SceneForm) scoped prop vars? -->
-        <!-- <SceneForm v-if="scene.props != null" :frameCollapsed="isCollapsed" :scene="scene" /> -->
-
         <Scene
           :ref="`scene_${scene.id}`"
           v-if="scene.props !== null"
@@ -135,7 +132,6 @@ export default {
     moveUp() {
       this.moveFrameUp(this.frame.id);
       // emit the frameIndex that must be traveled to
-      // FIXME: this.$nextTick this
       this.$emit("scroll-to", this.frameIndex);
     },
     moveDown() {

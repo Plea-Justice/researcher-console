@@ -108,7 +108,7 @@ export default {
     })
   },
   methods: {
-    // FIXME: make this a mixin or seperate component
+    // FIXME: make this a seperate component (ToolBarButton)
     isDisabledMode(ownMode) {
       return this.mode !== this.Modes.DEFAULT && this.mode !== ownMode;
     },
@@ -160,6 +160,9 @@ export default {
         message: "Zip download will begin momentarily.",
         type: "is-success"
       });
+
+      // FIXME: add id?
+      this.$axios.get("/api/v1/s/SomeScenarioID/zip");
     },
     ...mapActions({
       addCondition: "scenario/addCondition",

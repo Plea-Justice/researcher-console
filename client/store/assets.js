@@ -26,9 +26,11 @@ export const actions = {
     commit('setAssets', response.return);
   },
   addAsset({ commit }, asset) {
+    // Get new scenario id from server
+    // asset.id = this.$axios.$post('/api/v1/a');
+
     asset.id = nanoid();
     commit('newAsset', { asset });
-    this.$axios.$post('/api/v1/a');
   },
   removeAsset({ commit }, id) {
     commit('deleteAsset', { id });

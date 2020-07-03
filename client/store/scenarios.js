@@ -18,17 +18,22 @@ export const actions = {
     commit('setScenarios', response.return);
   },
   addScenario({ commit }, scenario) {
-    scenario.id = nanoid();
+    // Get new scenario id from server
+    // scenario.id = this.$axios.$post('/api/v1/s');
+
+    scenario.id = nanoid(); // Temp
     commit('newScenario', { scenario });
-    this.$axios.$post('/api/v1/s');
   },
   removeScenario({ commit }, id) {
     commit('deleteScenario', { id });
     this.$axios.$delete(`/api/v1/s/${id}`);
   },
   duplicateScenario({ commit }, id) {
-    commit('copyScenario', { copyId: id, newId: nanoid() });
-    this.$axios.$post('/api/v1/s');
+    // Get new scenario id from server
+    // const newId = this.$axios.$post('/api/v1/s');
+
+    const newId = nanoid();
+    commit('copyScenario', { copyId: id, newId });
   }
 };
 
