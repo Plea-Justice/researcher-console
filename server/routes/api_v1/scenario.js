@@ -24,7 +24,7 @@ module.exports = function (options) {
                     return: err
                 });
             else
-                res.status(201).json({
+                res.status(200).json({
                     success: true,
                     message: 'User\'s scenarios returned.',
                     return: objs.map(obj => ({ id: obj._id, name: obj.name, description: obj.description }))
