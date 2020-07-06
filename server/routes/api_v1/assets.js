@@ -49,23 +49,31 @@ module.exports = function (options) {
             let fgs =  await fs.readdir(path.join(user_data_dir, 'foregrounds'));
             let bgs =  await fs.readdir(path.join(user_data_dir, 'backgrounds'));
             
-            // FIXME: Duplicate asset names possible.
-            // Also do not return extension. Separate arrays best rather than ID lookups.
-            clips.map(name => (assets[name] = {'name': name, 'type': 'clips'}));
-            actors.map(name => (assets[name] = {'name': name, 'type': 'actors'}));
-            fgs.map(name => (assets[name] = {'name': name, 'type': 'foregrounds'}));
-            bgs.map(name => (assets[name] = {'name': name, 'type': 'backgrounds'}));
+            clips.map(name => (assets[`clips/${name}`] = 
+                {'name': name.slice(0, name.lastIndexOf('.')), 'type': 'clips'}));
+            actors.map(name => (assets[`actors/${name}`] = 
+                {'name': name.slice(0, name.lastIndexOf('.')), 'type': 'actors'}));
+            fgs.map(name => (assets[`foregrounds/${name}`] = 
+                {'name': name.slice(0, name.lastIndexOf('.')), 'type': 'foregrounds'}));
+            bgs.map(name => (assets[`backgrounds/${name}`] = 
+                {'name': name.slice(0, name.lastIndexOf('.')), 'type': 'backgrounds'}));
+
+            clips = clips.map(name => `clips/${name}`);
+            actors = actors.map(name => `actors/${name}`);
+            fgs = fgs.map(name => `foregrounds/${name}`);
+            bgs = bgs.map(name => `backgrounds/${name}`);
 
             let assetList = Array.prototype.concat(clips, actors, fgs, bgs);
+            let assetTypes = ['clips', 'actors', 'foregrounds', 'backgrounds'];
             res.status(200).json({
                 success: true,
                 message: 'Asset list returned.',
-                return: {assetList, assets}
+                return: {assetList, assets, assetTypes}
             });
         } catch (err) {
             res.status(500).json({
                 success: false,
-                message: 'There was an error reading from the asset data directory.',
+                message: 'There was an error reading the user\'s assets.',
                 return: err
             });
         }
@@ -96,6 +104,20 @@ module.exports = function (options) {
                 message: 'Invalid asset type.',
                 return: null
             });
+        else if ((req.body.type === 'clips' || req.body.type === 'actors') && 
+            !req.files.upload.name.endsWith('.js'))
+            res.status(400).json({
+                success: false,
+                message: 'Clips and assets must have a JavaScript file extension.',
+                return: null
+            });
+        else if ((req.body.type === 'foregrounds' || req.body.type === 'backgrounds') && 
+            !(req.files.upload.name.endsWith('.png') || req.files.upload.name.endsWith('.jpg')))
+            res.status(400).json({
+                success: false,
+                message: 'Foreground and background images must have a PNG or JPEG file extension.',
+                return: null
+            });
         else 
             req.files.upload.mv(path.join(user_data_dir, `${req.body.type}/${req.files.upload.name}`), (err)=>{
                 if (err)
@@ -116,10 +138,9 @@ module.exports = function (options) {
      * Delete a file.
      */
     router.delete('/:filename', (req, res) => {
-        let file = req.params.filename;
         let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
         
-        fs.unlink(`${options.config.data_dir}/${req.session.user_id}/${file}`, (err)=>{
+        fs.unlink(path.join(user_data_dir, req.params.filename), (err)=>{
             if (err)
                 res.status(500).json({
                     success: false,

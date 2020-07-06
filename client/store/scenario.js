@@ -9,7 +9,7 @@ import defaultScene from '../assets/spec.json';
 
 export const state = () => ({
   id: '',
-  title: '',
+  name: '',
   conditionLengths: [],
   frames: {},
   frameList: [],
@@ -19,7 +19,7 @@ export const state = () => ({
 export const getters = {
   scenarioMeta: state => ({
     id: state.id,
-    title: state.title
+    name: state.name
   }),
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
@@ -77,7 +77,7 @@ export const actions = {
 export const mutations = {
   setScenario(state, scenario) {
     state.id = scenario._id;
-    state.title = scenario.title;
+    state.name = scenario.name;
     state.conditionLengths = scenario.vuex_state.conditionLengths;
     state.scenes = scenario.vuex_state.scenes;
     state.frames = scenario.vuex_state.frames;
@@ -86,7 +86,7 @@ export const mutations = {
   putScenario(state, id) {
     this.$axios.$put(`/api/v1/s/${id}`, {
       _id: id,
-      title: state.title,
+      name: state.name,
       vuex_state: {
         conditionLengths: state.conditionLengths,
         scenes: state.scenes,

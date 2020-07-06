@@ -11,7 +11,7 @@ module.exports = function (options) {
     /**
      * Get a list of the current user's scenarios.
      * @param void
-     * @return [{id, title, description}]
+     * @return [{id, name, description}]
      */
     router.get('/', (req, res) => {
         req.session.user_id;
@@ -27,7 +27,7 @@ module.exports = function (options) {
                 res.status(201).json({
                     success: true,
                     message: 'User\'s scenarios returned.',
-                    return: objs.map(obj => ({ id: obj._id, title: obj.title, description: obj.description }))
+                    return: objs.map(obj => ({ id: obj._id, name: obj.name, description: obj.description }))
                 });
         });
     });
@@ -41,7 +41,7 @@ module.exports = function (options) {
 
         let scenario = new ScenarioModel({
             user_id: req.session.user_id,
-            title: req.body.title,
+            name: req.body.name,
             description: req.body.description,
             vuex_state: req.body.vuex_state
         });
@@ -57,7 +57,7 @@ module.exports = function (options) {
                 res.status(201).json({
                     success: true,
                     message: 'Scenario created.',
-                    return: {id: obj._id, title: obj.title, description: obj.description}
+                    return: {id: obj._id, name: obj.name, description: obj.description}
                 });
         });
        
@@ -95,7 +95,7 @@ module.exports = function (options) {
         let id = req.params.scenario_id;
 
         ScenarioModel.updateOne({_id: id}, {$set: {
-            title: req.body.title,
+            name: req.body.name,
             description: req.body.description,
             vuex_state: req.body.vuex_state
         }}, (err)=>{

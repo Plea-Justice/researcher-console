@@ -29,7 +29,7 @@ module.exports = function (options) {
             let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
 
             // Copy simulation template and user's assets.
-            await fs.copy(path.normalize(options.config.sim_dir), tmpdir);
+            await fs.copy(path.normalize(options.config.sim_dir), tmpdir, {filter: src => !src.includes('.git')});
             await fs.copy(
                 path.normalize(user_data_dir),
                 path.join(tmpdir, 'assets')
@@ -139,7 +139,7 @@ module.exports = function (options) {
             };
 
             await fs.writeFile(path.join(tmpdir, 'manifest.json'), JSON.stringify(manifest));
-
+            await fs.remove(path.join(os.tmpdir(), `sim-${id}.zip`));
             zip.zipSync(tmpdir, path.join(os.tmpdir(), `sim-${id}.zip`));
             await fs.remove(tmpdir);
             //res.send('okay');

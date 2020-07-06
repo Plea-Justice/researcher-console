@@ -36,5 +36,5 @@ module.exports = {
     client_dir: '../client/dist/',
 
     // Location of the simulation template with simulation as toplevel index.html.
-    sim_dir: '../../simulation/src/'
+    sim_dir: '../../simulation/'
 };
