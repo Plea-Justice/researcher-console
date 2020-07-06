@@ -85,7 +85,7 @@ module.exports = function (options) {
             else if (!obj)
                 res.status(401).json({
                     success: false,
-                    message: 'The specified user does not exist.',
+                    message: 'Incorrect username or password.',
                     return: null
                 });
             else
@@ -149,6 +149,7 @@ module.exports = function (options) {
 
         let user = new UserModel({
             username: req.body.username,
+            email: req.body.email,
             password: bcrypt.hashSync(req.body.password, saltRounds)
         });
         user.save((err) => {
