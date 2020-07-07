@@ -15,13 +15,18 @@ app.set('view engine', 'jade');
 
 // Use Morgan to log HTTP requests in Apache format.
 // Rotate logs daily.
-var accessLogStream = rfs.createStream('access.log', {
-    interval: config.keep_logs, // rotate daily
-    path: path.join(__dirname, config.log_dir)
-});
+if (config.logs_enabled) {
+    app.use(logger('combined', {
+        stream: rfs.createStream('access.log', {
+            interval: config.keep_logs, // rotate daily
+            path: path.join(__dirname, config.log_dir)
+        })
+    }));
+}
 
-// app.use(logger('combined', { stream: accessLogStream }));
-app.use(logger('dev'));
+if (config.log_to_console) {
+    app.use(logger('dev'));
+}
 
 // Connect to the database.
 var mongoose = require('mongoose');
@@ -54,7 +59,9 @@ app.use(cookieParser());
 
 // Enable Cross-Origin Requests
 var cors = require('cors');
-app.use(cors());
+if (config.cors_enabled) {
+    app.use(cors({credentials: true, origin: config.cors_origin}));
+}
 
 // Serve static files in public.
 app.use(express.static(path.join(__dirname, 'public')));

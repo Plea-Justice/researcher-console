@@ -7,11 +7,17 @@ module.exports = {
     port: 3000,
     host: 'locahost',
 
+    // Cross origin requests. Enable if server and client running separately.
+    cors_enabled: true,
+    cors_origin: 'http://localhost:3001',
+
     // API.
     api_definition: './routes/api_v1',
     api_mount_point: '/api/v1',
 
     // Logging.
+    log_to_console: true,
+    logs_enabled: true,
     keep_logs: '1d',
     log_dir: 'log',
 
