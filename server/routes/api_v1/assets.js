@@ -45,34 +45,28 @@ module.exports = function (options) {
             let assets = {};
             let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
 
-            await fs.mkdirp(path.join(user_data_dir, 'clips'));
-            await fs.mkdirp(path.join(user_data_dir, 'actors'));
-            await fs.mkdirp(path.join(user_data_dir, 'foregrounds'));
-            await fs.mkdirp(path.join(user_data_dir, 'backgrounds'));
+            await Promise.all(assetTypes.map(type => fs.mkdirp(path.join(user_data_dir, type))));
 
-            let clips = await fs.readdir(path.join(user_data_dir, 'clips'));
-            let actors =  await fs.readdir(path.join(user_data_dir, 'actors'));
-            let fgs =  await fs.readdir(path.join(user_data_dir, 'foregrounds'));
-            let bgs =  await fs.readdir(path.join(user_data_dir, 'backgrounds'));
+            let list = 
+                await Promise.all(assetTypes.map(type => fs.readdir(path.join(user_data_dir, type))));
+
+            assetTypes.forEach((type, i) => 
+                list[i] = list[i]
+                    .map(name => path.parse(`${type}/${name}`))
+                    .map(p => ({...p, 'id': btoa(path.format(p))})));
             
-            clips = clips.map(name => `clips/${name}`);
-            actors = actors.map(name => `actors/${name}`);
-            fgs = fgs.map(name => `foregrounds/${name}`);
-            bgs = bgs.map(name => `backgrounds/${name}`);
+            list = Array.prototype.concat(...list);
+            list.forEach(p => assets[p.id] = {'name': p.name, 'type': p.dir, 'thumbnail': null});
 
-            clips.map(name => (assets[btoa(name)] = {'name': path.basename(name), 'type': 'clips'}));
-            actors.map(name => (assets[btoa(name)] = {'name': path.basename(name), 'type': 'actors'}));
-            fgs.map(name => (assets[btoa(name)] = {'name': path.basename(name), 'type': 'foregrounds'}));
-            bgs.map(name => (assets[btoa(name)] = {'name': path.basename(name), 'type': 'backgrounds'}));
+            let assetList = list.map(p => p.id);
 
-            let assetList = Array.prototype.concat(clips, actors, fgs, bgs).map(btoa);
-            
             res.status(200).json({
                 success: true,
                 message: 'Asset listings returned.',
                 return: {assetList, assets, assetTypes}
             });
         } catch (err) {
+            console.log(err);
             res.status(500).json({
                 success: false,
                 message: 'There was an error reading the user\'s assets.',
