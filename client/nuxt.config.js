@@ -12,6 +12,13 @@ export default {
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
   },
   /*
+   ** Development configuration for serving only client with nuxt.
+   */
+  server: {
+    port: 3001,
+    host: 'localhost'
+  },
+  /*
    ** Customize the progress-bar color
    */
   loading: { color: '#fff' },
@@ -47,7 +54,9 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL: process.env.BASE_URL || 'https://0253b0f4-3cd3-43d0-848d-d7aacd8a2a71.mock.pstmn.io'
+    baseURL: process.env.BASE_URL || 'https://0253b0f4-3cd3-43d0-848d-d7aacd8a2a71.mock.pstmn.io',
+    // baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    credentials: true
   },
   /*
    ** Auth module configuration
@@ -83,7 +92,7 @@ export default {
    ** See https://github.com/nuxt-community/style-resources-module
    */
   router: {
-    // middleware: ['auth']
+    middleware: ['auth']
   },
   /*
    ** Build configuration

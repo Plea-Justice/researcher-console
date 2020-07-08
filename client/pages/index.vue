@@ -11,15 +11,19 @@
           </div>
 
           <b-field v-if="isRegistration">
-            <b-input v-model="email" type="email" placeholder="Email"></b-input>
+            <b-input v-model="email" type="email" icon="email" 
+              validation-message="A valid email address is required." maxlength="100" :has-counter="isRegistration"
+               placeholder="Email" required />
           </b-field>
 
           <b-field>
-            <b-input v-model="name" placeholder="Username" />
+            <b-input v-model="name" icon="account" v-bind:minlength="isRegistration ? 3 : 0" maxlength="100" :has-counter="isRegistration"
+              validation-message="Username must be at least 3 characters." placeholder="Username" required />
           </b-field>
 
           <b-field>
-            <b-input v-model="password" type="password" placeholder="Password" password-reveal />
+            <b-input v-model="password" type="password" icon="lock" v-bind:minlength="isRegistration ? 10 : 0" maxlength="100" :has-counter="isRegistration"
+              validation-message="Password must be at least 10 characters." placeholder="Password" required password-reveal />
           </b-field>
           <div class="buttons is-centered">
             <!-- FIXME: should submit and let form login -->
@@ -99,7 +103,7 @@ export default {
     async register() {
       try {
         let response = await this.$axios.post("/api/v1/auth/register", {
-          emai: this.email,
+          email: this.email,
           username: this.name,
           password: this.password
         });

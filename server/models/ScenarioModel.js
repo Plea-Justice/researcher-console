@@ -12,7 +12,7 @@ var FrameSchema = new mongoose.Schema({
 
 var ScenarioSchema = new mongoose.Schema({
     user_id: {type: mongoose.SchemaTypes.ObjectId, required: true},
-    title: {type: String, required: true},
+    name: {type: String},
     description: {type: String},
     frames: {type: [FrameSchema]},
     vuex_state: {type: Object}

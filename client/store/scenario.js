@@ -11,8 +11,7 @@ import spec from '../assets/spec.json';
 
 export const state = () => ({
   id: '',
-  title: '',
-  // FIXME: conditionLength should just be a number since it's always rectangular
+  name: '',
   conditionLengths: [],
   frames: {},
   frameList: [],
@@ -22,7 +21,7 @@ export const state = () => ({
 export const getters = {
   scenarioMeta: state => ({
     id: state.id,
-    title: state.title
+    name: state.name
   }),
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
@@ -95,7 +94,7 @@ export const actions = {
 export const mutations = {
   setScenario(state, scenario) {
     state.id = scenario._id;
-    state.title = scenario.title;
+    state.name = scenario.name;
     state.conditionLengths = scenario.vuex_state.conditionLengths;
 
     // FIXME: make this static or something?
@@ -116,6 +115,7 @@ export const mutations = {
     state.frames = scenario.vuex_state.frames;
     state.frameList = scenario.vuex_state.frameList;
   },
+<<<<<<< HEAD
   putScenario(state) {
     // FIXME: REMOVE DEBUG
     console.table(
@@ -130,6 +130,12 @@ export const mutations = {
     this.$axios.$put(`/api/v1/s/${state.id}`, {
       _id: state.id,
       title: state.title,
+=======
+  putScenario(state, id) {
+    this.$axios.$put(`/api/v1/s/${id}`, {
+      _id: id,
+      name: state.name,
+>>>>>>> 0c95acf1ae75ca5a8a6be089729ab65fed7ca158
       vuex_state: {
         conditionLengths: state.conditionLengths,
         scenes: state.scenes,

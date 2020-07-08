@@ -215,7 +215,7 @@ export default {
   },
   head() {
     return {
-      title: `${this.$siteConfig.title} | ${this.scenarioMeta.title}`,
+      title: `${this.$siteConfig.title} | ${this.scenarioMeta.name}`,
       meta: [
         {
           hid: "description",
