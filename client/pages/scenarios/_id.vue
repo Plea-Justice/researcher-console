@@ -3,25 +3,34 @@
     <ToolBar ref="toolbar">
       <template v-slot:start>
         <div class="level-item buttons">
-          <b-button @click="saveScenario(scenarioMeta.id)" type="is-primary">Save</b-button>
-          <b-button @click="collapse()">{{ `${isCollapsed ? "Expand" : "Collapse"} All` }}</b-button>
+          <b-button @click="submitHandler()" type="is-primary">Save</b-button>
+          <b-button @click="collapse()">{{
+            `${isCollapsed ? "Expand" : "Collapse"} All`
+          }}</b-button>
           <b-button @click="addCondition()">Add Condition</b-button>
           <b-button
             @click="toggleMode(Modes.COPY)"
             :type="EnabledModeBtnType(Modes.COPY)"
             :disabled="isDisabledMode(Modes.COPY)"
-          >Copy</b-button>
+            >Copy</b-button
+          >
         </div>
       </template>
       <template v-slot:end>
         <div class="level-item">
           <div class="buttons">
-            <b-button @click="uploadModal()" type="is-primary" icon-left="file-upload">Upload Asset</b-button>
+            <b-button
+              @click="uploadModal()"
+              type="is-primary"
+              icon-left="file-upload"
+              >Upload Asset</b-button
+            >
             <b-button
               @click="downloadZip()"
               type="is-primary"
               icon-left="folder-download"
-            >Download Package</b-button>
+              >Download Package</b-button
+            >
           </div>
         </div>
         <b-field class="level-item">
@@ -33,7 +42,11 @@
     <!-- Titles -->
     <div ref="titles" class="sticky condition-bar">
       <div class="responsive-container condition-titles">
-        <div v-for="index in numConditions" :key="index" class="condition-title">
+        <div
+          v-for="index in numConditions"
+          :key="index"
+          class="condition-title"
+        >
           <b-button
             @click="removeCondition(index - 1)"
             type="is-text"
@@ -46,20 +59,33 @@
     </div>
 
     <!-- Scrolling Wrapper -->
-    <div @scroll="handleScroll($event)" ref="horizontalScroll" class="scrollable">
-      <section ref="frames" class="responsive-container">
-        <!-- Frames -->
-        <!-- NOTE: for some reason keying without the index causes strange update bahvior conflicting with scrollToFrame -->
-        <SceneFrame
-          v-for="(frame, index) in frameSet"
-          :key="`${frame.id}_${index}`"
-          @scroll-to="scrollToFrame($event)"
-          :frame="frame"
-          :allCollapsed="isCollapsed"
-          :isFirst="index === 0"
-          :isLast="index === frameSet.length - 1"
-          :selection="mode === Modes.COPY"
-        />
+    <div
+      @scroll="handleScroll($event)"
+      ref="horizontalScroll"
+      class="scrollable"
+    >
+      <section class="responsive-container">
+        <ValidationObserver ref="form" tag="form" @submit.prevent="onSubmit()">
+          <!-- Frames -->
+          <!-- NOTE: for some reason keying without the index causes strange update bahvior conflicting with scrollToFrame -->
+          <SceneFrame
+            v-for="(frame, index) in frameSet"
+            :key="`${frame.id}_${index}`"
+            @scroll-to="scrollToFrame($event)"
+            :frame="frame"
+            :allCollapsed="isCollapsed"
+            :isFirst="index === 0"
+            :isLast="index === frameSet.length - 1"
+            :selection="mode === Modes.COPY"
+          />
+
+          <b-button
+            ref="submit"
+            tag="input"
+            native-type="submit"
+            class="is-hidden"
+          />
+        </ValidationObserver>
       </section>
     </div>
   </div>
@@ -70,6 +96,8 @@
 import { mapGetters, mapActions } from "vuex";
 
 // Import Components
+import { ValidationObserver } from "vee-validate";
+
 import ToolBar from "~/components/ToolBar";
 import UploadModal from "~/components/UploadModal";
 import SceneFrame from "~/components/SceneFrame";
@@ -82,7 +110,7 @@ export default {
   layout: "ScenarioLayout",
   components: { ToolBar, UploadModal, SceneFrame },
   data() {
-    // FIXME: make this a mixin
+    // FIXME: make this a mixin ?
     return {
       Modes: {
         DEFAULT: 0,
@@ -108,6 +136,21 @@ export default {
     })
   },
   methods: {
+    submitHandler() {
+      this.$refs.submit.$el.click();
+    },
+    onSubmit() {
+      this.$refs.form.validate().then(success => {
+        if (success) {
+          this.saveScenario();
+        } else {
+          this.$buefy.toast.open({
+            message: "An invalid scene exists",
+            type: "is-danger"
+          });
+        }
+      });
+    },
     // FIXME: make this a seperate component (ToolBarButton)
     isDisabledMode(ownMode) {
       return this.mode !== this.Modes.DEFAULT && this.mode !== ownMode;
@@ -132,7 +175,7 @@ export default {
           this.$refs["toolbar"].$el.clientHeight +
           this.$refs["titles"].clientHeight;
 
-        const frameTopPos = this.$refs.frames.children[
+        const frameTopPos = this.$refs.form.$el.children[
           frameIndex
         ].getBoundingClientRect().top;
 

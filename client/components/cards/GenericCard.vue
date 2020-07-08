@@ -1,28 +1,50 @@
 <template>
   <!-- FIXME: remove id from events -->
 
-  <div class="card has-radius-large">
+  <div :class="{ invalid: invalid }" class="card has-radius-large">
     <!-- Wrapper for highlighting a card -->
-    <div v-if="selection" @click="$emit('selected')" class="selection-wrapper has-radius-large" />
+    <div
+      v-if="selection"
+      @click="$emit('selected')"
+      class="selection-wrapper has-radius-large"
+    />
 
     <!-- Card Header -->
     <!-- when collapsed style header as body -->
-    <header v-if="!focused" class="card-header flex-header" :class="headerModeStyle">
-      <b-button v-if="collapsed" @click="$emit('remove')" type="is-danger" icon-left="close" />
+    <header
+      v-if="!focused"
+      class="card-header flex-header"
+      :class="headerModeStyle"
+    >
+      <b-button
+        v-if="collapsed"
+        @click="$emit('remove')"
+        type="is-danger"
+        icon-left="close"
+      />
       <slot name="header" />
       <!-- When collapsed show remove button in header -->
     </header>
 
     <!-- Card Body -->
-    <div v-if="!collapsed" :class="{ 'flex-center': focused }" class="card-content flex-grow">
+    <div
+      v-if="!collapsed"
+      :class="{ 'flex-center': focused }"
+      class="card-content flex-grow"
+    >
       <slot name="default" />
     </div>
 
     <!-- Card Footer -->
-    <footer v-if="(!collapsed && !focused)" class="card-footer">
+    <footer v-if="!collapsed && !focused" class="card-footer">
       <div class="card-footer-item buttons footer-buttons flex-left">
         <!-- Check if remove listener exists instead of using remove -->
-        <b-button v-if="close" @click="$emit('remove')" type="is-danger" icon-left="close" />
+        <b-button
+          v-if="close"
+          @click="$emit('remove')"
+          type="is-danger"
+          icon-left="close"
+        />
         <slot name="footer" />
       </div>
     </footer>
@@ -36,7 +58,6 @@ import { mapActions } from "vuex";
 export default {
   name: "ItemCard",
   props: {
-    // Sets if component should display form submit button
     close: {
       type: Boolean,
       required: false,
@@ -50,6 +71,11 @@ export default {
     },
     // Sets wether to only show body
     focused: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    invalid: {
       type: Boolean,
       required: false,
       default: false
@@ -71,6 +97,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.invalid {
+  border: 1px solid red;
+}
+
 .selection-wrapper {
   position: absolute;
   width: 100%;

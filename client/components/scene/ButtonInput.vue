@@ -6,8 +6,12 @@
     <!-- FIXME: doesn't emit? -->
 
     <div v-if="!showButtonInput">
-      <b-button type="is-primary" icon-right="plus" @click="openButtonInput()"></b-button>
-      <p v-if="(buttons.length == 0)" class="button-side-text">No buttons</p>
+      <b-button
+        type="is-primary"
+        icon-right="plus"
+        @click="openButtonInput()"
+      ></b-button>
+      <p v-if="buttons.length == 0" class="button-side-text">No buttons</p>
     </div>
 
     <p v-if="error">Error: {{ errorMessage }}</p>
@@ -33,7 +37,11 @@
         </form>
       </b-tag>
 
-      <div v-for="(button, index) in buttons" :key="`${button}-button`" class="control">
+      <div
+        v-for="(button, index) in buttons"
+        :key="`${button}-button`"
+        class="control"
+      >
         <b-tag
           size="is-medium"
           close-type="is-danger"
@@ -46,7 +54,8 @@
             class="rename-button"
             @click="renameButton(button, index)"
             aria-label="rename-button"
-          >{{ button }}</span>
+            >{{ button }}</span
+          >
         </b-tag>
       </div>
     </b-field>
@@ -56,7 +65,9 @@
 <script>
 export default {
   props: {
-    value: {}
+    value: {
+      required: true
+    }
   },
   data() {
     const buttons = !this.value ? [] : this.value;

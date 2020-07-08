@@ -22,7 +22,7 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: ['~/plugins/axios', '~/plugins/vue-prototype-config'],
+  plugins: ['~/plugins/vue-prototype-config', '~/plugins/vee.validate.js', '~/plugins/axios'],
   /*
    ** Nuxt.js dev-modules
    */
@@ -99,6 +99,7 @@ export default {
         maxSize: 244000
       }
     },
+    transpile: ['vee-validate/dist/rules'],
     postcss: {
       // Add plugin names as key and arguments as value
       // Install them before as dependencies with npm or yarn

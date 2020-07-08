@@ -1,15 +1,18 @@
 /* eslint no-shadow: ["error", { "allow": ["state"] }] */
-import Vue from 'vue'; // eslint-disable-line import/no-extraneous-dependencies
+// eslint-disable-next-line import/no-extraneous-dependencies
+import Vue from 'vue';
 
+// FIXME: remove where not needed
 import { nanoid } from 'nanoid/non-secure';
 
 // FIXME: make this a build time asset based on spec.json instead of using all of spec directly
 // Lazy load/code-split this?
-import defaultScene from '../assets/spec.json';
+import spec from '../assets/spec.json';
 
 export const state = () => ({
   id: '',
   title: '',
+  // FIXME: conditionLength should just be a number since it's always rectangular
   conditionLengths: [],
   frames: {},
   frameList: [],
@@ -29,15 +32,17 @@ export const getters = {
 };
 
 export const actions = {
+  // Axios based actions
   async getScenario({ commit }, id) {
     // FIXME: allow this to capture any scenario
     const response = await this.$axios.$get(`/api/v1/s/${id}`);
 
     commit('setScenario', response.return);
   },
-  saveScenario({ commit }, id) {
-    commit('putScenario', id);
+  saveScenario({ commit }) {
+    commit('putScenario');
   },
+  // Standard operations/actions
   addCondition({ commit }) {
     commit('newCondition', { id: nanoid() });
   },
@@ -71,6 +76,19 @@ export const actions = {
   },
   removeScene({ commit }, sceneId) {
     commit('deleteScene', { sceneId });
+  },
+  // Form Based Actions
+  updateSceneType({ commit }, { id, value }) {
+    commit('setSceneFormVal', { sceneId: id, entry: { type: value } });
+  },
+  updateSceneForm({ commit }, { id, key, val }) {
+    commit('setSceneFormVal', { sceneId: id, entry: { [key]: val } });
+  },
+  setSceneValid({ commit }, sceneId) {
+    commit('setSceneValidity', { sceneId, valid: true });
+  },
+  setSceneInvalid({ commit }, sceneId) {
+    commit('setSceneValidity', { sceneId, valid: false });
   }
 };
 
@@ -79,13 +97,38 @@ export const mutations = {
     state.id = scenario._id;
     state.title = scenario.title;
     state.conditionLengths = scenario.vuex_state.conditionLengths;
-    state.scenes = scenario.vuex_state.scenes;
+
+    // FIXME: make this static or something?
+    const skeletonScene = Object.fromEntries(Object.keys(spec.scene).map(key => [key, null]));
+
+    state.scenes = Object.fromEntries(
+      Object.entries(scenario.vuex_state.scenes).map(([key, values]) => [
+        key,
+        {
+          id: values.id,
+          valid: null,
+          type: values.props.type || Object.keys(spec.sceneTypes)[0],
+          props: { ...skeletonScene, ...values.props }
+        }
+      ])
+    );
+
     state.frames = scenario.vuex_state.frames;
     state.frameList = scenario.vuex_state.frameList;
   },
-  putScenario(state, id) {
-    this.$axios.$put(`/api/v1/s/${id}`, {
-      _id: id,
+  putScenario(state) {
+    // FIXME: REMOVE DEBUG
+    console.table(
+      state.frameList.flatMap(frameId =>
+        state.frames[frameId].scenes.map(sceneId => {
+          const scene = state.scenes[sceneId];
+          return !!scene.valid;
+        })
+      )
+    );
+
+    this.$axios.$put(`/api/v1/s/${state.id}`, {
+      _id: state.id,
       title: state.title,
       vuex_state: {
         conditionLengths: state.conditionLengths,
@@ -102,7 +145,7 @@ export const mutations = {
     state.conditionLengths.push(1);
 
     // Create new scene for condition in first frame
-    Vue.set(state.scenes, payload.id, { id: payload.id, props: defaultScene.scene });
+    Vue.set(state.scenes, payload.id, { id: payload.id, valid: null, props: spec.scene });
     firstFrame.scenes.push(payload.id);
   },
   deleteCondition(state, payload) {
@@ -147,7 +190,7 @@ export const mutations = {
     const frameScenes = Array(state.frames[payload.frameId].scenes.length);
     for (let i = 0; i < frameScenes.length; i++) {
       const id = nanoid();
-      Vue.set(state.scenes, id, { id, props: null });
+      Vue.set(state.scenes, id, { id, valid: null, dirty: true, props: null });
       frameScenes[i] = id;
     }
 
@@ -176,12 +219,30 @@ export const mutations = {
   },
   newScene(state, payload) {
     // TODO: better default scene?
-    const newScene = defaultScene.scene;
+    const newScene = spec.scene;
     newScene.name = 'Default Scene';
 
-    Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: newScene });
+    Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, valid: null, dirty: true, props: newScene });
   },
   deleteScene(state, payload) {
     Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: null });
+  },
+  setSceneType(state, payload) {
+    console.log(payload.entry);
+    const test = { ...state.scenes[payload.sceneId], ...payload.entry };
+    console.log(test);
+    Vue.set(state.scenes, payload.sceneId, test);
+  },
+  setSceneFormVal(state, payload) {
+    const newProps = { ...state.scenes[payload.sceneId].props, ...payload.entry };
+    Vue.set(state.scenes, payload.sceneId, { ...state.scenes[payload.sceneId], ...{ props: newProps } });
+  },
+  setSceneValidity(state, payload) {
+    const sceneProps = state.scenes[payload.sceneId].props;
+    Vue.set(state.scenes, payload.sceneId, {
+      id: payload.sceneId,
+      valid: payload.valid,
+      props: sceneProps
+    });
   }
 };

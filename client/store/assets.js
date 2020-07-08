@@ -1,5 +1,6 @@
 /* eslint no-shadow: ["error", { "allow": ["state", "getters"] }] */
-import Vue from 'vue'; // eslint-disable-line import/no-extraneous-dependencies
+// eslint-disable-next-line import/no-extraneous-dependencies
+import Vue from 'vue';
 
 import { nanoid } from 'nanoid/non-secure';
 
