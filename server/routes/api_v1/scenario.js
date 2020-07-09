@@ -27,7 +27,18 @@ module.exports = function (options) {
                 res.status(200).json({
                     success: true,
                     message: 'User\'s scenarios returned.',
-                    return: objs.map(obj => ({ id: obj._id, name: obj.name, description: obj.description }))
+                    return: {
+                        scenarios: objs.reduce((o, obj) => {
+                            o[obj._id] = { 
+                                id: obj._id, 
+                                name: obj.name, 
+                                description: obj.description, 
+                                survey: obj.survey 
+                            };
+                            return o;
+                        }, {}),
+                        scenarioList: objs.map(obj => obj._id)
+                    }
                 });
         });
     });

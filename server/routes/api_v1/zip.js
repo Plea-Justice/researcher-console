@@ -46,8 +46,9 @@ module.exports = function (options) {
             let actors = [];
             let images = [];
             let clips = [];
-
-            let conditions = new Array(conditionLengths.length).fill(0).map(() => new Array());
+            
+            // TODO: Send error on no frames or scenes.
+            let conditions = new Array(frames[frameList[0]].scenes.length).fill(0).map(() => new Array());
 
             for (const frameID of frameList) {
                 let frame = frames[frameID];

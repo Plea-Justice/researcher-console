@@ -27,10 +27,12 @@
       <div class="grid">
         <form v-show="mode === Modes.ADD" @submit.prevent="onSubmit()">
           <ItemCard ref="form-card" v-model="scenarioForm" save>
-            <textarea
+            <b-input
               v-model="scenarioForm.description"
-              class="textarea has-fixed-size"
-              placeholder="script"
+              type="textarea"
+              class="has-fixed-size"
+              placeholder="Description"
+              maxlength="100"
             />
           </ItemCard>
         </form>
