@@ -72,6 +72,11 @@ app.use(config.api_mount_point, require(config.api_definition)({db: database, co
 // Serve the client.
 if (config.serve_client) {
     app.use('/', express.static(config.client_dir));
+    
+    // For dynamic routes, send Nuxt's SPA fallback page.
+    app.use('/', (req, res)=>{
+        res.sendFile(path.resolve(config.client_dir, '200.html'));
+    });
 }
 
 // catch 404 and forward to error handler
@@ -85,9 +90,18 @@ app.use(function(err, req, res, next) {
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-    // render the error page
-    res.status(err.status || 500);
-    res.render('error');
+    // If the request was made by XHR (API call), return a json object.
+    if (req.xhr) {
+        res.json({
+            success: false,
+            message: err.message,
+            return: err
+        });
+    // Otherwise, render an error page.
+    } else {
+        res.status(err.status || 500);
+        res.render('error');
+    }
 });
 
 module.exports = app;

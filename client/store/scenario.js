@@ -12,6 +12,9 @@ import spec from '../assets/spec.json';
 export const state = () => ({
   id: '',
   name: '',
+  description: '',
+  survey: '',
+  conditionLengths: [],
   frames: {},
   frameList: [],
   scenes: {}
@@ -20,7 +23,9 @@ export const state = () => ({
 export const getters = {
   scenarioMeta: state => ({
     id: state.id,
-    name: state.name
+    name: state.name,
+    description: state.description,
+    survey: state.survey
   }),
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
@@ -93,6 +98,9 @@ export const mutations = {
   setScenario(state, scenario) {
     state.id = scenario._id;
     state.name = scenario.name;
+    state.description = scenario.description;
+    state.survey = scenario.survey;
+    state.conditionLengths = scenario.vuex_state.conditionLengths;
 
     // FIXME: make this static or something?
     const skeletonScene = Object.fromEntries(Object.keys(spec.scene).map(key => [key, null]));
@@ -126,6 +134,8 @@ export const mutations = {
     this.$axios.$put(`/api/v1/s/${id}`, {
       _id: id,
       name: state.name,
+      description: state.description,
+      survey: state.survey,
       vuex_state: {
         scenes: state.scenes,
         frames: state.frames,

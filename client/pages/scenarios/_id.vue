@@ -3,8 +3,9 @@
     <ToolBar ref="toolbar">
       <template v-slot:start>
         <div class="level-item buttons">
-          <b-button @click="submitHandler()" type="is-primary">Save</b-button>
-          <b-button @click="collapse()">{{
+          <b-button @click="submitHandler()" type="is-primary" icon-left="content-save">Save</b-button>
+          <b-button @click="scenarioProps()" icon-left="movie-edit-outline">Properties</b-button>
+          <b-button @click="collapse()" :icon-left="isCollapsed ? 'expand-all-outline' : 'collapse-all-outline'">{{
             `${isCollapsed ? "Expand" : "Collapse"} All`
           }}</b-button>
           <b-button @click="addCondition()">Add Condition</b-button>
@@ -19,12 +20,6 @@
       <template v-slot:end>
         <div class="level-item">
           <div class="buttons">
-            <b-button
-              @click="uploadModal()"
-              type="is-primary"
-              icon-left="file-upload"
-              >Upload Asset</b-button
-            >
             <b-button
               @click="downloadZip()"
               type="is-primary"
@@ -99,7 +94,7 @@ import { mapGetters, mapActions } from "vuex";
 import { ValidationObserver } from "vee-validate";
 
 import ToolBar from "~/components/ToolBar";
-import UploadModal from "~/components/UploadModal";
+import ScenarioProperties from "~/components/ScenarioProperties";
 import SceneFrame from "~/components/SceneFrame";
 
 // Import Helper Functions
@@ -108,7 +103,7 @@ import { throttle } from "~/assets/util";
 export default {
   name: "Scenario",
   layout: "ScenarioLayout",
-  components: { ToolBar, UploadModal, SceneFrame },
+  components: { ToolBar, ScenarioProperties, SceneFrame },
   data() {
     // FIXME: make this a mixin ?
     return {
@@ -190,10 +185,12 @@ export default {
     collapse() {
       this.isCollapsed = !this.isCollapsed;
     },
-    uploadModal() {
+    scenarioProps() {
+      console.log(this.scenarioMeta)
       this.$buefy.modal.open({
         parent: this,
-        component: UploadModal,
+        component: ScenarioProperties,
+        props: {id: this.scenarioMeta.id},
         hasModalCard: true,
         trapFocus: true
       });
