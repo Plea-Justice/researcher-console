@@ -5,7 +5,12 @@
     <ToolBar>
       <template v-slot:start>
         <div class="level-item buttons">
-          <b-button class="level-item" :disabled="addMode" @click="toggleAddMode()">Add Asset</b-button>
+          <b-button
+            class="level-item"
+            :disabled="addMode"
+            @click="toggleAddMode()"
+            >Add Asset</b-button
+          >
         </div>
       </template>
 
@@ -13,23 +18,34 @@
         <b-field v-if="validAssetTypes.length > 1">
           <b-select placeholder="Asset Type" v-model="selectedAssetType">
             <option value="all">all</option>
-            <option v-for="type in validAssetTypes" :key="type" :value="type">{{ type }}</option>
+            <option v-for="type in validAssetTypes" :key="type" :value="type">{{
+              type
+            }}</option>
           </b-select>
         </b-field>
       </template>
     </ToolBar>
 
     <section class="section container">
-      <h1
-        class="title is-capitalized"
-      >{{ selectedAssetType === "all" ? "Assets" : `Assets: ${selectedAssetType}` }}</h1>
+      <h1 class="title is-capitalized">
+        {{
+          selectedAssetType === "all"
+            ? "Assets"
+            : `Assets: ${selectedAssetType}`
+        }}
+      </h1>
 
       <div class="grid">
         <form v-show="addMode" @submit.prevent="onSubmit()">
           <ItemCard ref="form-card" v-model="assetForm" save>
             <b-field label="Asset Type">
               <b-select placeholder="Select a type">
-                <option v-for="type in allAssetTypes" :key="type" :value="type">{{ type }}</option>
+                <option
+                  v-for="type in allAssetTypes"
+                  :key="type"
+                  :value="type"
+                  >{{ type }}</option
+                >
               </b-select>
             </b-field>
           </ItemCard>
@@ -144,7 +160,7 @@ export default {
 <style scoped>
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 350px));
   gap: 15px;
 }
 </style>

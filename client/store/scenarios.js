@@ -39,12 +39,9 @@ export const actions = {
 };
 
 export const mutations = {
-  setScenarios(state, scenarios) {
-    scenarios.forEach(scenario => {
-      // Add each scenario to state
-      Vue.set(state.scenarios, scenario.id, scenario);
-      state.scenarioList.push(scenario.id);
-    });
+  setScenarios(state, res) {
+    state.scenarios = res.scenarios;
+    state.scenarioList = res.scenarioList;
   },
   newScenario(state, payload) {
     // Add new scenario to state

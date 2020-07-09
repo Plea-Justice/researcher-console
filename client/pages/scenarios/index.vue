@@ -10,13 +10,15 @@
             @click="toggleAddMode()"
             :type="EnabledModeBtnType(Modes.ADD)"
             :disabled="isDisabledMode(Modes.ADD)"
-          >Add</b-button>
+            >Add</b-button
+          >
           <!-- Add button text labels on hover -->
           <b-button
             @click="toggleMode(Modes.DUPLICATE)"
             :type="EnabledModeBtnType(Modes.DUPLICATE)"
             :disabled="isDisabledMode(Modes.DUPLICATE)"
-          >Duplicate</b-button>
+            >Duplicate</b-button
+          >
         </div>
       </template>
     </ToolBar>
@@ -150,7 +152,7 @@ export default {
 <style scoped>
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 350px));
   gap: 15px;
 }
 </style>
