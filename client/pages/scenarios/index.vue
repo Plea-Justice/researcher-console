@@ -106,7 +106,7 @@ export default {
 
       if (this.mode === this.Modes.ADD)
         this.$nextTick(() => {
-          this.$refs["form-card"].$refs["form-card-input"].focus();
+          this.$refs["form-card"].focus();
         });
     },
     ...mapActions({

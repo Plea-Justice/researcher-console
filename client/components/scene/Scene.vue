@@ -1,10 +1,5 @@
 <template>
-  <ValidationObserver
-    ref="form"
-    tag="fieldset"
-    class="flex-wrap"
-    v-slot="{ failed }"
-  >
+  <ValidationObserver ref="form" tag="fieldset" class="flex-wrap" v-slot="{ failed }">
     <GenericCard
       @remove="removeScene(scene.id)"
       :collapsed="collapsed"
@@ -16,9 +11,8 @@
       <template v-slot:header>
         <!-- Scene Name -->
 
-        <!-- FIXME: fix focus-input -->
         <BInputWithValidation
-          ref="focus-input"
+          ref="focus_target"
           rules="required|alpha_spaces"
           @input="updateForm(scene.id, 'name', $event)"
           :value="scene.props.name"
@@ -37,8 +31,7 @@
             @input="updateSceneForm({ id: scene.id, key: 'type', val: $event })"
             :value="scene.props.type"
             :native-value="type"
-            >{{ type }}</b-radio-button
-          >
+          >{{ type }}</b-radio-button>
         </b-field>
 
         <template v-for="field in validFieldNames">
@@ -144,6 +137,10 @@ export default {
     }
   },
   methods: {
+    // Method accessible by $refs from Parent for focus event
+    focus() {
+      this.$refs.focus_target.focus();
+    },
     validationScheduler: debounce(function() {
       this.$refs.form
         .validate()

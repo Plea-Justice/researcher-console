@@ -5,7 +5,7 @@
     <ToolBar>
       <template v-slot:start>
         <div class="level-item buttons">
-          <b-button class="level-item" :disabled="addMode" @click="addAsset()">Add Asset</b-button>
+          <b-button class="level-item" :disabled="addMode" @click="toggleAddMode()">Add Asset</b-button>
         </div>
       </template>
 
@@ -102,13 +102,15 @@ export default {
     }
   },
   methods: {
-    addAsset() {
-      this.addMode = true;
+    toggleAddMode() {
+      this.addMode = !this.addMode;
 
-      this.$nextTick(() => {
-        this.$refs["form-card"].$refs["form-card-input"].focus();
-      });
+      if (this.addMode) this.$nextTick(() => this.$refs["form-card"].focus());
     },
+    ...mapActions({
+      addAsset: "assets/addAsset",
+      removeAsset: "assets/removeAsset"
+    }),
     onSubmit() {
       // Add the scenario to state
       this.addAsset(this.assetForm);
@@ -122,11 +124,7 @@ export default {
 
       // Disable form
       this.addMode = false;
-    },
-    ...mapActions({
-      addAsset: "assets/addAsset",
-      removeAsset: "assets/removeAsset"
-    })
+    }
   },
   head() {
     return {

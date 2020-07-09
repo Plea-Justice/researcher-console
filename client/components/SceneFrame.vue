@@ -3,37 +3,40 @@
     <div class="frame box">
       <div :class="{ 'selection-wrapper': selection }" />
       <!-- Sidebar -->
-      <aside class="sidebar buttons">
-        <!-- Collapse Button -->
-        <!-- FIXME: if all scenes are blank don't allow collapsing -->
-        <b-button
-          @click="collapse()"
-          :icon-left="`chevron-${isCollapsed ? 'down' : 'up'}`"
-          size="is-medium"
-        />
+      <aside class="sidebar">
+        <div v-show="!(isFirst && isLast && frame.blank)" class="buttons">
+          <!-- Collapse Button -->
+          <b-button
+            v-show="!frame.blank"
+            @click="collapse()"
+            :icon-left="`chevron-${isCollapsed ? 'down' : 'up'}`"
+            size="is-medium"
+          />
 
-        <!-- Frame up/down buttons -->
-        <b-button
-          v-if="!isFirst && !isCollapsed"
-          @click="moveUp()"
-          type="is-text"
-          size="is-large"
-          icon-left="chevron-up"
-        />
-        <b-button
-          v-if="!isLast && !isCollapsed"
-          @click="moveDown()"
-          type="is-text"
-          size="is-large"
-          icon-left="chevron-down"
-        />
+          <!-- Move Up/Down Buttons -->
+          <b-button
+            v-if="!isFirst && !isCollapsed"
+            @click="moveUp()"
+            type="is-text"
+            size="is-large"
+            icon-left="chevron-up"
+          />
+          <b-button
+            v-if="!isLast && !isCollapsed"
+            @click="moveDown()"
+            type="is-text"
+            size="is-large"
+            icon-left="chevron-down"
+          />
 
-        <b-button
-          @click="removeFrame(frame.id)"
-          type="is-danger"
-          icon-left="close"
-          size="is-medium"
-        />
+          <!-- Remove Frame Button -->
+          <b-button
+            @click="removeFrame(frame.id)"
+            type="is-danger"
+            icon-left="close"
+            size="is-medium"
+          />
+        </div>
       </aside>
       <div v-for="(scene, index) in getSceneSet" :key="scene.id" class="scene">
         <Scene
@@ -142,8 +145,9 @@ export default {
     addSceneHelper(sceneIndex, sceneId) {
       this.addScene(sceneId);
 
-      this.$nextTick(() =>
-        this.$refs[`scene_${sceneId}`][0].$refs["focus-input"].focus()
+      this.$nextTick(
+        () => this.$refs[`scene_${sceneId}`][0].focus()
+        //this.$refs[`scene_${sceneId}`][0].$refs["focus-input"].focus()
       );
     }
   }

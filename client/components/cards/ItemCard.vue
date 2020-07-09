@@ -18,7 +18,7 @@
       <!-- In form mode v-model item name as input -->
       <b-input
         v-else
-        ref="form-card-input"
+        ref="focus_target"
         v-model="value.name"
         placeholder="title"
         class="flex-grow"
@@ -78,9 +78,11 @@ export default {
       required: false,
       default: false
     }
+  },
+  methods: {
+    focus() {
+      this.$refs.focus_target.focus();
+    }
   }
 };
 </script>
-
-<style>
-</style>
