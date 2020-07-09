@@ -115,8 +115,7 @@ export const mutations = {
     state.frames = scenario.vuex_state.frames;
     state.frameList = scenario.vuex_state.frameList;
   },
-<<<<<<< HEAD
-  putScenario(state) {
+  putScenario(state, id) {
     // FIXME: REMOVE DEBUG
     console.table(
       state.frameList.flatMap(frameId =>
@@ -127,15 +126,9 @@ export const mutations = {
       )
     );
 
-    this.$axios.$put(`/api/v1/s/${state.id}`, {
-      _id: state.id,
-      title: state.title,
-=======
-  putScenario(state, id) {
     this.$axios.$put(`/api/v1/s/${id}`, {
       _id: id,
       name: state.name,
->>>>>>> 0c95acf1ae75ca5a8a6be089729ab65fed7ca158
       vuex_state: {
         conditionLengths: state.conditionLengths,
         scenes: state.scenes,
