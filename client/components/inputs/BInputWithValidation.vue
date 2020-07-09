@@ -10,7 +10,7 @@
       :type="{ 'is-danger': errors[0], 'is-success': passed }"
       :message="errors"
     >
-      <b-input v-model="innerValue" v-bind="$attrs"></b-input>
+      <b-input ref="focus_target" v-model="innerValue" v-bind="$attrs"></b-input>
     </b-field>
   </ValidationProvider>
 </template>
@@ -51,6 +51,12 @@ export default {
   created() {
     if (this.value) {
       this.innerValue = this.value;
+    }
+  },
+  methods: {
+    // Method accessible by $refs from Parent to focus on element
+    focus() {
+      this.$refs.focus_target.focus();
     }
   }
 };

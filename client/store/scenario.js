@@ -12,7 +12,6 @@ import spec from '../assets/spec.json';
 export const state = () => ({
   id: '',
   name: '',
-  conditionLengths: [],
   frames: {},
   frameList: [],
   scenes: {}
@@ -25,9 +24,8 @@ export const getters = {
   }),
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
-  numConditions: state => state.conditionLengths.length,
-  getFrameIndex: state => frameId => state.frameList.indexOf(frameId),
-  isBlank: state => sceneId => state.scenes[sceneId].props === null
+  numConditions: state => (state.frameList.length <= 0 ? 0 : state.frames[state.frameList[0]].scenes.length),
+  getFrameIndex: state => frameId => state.frameList.indexOf(frameId)
 };
 
 export const actions = {
@@ -43,7 +41,7 @@ export const actions = {
   },
   // Standard operations/actions
   addCondition({ commit }) {
-    commit('newCondition', { id: nanoid() });
+    commit('newCondition');
   },
   removeCondition({ commit }, index) {
     commit('deleteCondition', { index });
@@ -95,7 +93,6 @@ export const mutations = {
   setScenario(state, scenario) {
     state.id = scenario._id;
     state.name = scenario.name;
-    state.conditionLengths = scenario.vuex_state.conditionLengths;
 
     // FIXME: make this static or something?
     const skeletonScene = Object.fromEntries(Object.keys(spec.scene).map(key => [key, null]));
@@ -130,34 +127,52 @@ export const mutations = {
       _id: id,
       name: state.name,
       vuex_state: {
-        conditionLengths: state.conditionLengths,
         scenes: state.scenes,
         frames: state.frames,
         frameList: state.frameList
       }
     });
   },
-  newCondition(state, payload) {
-    const firstFrame = state.frames[state.frameList[0]];
+  newCondition(state) {
+    const numConditions = state.frameList.length <= 0 ? 0 : state.frames[state.frameList[0]].scenes.length;
 
-    // Update condition lengths
-    state.conditionLengths.push(1);
+    // Copy last condition into new condition
+    for (let i = 0; i < numConditions; i++) {
+      const id = nanoid();
+      const currFrame = state.frames[state.frameList[i]];
+      const lastScene = state.scenes[currFrame.scenes[currFrame.scenes.length - 1]];
 
-    // Create new scene for condition in first frame
-    Vue.set(state.scenes, payload.id, { id: payload.id, valid: null, props: spec.scene });
-    firstFrame.scenes.push(payload.id);
+      Vue.set(state.scenes, id, { ...lastScene, ...{ id } });
+      currFrame.scenes.push(id);
+    }
   },
   deleteCondition(state, payload) {
-    state.frameList.forEach(frameId => {
-      // Remove that conditions scene's from each frame
-      const removedSceneId = state.frames[frameId].scenes.splice(payload.index, 1);
+    const numConditions = state.frames[state.frameList[0]].scenes.length;
 
-      // Remove scene from scenes
-      Vue.delete(state.scenes, removedSceneId);
-    });
+    if (numConditions <= 1) {
+      // If last Condition replace everything with a blank scene
 
-    // Update conditionLengths
-    state.conditionLengths.splice(payload.index, 1);
+      // Reset all frames and scenes
+      state.frameList = [];
+      state.frames = {};
+      state.scenes = {};
+
+      // Add blank scene
+      const sceneId = nanoid();
+      Vue.set(state.scenes, sceneId, { id: sceneId, props: null });
+      // Create new frame with new scene
+      const frameId = nanoid();
+      Vue.set(state.frames, frameId, { id: frameId, blank: true, scenes: [sceneId] });
+      state.frameList.push(frameId);
+    } else {
+      state.frameList.forEach(frameId => {
+        // Remove that conditions scene's from each frame
+        const removedSceneId = state.frames[frameId].scenes.splice(payload.index, 1);
+
+        // Remove scene from scenes
+        Vue.delete(state.scenes, removedSceneId);
+      });
+    }
   },
   moveFrame(state, payload) {
     const fromIndex = state.frameList.indexOf(payload.frameId);
@@ -194,19 +209,20 @@ export const mutations = {
     }
 
     const id = nanoid();
-    Vue.set(state.frames, id, { id, scenes: frameScenes });
+    Vue.set(state.frames, id, { id, blank: true, scenes: frameScenes });
     state.frameList.splice(frameIndex, 0, id);
   },
   deleteFrame(state, payload) {
-    const frameIndex = state.frameList.indexOf(payload.frameId);
+    // If last frame just replace scenes with empty scenes
+    if (state.frameList.length <= 1) {
+      const lastFrame = state.frames[payload.frameId];
 
-    // If last frame replace scenes with empty scenes
-    if (state.frameList.length === 1) {
-      state.frames[payload.frameId].scenes.forEach(sceneId =>
-        Vue.set(state.scenes, sceneId, { id: sceneId, props: null })
-      );
+      lastFrame.scenes.forEach(sceneId => Vue.set(state.scenes, sceneId, { id: sceneId, props: null }));
+
+      // Update Frame data
+      Vue.set(state.frames, payload.frameId, { ...lastFrame, ...{ blank: true } });
     } else {
-      // Otherwise remove
+      const frameIndex = state.frameList.indexOf(payload.frameId);
 
       // Remove scenes in frame
       state.frames[payload.frameId].scenes.forEach(sceneId => Vue.delete(state.scenes, sceneId));
@@ -225,12 +241,6 @@ export const mutations = {
   },
   deleteScene(state, payload) {
     Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: null });
-  },
-  setSceneType(state, payload) {
-    console.log(payload.entry);
-    const test = { ...state.scenes[payload.sceneId], ...payload.entry };
-    console.log(test);
-    Vue.set(state.scenes, payload.sceneId, test);
   },
   setSceneFormVal(state, payload) {
     const newProps = { ...state.scenes[payload.sceneId].props, ...payload.entry };
