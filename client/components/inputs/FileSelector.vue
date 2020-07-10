@@ -7,12 +7,13 @@
     :type="error.flag ? 'is-danger' : null"
     :message="error.flag ? error.message : null"
   >
-    <!-- FIXME: warning for empty selector? -->
-
+    <!-- FIXME: warning for empty selector, selector with no options? -->
     <option value="None">None</option>
     <!-- If value does not exists insert dummy value and flag error -->
     <option v-if="error.flag" :value="value">{{ value }}</option>
-    <option v-for="file in values" :key="file" :value="file">{{ file }}</option>
+    <option v-for="file in options" :key="file" :value="file">{{
+      file
+    }}</option>
   </BSelectWithValidation>
 </template>
 
@@ -22,8 +23,10 @@ import BSelectWithValidation from "~/components/inputs/BSelectWithValidation";
 export default {
   components: { BSelectWithValidation },
   props: {
-    value: {},
-    values: {
+    value: {
+      required: true
+    },
+    options: {
       type: Array,
       required: true
     },
@@ -39,7 +42,7 @@ export default {
   data: () => ({
     innerValue: ""
   }),
-  // FIXME: Update these to computed values
+  // FIXME: Update these to computed options
   // FIXME: extrapolate commmon to shared component or mixin
   watch: {
     // Handles internal model changes.
@@ -60,7 +63,7 @@ export default {
     invalidOldFile() {
       return this.value &&
         this.value !== "None" &&
-        !this.values.includes(this.value)
+        !this.options.includes(this.value)
         ? true
         : false;
     },
@@ -68,7 +71,7 @@ export default {
       let isError = true;
       let message = null;
 
-      if (this.values.length === 0) {
+      if (this.options.length === 0) {
         message = `No files for "${this.label}" exists`;
       } else if (this.invalidOldFile) {
         message = `File "${this.value}" does not exist`;

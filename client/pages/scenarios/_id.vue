@@ -3,11 +3,20 @@
     <ToolBar ref="toolbar">
       <template v-slot:start>
         <div class="level-item buttons">
-          <b-button @click="submitHandler()" type="is-primary" icon-left="content-save">Save</b-button>
-          <b-button @click="scenarioProps()" icon-left="movie-edit-outline">Properties</b-button>
-          <b-button @click="collapse()" :icon-left="isCollapsed ? 'expand-all-outline' : 'collapse-all-outline'">{{
-            `${isCollapsed ? "Expand" : "Collapse"} All`
-          }}</b-button>
+          <b-button
+            @click="submitHandler()"
+            type="is-primary"
+            icon-left="content-save"
+            >Save</b-button
+          >
+          <b-button @click="scenarioProps()" icon-left="movie-edit-outline">
+            Properties
+          </b-button>
+          <b-button
+            @click="collapseAll()"
+            :icon-left="collapsedBtnProps.icon"
+            >{{ collapsedBtnProps.name }}</b-button
+          >
           <b-button @click="addCondition()">Add Condition</b-button>
           <b-button
             @click="toggleMode(Modes.COPY)"
@@ -67,8 +76,9 @@
             v-for="(frame, index) in frameSet"
             :key="`${frame.id}_${index}`"
             @scroll-to="scrollToFrame($event)"
+            @collapse=""
             :frame="frame"
-            :allCollapsed="isCollapsed"
+            :frameIndex="index"
             :isFirst="index === 0"
             :isLast="index === frameSet.length - 1"
             :selection="mode === Modes.COPY"
@@ -94,7 +104,7 @@ import { mapGetters, mapActions } from "vuex";
 import { ValidationObserver } from "vee-validate";
 
 import ToolBar from "~/components/ToolBar";
-import ScenarioProperties from "~/components/ScenarioProperties";
+// import ScenarioProperties from "~/components/ScenarioProperties";
 import SceneFrame from "~/components/SceneFrame";
 
 // Import Helper Functions
@@ -103,7 +113,7 @@ import { throttle } from "~/assets/util";
 export default {
   name: "Scenario",
   layout: "ScenarioLayout",
-  components: { ToolBar, ScenarioProperties, SceneFrame },
+  components: { ToolBar, SceneFrame },
   data() {
     // FIXME: make this a mixin ?
     return {
@@ -112,10 +122,9 @@ export default {
         COPY: 1,
         BIND: 2
       },
-
       // Set to DEFAULT mode
       mode: 0,
-      isCollapsed: false
+      collapsed: false
     };
   },
   async fetch({ store, params }) {
@@ -123,6 +132,13 @@ export default {
     await store.dispatch("assets/getAssets");
   },
   computed: {
+    collapsedBtnProps() {
+      const test = this.scenarioMeta.collapsed;
+      return {
+        icon: `${test ? "expand" : "collapse"}-all-outline`,
+        name: `${test ? "Expand" : "Collapse"} All`
+      };
+    },
     // FIXME: make this 1 getter, formalize condition names
     ...mapGetters({
       scenarioMeta: "scenario/scenarioMeta",
@@ -182,15 +198,12 @@ export default {
 
       // Scroll so that the element is at the top of the view
     },
-    collapse() {
-      this.isCollapsed = !this.isCollapsed;
-    },
     scenarioProps() {
-      console.log(this.scenarioMeta)
+      console.log(this.scenarioMeta);
       this.$buefy.modal.open({
         parent: this,
         component: ScenarioProperties,
-        props: {id: this.scenarioMeta.id},
+        props: { id: this.scenarioMeta.id },
         hasModalCard: true,
         trapFocus: true
       });
@@ -207,8 +220,19 @@ export default {
     ...mapActions({
       addCondition: "scenario/addCondition",
       removeCondition: "scenario/removeCondition",
-      saveScenario: "scenario/saveScenario"
-    })
+      saveScenario: "scenario/saveScenario",
+      updateFrames: "scenario/updateFrames",
+      updateMeta: "scenario/updateMeta"
+    }),
+    collapseAll() {
+      const entry = {
+        key: "collapsed",
+        val: !this.scenarioMeta.collapsed
+      };
+
+      this.updateMeta(entry);
+      this.updateFrames(entry);
+    }
   },
   head() {
     return {

@@ -8,26 +8,28 @@
           <!-- Collapse Button -->
           <b-button
             v-show="!frame.blank"
-            @click="collapse()"
-            :icon-left="`chevron-${isCollapsed ? 'down' : 'up'}`"
+            @click="collapseFrame()"
+            :icon-left="`chevron-${frame.collapsed ? 'down' : 'up'}`"
             size="is-medium"
           />
 
           <!-- Move Up/Down Buttons -->
-          <b-button
-            v-if="!isFirst && !isCollapsed"
-            @click="moveUp()"
-            type="is-text"
-            size="is-large"
-            icon-left="chevron-up"
-          />
-          <b-button
-            v-if="!isLast && !isCollapsed"
-            @click="moveDown()"
-            type="is-text"
-            size="is-large"
-            icon-left="chevron-down"
-          />
+          <template v-show="!frame.collapsed">
+            <b-button
+              v-show="!isFirst"
+              @click="moveUp()"
+              type="is-text"
+              size="is-large"
+              icon-left="chevron-up"
+            />
+            <b-button
+              v-show="!isLast"
+              @click="moveDown()"
+              type="is-text"
+              size="is-large"
+              icon-left="chevron-down"
+            />
+          </template>
 
           <!-- Remove Frame Button -->
           <b-button
@@ -43,8 +45,9 @@
           :ref="`scene_${scene.id}`"
           v-if="scene.props !== null"
           :scene="scene"
-          :collapsed="isCollapsed"
+          :collapsed="!!frame.collapsed"
         />
+        <!-- Remove '!!' from !!frame.collapsed -->
 
         <GenericCard v-else focused>
           <b-button
@@ -58,7 +61,12 @@
     </div>
 
     <div class="frame-footer">
-      <b-button @click="addFrame(frame.id)" type="is-light" size="is-medium" icon-left="plus" />
+      <b-button
+        @click="addFrame(frame.id)"
+        type="is-light"
+        size="is-medium"
+        icon-left="plus"
+      />
     </div>
   </div>
 </template>
@@ -79,8 +87,8 @@ export default {
       type: Object,
       required: true
     },
-    allCollapsed: {
-      type: Boolean,
+    frameIndex: {
+      type: Number,
       required: true
     },
     isFirst: {
@@ -99,56 +107,43 @@ export default {
       default: false
     }
   },
-  data() {
-    const selfCollapsed = false;
-
-    const displayColumns = this.frame.scenes.length;
-
-    return { selfCollapsed, displayColumns };
-  },
   computed: {
-    isCollapsed() {
-      return this.allCollapsed || this.selfCollapsed;
-    },
     ...mapGetters({
-      sceneSet: "scenario/sceneSet",
-      getFrameIndex: "scenario/getFrameIndex"
+      sceneSet: "scenario/sceneSet"
     }),
     getSceneSet() {
       return this.sceneSet(this.frame.id);
-    },
-    frameIndex() {
-      return this.getFrameIndex(this.frame.id);
     }
   },
   methods: {
-    collapse() {
-      this.selfCollapsed = !this.selfCollapsed;
-    },
     ...mapActions({
       moveFrameUp: "scenario/moveFrameUp",
       moveFrameDown: "scenario/moveFrameDown",
       addFrame: "scenario/addFrame",
       removeFrame: "scenario/removeFrame",
-      addScene: "scenario/addScene"
+      addScene: "scenario/addScene",
+      updateFrame: "scenario/updateFrame"
     }),
+    collapseFrame() {
+      this.updateFrame({
+        id: this.frame.id,
+        key: "collapsed",
+        val: !this.frame.collapsed
+      });
+    },
     moveUp() {
       this.moveFrameUp(this.frame.id);
       // emit the frameIndex that must be traveled to
-      this.$emit("scroll-to", this.frameIndex);
+      this.$emit("scroll-to", this.frameIndex - 1);
     },
     moveDown() {
       this.moveFrameDown(this.frame.id);
       // emit the frameIndex that must be traveled to
-      this.$emit("scroll-to", this.frameIndex);
+      this.$emit("scroll-to", this.frameIndex + 1);
     },
     addSceneHelper(sceneIndex, sceneId) {
       this.addScene(sceneId);
-
-      this.$nextTick(
-        () => this.$refs[`scene_${sceneId}`][0].focus()
-        //this.$refs[`scene_${sceneId}`][0].$refs["focus-input"].focus()
-      );
+      this.$nextTick(() => this.$refs[`scene_${sceneId}`][0].focus());
     }
   }
 };

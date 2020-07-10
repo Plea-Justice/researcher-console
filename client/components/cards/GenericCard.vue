@@ -16,6 +16,7 @@
       class="card-header flex-header"
       :class="headerModeStyle"
     >
+      <!-- When collapsed show remove button in header -->
       <b-button
         v-if="collapsed"
         @click="$emit('remove')"
@@ -23,12 +24,11 @@
         icon-left="close"
       />
       <slot name="header" />
-      <!-- When collapsed show remove button in header -->
     </header>
 
     <!-- Card Body -->
     <div
-      v-if="!collapsed"
+      v-show="!collapsed"
       :class="{ 'flex-center': focused }"
       class="card-content flex-grow"
     >

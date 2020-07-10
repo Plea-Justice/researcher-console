@@ -1,5 +1,10 @@
 <template>
-  <ValidationObserver ref="form" tag="fieldset" class="flex-wrap" v-slot="{ failed }">
+  <ValidationObserver
+    ref="form"
+    tag="fieldset"
+    class="flex-wrap"
+    v-slot="{ failed }"
+  >
     <GenericCard
       @remove="removeScene(scene.id)"
       :collapsed="collapsed"
@@ -10,7 +15,6 @@
       <!-- Card Header -->
       <template v-slot:header>
         <!-- Scene Name -->
-
         <BInputWithValidation
           ref="focus_target"
           rules="required|alpha_spaces"
@@ -31,7 +35,8 @@
             @input="updateSceneForm({ id: scene.id, key: 'type', val: $event })"
             :value="scene.props.type"
             :native-value="type"
-          >{{ type }}</b-radio-button>
+            >{{ type }}</b-radio-button
+          >
         </b-field>
 
         <template v-for="field in validFieldNames">
@@ -40,22 +45,24 @@
             v-if="isType(field, ['image', 'video'])"
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
-            :values="AssetNamesByType[field + 's'] || []"
-            :label="field"
+            :options="AssetNamesByType[field + 's'] || []"
+            :label="capitalize(field)"
             :icon="getIcon(field)"
           />
 
           <!-- FIXME: has-fixed-size -->
-          <TextAreaWithValidation
+          <BInputWithValidation
             :key="field"
             v-if="isType(field, 'text')"
+            type="textarea"
             rules="required"
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
-            :label="field"
+            :label="capitalize(field)"
           />
 
           <ButtonInput
+            :key="field"
             v-if="isType(field, 'buttons')"
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
@@ -77,10 +84,9 @@ import { ValidationObserver } from "vee-validate";
 
 import GenericCard from "~/components/cards/GenericCard";
 import FileSelector from "~/components/inputs/FileSelector";
-import ButtonInput from "~/components/scene/ButtonInput";
+import ButtonInput from "~/components/inputs/ButtonInput";
 
 import BInputWithValidation from "~/components/inputs/BInputWithValidation";
-import TextAreaWithValidation from "~/components/cards/TextAreaWithValidation";
 
 // Import Helper Functions
 import { debounce } from "~/assets/util";
@@ -95,8 +101,7 @@ export default {
     GenericCard,
     FileSelector,
     ButtonInput,
-    BInputWithValidation,
-    TextAreaWithValidation
+    BInputWithValidation
   },
   props: {
     scene: {
@@ -156,6 +161,9 @@ export default {
         ? validTypes.some(type => targetType === type)
         : targetType === validTypes;
     },
+    capitalize(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    },
     // TODO: make this a enum in data?
     getIcon(field) {
       const type = spec.scene[field];
@@ -184,6 +192,10 @@ export default {
 </script>
 
 <style scoped>
+.card {
+  height: 100%;
+}
+
 .flex-wrap {
   display: flex;
   flex-grow: 1;

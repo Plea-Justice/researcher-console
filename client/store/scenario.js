@@ -10,31 +10,27 @@ import { nanoid } from 'nanoid/non-secure';
 import spec from '../assets/spec.json';
 
 export const state = () => ({
-  id: '',
-  name: '',
-  description: '',
-  survey: '',
-  conditionLengths: [],
+  meta: {
+    id: '',
+    name: '',
+    description: '',
+    survey: '',
+    collapsed: false
+  },
   frames: {},
   frameList: [],
   scenes: {}
 });
 
 export const getters = {
-  scenarioMeta: state => ({
-    id: state.id,
-    name: state.name,
-    description: state.description,
-    survey: state.survey
-  }),
+  scenarioMeta: state => state.meta,
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
-  numConditions: state => (state.frameList.length <= 0 ? 0 : state.frames[state.frameList[0]].scenes.length),
-  getFrameIndex: state => frameId => state.frameList.indexOf(frameId)
+  numConditions: state => (state.frameList.length <= 0 ? 0 : state.frames[state.frameList[0]].scenes.length)
 };
 
 export const actions = {
-  // Axios based actions
+  // **** Axios Actions ****
   async getScenario({ commit }, id) {
     // FIXME: allow this to capture any scenario
     const response = await this.$axios.$get(`/api/v1/s/${id}`);
@@ -44,12 +40,32 @@ export const actions = {
   saveScenario({ commit }) {
     commit('putScenario');
   },
-  // Standard operations/actions
+
+  // **** Scenario Actions ****
+  updateMeta({ commit }, { key, val }) {
+    commit('updateMeta', { key, val });
+  },
+
+  // **** Condition Actions
   addCondition({ commit }) {
     commit('newCondition');
   },
   removeCondition({ commit }, index) {
     commit('deleteCondition', { index });
+  },
+
+  // **** Frame Actions ****
+  addFrame({ commit }, frameId) {
+    commit('newFrame', { frameId });
+  },
+  removeFrame({ commit }, frameId) {
+    commit('deleteFrame', { frameId });
+  },
+  updateFrame({ commit }, { id, key, val }) {
+    commit('setFrameKey', { frameId: id, entry: { [key]: val } });
+  },
+  updateFrames({ commit }, { key, val }) {
+    commit('setFramesKey', { entry: { [key]: val } });
   },
   moveFrameDown({ commit }, frameId) {
     // Frame stack goes from 0 down incrementally, so add 1 to move down
@@ -59,33 +75,22 @@ export const actions = {
     // Frame stack goes from 0 down incrementally, so add -1 to move up
     commit('moveFrame', { frameId, modifier: -1 });
   },
-  moveSceneDown({ commit }, { frame: frameId, scene: sceneId }) {
-    // Frame stack goes from 0 down incrementally, so add 1 to move down
-    commit('moveScene', { frameId, sceneId, modifier: 1 });
-  },
-  moveSceneUp({ commit }, { frame: frameId, scene: sceneId }) {
-    // Frame stack goes from 0 down incrementally, so add -1 to move up
-    commit('moveScene', { frameId, sceneId, modifier: -1 });
-  },
-  addFrame({ commit }, frameId) {
-    commit('newFrame', { frameId });
-  },
-  removeFrame({ commit }, frameId) {
-    commit('deleteFrame', { frameId });
-  },
+
+  // **** Scene Actions ****
   addScene({ commit }, sceneId) {
     commit('newScene', { sceneId });
   },
   removeScene({ commit }, sceneId) {
     commit('deleteScene', { sceneId });
   },
-  // Form Based Actions
+  // Form Actions
   updateSceneType({ commit }, { id, value }) {
-    commit('setSceneFormVal', { sceneId: id, entry: { type: value } });
+    commit('updateSceneProps', { sceneId: id, entry: { type: value } });
   },
   updateSceneForm({ commit }, { id, key, val }) {
-    commit('setSceneFormVal', { sceneId: id, entry: { [key]: val } });
+    commit('setScenePropsKey', { sceneId: id, entry: { [key]: val } });
   },
+  // FIXME: finish these
   setSceneValid({ commit }, sceneId) {
     commit('setSceneValidity', { sceneId, valid: true });
   },
@@ -95,15 +100,17 @@ export const actions = {
 };
 
 export const mutations = {
+  // **** Axios Mutations ****
   setScenario(state, scenario) {
-    state.id = scenario._id;
-    state.name = scenario.name;
-    state.description = scenario.description;
-    state.survey = scenario.survey;
-    state.conditionLengths = scenario.vuex_state.conditionLengths;
+    state.meta = {
+      ...state.meta,
+      ...{ id: scenario._id, name: scenario.name, description: scenario.description, survey: scenario.survey }
+    };
 
     // FIXME: make this static or something?
-    const skeletonScene = Object.fromEntries(Object.keys(spec.scene).map(key => [key, null]));
+    const skeletonScene = Object.fromEntries(Object.keys(spec.scene).map(key => [key, 'None']));
+    skeletonScene.name = 'Default Scene';
+    skeletonScene.type = Object.keys(spec.sceneTypes)[1];
 
     state.scenes = Object.fromEntries(
       Object.entries(scenario.vuex_state.scenes).map(([key, values]) => [
@@ -143,6 +150,13 @@ export const mutations = {
       }
     });
   },
+
+  // **** Scenario Mutations ****
+  updateMeta(state, payload) {
+    Vue.set(state.meta, payload.key, payload.val);
+  },
+
+  // **** Condition Mutations ****
   newCondition(state) {
     const numConditions = state.frameList.length <= 0 ? 0 : state.frames[state.frameList[0]].scenes.length;
 
@@ -166,13 +180,12 @@ export const mutations = {
       state.frameList = [];
       state.frames = {};
       state.scenes = {};
-
       // Add blank scene
       const sceneId = nanoid();
       Vue.set(state.scenes, sceneId, { id: sceneId, props: null });
       // Create new frame with new scene
       const frameId = nanoid();
-      Vue.set(state.frames, frameId, { id: frameId, blank: true, scenes: [sceneId] });
+      Vue.set(state.frames, frameId, { id: frameId, blank: true, collapsed: false, scenes: [sceneId] });
       state.frameList.push(frameId);
     } else {
       state.frameList.forEach(frameId => {
@@ -184,43 +197,24 @@ export const mutations = {
       });
     }
   },
-  moveFrame(state, payload) {
-    const fromIndex = state.frameList.indexOf(payload.frameId);
 
-    const toIndex = fromIndex + payload.modifier;
-
-    // Swap 2 frames using splice
-    state.frameList.splice(fromIndex, 1, state.frameList.splice(toIndex, 1, payload.frameId)[0]);
-  },
-  moveScene(state, payload) {
-    // Lookup index of scene in frame to find scene position
-    const sceneIndex = state.frames[payload.frameId].scenes.indexOf(payload.sceneId);
-
-    // Lookup index of scene's frame to find next frame
-    const toFrameId = state.frameList[state.frameList.indexOf(payload.frameId) + payload.modifier];
-
-    // Swap 2 scenes using splice
-    state.frames[payload.frameId].scenes.splice(
-      sceneIndex,
-      1,
-      state.frames[toFrameId].scenes.splice(sceneIndex, 1, payload.sceneId)[0]
-    );
-  },
+  // **** Frame Mutations ****
   newFrame(state, payload) {
-    // Inserting into next position, so get next index
-    const frameIndex = state.frameList.indexOf(payload.frameId) + 1;
+    // TODO: cache this in root VueX state, use cache for everywhere else as well
+    const frameLength = state.frames[state.frameList[0]].scenes.length;
 
-    // FIXME: improve this
-    const frameScenes = Array(state.frames[payload.frameId].scenes.length);
-    for (let i = 0; i < frameScenes.length; i++) {
+    // Create scenes for new frame
+    const frameScenes = [];
+    for (let i = 0; i < frameLength; i++) {
       const id = nanoid();
-      Vue.set(state.scenes, id, { id, valid: null, dirty: true, props: null });
-      frameScenes[i] = id;
+      Vue.set(state.scenes, id, { id, valid: null, props: null });
+      frameScenes.push(id);
     }
 
+    // Create frame
     const id = nanoid();
-    Vue.set(state.frames, id, { id, blank: true, scenes: frameScenes });
-    state.frameList.splice(frameIndex, 0, id);
+    Vue.set(state.frames, id, { id, blank: true, collapsed: false, scenes: frameScenes });
+    state.frameList.splice(state.frameList.indexOf(payload.frameId) + 1, 0, id);
   },
   deleteFrame(state, payload) {
     // If last frame just replace scenes with empty scenes
@@ -242,17 +236,37 @@ export const mutations = {
       Vue.delete(state.frames, payload.frameId);
     }
   },
-  newScene(state, payload) {
-    // TODO: better default scene?
-    const newScene = spec.scene;
-    newScene.name = 'Default Scene';
+  setFrameKey(state, payload) {
+    const frame = state.frames[payload.frameId];
+    Vue.set(state.frames, payload.frameId, { ...frame, ...payload.entry });
+  },
+  setFramesKey(state, payload) {
+    state.frameList.forEach(frameId => {
+      const frame = state.frames[frameId];
+      Vue.set(state.frames, frameId, { ...frame, ...payload.entry });
+    });
+  },
+  moveFrame(state, payload) {
+    const fromIndex = state.frameList.indexOf(payload.frameId);
+    const toIndex = fromIndex + payload.modifier;
 
-    Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, valid: null, dirty: true, props: newScene });
+    // Swap the 2 frames with splice
+    state.frameList.splice(fromIndex, 1, state.frameList.splice(toIndex, 1, payload.frameId)[0]);
+  },
+
+  // **** Scene Mutations ****
+  newScene(state, payload) {
+    // FIXME: make this static or something?
+    const skeletonScene = Object.fromEntries(Object.keys(spec.scene).map(key => [key, null]));
+    skeletonScene.name = 'Default Scene';
+    skeletonScene.type = Object.keys(spec.sceneTypes)[1];
+
+    Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, valid: null, props: skeletonScene });
   },
   deleteScene(state, payload) {
     Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: null });
   },
-  setSceneFormVal(state, payload) {
+  setScenePropsKey(state, payload) {
     const newProps = { ...state.scenes[payload.sceneId].props, ...payload.entry };
     Vue.set(state.scenes, payload.sceneId, { ...state.scenes[payload.sceneId], ...{ props: newProps } });
   },
