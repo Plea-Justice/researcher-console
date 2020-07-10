@@ -6,14 +6,17 @@
     :label="label"
     :type="error.flag ? 'is-danger' : null"
     :message="error.flag ? error.message : null"
+    :icon="icon"
   >
     <!-- FIXME: warning for empty selector, selector with no options? -->
     <option value="None">None</option>
     <!-- If value does not exists insert dummy value and flag error -->
     <option v-if="error.flag" :value="value">{{ value }}</option>
-    <option v-for="file in options" :key="file" :value="file">{{
+    <option v-for="file in options" :key="file" :value="file">
+      {{
       file
-    }}</option>
+      }}
+    </option>
   </BSelectWithValidation>
 </template>
 

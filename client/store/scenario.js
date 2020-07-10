@@ -158,12 +158,14 @@ export const mutations = {
 
   // **** Condition Mutations ****
   newCondition(state) {
-    const numConditions = state.frameList.length <= 0 ? 0 : state.frames[state.frameList[0]].scenes.length;
+    const numFrames = state.frameList.length;
 
     // Copy last condition into new condition
-    for (let i = 0; i < numConditions; i++) {
+    for (let i = 0; i < numFrames; i++) {
       const id = nanoid();
       const currFrame = state.frames[state.frameList[i]];
+      // console.log({ ...currFrame });
+
       const lastScene = state.scenes[currFrame.scenes[currFrame.scenes.length - 1]];
 
       Vue.set(state.scenes, id, { ...lastScene, ...{ id } });

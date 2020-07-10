@@ -3,8 +3,8 @@
     <div class="frame box">
       <div :class="{ 'selection-wrapper': selection }" />
       <!-- Sidebar -->
-      <aside class="sidebar">
-        <div v-show="!(isFirst && isLast && frame.blank)" class="buttons">
+      <aside class="sidebar buttons">
+        <template v-show="!(isFirst && isLast && frame.blank)">
           <!-- Collapse Button -->
           <b-button
             v-show="!frame.blank"
@@ -38,7 +38,7 @@
             icon-left="close"
             size="is-medium"
           />
-        </div>
+        </template>
       </aside>
       <div v-for="(scene, index) in getSceneSet" :key="scene.id" class="scene">
         <Scene
@@ -61,12 +61,7 @@
     </div>
 
     <div class="frame-footer">
-      <b-button
-        @click="addFrame(frame.id)"
-        type="is-light"
-        size="is-medium"
-        icon-left="plus"
-      />
+      <b-button @click="addFrame(frame.id)" type="is-light" size="is-medium" icon-left="plus" />
     </div>
   </div>
 </template>

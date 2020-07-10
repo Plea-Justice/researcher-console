@@ -1,10 +1,5 @@
 <template>
-  <ValidationObserver
-    ref="form"
-    tag="fieldset"
-    class="flex-wrap"
-    v-slot="{ failed }"
-  >
+  <ValidationObserver ref="form" tag="fieldset" class="flex-wrap" v-slot="{ failed }">
     <GenericCard
       @remove="removeScene(scene.id)"
       :collapsed="collapsed"
@@ -35,8 +30,7 @@
             @input="updateSceneForm({ id: scene.id, key: 'type', val: $event })"
             :value="scene.props.type"
             :native-value="type"
-            >{{ type }}</b-radio-button
-          >
+          >{{ type }}</b-radio-button>
         </b-field>
 
         <template v-for="field in validFieldNames">
@@ -46,8 +40,9 @@
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
             :options="AssetNamesByType[field + 's'] || []"
-            :label="capitalize(field)"
+            :label="field"
             :icon="getIcon(field)"
+            custom-class="is-capitalized"
           />
 
           <!-- FIXME: has-fixed-size -->
@@ -58,7 +53,8 @@
             rules="required"
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
-            :label="capitalize(field)"
+            :label="field"
+            custom-class="is-capitalized has-fixed-size"
           />
 
           <ButtonInput
@@ -66,6 +62,8 @@
             v-if="isType(field, 'buttons')"
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
+            :label="field"
+            custom-class="is-capitalized"
           />
 
           <!-- TODO: Display error for incorrect types/types that don't match anything ? -->
@@ -167,11 +165,11 @@ export default {
     // TODO: make this a enum in data?
     getIcon(field) {
       const type = spec.scene[field];
-      let icon = null;
+      let icon = "";
       if (type === "image") {
-        ("file-image");
+        icon = "file-image";
       } else if (type === "video") {
-        ("file-video");
+        icon = "file-video";
       }
       return icon;
     },

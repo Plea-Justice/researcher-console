@@ -3,27 +3,18 @@
     <ToolBar ref="toolbar">
       <template v-slot:start>
         <div class="level-item buttons">
-          <b-button
-            @click="submitHandler()"
-            type="is-primary"
-            icon-left="content-save"
-            >Save</b-button
-          >
-          <b-button @click="scenarioProps()" icon-left="movie-edit-outline">
-            Properties
-          </b-button>
+          <b-button @click="submitHandler()" type="is-primary" icon-left="content-save">Save</b-button>
+          <b-button @click="scenarioProps()" icon-left="movie-edit-outline">Properties</b-button>
           <b-button
             @click="collapseAll()"
             :icon-left="collapsedBtnProps.icon"
-            >{{ collapsedBtnProps.name }}</b-button
-          >
+          >{{ collapsedBtnProps.name }}</b-button>
           <b-button @click="addCondition()">Add Condition</b-button>
           <b-button
             @click="toggleMode(Modes.COPY)"
             :type="EnabledModeBtnType(Modes.COPY)"
             :disabled="isDisabledMode(Modes.COPY)"
-            >Copy</b-button
-          >
+          >Copy</b-button>
         </div>
       </template>
       <template v-slot:end>
@@ -33,8 +24,7 @@
               @click="downloadZip()"
               type="is-primary"
               icon-left="folder-download"
-              >Download Package</b-button
-            >
+            >Download Package</b-button>
           </div>
         </div>
         <b-field class="level-item">
@@ -46,11 +36,7 @@
     <!-- Titles -->
     <div ref="titles" class="sticky condition-bar">
       <div class="responsive-container condition-titles">
-        <div
-          v-for="index in numConditions"
-          :key="index"
-          class="condition-title"
-        >
+        <div v-for="index in numConditions" :key="index" class="condition-title">
           <b-button
             @click="removeCondition(index - 1)"
             type="is-text"
@@ -63,11 +49,7 @@
     </div>
 
     <!-- Scrolling Wrapper -->
-    <div
-      @scroll="handleScroll($event)"
-      ref="horizontalScroll"
-      class="scrollable"
-    >
+    <div @scroll="handleScroll($event)" ref="horizontalScroll" class="scrollable">
       <section class="responsive-container">
         <ValidationObserver ref="form" tag="form" @submit.prevent="onSubmit()">
           <!-- Frames -->
@@ -76,7 +58,7 @@
             v-for="(frame, index) in frameSet"
             :key="`${frame.id}_${index}`"
             @scroll-to="scrollToFrame($event)"
-            @collapse=""
+            @collapse
             :frame="frame"
             :frameIndex="index"
             :isFirst="index === 0"
@@ -84,12 +66,7 @@
             :selection="mode === Modes.COPY"
           />
 
-          <b-button
-            ref="submit"
-            tag="input"
-            native-type="submit"
-            class="is-hidden"
-          />
+          <b-button ref="submit" native-type="submit" class="is-hidden" />
         </ValidationObserver>
       </section>
     </div>
