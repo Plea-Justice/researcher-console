@@ -1,7 +1,12 @@
 <template>
   <div>
-    <NavBar :title="scenarioName" path="/scenarios" help />
-
+    <NavBar v-if="true" :title="scenarioName" path="/scenarios" helpTitle="Scenario Story Editor"
+      helpText="The simulation storyline progresses downwards. Each column is the variation of the storyline that will be
+        presented to participants subject to the experimental condition specified at the top of the column.
+        Click 'Properties' to edit the survey link to which participants will be redirected when they complete
+        the simulation. 'Download Package' will create a fully configured, zipped simulation package, ready to deploy
+        on any web server." />
+  <!-- <button @click="store.dispatch('error/setError')">setError</button> -->
     <nuxt />
   </div>
 </template>
