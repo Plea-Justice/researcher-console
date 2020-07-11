@@ -10,6 +10,7 @@
             v-show="!frame.blank"
             @click="collapseFrame()"
             :icon-left="`chevron-${frame.collapsed ? 'down' : 'up'}`"
+            type="is-text"
             size="is-medium"
           />
 
@@ -18,16 +19,16 @@
             <b-button
               v-show="!isFirst"
               @click="moveUp()"
-              type="is-text"
-              size="is-large"
-              icon-left="chevron-up"
+              type="is-light"
+              size="is-medium"
+              icon-left="arrow-up"
             />
             <b-button
               v-show="!isLast"
               @click="moveDown()"
-              type="is-text"
-              size="is-large"
-              icon-left="chevron-down"
+              type="is-light"
+              size="is-medium"
+              icon-left="arrow-down"
             />
           </template>
 

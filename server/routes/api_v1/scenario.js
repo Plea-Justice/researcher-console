@@ -108,6 +108,7 @@ module.exports = function (options) {
         ScenarioModel.updateOne({_id: id}, {$set: {
             name: req.body.name,
             description: req.body.description,
+            survey: req.body.survey,
             vuex_state: req.body.vuex_state
         }}, (err)=>{
             if (err)

@@ -231,7 +231,7 @@ export default {
   margin-top: 2rem;
   overflow-x: hidden;
   /* Sticky below toolbar */
-  top: 5rem;
+  top: 4rem;
   margin-bottom: 0.25rem;
   background-color: #fffe;
 }
