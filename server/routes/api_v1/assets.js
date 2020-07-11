@@ -56,7 +56,7 @@ module.exports = function (options) {
                     .map(p => ({...p, 'id': btoa(path.format(p))})));
             
             list = Array.prototype.concat(...list);
-            list.forEach(p => assets[p.id] = {'name': p.name, 'type': p.dir, 'thumbnail': null});
+            list.forEach(p => assets[p.id] = {'id': p.id, 'name': p.name, 'type': p.dir, 'thumbnail': null});
 
             let assetList = list.map(p => p.id);
 
@@ -96,22 +96,22 @@ module.exports = function (options) {
                 return: req.body.type
             });
         else if ((req.body.type === 'clips' || req.body.type === 'actors') && 
-            path.extname(req.files.upload.name) !== '.js')
+            path.extname(req.files.file.name) !== '.js')
             res.status(400).json({
                 success: false,
                 message: 'Clips and assets must have a JavaScript file extension.',
                 return: null
             });
         else if ((req.body.type === 'foregrounds' || req.body.type === 'backgrounds') && 
-            (path.extname(req.files.upload.name) !== '.png' && path.extname(req.files.upload.name) !== '.jpg'))
+            (path.extname(req.files.file.name) !== '.png' && path.extname(req.files.file.name) !== '.jpg'))
             res.status(400).json({
                 success: false,
                 message: 'Foreground and background images must have a PNG or JPEG file extension.',
                 return: null
             });
         else {
-            let filepath = path.join(req.body.type, sanitize(req.files.upload.name).replace(/[\s,;]+/g, '_'));
-            req.files.upload.mv(path.join(user_data_dir, filepath), (err)=>{
+            let filepath = path.join(req.body.type, sanitize(req.files.file.name).replace(/[\s,;]+/g, '_'));
+            req.files.file.mv(path.join(user_data_dir, filepath), (err)=>{
                 if (err)
                     res.status(500).json({
                         success: false,

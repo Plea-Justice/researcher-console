@@ -43,22 +43,37 @@
       <div class="grid">
         <form v-show="addMode" @submit.prevent="onSubmit()">
           <ItemCard ref="form-card" v-model="assetForm" save>
+            <b-field label="File Upload">
+              <b-field>
+                <b-upload v-model="assetForm.file" required native
+                  accept=".js, .jpg, .png">
+                  <a class="button is-light">
+                    <b-icon size="is-small" icon="cloud-upload" />
+                    <span>{{ assetForm.file.name || "Click to upload"}}</span>
+                  </a>
+                </b-upload>
+                <HelpSidebar class="control"
+                  title="Asset Uploads"
+                  text="Valid filetypes are '.js' animated assets and '.jpg' or '.png' image files." />
+              </b-field>
+            </b-field>
+            <br />
             <b-field label="Asset Type">
               <b-field>
-              <b-select placeholder="Select a type" expanded>
-                <option
-                  v-for="type in allAssetTypes"
-                  :key="type"
-                  :value="type"
-                  >{{ type }}</option
-                >
-              </b-select>
-              <HelpSidebar class="control"
-                title="Asset Types"
-                text="Asset types may be actor, clip, foreground or background. Actors are individual characters
-                  who may speak whereas clips are premade movie clips that will play through like a video. Both must
-                  be files exported from Adobe Animate ending in '.js'. Foregrounds and backgrounds are image files
-                  and must end in '.png' or '.jpg'." />
+                <b-select placeholder="Select a type" v-model="assetForm.type" expanded required>
+                  <option
+                    v-for="type in allAssetTypes"
+                    :key="type"
+                    :value="type"
+                    >{{ type }}</option
+                  >
+                </b-select>
+                <HelpSidebar class="control"
+                  title="Asset Types"
+                  text="Asset types may be actor, clip, foreground or background. Actors are individual characters
+                    who may speak whereas clips are premade movie clips that will play through like a video. Both must
+                    be files exported from Adobe Animate ending in '.js'. Foregrounds and backgrounds are image files
+                    and must end in '.png' or '.jpg'." />
               </b-field>
             </b-field>
           </ItemCard>
@@ -102,7 +117,8 @@ export default {
       //FIXME: make this dynamic
       assetForm: {
         name: "",
-        type: ""
+        type: "",
+        file: {}
       }
     };
   },
@@ -142,14 +158,20 @@ export default {
       removeAsset: "assets/removeAsset"
     }),
     onSubmit() {
-      // Add the scenario to state
-      this.addAsset(this.assetForm);
+      let asset = new FormData();
+      asset.append('file', this.assetForm.file);
+      asset.append('type', this.assetForm.type);
+      asset.append('name', this.assetForm.name);
 
+      // Add the scenario to state
+      this.addAsset(asset);
+      
       // Reset the inputs
       // FIXME: make this dynamic
       this.assetForm = {
         name: "",
-        type: ""
+        type: "",
+        file: {}
       };
 
       // Disable form

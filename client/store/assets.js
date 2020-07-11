@@ -27,10 +27,8 @@ export const actions = {
     commit('setAssets', response.return);
   },
   addAsset({ commit }, asset) {
-    // FIXME: Get new scenario id from server
-    // asset.id = this.$axios.$post('/api/v1/a');
-
-    asset.id = nanoid();
+    const response = this.$axios.$post('/api/v1/a', asset);
+    asset.id = response.return;
     commit('newAsset', { asset });
   },
   removeAsset({ commit }, id) {
