@@ -1,5 +1,11 @@
 <template>
   <div>
+    <NavBar v-if="true" :title="scenarioMeta.name" path="/scenarios" helpTitle="Scenario Story Editor"
+      helpText="The simulation storyline progresses downwards. Each column is the variation of the storyline that will be
+        presented to participants subject to the experimental condition specified at the top of the column.
+        Click 'Properties' to edit the survey link to which participants will be redirected when they complete
+        the simulation. 'Download Package' will create a fully configured, zipped simulation package, ready to deploy
+        on any web server." />
     <ToolBar ref="toolbar">
       <template v-slot:start>
         <div class="level-item buttons">
@@ -58,7 +64,6 @@
             v-for="(frame, index) in frameSet"
             :key="`${frame.id}_${index}`"
             @scroll-to="scrollToFrame($event)"
-            @collapse
             :frame="frame"
             :frameIndex="index"
             :isFirst="index === 0"
@@ -80,8 +85,9 @@ import { mapGetters, mapActions } from "vuex";
 // Import Components
 import { ValidationObserver } from "vee-validate";
 
+import NavBar from "~/components/NavBar";
 import ToolBar from "~/components/ToolBar";
-// import ScenarioProperties from "~/components/ScenarioProperties";
+import ScenarioProperties from "~/components/ScenarioProperties";
 import SceneFrame from "~/components/SceneFrame";
 
 // Import Helper Functions
@@ -89,8 +95,7 @@ import { throttle } from "~/assets/util";
 
 export default {
   name: "Scenario",
-  layout: "ScenarioLayout",
-  components: { ToolBar, SceneFrame },
+  components: { NavBar, ToolBar, SceneFrame, ScenarioProperties },
   data() {
     // FIXME: make this a mixin ?
     return {
@@ -176,11 +181,9 @@ export default {
       // Scroll so that the element is at the top of the view
     },
     scenarioProps() {
-      console.log(this.scenarioMeta);
       this.$buefy.modal.open({
         parent: this,
         component: ScenarioProperties,
-        props: { id: this.scenarioMeta.id },
         hasModalCard: true,
         trapFocus: true
       });

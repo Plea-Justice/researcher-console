@@ -6,7 +6,8 @@ var ScenarioSchema = new mongoose.Schema({
     name: {type: String},
     description: {type: String},
     survey: {type: String},
-    vuex_state: {type: Object}
+    vuex_state: {type: Object},
+    created: {type: Date, default: Date.now}
 });
 
 var ScenarioModel = mongoose.model('Scenario', ScenarioSchema);
