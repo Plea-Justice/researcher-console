@@ -43,7 +43,7 @@
           v-for="scenario in scenarioSet"
           :key="scenario.id"
           @selected="duplicate($event)"
-          @remove="removeScenario($event)"
+          @remove="confirmDelete($event)"
           :selection="mode === Modes.DUPLICATE"
           :item="scenario"
           close
@@ -122,6 +122,16 @@ export default {
     duplicate(eScenarioId) {
       this.duplicateScenario(eScenarioId);
       this.mode = this.Modes.DEFAULT;
+    },
+    confirmDelete(event) {
+      this.$buefy.dialog.confirm({
+        title: 'Delete Scenario',
+        message: 'Deleted scenarios are not recoverable.<br /><br />Are you sure you would like to delete this scenario?',
+        confirmText: 'Delete',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.removeScenario(event)
+      })
     },
     onSubmit() {
       // Add the scenario to state

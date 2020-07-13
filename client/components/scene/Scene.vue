@@ -40,7 +40,7 @@
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
             :options="AssetNamesByType[field + 's'] || []"
-            :label="field"
+            :label="field | capitalize"
             :icon="getIcon(field)"
             custom-class="is-capitalized"
           />

@@ -225,6 +225,16 @@ export default {
         }
       ]
     };
+  },
+  beforeRouteLeave(to, from, next) {
+    this.$buefy.dialog.confirm({
+      title: 'Leaving Scenario Editor',
+      message: 'If you have made any changes, save them before leaving.',
+      confirmText: 'Leave Page',
+      type: 'is-danger',
+      hasIcon: true,
+      onConfirm: () => next()
+    })
   }
 };
 </script>

@@ -35,6 +35,9 @@ export const actions = {
     // FIXME: allow this to capture any scenario
     const response = await this.$axios.$get(`/api/v1/s/${id}`);
 
+    // Set defaults, then overwrite with any data from the server.
+    const { meta, ...data } = state();
+    response.return = { ...meta, vuex_state: data, ...response.return };
     commit('setScenario', response.return);
   },
   saveScenario({ commit }) {

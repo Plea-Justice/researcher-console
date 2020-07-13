@@ -68,7 +68,7 @@ module.exports = function (options) {
                 res.status(201).json({
                     success: true,
                     message: 'Scenario created.',
-                    return: {id: obj._id, name: obj.name, description: obj.description}
+                    return: {id: obj._id}
                 });
         });
        
@@ -81,14 +81,21 @@ module.exports = function (options) {
      */
     router.get('/:scenario_id', (req, res) => {
         let id = req.params.scenario_id;
+        let uid = req.session.user_id;
 
-        ScenarioModel.findById(id, (err, obj)=>{
+        ScenarioModel.findOne({_id: id, user_id: uid}, (err, obj)=>{
             if (err)
                 res.status(500).json({
                     success: false,
                     message: 'There was an error retrieving the scenario.',
                     return: err
-                });            
+                });
+            if (obj === null)
+                res.status(400).json({
+                    success: false,
+                    message: 'The requested scenario does not exist.',
+                    return: null
+                });     
             else 
                 res.status(200).json({
                     success: true,

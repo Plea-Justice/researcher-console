@@ -22,9 +22,9 @@
       <template v-slot:end>
         <b-field v-if="validAssetTypes.length > 1">
           <b-select placeholder="Asset Type" v-model="selectedAssetType">
-            <option value="all">all</option>
+            <option value="all">All</option>
             <option v-for="type in validAssetTypes" :key="type" :value="type">{{
-              type
+              type | capitalize
             }}</option>
           </b-select>
         </b-field>
@@ -65,7 +65,7 @@
                     v-for="type in allAssetTypes"
                     :key="type"
                     :value="type"
-                    >{{ type }}</option
+                    >{{ type | capitalize }}</option
                   >
                 </b-select>
                 <HelpSidebar class="control"
@@ -81,7 +81,7 @@
         <ItemCard
           v-for="asset in filteredAssets"
           :key="asset.id"
-          @remove="removeAsset($event)"
+          @remove="confirmDelete($event)"
           :item="asset"
           close
         >
@@ -157,6 +157,16 @@ export default {
       addAsset: "assets/addAsset",
       removeAsset: "assets/removeAsset"
     }),
+    confirmDelete(event) {
+      this.$buefy.dialog.confirm({
+        title: 'Delete Asset',
+        message: 'Deleted assets are not recoverable.<br /><br />Are you sure you would like to delete this asset?',
+        confirmText: 'Delete',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.removeAsset(event)
+      })
+    },
     onSubmit() {
       let asset = new FormData();
       asset.append('file', this.assetForm.file);
