@@ -1,7 +1,14 @@
 <template>
   <ValidationObserver ref="form" tag="fieldset" class="flex-wrap" v-slot="{ failed }">
+    <div
+      v-if="selectable && failed"
+      @click="invalidSelectionToast"
+      class="invalid-selection-wrapper"
+    />
     <GenericCard
       @remove="removeScene(scene.id)"
+      @selected="$emit('selected', scene.id)"
+      :selection="selectable && !failed"
       :collapsed="collapsed"
       :focused="isBlank"
       :invalid="failed"
@@ -53,7 +60,7 @@
             rules="required"
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
-            :label="field"
+            :label="field | capitalize"
             custom-class="is-capitalized has-fixed-size"
           />
 
@@ -62,7 +69,7 @@
             v-if="isType(field, 'buttons')"
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
-            :label="field"
+            :label="field | capitalize"
             custom-class="is-capitalized"
           />
 
@@ -110,6 +117,11 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    selectable: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data() {
@@ -140,6 +152,12 @@ export default {
     }
   },
   methods: {
+    invalidSelectionToast() {
+      this.$buefy.toast.open({
+        message: "Can't select an invalid scene, correct scene first.",
+        type: "is-danger"
+      });
+    },
     // Method accessible by $refs from Parent for focus event
     focus() {
       this.$refs.focus_target.focus();
@@ -158,9 +176,6 @@ export default {
       return Array.isArray(validTypes)
         ? validTypes.some(type => targetType === type)
         : targetType === validTypes;
-    },
-    capitalize(string) {
-      return string.charAt(0).toUpperCase() + string.slice(1);
     },
     // TODO: make this a enum in data?
     getIcon(field) {
@@ -189,14 +204,28 @@ export default {
 };
 </script>
 
-<style scoped>
-.card {
-  height: 100%;
-}
-
+<style lang="scss" scoped>
 .flex-wrap {
+  position: relative;
   display: flex;
   flex-grow: 1;
+}
+
+.invalid-selection-wrapper {
+  // FIXME: Make wrappers (masks) extendable classes
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 5;
+  cursor: pointer;
+  background-color: #ff443a99;
+  // FIXME: use Bulma SASS $radius-large variable
+  // Use mixin of .has-radius-large instead
+  border-radius: 6px;
+}
+
+.card {
+  height: 100%;
 }
 
 .toggle-button {

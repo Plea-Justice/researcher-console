@@ -3,35 +3,18 @@
 
   <div :class="{ invalid: invalid }" class="card has-radius-large">
     <!-- Wrapper for highlighting a card -->
-    <div
-      v-if="selection"
-      @click="$emit('selected')"
-      class="selection-wrapper has-radius-large"
-    />
+    <div v-if="selection" @click="$emit('selected')" class="selection-wrapper has-radius-large" />
 
     <!-- Card Header -->
     <!-- when collapsed style header as body -->
-    <header
-      v-if="!focused"
-      class="card-header flex-header"
-      :class="headerModeStyle"
-    >
+    <header v-if="!focused" class="card-header flex-header" :class="headerModeStyle">
       <!-- When collapsed show remove button in header -->
-      <b-button
-        v-if="collapsed"
-        @click="$emit('remove')"
-        type="is-danger"
-        icon-left="close"
-      />
+      <b-button v-if="collapsed" @click="$emit('remove')" type="is-danger" icon-left="close" />
       <slot name="header" />
     </header>
 
     <!-- Card Body -->
-    <div
-      v-show="!collapsed"
-      :class="{ 'flex-center': focused }"
-      class="card-content flex-grow"
-    >
+    <div v-show="!collapsed" :class="{ 'flex-center': focused }" class="card-content flex-grow">
       <slot name="default" />
     </div>
 
@@ -39,12 +22,7 @@
     <footer v-if="!collapsed && !focused" class="card-footer">
       <div class="card-footer-item buttons footer-buttons flex-left">
         <!-- Check if remove listener exists instead of using remove -->
-        <b-button
-          v-if="close"
-          @click="$emit('remove')"
-          type="is-danger"
-          icon-left="close"
-        />
+        <b-button v-if="close" @click="$emit('remove')" type="is-danger" icon-left="close" />
         <slot name="footer" />
       </div>
     </footer>

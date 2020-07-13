@@ -1,7 +1,6 @@
 <template>
   <div class="frame-wrapper">
     <div class="frame box">
-      <div :class="{ 'selection-wrapper': selection }" />
       <!-- Sidebar -->
       <aside class="sidebar buttons">
         <template v-show="!(isFirst && isLast && frame.blank)">
@@ -45,10 +44,12 @@
         <Scene
           :ref="`scene_${scene.id}`"
           v-if="scene.props !== null"
+          @selected="$emit('selected', $event)"
           :scene="scene"
           :collapsed="!!frame.collapsed"
+          :selectable="selectable"
         />
-        <!-- Remove '!!' from !!frame.collapsed -->
+        <!-- FIXME: Remove '!!' from !!frame.collapsed -->
 
         <GenericCard v-else focused>
           <b-button
@@ -73,7 +74,7 @@ import { mapGetters, mapActions } from "vuex";
 
 // Import Components
 import GenericCard from "~/components/cards/GenericCard";
-import Scene from "~/components/scene/Scene";
+import Scene from "~/components/Scene";
 
 export default {
   name: "SceneFrame",
@@ -97,7 +98,7 @@ export default {
       required: false,
       default: false
     },
-    selection: {
+    selectable: {
       type: Boolean,
       required: false,
       default: false
@@ -154,22 +155,6 @@ $add-button-height: 105px;
   flex-direction: column;
   width: max-content;
   position: relative;
-}
-
-.selection-wrapper {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  z-index: 5;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #007aff50;
-  }
-
-  &:active {
-    background-color: #0a84ff64;
-  }
 }
 
 .frame {
