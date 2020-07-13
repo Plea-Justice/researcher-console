@@ -1,3 +1,8 @@
+// Capitalize function
+export function capitalize(string) {
+  return string.charAt(0).toUpperCase() + string.substring(1);
+}
+
 // Stripped down throttle function from underscore.js
 export function throttle(func, wait, options) {
   let context;

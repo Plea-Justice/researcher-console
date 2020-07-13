@@ -11,7 +11,7 @@
           >{{ collapsedBtnProps.name }}</b-button>
           <b-button @click="addCondition()">Add Condition</b-button>
           <b-button
-            @click="toggleMode(Modes.COPY)"
+            @click="toggleMode(Modes.COPY, selectionReset, startSelectionToast, 'copy')"
             :type="EnabledModeBtnType(Modes.COPY)"
             :disabled="isDisabledMode(Modes.COPY)"
           >Copy</b-button>
@@ -37,6 +37,11 @@
     <div ref="titles" class="sticky condition-bar">
       <div class="responsive-container condition-titles">
         <div v-for="index in numConditions" :key="index" class="condition-title">
+          <div
+            v-if="isSelectable(Select.CONDITION)"
+            @click="addToSelection(index, Select.CONDITION)"
+            class="select-title"
+          />
           <b-button
             @click="removeCondition(index - 1)"
             type="is-text"
@@ -58,12 +63,12 @@
             v-for="(frame, index) in frameSet"
             :key="`${frame.id}_${index}`"
             @scroll-to="scrollToFrame($event)"
-            @collapse
+            @selected="addToSelection($event, Select.SCENE)"
             :frame="frame"
             :frameIndex="index"
             :isFirst="index === 0"
             :isLast="index === frameSet.length - 1"
-            :selection="mode === Modes.COPY"
+            :selectable="isSelectable(Select.SCENE)"
           />
 
           <b-button ref="submit" native-type="submit" class="is-hidden" />
@@ -87,6 +92,9 @@ import SceneFrame from "~/components/SceneFrame";
 // Import Helper Functions
 import { throttle } from "~/assets/util";
 
+// Define empty function
+const noop = function() {};
+
 export default {
   name: "Scenario",
   layout: "ScenarioLayout",
@@ -94,6 +102,7 @@ export default {
   data() {
     // FIXME: make this a mixin ?
     return {
+      collapsed: false,
       Modes: {
         DEFAULT: 0,
         COPY: 1,
@@ -101,7 +110,16 @@ export default {
       },
       // Set to DEFAULT mode
       mode: 0,
-      collapsed: false
+      // Selection state
+      Select: {
+        ALL: 0,
+        SCENE: 1,
+        CONDITION: 2
+      },
+      // Set to DEFAULT mode
+      select: 0,
+      selectionCounter: 0,
+      selectionList: []
     };
   },
   async fetch({ store, params }) {
@@ -139,6 +157,51 @@ export default {
         }
       });
     },
+    isSelectable(selectionType) {
+      return (
+        this.mode === this.Modes.COPY &&
+        (this.select === this.Select.ALL || this.select === selectionType)
+      );
+    },
+    startSelectionToast(modeName) {
+      this.$buefy.toast.open({
+        message: `Select element to ${modeName} from`,
+        type: "is-info"
+      });
+    },
+    selectionReset() {
+      this.selectionList = [];
+      this.select = this.Select.ALL;
+      this.mode = this.Modes.DEFAULT;
+    },
+    addToSelection(eSceneId, selectedType) {
+      this.selectionList.push(eSceneId);
+
+      // If first item
+      if (this.selectionList.length === 1) {
+        this.select = selectedType;
+
+        // FIXME: make these static maps
+        const typeName = Object.keys(this.Select)
+          .find(key => this.Select[key] === selectedType)
+          .toLowerCase();
+        const modeName = Object.keys(this.Modes)
+          .find(key => this.Modes[key] === this.mode)
+          .toLowerCase();
+        this.$buefy.toast.open({
+          message: `Select ${typeName} to ${modeName} to`,
+          type: "is-info"
+        });
+      } else if (this.selectionList.length >= 2) {
+        if (this.select === this.Select.SCENE) {
+          this.copyScene(this.selectionList);
+        } else if (this.select === this.Select.CONDITION) {
+          this.copyCondition(this.selectionList);
+        }
+        // Reset
+        this.selectionReset();
+      }
+    },
     // FIXME: make this a seperate component (ToolBarButton)
     isDisabledMode(ownMode) {
       return this.mode !== this.Modes.DEFAULT && this.mode !== ownMode;
@@ -146,9 +209,14 @@ export default {
     EnabledModeBtnType(ownMode) {
       return this.mode === ownMode ? "is-success" : "";
     },
-    toggleMode(ownMode) {
-      this.mode =
-        this.mode === this.Modes.DEFAULT ? ownMode : this.Modes.DEFAULT;
+    toggleMode(ownMode, onUntoggle = noop, onToggle = noop, modeName = "") {
+      if (this.mode === this.Modes.DEFAULT) {
+        this.mode = ownMode;
+        onToggle(modeName);
+      } else {
+        this.mode = this.Modes.DEFAULT;
+        onUntoggle();
+      }
     },
     handleScroll: throttle(function(event) {
       const leftScroll = event.target.scrollLeft;
@@ -199,7 +267,9 @@ export default {
       removeCondition: "scenario/removeCondition",
       saveScenario: "scenario/saveScenario",
       updateFrames: "scenario/updateFrames",
-      updateMeta: "scenario/updateMeta"
+      updateMeta: "scenario/updateMeta",
+      copyScene: "scenario/copyScene",
+      copyCondition: "scenario/copyCondition"
     }),
     collapseAll() {
       const entry = {
@@ -245,11 +315,31 @@ export default {
 }
 
 .condition-title {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   flex: 0 0 350px;
   margin-right: 30px;
+}
+
+.select-title {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 5;
+  // FIXME: use Bulma SASS $radius-large variable
+  // Use mixin of .has-radius-large instead
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #007aff50;
+  }
+
+  &:active {
+    background-color: #0a84ff64;
+  }
 }
 
 .close-button {
