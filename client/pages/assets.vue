@@ -1,6 +1,11 @@
 <template>
   <div>
-    <NavBar help />
+    <NavBar helpTitle="Asset Management"
+      helpText="Assets are resource files which make up animated scenes. These include foreground and background images,
+       movie clips exported to Javascript from Adobe Animate, and actor (character) assets exported from Adobe Animate.
+       The default plea research assets should appear here. You may add your own by clicking 'Add Asset', uploading
+       a JPEG or PNG image or exported JavaScript asset, and selecting the type of asset you have uploaded." 
+    />
 
     <ToolBar>
       <template v-slot:start>
@@ -38,15 +43,38 @@
       <div class="grid">
         <form v-show="addMode" @submit.prevent="onSubmit()">
           <ItemCard ref="form-card" v-model="assetForm" save>
+            <b-field label="File Upload">
+              <b-field>
+                <b-upload v-model="assetForm.file" required native
+                  accept=".js, .jpg, .png">
+                  <a class="button is-light">
+                    <b-icon size="is-small" icon="cloud-upload" />
+                    <span>{{ assetForm.file.name || "Click to upload"}}</span>
+                  </a>
+                </b-upload>
+                <HelpSidebar class="control"
+                  title="Asset Uploads"
+                  text="Valid filetypes are '.js' animated assets and '.jpg' or '.png' image files." />
+              </b-field>
+            </b-field>
+            <br />
             <b-field label="Asset Type">
-              <b-select placeholder="Select a type">
-                <option
-                  v-for="type in allAssetTypes"
-                  :key="type"
-                  :value="type"
-                  >{{ type }}</option
-                >
-              </b-select>
+              <b-field>
+                <b-select placeholder="Select a type" v-model="assetForm.type" expanded required>
+                  <option
+                    v-for="type in allAssetTypes"
+                    :key="type"
+                    :value="type"
+                    >{{ type }}</option
+                  >
+                </b-select>
+                <HelpSidebar class="control"
+                  title="Asset Types"
+                  text="Asset types may be actor, clip, foreground or background. Actors are individual characters
+                    who may speak whereas clips are premade movie clips that will play through like a video. Both must
+                    be files exported from Adobe Animate ending in '.js'. Foregrounds and backgrounds are image files
+                    and must end in '.png' or '.jpg'." />
+              </b-field>
             </b-field>
           </ItemCard>
         </form>
@@ -72,10 +100,11 @@ import { mapGetters, mapActions } from "vuex";
 import NavBar from "~/components/NavBar";
 import ToolBar from "~/components/ToolBar";
 import ItemCard from "~/components/cards/ItemCard";
+import HelpSidebar from "~/components/HelpSidebar";
 
 export default {
   name: "Scenarios",
-  components: { NavBar, ToolBar, ItemCard },
+  components: { NavBar, ToolBar, ItemCard, HelpSidebar },
   async fetch({ store, params }) {
     await store.dispatch("assets/getAssets");
   },
@@ -88,7 +117,8 @@ export default {
       //FIXME: make this dynamic
       assetForm: {
         name: "",
-        type: ""
+        type: "",
+        file: {}
       }
     };
   },
@@ -128,14 +158,20 @@ export default {
       removeAsset: "assets/removeAsset"
     }),
     onSubmit() {
-      // Add the scenario to state
-      this.addAsset(this.assetForm);
+      let asset = new FormData();
+      asset.append('file', this.assetForm.file);
+      asset.append('type', this.assetForm.type);
+      asset.append('name', this.assetForm.name);
 
+      // Add the scenario to state
+      this.addAsset(asset);
+      
       // Reset the inputs
       // FIXME: make this dynamic
       this.assetForm = {
         name: "",
-        type: ""
+        type: "",
+        file: {}
       };
 
       // Disable form

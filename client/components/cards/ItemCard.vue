@@ -20,7 +20,7 @@
         v-else
         ref="focus_target"
         v-model="value.name"
-        placeholder="Title"
+        placeholder="Name"
         class="flex-grow"
       />
     </template>

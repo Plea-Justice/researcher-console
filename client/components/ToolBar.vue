@@ -55,7 +55,7 @@ export default {
   margin-bottom: 0;
   /* Sticky below toolbar */
   top: 0;
-  height: 5rem;
+  height: 4rem;
   background-color: whitesmoke;
 }
 </style>

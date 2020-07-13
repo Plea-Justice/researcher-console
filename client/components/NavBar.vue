@@ -36,7 +36,11 @@
           >
 
           <!-- Help Menu -->
-          <HelpSidebar v-if="help" :helpInfo="helpInfo" />
+          <HelpSidebar v-if="helpText"
+            :title="helpTitle"
+            :text="helpText"
+            buttonType="is-dark"
+          />
         </div>
       </b-navbar-item>
     </template>
@@ -61,10 +65,14 @@ export default {
       required: false,
       default: ""
     },
-    help: {
-      type: Boolean,
+    helpText: {
+      type: String,
       required: false,
       default: false
+    },
+    helpTitle: {
+      type: String,
+      required: false
     }
   },
   data() {
@@ -78,9 +86,7 @@ export default {
           name: "scenarios",
           path: "/scenarios"
         }
-      ],
-      helpInfo:
-        "Variable for information about the storyboard page would appear here with links to the wiki. Click the study name to return to the scenario selection screen."
+      ]
     };
   },
   computed: {

@@ -1,7 +1,8 @@
 <template>
   <div>
     <!-- FIXME: make this the current path -->
-    <NavBar help />
+    <NavBar helpTitle="Scenario Management"
+      helpText="On this page you may create and organize simulated scenarios. Click the name of any scenario to open the storyline editor." />
 
     <ToolBar>
       <template v-slot:start>
