@@ -42,7 +42,7 @@
 
       <div class="grid">
         <form v-show="addMode" @submit.prevent="onSubmit()">
-          <ItemCard ref="form-card" v-model="assetForm" save>
+          <ItemCard ref="form-card" v-model="assetForm" required save>
             <b-field label="File Upload">
               <b-field>
                 <b-upload v-model="assetForm.file" required native

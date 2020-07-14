@@ -10,7 +10,7 @@ export default function({ $axios, redirect, store }) {
 
     if (err.response) {
       if (err.response.data && err.response.data.message) ({ message } = err.response.data);
-      else
+      else if (err.response.status)
         switch (err.response.status) {
           case 400:
             message = 'There was an error with the request recieved by the server.';
@@ -24,10 +24,9 @@ export default function({ $axios, redirect, store }) {
           case 500:
             message = 'An internal server error has occured.';
             break;
-          case true:
+          default:
             message = `Error code ${err.response.status} was recieved.`;
             break;
-          default:
         }
     }
 

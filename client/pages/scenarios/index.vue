@@ -29,7 +29,7 @@
 
       <div class="grid">
         <form v-show="mode === Modes.ADD" @submit.prevent="onSubmit()">
-          <ItemCard ref="form-card" v-model="scenarioForm" save>
+          <ItemCard ref="form-card" v-model="scenarioForm" required save>
             <b-input
               v-model="scenarioForm.description"
               type="textarea"
