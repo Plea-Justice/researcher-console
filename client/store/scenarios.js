@@ -29,11 +29,16 @@ export const actions = {
     commit('deleteScenario', { id });
     this.$axios.$delete(`/api/v1/s/${id}`);
   },
-  duplicateScenario({ commit }, id) {
-    // Get new scenario id from server
-    // const newId = this.$axios.$post('/api/v1/s');
+  async duplicateScenario({ commit }, id) {
+    const copyResponse = await this.$axios.$get(`/api/v1/s/${id}`);
 
-    const newId = nanoid();
+    const { meta, ...data } = state();
+    const copyScenario = { ...meta, vuex_state: data, ...copyResponse.return };
+    copyScenario.name += ' Copy';
+
+    const newResponse = await this.$axios.$post('/api/v1/s', copyScenario);
+    const newId = newResponse.return.id;
+
     commit('copyScenario', { copyId: id, newId });
   }
 };

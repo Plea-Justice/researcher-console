@@ -54,6 +54,7 @@ module.exports = function (options) {
             user_id: req.session.user_id,
             name: req.body.name,
             description: req.body.description,
+            survey: req.body.survey,
             vuex_state: req.body.vuex_state
         });
 
