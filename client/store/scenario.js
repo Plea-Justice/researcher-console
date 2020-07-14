@@ -38,7 +38,6 @@ export const actions = {
     // Set defaults, then overwrite with any data from the server.
     const { meta, ...data } = state();
     response.return = { ...meta, vuex_state: data, ...response.return };
-    debugger;
     commit('setScenario', response.return);
 
     if (!currState.frameList.length) commit('newFrame');

@@ -22,7 +22,7 @@
         v-model="value.name"
         placeholder="Name"
         class="flex-grow"
-        required="required"
+        required
       />
     </template>
 
@@ -64,11 +64,6 @@ export default {
       default: false
     },
     save: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    required: {
       type: Boolean,
       required: false,
       default: false

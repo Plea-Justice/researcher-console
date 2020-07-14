@@ -4,7 +4,7 @@
       :title="scenarioMeta.name"
       helpTitle="Scenario Story Editor"
       :helpText="scenarioHelp.navbar"
-      path="/scenario"
+      path="/scenarios"
     />
 
     <ToolBar ref="toolbar">
@@ -273,22 +273,25 @@ export default {
     },
     downloadZip() {
       let start = () => {
-        this.$buefy.toast.open({message: 'Simulation download will begin shortly.', type: 'is-success'});
-        window.location =`${this.$axios.defaults.baseURL}/api/v1/s/${this.scenarioMeta.id}/zip`
-      }
+        this.$buefy.toast.open({
+          message: "Simulation download will begin shortly.",
+          type: "is-success"
+        });
+        window.location = `${this.$axios.defaults.baseURL}/api/v1/s/${this.scenarioMeta.id}/zip`;
+      };
 
       // TODO: Ask on unsaved, invalid, etc.
       if (!this.scenarioMeta.survey)
         this.$buefy.dialog.confirm({
-          title: 'Survey Redirect Unset',
-          message: 'No survey URL has been set. Set the survey URL in \'Properties\'.',
-          confirmText: 'Download Anyway',
-          type: 'is-danger',
+          title: "Survey Redirect Unset",
+          message:
+            "No survey URL has been set. Set the survey URL in 'Properties'.",
+          confirmText: "Download Anyway",
+          type: "is-danger",
           hasIcon: true,
           onConfirm: start
-      });
-      else
-        start();
+        });
+      else start();
     },
     ...mapActions({
       addCondition: "scenario/addCondition",
@@ -324,13 +327,13 @@ export default {
   },
   beforeRouteLeave(to, from, next) {
     this.$buefy.dialog.confirm({
-      title: 'Leaving Scenario Editor',
-      message: 'If you have made any changes, save them before leaving.',
-      confirmText: 'Leave Page',
-      type: 'is-danger',
+      title: "Leaving Scenario Editor",
+      message: "If you have made any changes, save them before leaving.",
+      confirmText: "Leave Page",
+      type: "is-danger",
       hasIcon: true,
       onConfirm: () => next()
-    })
+    });
   }
 };
 </script>

@@ -2,8 +2,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Vue from 'vue';
 
-import { nanoid } from 'nanoid/non-secure';
-
 export const state = () => ({
   scenarios: {},
   scenarioList: []
@@ -29,16 +27,31 @@ export const actions = {
     commit('deleteScenario', { id });
     this.$axios.$delete(`/api/v1/s/${id}`);
   },
-  async duplicateScenario({ commit }, id) {
+  async duplicateScenario({ commit, state, getters }, id) {
     const copyResponse = await this.$axios.$get(`/api/v1/s/${id}`);
 
-    const copyScenario = copyResponse.return;
-    copyScenario.name += ' Copy';
+    const scenarioName = state.scenarios[id].name;
 
-    const newResponse = await this.$axios.$post('/api/v1/s', copyScenario);
-    const newId = newResponse.return.id;
+    // Prevent 'Copy' chaining on duplicates
+    let copyName =
+      scenarioName.substring(scenarioName.lastIndexOf(' ')) === 'Copy'
+        ? scenarioName
+        : `${state.scenarios[id].name} Copy`;
 
-    commit('copyScenario', { copyId: id, newId });
+    // Add number of 'Copy' if multiple copies exists
+    const duplicateCount = getters.scenarioSet.reduce(
+      (count, scenario) => (scenario.name === copyName ? count + 1 : count),
+      0
+    );
+
+    if (duplicateCount > 0) copyName += ` ${duplicateCount}`;
+
+    const newResponse = await this.$axios.$post('/api/v1/s', {
+      ...copyResponse.return,
+      ...{ name: copyName }
+    });
+
+    commit('copyScenario', { name: copyName, copyId: id, newId: newResponse.return.id });
   }
 };
 
@@ -60,7 +73,7 @@ export const mutations = {
   copyScenario(state, payload) {
     const copiedScenario = Object.assign({}, state.scenarios[payload.copyId]);
     copiedScenario.id = payload.newId;
-    copiedScenario.name = `${copiedScenario.name} Copy`;
+    copiedScenario.name = payload.copyName;
 
     Vue.set(state.scenarios, payload.newId, copiedScenario);
     state.scenarioList.splice(state.scenarioList.indexOf(payload.copyId) + 1, 0, payload.newId);

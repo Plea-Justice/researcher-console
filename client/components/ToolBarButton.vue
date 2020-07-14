@@ -1,5 +1,10 @@
 <template>
-  <b-button @click="onClick()" :type="EnabledBtnType" :disabled="isDisabled">
+  <b-button
+    @click="onClick()"
+    v-bind="$attrs"
+    :type="$attrs.type || EnabledBtnType"
+    :disabled="isDisabled"
+  >
     <slot name="default" />
   </b-button>
 </template>

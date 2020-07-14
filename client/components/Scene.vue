@@ -57,11 +57,11 @@
             :key="field"
             v-if="isType(field, 'text')"
             type="textarea"
-            rules="required"
+            rules="required|max:220"
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
             :label="field | capitalize"
-            custom-class="is-capitalized has-fixed-size"
+            custom-class="has-fixed-size"
           />
 
           <ButtonInput
