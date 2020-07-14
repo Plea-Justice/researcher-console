@@ -33,7 +33,6 @@ export default {
       default: "is-text",
       required: false
     }
-
   },
   data() {
     return {

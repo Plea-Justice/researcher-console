@@ -1,31 +1,40 @@
 <template>
   <div>
     <NavBar
-      v-if="true"
       :title="scenarioMeta.name"
-      path="/scenarios"
       helpTitle="Scenario Story Editor"
-      helpText="The simulation storyline progresses downwards. Each column is the variation of the storyline that will be
-        presented to participants subject to the experimental condition specified at the top of the column.
-        Click 'Properties' to edit the survey link to which participants will be redirected when they complete
-        the simulation. 'Download Package' will create a fully configured, zipped simulation package, ready to deploy
-        on any web server."
+      :helpText="scenarioHelp.navbar"
+      path="/scenario"
     />
+
     <ToolBar ref="toolbar">
       <template v-slot:start>
         <div class="level-item buttons">
-          <b-button @click="submitHandler()" type="is-primary" icon-left="content-save">Save</b-button>
-          <b-button @click="scenarioProps()" icon-left="movie-edit-outline">Properties</b-button>
+          <ToolBarButton
+            @click="submitHandler()"
+            :value="mode"
+            type="is-primary"
+            icon-left="content-save"
+          >Save</ToolBarButton>
+
+          <ToolBarButton
+            @click="scenarioProps()"
+            :value="mode"
+            icon-left="movie-edit-outline"
+          >Properties</ToolBarButton>
+
           <b-button
             @click="collapseAll()"
             :icon-left="collapsedBtnProps.icon"
           >{{ collapsedBtnProps.name }}</b-button>
-          <b-button @click="addCondition()">Add Condition</b-button>
-          <b-button
-            @click="toggleMode(Modes.COPY, selectionReset, startSelectionToast, 'copy')"
-            :type="EnabledModeBtnType(Modes.COPY)"
-            :disabled="isDisabledMode(Modes.COPY)"
-          >Copy</b-button>
+
+          <ToolBarButton @click="addCondition()" :value="mode">Add Condition</ToolBarButton>
+
+          <ToolBarButton
+            v-model="mode"
+            @click="toggleHandler($event, selectionReset, startSelectionToast, 'copy')"
+            :mode="Modes.COPY"
+          >Copy</ToolBarButton>
         </div>
       </template>
       <template v-slot:end>
@@ -98,21 +107,30 @@ import { ValidationObserver } from "vee-validate";
 
 import NavBar from "~/components/NavBar";
 import ToolBar from "~/components/ToolBar";
-import ScenarioProperties from "~/components/ScenarioProperties";
+import ToolBarButton from "~/components/ToolBarButton";
 import SceneFrame from "~/components/SceneFrame";
+import ScenarioProperties from "~/components/ScenarioProperties";
 
 // Import Helper Functions
-import { throttle } from "~/assets/util";
+import { noop, throttle } from "~/assets/util";
 
-// Define empty function
-const noop = function() {};
+// Content for help fields
+import { scenarioHelp } from "~/assets/helpText";
 
 export default {
   name: "Scenario",
-  components: { NavBar, ToolBar, SceneFrame, ScenarioProperties },
+  components: {
+    NavBar,
+    ToolBar,
+    ToolBarButton,
+    SceneFrame,
+    ScenarioProperties
+  },
   data() {
     // FIXME: make this a mixin ?
     return {
+      // import from JS file
+      scenarioHelp: scenarioHelp,
       collapsed: false,
       Modes: {
         DEFAULT: 0,
@@ -183,7 +201,6 @@ export default {
     selectionReset() {
       this.selectionList = [];
       this.select = this.Select.ALL;
-      this.mode = this.Modes.DEFAULT;
     },
     addToSelection(eSceneId, selectedType) {
       this.selectionList.push(eSceneId);
@@ -211,23 +228,16 @@ export default {
         }
         // Reset
         this.selectionReset();
-      }
-    },
-    // FIXME: make this a seperate component (ToolBarButton)
-    isDisabledMode(ownMode) {
-      return this.mode !== this.Modes.DEFAULT && this.mode !== ownMode;
-    },
-    EnabledModeBtnType(ownMode) {
-      return this.mode === ownMode ? "is-success" : "";
-    },
-    toggleMode(ownMode, onUntoggle = noop, onToggle = noop, modeName = "") {
-      if (this.mode === this.Modes.DEFAULT) {
-        this.mode = ownMode;
-        onToggle(modeName);
-      } else {
         this.mode = this.Modes.DEFAULT;
-        onUntoggle();
       }
+    },
+    toggleHandler(
+      eventState,
+      onUntoggle = noop,
+      onToggle = noop,
+      modeName = ""
+    ) {
+      eventState ? onToggle(modeName) : onUntoggle();
     },
     handleScroll: throttle(function(event) {
       const leftScroll = event.target.scrollLeft;
@@ -246,13 +256,12 @@ export default {
           frameIndex
         ].getBoundingClientRect().top;
 
+        // Scroll so that the element is at the top of the view
         window.scrollTo({
           top: frameTopPos - headerHeight + window.pageYOffset,
           behavior: "smooth"
         });
       });
-
-      // Scroll so that the element is at the top of the view
     },
     scenarioProps() {
       this.$buefy.modal.open({
@@ -280,6 +289,7 @@ export default {
       copyScene: "scenario/copyScene",
       copyCondition: "scenario/copyCondition"
     }),
+    //FIXME: make collapsing VueX independent
     collapseAll() {
       const entry = {
         key: "collapsed",

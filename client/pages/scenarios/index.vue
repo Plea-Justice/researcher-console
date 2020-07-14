@@ -1,61 +1,43 @@
 <template>
-  <div>
-    <!-- FIXME: make this the current path -->
-    <NavBar helpTitle="Scenario Management"
-      helpText="On this page you may create and organize simulated scenarios. Click the name of any scenario to open the storyline editor." />
-
-    <ToolBar>
-      <template v-slot:start>
-        <div class="level-item buttons">
-          <b-button
-            @click="toggleAddMode()"
-            :type="EnabledModeBtnType(Modes.ADD)"
-            :disabled="isDisabledMode(Modes.ADD)"
-            >Add</b-button
-          >
-          <!-- Add button text labels on hover -->
-          <b-button
-            @click="toggleMode(Modes.DUPLICATE)"
-            :type="EnabledModeBtnType(Modes.DUPLICATE)"
-            :disabled="isDisabledMode(Modes.DUPLICATE)"
-            >Duplicate</b-button
-          >
-        </div>
-      </template>
-    </ToolBar>
-
-    <section class="section container">
-      <h1 class="title">Scenarios</h1>
-
-      <div class="grid">
-        <form v-show="mode === Modes.ADD" @submit.prevent="onSubmit()">
-          <ItemCard ref="form-card" v-model="scenarioForm" save>
-            <b-input
-              v-model="scenarioForm.description"
-              type="textarea"
-              class="has-fixed-size"
-              placeholder="Description"
-              maxlength="100"
-            />
-          </ItemCard>
-        </form>
-        <ItemCard
-          v-for="scenario in scenarioSet"
-          :key="scenario.id"
-          @selected="duplicate($event)"
-          @remove="removeScenario($event)"
-          :selection="mode === Modes.DUPLICATE"
-          :item="scenario"
-          close
-          link
-        >
-          <p>{{ scenario.description }}</p>
-
-          <p>DEBUG: {{ scenario }}</p>
-        </ItemCard>
+  <!-- FIXME: make this the current path -->
+  <ItemLayout
+    contentTitle="Scenarios"
+    helpTitle="Scenario Management"
+    :helpText="scenariosHelp.navbar"
+  >
+    <template v-slot:toolbar-start>
+      <div class="level-item buttons">
+        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD">Add</ToolBarButton>
+        <ToolBarButton v-model="mode" :mode="Modes.DUPLICATE">Duplicate</ToolBarButton>
       </div>
-    </section>
-  </div>
+    </template>
+
+    <form v-show="mode === Modes.ADD" @submit.prevent="onSubmit()">
+      <ItemCard ref="form-card" v-model="scenarioForm" save>
+        <b-input
+          v-model="scenarioForm.description"
+          type="textarea"
+          class="has-fixed-size"
+          placeholder="Description"
+          maxlength="100"
+        />
+      </ItemCard>
+    </form>
+    <ItemCard
+      v-for="scenario in scenarioSet"
+      :key="scenario.id"
+      @selected="duplicate($event)"
+      @remove="removeScenario($event)"
+      :selection="mode === Modes.DUPLICATE"
+      :item="scenario"
+      close
+      link
+    >
+      <p>{{ scenario.description }}</p>
+
+      <p>DEBUG: {{ scenario }}</p>
+    </ItemCard>
+  </ItemLayout>
 </template>
 
 <script>
@@ -63,18 +45,23 @@
 import { mapGetters, mapActions } from "vuex";
 
 // Import Components
-import NavBar from "~/components/NavBar";
-import ToolBar from "~/components/ToolBar";
+import ItemLayout from "~/components/layouts/ItemLayout";
+import ToolBarButton from "~/components/ToolBarButton";
 import ItemCard from "~/components/cards/ItemCard";
+
+// Content for help fields
+import { scenariosHelp } from "~/assets/helpText";
 
 export default {
   name: "Scenarios",
-  components: { NavBar, ToolBar, ItemCard },
+  components: { ItemLayout, ToolBarButton, ItemCard },
   async fetch({ store, params }) {
     await store.dispatch("scenarios/getScenarios");
   },
   data() {
     return {
+      // import from JS file
+      scenariosHelp: scenariosHelp,
       Modes: {
         DEFAULT: 0,
         ADD: 1,
@@ -95,20 +82,7 @@ export default {
     })
   },
   methods: {
-    // FIXME: make this a mixin or seperate component
-    isDisabledMode(ownMode) {
-      return this.mode !== this.Modes.DEFAULT && this.mode !== ownMode;
-    },
-    EnabledModeBtnType(ownMode) {
-      return this.mode === ownMode ? "is-success" : "";
-    },
-    toggleMode(ownMode) {
-      this.mode =
-        this.mode === this.Modes.DEFAULT ? ownMode : this.Modes.DEFAULT;
-    },
     toggleAddMode() {
-      this.toggleMode(this.Modes.ADD);
-
       if (this.mode === this.Modes.ADD)
         this.$nextTick(() => {
           this.$refs["form-card"].focus();
@@ -151,11 +125,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 350px));
-  gap: 15px;
-}
-</style>

@@ -1,3 +1,6 @@
+// Define empty function
+export function noop() {}
+
 // Capitalize function
 export function capitalize(string) {
   return string.charAt(0).toUpperCase() + string.substring(1);

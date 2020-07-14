@@ -1,9 +1,5 @@
 <template>
-  <b-button
-    @click="onClick()"
-    :type="EnabledBtnType(Modes.COPY)"
-    :disabled="isDisabledMode(Modes.COPY)"
-  >
+  <b-button @click="onClick()" :type="EnabledBtnType" :disabled="isDisabled">
     <slot name="default" />
   </b-button>
 </template>
@@ -12,38 +8,63 @@
 export default {
   props: {
     mode: {
-      type: Number,
-      required: false
+      type: [Number, Boolean],
+      required: false,
+      default: true
     },
     value: {
-      type: Number,
-      required: false
+      type: [Number, Boolean],
+      required: false,
+      default: undefined
     }
   },
-  data: {
-    defaultMode: this.value
+  data() {
+    return {
+      defaultMode: this.value
+    };
   },
   computed: {
+    innerValue: {
+      get: function() {
+        return this.value;
+      },
+      set: function(newVal) {
+        this.$emit("input", newVal);
+      }
+    },
     isToggle() {
-      return this.mode !== undefined && this.value !== undefined;
+      return this.innerValue !== undefined;
+    },
+    isOn() {
+      return this.isToggle && this.innerValue === this.mode;
+    },
+    isOff() {
+      return (
+        this.isToggle && !this.isOn && this.innerValue === this.defaultMode
+      );
+    },
+    isDisabled() {
+      return this.isToggle && !this.isOn && !this.isOff;
+    },
+    EnabledBtnType() {
+      return this.isToggle && this.isOn ? "is-success" : "";
     }
   },
   methods: {
     onClick() {
-      if (this.isToggle) this.toggleModes();
-      this.$emit("click");
-    },
-    isDisabledMode() {
-      return this.value !== this.defaultMode && this.value !== undefined
-        ? this.value !== this.mode
-        : true;
-    },
-    EnabledBtnType() {
-      return this.isToggle && this.value === this.mode ? "is-success" : "";
+      if (this.isToggle) {
+        this.toggleModes();
+        if (this.isOn) {
+          this.$emit("click", false);
+        } else if (this.isOff) {
+          this.$emit("click", true);
+        }
+      } else {
+        this.$emit("click");
+      }
     },
     toggleModes() {
-      this.value =
-        this.value === this.defaultMode ? this.mode : this.defaultMode;
+      this.innerValue = this.isOff ? this.mode : this.defaultMode;
     }
   }
 };
