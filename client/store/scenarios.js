@@ -32,8 +32,7 @@ export const actions = {
   async duplicateScenario({ commit }, id) {
     const copyResponse = await this.$axios.$get(`/api/v1/s/${id}`);
 
-    const { meta, ...data } = state();
-    const copyScenario = { ...meta, vuex_state: data, ...copyResponse.return };
+    const copyScenario = copyResponse.return;
     copyScenario.name += ' Copy';
 
     const newResponse = await this.$axios.$post('/api/v1/s', copyScenario);
