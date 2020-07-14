@@ -1,10 +1,10 @@
 <template>
-    <div class="card">
+    <div class="card" style="width: 30vw">
       <header class="card-header">
         <p class="card-header-title">Scenario Properties</p>
       </header>
       <form @submit.prevent="onSubmit()">
-      <ItemCard v-model="scenarioForm" save>
+      <ItemCard v-model="scenarioForm" save required>
         <b-field label="Description">
           <b-input
             v-model="scenarioForm.description"
@@ -16,12 +16,13 @@
         </b-field>
         <b-field label="Survey URL">
           <b-field>
-            <b-input
+            <b-input expanded
               v-model="scenarioForm.survey"
-              type="url"
+              type="text"
               class="has-fixed-size"
-              placeholder="Survey URL"
-              pattern="https://.*"
+              placeholder="https://"
+              pattern="^(https?:\/\/|\/).*"
+              validation-message="Valid URL required."
               maxlength="500"
             />
             <HelpSidebar class="control"

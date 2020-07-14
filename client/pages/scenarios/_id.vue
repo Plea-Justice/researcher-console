@@ -272,13 +272,23 @@ export default {
       });
     },
     downloadZip() {
-      this.$buefy.toast.open({
-        message: "Zip download will begin momentarily.",
-        type: "is-success"
-      });
+      let start = () => {
+        this.$buefy.toast.open({message: 'Simulation download will begin shortly.', type: 'is-success'});
+        window.location =`${this.$axios.defaults.baseURL}/api/v1/s/${this.scenarioMeta.id}/zip`
+      }
 
-      // FIXME: add id?
-      this.$axios.get("/api/v1/s/SomeScenarioID/zip");
+      // TODO: Ask on unsaved, invalid, etc.
+      if (!this.scenarioMeta.survey)
+        this.$buefy.dialog.confirm({
+          title: 'Survey Redirect Unset',
+          message: 'No survey URL has been set. Set the survey URL in \'Properties\'.',
+          confirmText: 'Download Anyway',
+          type: 'is-danger',
+          hasIcon: true,
+          onConfirm: start
+      });
+      else
+        start();
     },
     ...mapActions({
       addCondition: "scenario/addCondition",
@@ -311,6 +321,16 @@ export default {
         }
       ]
     };
+  },
+  beforeRouteLeave(to, from, next) {
+    this.$buefy.dialog.confirm({
+      title: 'Leaving Scenario Editor',
+      message: 'If you have made any changes, save them before leaving.',
+      confirmText: 'Leave Page',
+      type: 'is-danger',
+      hasIcon: true,
+      onConfirm: () => next()
+    })
   }
 };
 </script>

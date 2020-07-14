@@ -10,13 +10,13 @@
         <!-- FIXME: make this a simplified custom selector -->
         <b-select placeholder="Asset Type" v-model="selectedAssetType">
           <option value="all">all</option>
-          <option v-for="type in validAssetTypes" :key="type" :value="type">{{ type }}</option>
+          <option v-for="type in validAssetTypes" :key="type" :value="type">{{ type | capitalize }}</option>
         </b-select>
       </b-field>
     </template>
 
     <form v-show="addMode" @submit.prevent="onSubmit()">
-      <ItemCard ref="form-card" v-model="assetForm" save>
+      <ItemCard ref="form-card" v-model="assetForm" required save>
         <b-field label="File Upload">
           <b-field>
             <b-upload v-model="assetForm.file" required native accept=".js, .jpg, .png">
@@ -32,7 +32,11 @@
         <b-field label="Asset Type">
           <b-field>
             <b-select placeholder="Select a type" v-model="assetForm.type" expanded required>
-              <option v-for="type in allAssetTypes" :key="type" :value="type">{{ type }}</option>
+              <option
+                v-for="type in allAssetTypes"
+                :key="type"
+                :value="type"
+              >{{ type | capitalize }}</option>
             </b-select>
             <HelpSidebar class="control" title="Asset Types" :text="assetsHelp.type" />
           </b-field>
@@ -119,6 +123,17 @@ export default {
       addAsset: "assets/addAsset",
       removeAsset: "assets/removeAsset"
     }),
+    confirmDelete(event) {
+      this.$buefy.dialog.confirm({
+        title: "Delete Asset",
+        message:
+          "Deleted assets are not recoverable.<br /><br />Are you sure you would like to delete this asset?",
+        confirmText: "Delete",
+        type: "is-danger",
+        hasIcon: true,
+        onConfirm: () => this.removeAsset(event)
+      });
+    },
     onSubmit() {
       let asset = new FormData();
       asset.append("file", this.assetForm.file);

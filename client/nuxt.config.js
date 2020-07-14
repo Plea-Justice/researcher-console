@@ -29,7 +29,7 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: ['~/plugins/vue-prototype-config', '~/plugins/vee.validate.js', '~/plugins/axios'],
+  plugins: ['~/plugins/vue-prototype-config', '~/plugins/vee.validate.js', '~/plugins/axios', '~/plugins/text-filters'],
   /*
    ** Nuxt.js dev-modules
    */

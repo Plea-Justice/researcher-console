@@ -77,23 +77,12 @@ export default {
       this.isRegistration = !this.isRegistration;
     },
     async login() {
-      // FIXME: 404 uncaught
-      try {
-        await this.$auth.loginWith("local", {
-          data: {
-            username: this.name,
-            password: this.password
-          }
-        });
-      } catch (err) {
-        this.$buefy.toast.open({
-          message:
-            "response" in err && err.response != undefined
-              ? err.response.data.message
-              : err,
-          type: "is-danger"
-        });
-      }
+      await this.$auth.loginWith("local", {
+        data: {
+          username: this.name,
+          password: this.password
+        }
+      });
       //FIXME: hash
       this.name = "";
       this.password = "";
@@ -101,26 +90,16 @@ export default {
       this.$router.push("/scenarios");
     },
     async register() {
-      try {
-        let response = await this.$axios.post("/api/v1/auth/register", {
-          email: this.email,
-          username: this.name,
-          password: this.password
-        });
+      let response = await this.$axios.post("/api/v1/auth/register", {
+        email: this.email,
+        username: this.name,
+        password: this.password
+      });
 
-        this.$buefy.toast.open({
-          message: response.data.message,
-          type: "is-success"
-        });
-      } catch (err) {
-        this.$buefy.toast.open({
-          message:
-            "response" in err && err.response != undefined
-              ? err.response.data.message
-              : err,
-          type: "is-danger"
-        });
-      }
+      this.$buefy.toast.open({
+        message: response.data.message,
+        type: "is-success"
+      });
 
       this.email = "";
       this.name = "";

@@ -18,22 +18,27 @@ export const actions = {
     const response = await this.$axios.$get('api/v1/s');
     commit('setScenarios', response.return);
   },
-  addScenario({ commit }, scenario) {
+  async addScenario({ commit }, scenario) {
     // Get new scenario id from server
-    // scenario.id = this.$axios.$post('/api/v1/s');
+    const response = await this.$axios.$post('/api/v1/s', scenario);
 
-    scenario.id = nanoid(); // Temp
+    scenario.id = response.return.id;
     commit('newScenario', { scenario });
   },
   removeScenario({ commit }, id) {
     commit('deleteScenario', { id });
     this.$axios.$delete(`/api/v1/s/${id}`);
   },
-  duplicateScenario({ commit }, id) {
-    // Get new scenario id from server
-    // const newId = this.$axios.$post('/api/v1/s');
+  async duplicateScenario({ commit }, id) {
+    const copyResponse = await this.$axios.$get(`/api/v1/s/${id}`);
 
-    const newId = nanoid();
+    const { meta, ...data } = state();
+    const copyScenario = { ...meta, vuex_state: data, ...copyResponse.return };
+    copyScenario.name += ' Copy';
+
+    const newResponse = await this.$axios.$post('/api/v1/s', copyScenario);
+    const newId = newResponse.return.id;
+
     commit('copyScenario', { copyId: id, newId });
   }
 };

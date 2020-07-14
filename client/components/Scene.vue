@@ -47,7 +47,7 @@
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
             :options="AssetNamesByType[field + 's'] || []"
-            :label="capitalize(field)"
+            :label="field | capitalize"
             :icon="getIcon(field)"
             custom-class="is-capitalized"
           />
@@ -60,7 +60,7 @@
             rules="required"
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
-            :label="capitalize(field)"
+            :label="field | capitalize"
             custom-class="is-capitalized has-fixed-size"
           />
 
@@ -69,7 +69,7 @@
             v-if="isType(field, 'buttons')"
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
-            :label="capitalize(field)"
+            :label="field | capitalize"
             custom-class="is-capitalized"
           />
 
@@ -94,7 +94,7 @@ import ButtonInput from "~/components/inputs/ButtonInput";
 import BInputWithValidation from "~/components/inputs/BInputWithValidation";
 
 // Import Helper Functions
-import { capitalize, debounce } from "~/assets/util";
+import { debounce } from "~/assets/util";
 
 // FIXME: formalize spec
 // FIXME: code-split import this
@@ -126,8 +126,6 @@ export default {
   },
   data() {
     return {
-      // Bind imported capitazlie func
-      capitalize: capitalize,
       validSceneTypes: Object.keys(spec.sceneTypes)
     };
   },
