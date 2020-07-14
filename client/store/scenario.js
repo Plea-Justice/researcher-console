@@ -31,14 +31,17 @@ export const getters = {
 
 export const actions = {
   // **** Axios Actions ****
-  async getScenario({ commit }, id) {
+  async getScenario({ commit, state: currState }, id) {
     // FIXME: allow this to capture any scenario
     const response = await this.$axios.$get(`/api/v1/s/${id}`);
 
     // Set defaults, then overwrite with any data from the server.
     const { meta, ...data } = state();
     response.return = { ...meta, vuex_state: data, ...response.return };
+    debugger;
     commit('setScenario', response.return);
+
+    if (!currState.frameList.length) commit('newFrame');
   },
   saveScenario({ commit }) {
     commit('putScenario');
@@ -220,7 +223,7 @@ export const mutations = {
   // **** Frame Mutations ****
   newFrame(state, payload) {
     // TODO: cache this in root VueX state, use cache for everywhere else as well
-    const frameLength = state.frames[state.frameList[0]].scenes.length;
+    const frameLength = state.frameList.length ? state.frames[state.frameList[0]].scenes.length : 1;
 
     // Create scenes for new frame
     const frameScenes = [];
@@ -233,7 +236,8 @@ export const mutations = {
     // Create frame
     const id = nanoid();
     Vue.set(state.frames, id, { id, blank: true, collapsed: false, scenes: frameScenes });
-    state.frameList.splice(state.frameList.indexOf(payload.frameId) + 1, 0, id);
+    if (payload && state.frameList.length) state.frameList.splice(state.frameList.indexOf(payload.frameId) + 1, 0, id);
+    else state.frameList.push(id);
   },
   deleteFrame(state, payload) {
     // If last frame just replace scenes with empty scenes
