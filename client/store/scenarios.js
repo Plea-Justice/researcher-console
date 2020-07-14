@@ -73,7 +73,7 @@ export const mutations = {
   copyScenario(state, payload) {
     const copiedScenario = Object.assign({}, state.scenarios[payload.copyId]);
     copiedScenario.id = payload.newId;
-    copiedScenario.name = payload.copyName;
+    copiedScenario.name = payload.name;
 
     Vue.set(state.scenarios, payload.newId, copiedScenario);
     state.scenarioList.splice(state.scenarioList.indexOf(payload.copyId) + 1, 0, payload.newId);
