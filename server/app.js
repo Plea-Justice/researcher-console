@@ -30,6 +30,7 @@ if (config.log_to_console) {
 
 // Connect to the database.
 var mongoose = require('mongoose');
+mongoose.set('debug', config.log_to_console);
 mongoose.connect(config.mongo_uri, {useUnifiedTopology: true, useNewUrlParser: true});
 var database = mongoose.connection;
 database.on('error', ()=>console.log('Error connecting to database.'));

@@ -25,6 +25,7 @@
           name="Scene Name"
           placeholder="Scene Name"
           class="flex-grow"
+          expanded
         />
       </template>
 
@@ -50,6 +51,7 @@
             :label="field | capitalize"
             :icon="getIcon(field)"
             custom-class="is-capitalized"
+            expanded
           />
 
           <!-- FIXME: has-fixed-size -->
@@ -62,6 +64,7 @@
             :value="scene.props[field]"
             :label="field | capitalize"
             custom-class="has-fixed-size"
+            expanded
           />
 
           <ButtonInput
@@ -71,6 +74,7 @@
             :value="scene.props[field]"
             :label="field | capitalize"
             custom-class="is-capitalized"
+            expanded
           />
 
           <!-- TODO: Display error for incorrect types/types that don't match anything ? -->

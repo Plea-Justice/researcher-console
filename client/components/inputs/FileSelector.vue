@@ -7,6 +7,7 @@
     :type="error.flag ? 'is-danger' : null"
     :message="error.flag ? error.message : null"
     :icon="icon"
+    v-bind="$attrs"
   >
     <!-- FIXME: warning for empty selector, selector with no options? -->
     <option value="None">None</option>

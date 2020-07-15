@@ -151,7 +151,7 @@ module.exports = function (options) {
             res.status(500).json({
                 success: false,
                 message: 'There was an error generating the simulation download.',
-                return: err
+                return: null
             });
         }
 
