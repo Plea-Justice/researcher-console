@@ -91,7 +91,7 @@ module.exports = function (options) {
                     message: 'There was an error retrieving the scenario.',
                     return: err
                 });
-            if (obj === null)
+            else if (obj === null)
                 res.status(400).json({
                     success: false,
                     message: 'The requested scenario does not exist.',
@@ -112,19 +112,32 @@ module.exports = function (options) {
     */
     router.put('/:scenario_id', (req, res) => {
         let id = req.params.scenario_id;
+        let uid = req.session.user_id;
 
-        ScenarioModel.updateOne({_id: id}, {$set: {
+        ScenarioModel.updateOne({_id: id, user_id: uid}, {$set: {
             name: req.body.name,
             description: req.body.description,
             survey: req.body.survey,
             vuex_state: req.body.vuex_state
-        }}, (err)=>{
+        }}, (err, result)=>{
             if (err)
                 res.status(500).json({
                     success: false,
                     message: 'There was an error updating the scenario.',
                     return: err
-                });            
+                });
+            else if (result.n !== 1)
+                res.status(400).json({
+                    success: false,
+                    message: 'The requested scenario does not exist.',
+                    return: result
+                });
+            else if (result.nModified !== 1)
+                res.status(400).json({
+                    success: false,
+                    message: 'The requested scenario could not be updated.',
+                    return: result
+                });
             else 
                 res.status(200).json({
                     success: true,
@@ -141,13 +154,26 @@ module.exports = function (options) {
      */
     router.delete('/:scenario_id', (req, res) => {
         let id = req.params.scenario_id;
+        let uid = req.session.user_id;
 
-        ScenarioModel.deleteOne({_id: id}, (err)=>{
+        ScenarioModel.deleteOne({_id: id, user_id: uid}, (err, result)=>{
             if (err)
                 res.status(500).json({
                     success: false,
                     message: 'There was an error deleting the scenario.',
                     return: err
+                });
+            else if (result.n !== 1)
+                res.status(400).json({
+                    success: false,
+                    message: 'The requested scenario does not exist.',
+                    return: result
+                });
+            else if (result.deletedCount !== 1)
+                res.status(400).json({
+                    success: false,
+                    message: 'The requested scenario could not be deleted.',
+                    return: result
                 });
             else
                 res.status(200).json({
