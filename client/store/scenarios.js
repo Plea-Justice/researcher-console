@@ -1,4 +1,4 @@
-/* eslint no-shadow: ["error", { "allow": ["state"] }] */
+/* eslint no-shadow: ["error", { "allow": ["state", "getters"] }] */
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Vue from 'vue';
 

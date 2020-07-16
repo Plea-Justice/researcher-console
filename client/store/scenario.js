@@ -9,9 +9,9 @@ import { nanoid } from 'nanoid/non-secure';
 // Lazy load/code-split this?
 import spec from '../assets/spec.json';
 
-export const state = () => ({
+const initialState = () => ({
+  id: '',
   meta: {
-    id: '',
     name: '',
     description: '',
     survey: '',
@@ -22,8 +22,10 @@ export const state = () => ({
   scenes: {}
 });
 
+export const state = () => initialState();
+
 export const getters = {
-  scenarioMeta: state => state.meta,
+  scenarioMeta: state => ({ id: state.id, ...state.meta }),
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
   numConditions: state => (state.frameList.length <= 0 ? 0 : state.frames[state.frameList[0]].scenes.length)
@@ -33,22 +35,27 @@ export const actions = {
   // **** Axios Actions ****
   async getScenario({ commit, state: currState }, id) {
     // FIXME: allow this to capture any scenario
+
     const response = await this.$axios.$get(`/api/v1/s/${id}`);
 
-    // Set defaults, then overwrite with any data from the server.
-    const { meta, ...data } = state();
-    response.return = { ...meta, vuex_state: data, ...response.return };
+    // Reset state representation write in data from server request
+    commit('resetState');
     commit('setScenario', response.return);
 
+    // If new new Scenario (has no frames) add an initial frame
     if (!currState.frameList.length) commit('newFrame');
   },
   saveScenario({ commit }) {
+    // FIXME: make this a promise so saving errors can be properly reported?
     commit('putScenario');
   },
 
   // **** Scenario Actions ****
-  updateMeta({ commit }, { key, val }) {
-    commit('updateMeta', { key, val });
+  updateMetaKey({ commit }, { key, val }) {
+    commit('updateMetaKey', { key, val });
+  },
+  updateMeta({ commit }, meta) {
+    commit('updateMeta', { meta });
   },
 
   // **** Condition Actions
@@ -112,12 +119,16 @@ export const actions = {
 };
 
 export const mutations = {
+  // **** Module Mutations ****
+  resetState(state) {
+    Object.assign(state, initialState());
+  },
+
   // **** Axios Mutations ****
   setScenario(state, scenario) {
-    state.meta = {
-      ...state.meta,
-      ...{ id: scenario._id, name: scenario.name, description: scenario.description, survey: scenario.survey }
-    };
+    state.id = scenario._id;
+
+    state.meta = { name: scenario.name, description: scenario.description, survey: scenario.survey };
 
     // FIXME: make this static or something?
     const skeletonScene = Object.fromEntries(Object.keys(spec.scene).map(key => [key, 'None']));
@@ -150,7 +161,7 @@ export const mutations = {
       )
     );
 
-    this.$axios.$put(`/api/v1/s/${state.meta.id}`, {
+    this.$axios.$put(`/api/v1/s/${state.id}`, {
       name: state.meta.name,
       description: state.meta.description,
       survey: state.meta.survey,
@@ -163,8 +174,15 @@ export const mutations = {
   },
 
   // **** Scenario Mutations ****
-  updateMeta(state, payload) {
+  updateMetaKey(state, payload) {
     Vue.set(state.meta, payload.key, payload.val);
+  },
+  updateMeta(state, payload) {
+    console.log(payload.meta);
+
+    Object.keys(state.meta).forEach(key => {
+      if (payload.meta[key]) Vue.set(state.meta, key, payload.meta[key]);
+    });
   },
 
   // **** Condition Mutations ****
@@ -273,7 +291,6 @@ export const mutations = {
     const toIndex = fromIndex + payload.modifier;
 
     // Swap the 2 frames with splice
-    // TODO: test this
     state.frameList.splice(toIndex, 0, state.frameList.splice(fromIndex, 1));
     // state.frameList.splice(fromIndex, 1, state.frameList.splice(toIndex, 1, payload.frameId)[0]);
   },

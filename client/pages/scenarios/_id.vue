@@ -18,7 +18,7 @@
           >Save</ToolBarButton>
 
           <ToolBarButton
-            @click="scenarioProps()"
+            @click="openScenarioProps()"
             :value="mode"
             icon-left="movie-edit-outline"
           >Properties</ToolBarButton>
@@ -109,7 +109,8 @@ import NavBar from "~/components/NavBar";
 import ToolBar from "~/components/ToolBar";
 import ToolBarButton from "~/components/ToolBarButton";
 import SceneFrame from "~/components/SceneFrame";
-import ScenarioProperties from "~/components/ScenarioProperties";
+import ScenarioProperties from "~/components/modals/ScenarioProperties";
+import LeaveScenarioModal from "~/components/modals/LeaveScenario";
 
 // Import Helper Functions
 import { noop, throttle } from "~/assets/util";
@@ -131,6 +132,10 @@ export default {
     return {
       // import from JS file
       scenarioHelp: scenarioHelp,
+
+      // Track VueX Subscription
+      scenarioStoreHasChanged: false,
+
       collapsed: false,
       Modes: {
         DEFAULT: 0,
@@ -147,6 +152,7 @@ export default {
       },
       // Set to DEFAULT mode
       select: 0,
+
       selectionCounter: 0,
       selectionList: []
     };
@@ -154,6 +160,21 @@ export default {
   async fetch({ store, params }) {
     await store.dispatch("scenario/getScenario", params.id);
     await store.dispatch("assets/getAssets");
+  },
+  created() {
+    this.$store.subscribe((mutation, state) => {
+      if (this.scenarioStoreHasChanged) {
+        // If state has changed set to false if saving
+        if (mutation.type === "scenario/putScenario")
+          this.scenarioStoreHasChanged = false;
+      } else if (
+        mutation.type.startsWith("scenario/") &&
+        !mutation.type !== "scenario/setScenario"
+      ) {
+        // Otherwise for any mutation except... mark state has changed
+        this.scenarioStoreHasChanged = true;
+      }
+    });
   },
   computed: {
     collapsedBtnProps() {
@@ -263,7 +284,7 @@ export default {
         });
       });
     },
-    scenarioProps() {
+    openScenarioProps() {
       this.$buefy.modal.open({
         parent: this,
         component: ScenarioProperties,
@@ -298,7 +319,7 @@ export default {
       removeCondition: "scenario/removeCondition",
       saveScenario: "scenario/saveScenario",
       updateFrames: "scenario/updateFrames",
-      updateMeta: "scenario/updateMeta",
+      updateMetaKey: "scenario/updateMetaKey",
       copyScene: "scenario/copyScene",
       copyCondition: "scenario/copyCondition"
     }),
@@ -309,8 +330,22 @@ export default {
         val: !this.scenarioMeta.collapsed
       };
 
-      this.updateMeta(entry);
+      this.updateMetaKey(entry);
       this.updateFrames(entry);
+    }
+  },
+  beforeRouteLeave(to, from, next) {
+    if (this.scenarioStoreHasChanged) {
+      this.$buefy.modal.open({
+        parent: this,
+        component: LeaveScenarioModal,
+        props: { next, validate: this.$refs.form.validate },
+        hasModalCard: true,
+        customClass: "dialog",
+        trapFocus: true
+      });
+    } else {
+      next();
     }
   },
   head() {
@@ -324,16 +359,6 @@ export default {
         }
       ]
     };
-  },
-  beforeRouteLeave(to, from, next) {
-    this.$buefy.dialog.confirm({
-      title: "Leaving Scenario Editor",
-      message: "If you have made any changes, save them before leaving.",
-      confirmText: "Leave Page",
-      type: "is-danger",
-      hasIcon: true,
-      onConfirm: () => next()
-    });
   }
 };
 </script>
