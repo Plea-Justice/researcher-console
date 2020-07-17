@@ -57,6 +57,7 @@ import HelpSidebar from "~/components/HelpSidebar";
 import { scenarioPropertiesHelp } from "~/assets/helpText";
 
 export default {
+  name: "ScenarioProperties",
   components: { HelpSidebar },
   data() {
     return {

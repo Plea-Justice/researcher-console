@@ -30,6 +30,7 @@
 import { mapActions } from "vuex";
 
 export default {
+  name: "LeaveScenario",
   props: {
     next: {
       type: Function,

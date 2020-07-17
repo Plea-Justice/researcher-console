@@ -131,9 +131,11 @@ export const mutations = {
     state.meta = { name: scenario.name, description: scenario.description, survey: scenario.survey };
 
     // FIXME: make this static or something?
-    const skeletonScene = Object.fromEntries(Object.keys(spec.scene).map(key => [key, 'None']));
-    skeletonScene.name = 'Default Scene';
-    skeletonScene.type = Object.keys(spec.sceneTypes)[1];
+    const emptySceneProps = {
+      ...Object.fromEntries(Object.keys(spec.scene).map(key => [key, ''])),
+      name: 'Default Scene',
+      type: Object.keys(spec.sceneTypes)[1]
+    };
 
     state.scenes = Object.fromEntries(
       Object.entries(scenario.vuex_state.scenes).map(([key, values]) => [
@@ -142,7 +144,7 @@ export const mutations = {
           id: values.id,
           valid: null,
           type: values.props.type || Object.keys(spec.sceneTypes)[0],
-          props: { ...skeletonScene, ...values.props }
+          props: { ...emptySceneProps, ...values.props }
         }
       ])
     );
@@ -298,11 +300,22 @@ export const mutations = {
   // **** Scene Mutations ****
   newScene(state, payload) {
     // FIXME: make this static or something?
-    const skeletonScene = Object.fromEntries(Object.keys(spec.scene).map(key => [key, null]));
-    skeletonScene.name = 'Default Scene';
-    skeletonScene.type = Object.keys(spec.sceneTypes)[1];
 
-    Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, valid: null, props: skeletonScene });
+    const prevSceneProps = state.frameList.reduce((acc, id) => {
+      const { scenes } = state.frames[id];
+      const index = scenes.indexOf(payload.sceneId);
+      return index > 0 ? Object.assign({}, state.scenes[scenes[index - 1]].props) : acc;
+    }, null);
+
+    // If prev scene has props use those, otherwise create default props list
+    // FIXME: make this static or something?
+    const newSceneProps = prevSceneProps || {
+      ...Object.fromEntries(Object.keys(spec.scene).map(key => [key, ''])),
+      name: 'Default Scene',
+      type: Object.keys(spec.sceneTypes)[1]
+    };
+
+    Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, valid: null, props: newSceneProps });
   },
   deleteScene(state, payload) {
     Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: null });

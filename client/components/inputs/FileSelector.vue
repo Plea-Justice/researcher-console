@@ -10,14 +10,10 @@
     v-bind="$attrs"
   >
     <!-- FIXME: warning for empty selector, selector with no options? -->
-    <option value="None">None</option>
+    <option value>None</option>
     <!-- If value does not exists insert dummy value and flag error -->
     <option v-if="error.flag" :value="value">{{ value }}</option>
-    <option v-for="file in options" :key="file" :value="file">
-      {{
-      file
-      }}
-    </option>
+    <option v-for="file in options" :key="file" :value="file">{{ file }}</option>
   </BSelectWithValidation>
 </template>
 

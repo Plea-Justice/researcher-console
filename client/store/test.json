@@ -1,0 +1,138 @@
+{
+  "success": true,
+  "message": "Scenario returned.",
+  "return": {
+    "_id": "5ef1f91bad02294216a0cada",
+    "user_id": "5ef6515655ee6f44780f4f32",
+    "title": "NSF Hit and Run",
+    "description": "NSF Grant Study",
+    "vuex_state": {
+      "conditionLengths": [3, 3, 3],
+      "scenes": {
+        "xDynu3o7YTq7ho4XAZOl3": {
+          "id": "xDynu3o7YTq7ho4XAZOl3",
+          "props": {
+            "type": "clip",
+            "name": "Opening Scene",
+            "clip": "Scenario1_Intro"
+          }
+        },
+        "6d91LA_p39cyQNZGwA1kL": {
+          "id": "6d91LA_p39cyQNZGwA1kL",
+          "props": {
+            "type": "clip",
+            "name": "Opening Scene",
+            "clip": "Scenario1_Intro"
+          }
+        },
+        "fI9GWblE_qo7f-pZhYEoD": {
+          "id": "fI9GWblE_qo7f-pZhYEoD",
+          "props": {
+            "type": "clip",
+            "name": "Opening Scene",
+            "clip": "Scenario1_Intro"
+          }
+        },
+        "U74tAY7Z3LccyUaBNxr5p": {
+          "id": "U74tAY7Z3LccyUaBNxr5p",
+          "props": {
+            "type": "dialogue",
+            "name": "Prosecutor Introduction",
+            "actor": "prosecutor",
+            "foreground": null,
+            "background": "courtroom_2019",
+            "script": "Good afternoon@9, my name is Mr. Clark and I will be prosecuting this case on behalf of the State of Massachusetts, your Honor."
+          }
+        },
+        "dg2c6ex0QvFSHVkcuWKHI": {
+          "id": "dg2c6ex0QvFSHVkcuWKHI",
+          "props": {
+            "type": "dialogue",
+            "name": "Prosecutor Introduction",
+            "actor": "prosecutor",
+            "foreground": "None",
+            "background": "courtroom_2019",
+            "script": "Good afternoon@9, my name is Mr. Clark and I will be prosecuting this case on behalf of the State of Massachusetts, your Honor."
+          }
+        },
+        "kRaeM6Gc2veoA6Skl51ig": {
+          "id": "kRaeM6Gc2veoA6Skl51ig",
+          "props": {
+            "type": "dialogue",
+            "name": "Prosecutor Introduction",
+            "actor": "prosecutor",
+            "foreground": "None",
+            "background": "courtroom_2019",
+            "script": "Good afternoon@9, my name is Mr. Clark and I will be prosecuting this case on behalf of the State of Massachusetts, your Honor."
+          }
+        },
+        "lRU678HrXVrafJvQdJKTY": {
+          "id": "lRU678HrXVrafJvQdJKTY",
+          "props": {
+            "name": "Plea Decision",
+            "type": "question",
+            "background": "courtroom_2019",
+            "script": "Select @4accept @4or @4reject.",
+            "buttons": ["Accept", "Reject"]
+          }
+        },
+        "XuTgM9LLI1Jq8c4AxW5vq": {
+          "id": "XuTgM9LLI1Jq8c4AxW5vq",
+          "props": {
+            "name": "Plea Decision",
+            "type": "question",
+            "background": "courtroom_2019",
+            "script": "Select @4accept @4or @4reject.",
+            "buttons": ["Accept", "Reject"]
+          }
+        },
+        "wV8meFUOPR9EKoPqA36nJ": {
+          "id": "wV8meFUOPR9EKoPqA36nJ",
+          "props": {
+            "name": "Plea Decision",
+            "type": "question",
+            "actor": "image",
+            "foreground": "image",
+            "background": "courtroom_2019",
+            "script": "Select @4accept @4or @4reject.",
+            "buttons": ["Accept", "Reject"]
+          }
+        }
+      },
+      "frames": {
+        "yBvirNoAohPvdUCD8NvRw": {
+          "id": "yBvirNoAohPvdUCD8NvRw",
+          "scenes": [
+            "xDynu3o7YTq7ho4XAZOl3",
+            "6d91LA_p39cyQNZGwA1kL",
+            "fI9GWblE_qo7f-pZhYEoD"
+          ]
+        },
+        "dAczd6scwBIINj4GJDXnk": {
+          "id": "dAczd6scwBIINj4GJDXnk",
+          "scenes": [
+            "U74tAY7Z3LccyUaBNxr5p",
+            "dg2c6ex0QvFSHVkcuWKHI",
+            "kRaeM6Gc2veoA6Skl51ig"
+          ]
+        },
+        "yX5nE3zxcFAlEOFtXMLUt": {
+          "id": "yX5nE3zxcFAlEOFtXMLUt",
+          "scenes": [
+            "lRU678HrXVrafJvQdJKTY",
+            "XuTgM9LLI1Jq8c4AxW5vq",
+            "wV8meFUOPR9EKoPqA36nJ"
+          ]
+        }
+      },
+      "frameList": [
+        "yBvirNoAohPvdUCD8NvRw",
+        "dAczd6scwBIINj4GJDXnk",
+        "yX5nE3zxcFAlEOFtXMLUt"
+      ]
+    },
+    "frames": [],
+    "__v": 0,
+    "name": "Hit and Run (Scenario 1)"
+  }
+}
