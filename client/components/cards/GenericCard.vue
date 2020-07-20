@@ -3,26 +3,48 @@
 
   <div :class="{ invalid: invalid }" class="card has-radius-large">
     <!-- Wrapper for highlighting a card -->
-    <div v-if="selection" @click="$emit('selected')" class="selection-wrapper has-radius-large" />
+    <div
+      v-if="selectable"
+      @click="$emit('selected')"
+      class="selection-mask has-radius-large"
+    />
 
     <!-- Card Header -->
     <!-- when collapsed style header as body -->
-    <header v-if="!focused" class="card-header flex-header" :class="headerModeStyle">
+    <header
+      v-if="!blank"
+      class="card-header flex-header"
+      :class="headerModeStyle"
+    >
       <!-- When collapsed show remove button in header -->
-      <b-button v-if="collapsed" @click="$emit('remove')" type="is-danger" icon-left="close" />
+      <b-button
+        v-if="collapsed"
+        @click="$emit('remove')"
+        type="is-danger"
+        icon-left="close"
+      />
       <slot name="header" />
     </header>
 
     <!-- Card Body -->
-    <div v-show="!collapsed" :class="{ 'flex-center': focused }" class="card-content flex-grow">
+    <div
+      v-show="!collapsed"
+      :class="{ 'flex-center': blank }"
+      class="card-content flex-grow"
+    >
       <slot name="default" />
     </div>
 
     <!-- Card Footer -->
-    <footer v-if="!collapsed && !focused" class="card-footer">
+    <footer v-if="!collapsed && !blank" class="card-footer">
       <div class="card-footer-item buttons footer-buttons flex-left">
         <!-- Check if remove listener exists instead of using remove -->
-        <b-button v-if="close" @click="$emit('remove')" type="is-danger" icon-left="close" />
+        <b-button
+          v-if="close"
+          @click="$emit('remove')"
+          type="is-danger"
+          icon-left="close"
+        />
         <slot name="footer" />
       </div>
     </footer>
@@ -41,14 +63,14 @@ export default {
       required: false,
       default: false
     },
-    // Sets if component is in selection mode
-    selection: {
+    // Sets if component is selectable
+    selectable: {
       type: Boolean,
       required: false,
       default: false
     },
     // Sets wether to only show body
-    focused: {
+    blank: {
       type: Boolean,
       required: false,
       default: false
@@ -79,7 +101,7 @@ export default {
   border: 1px solid red;
 }
 
-.selection-wrapper {
+.selection-mask {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -102,7 +124,7 @@ export default {
   justify-content: space-between;
   // Make card full-height
   flex-grow: 1;
-  // for selection wrapper
+  // for selection mask
   position: relative;
 }
 

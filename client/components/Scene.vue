@@ -1,16 +1,21 @@
 <template>
-  <ValidationObserver ref="form" tag="fieldset" class="flex-wrap" v-slot="{ failed }">
+  <ValidationObserver
+    ref="form"
+    tag="fieldset"
+    class="flex-wrap"
+    v-slot="{ failed }"
+  >
     <div
       v-if="selectable && failed"
       @click="invalidSelectionToast"
-      class="invalid-selection-wrapper"
+      class="invalid-selection-mask"
     />
     <GenericCard
       @remove="removeScene(scene.id)"
       @selected="$emit('selected', scene.id)"
-      :selection="selectable && !failed"
+      :selectable="selectable && !failed"
       :collapsed="collapsed"
-      :focused="isBlank"
+      :blank="isBlank"
       :invalid="failed"
       close
     >
@@ -38,7 +43,8 @@
             @input="updateSceneForm({ id: scene.id, key: 'type', val: $event })"
             :value="scene.props.type"
             :native-value="type"
-          >{{ type }}</b-radio-button>
+            >{{ type }}</b-radio-button
+          >
         </b-field>
 
         <template v-for="field in validFieldNames">
@@ -215,7 +221,7 @@ export default {
   flex-grow: 1;
 }
 
-.invalid-selection-wrapper {
+.invalid-selection-mask {
   // FIXME: Make wrappers (masks) extendable classes
   position: absolute;
   height: 100%;

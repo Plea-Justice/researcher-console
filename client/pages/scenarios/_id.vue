@@ -15,26 +15,34 @@
             :value="mode"
             type="is-primary"
             icon-left="content-save"
-          >Save</ToolBarButton>
+            >Save</ToolBarButton
+          >
 
           <ToolBarButton
             @click="openScenarioProps()"
             :value="mode"
             icon-left="movie-edit-outline"
-          >Properties</ToolBarButton>
+            >Properties</ToolBarButton
+          >
 
           <b-button
             @click="collapseAll()"
             :icon-left="collapsedBtnProps.icon"
-          >{{ collapsedBtnProps.name }}</b-button>
+            >{{ collapsedBtnProps.name }}</b-button
+          >
 
-          <ToolBarButton @click="addCondition()" :value="mode">Add Condition</ToolBarButton>
+          <ToolBarButton @click="addCondition()" :value="mode"
+            >Add Condition</ToolBarButton
+          >
 
           <ToolBarButton
             v-model="mode"
-            @click="toggleHandler($event, selectionReset, startSelectionToast, 'copy')"
+            @click="
+              toggleHandler($event, selectionReset, startSelectionToast, 'copy')
+            "
             :mode="Modes.COPY"
-          >Copy</ToolBarButton>
+            >Copy</ToolBarButton
+          >
         </div>
       </template>
       <template v-slot:end>
@@ -44,7 +52,8 @@
               @click="downloadZip()"
               type="is-primary"
               icon-left="folder-download"
-            >Download Package</b-button>
+              >Download Package</b-button
+            >
           </div>
         </div>
         <b-field class="level-item">
@@ -56,7 +65,11 @@
     <!-- Titles -->
     <div ref="titles" class="sticky condition-bar">
       <div class="responsive-container condition-titles">
-        <div v-for="index in numConditions" :key="index" class="condition-title">
+        <div
+          v-for="index in numConditions"
+          :key="index"
+          class="condition-title"
+        >
           <div
             v-if="isSelectable(Select.CONDITION)"
             @click="addToSelection(index, Select.CONDITION)"
@@ -74,14 +87,18 @@
     </div>
 
     <!-- Scrolling Wrapper -->
-    <div @scroll="handleScroll($event)" ref="horizontalScroll" class="scrollable">
+    <div
+      @scroll="handleScroll($event)"
+      ref="horizontalScroll"
+      class="scrollable"
+    >
       <section class="responsive-container">
         <ValidationObserver ref="form" tag="form" @submit.prevent="onSubmit()">
           <!-- Frames -->
           <!-- NOTE: for some reason keying without the index causes strange update bahvior conflicting with scrollToFrame -->
           <SceneFrame
             v-for="(frame, index) in frameSet"
-            :key="`${frame.id}_${index}`"
+            :key="`${frame.id}`"
             @scroll-to="scrollToFrame($event)"
             @selected="addToSelection($event, Select.SCENE)"
             :frame="frame"
@@ -133,8 +150,10 @@ export default {
       // import from JS file
       scenarioHelp: scenarioHelp,
 
+      // **** Created() ****
       // Track VueX Subscription
       scenarioStoreHasChanged: false,
+      headerHeight: 0,
 
       collapsed: false,
       Modes: {
@@ -174,6 +193,13 @@ export default {
         // Otherwise for any mutation except... mark state has changed
         this.scenarioStoreHasChanged = true;
       }
+    });
+
+    // Define header height
+    this.$nextTick(() => {
+      this.headerHeight =
+        this.$refs["toolbar"].$el.clientHeight +
+        this.$refs["titles"].clientHeight;
     });
   },
   computed: {
@@ -268,20 +294,36 @@ export default {
       //TODO: only update add button on current frame(s)
     }, 20),
     scrollToFrame(frameIndex) {
+      console.time("moveFrame");
+      //console.log("Called from Emit");
+      //console.timeLog("moveFrame");
+
+      console.log(
+        this.$refs.form.$el.children[frameIndex].getBoundingClientRect().top
+      );
+
       this.$nextTick(() => {
-        const headerHeight =
-          this.$refs["toolbar"].$el.clientHeight +
-          this.$refs["titles"].clientHeight;
+        console.log("Next Tick");
+        console.timeLog("moveFrame");
 
         const frameTopPos = this.$refs.form.$el.children[
           frameIndex
         ].getBoundingClientRect().top;
 
+        console.log(frameTopPos);
+
+        //console.log("Caught Size: " + frameTopPos);
+        //console.timeLog("moveFrame");
+
         // Scroll so that the element is at the top of the view
         window.scrollTo({
-          top: frameTopPos - headerHeight + window.pageYOffset,
+          top: frameTopPos - this.headerHeight + window.pageYOffset,
           behavior: "smooth"
         });
+
+        //console.timeEnd("moveFrame");
+        //console.log("**** Done ****");
+        console.timeEnd("moveFrame");
       });
     },
     openScenarioProps() {

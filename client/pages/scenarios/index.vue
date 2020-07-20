@@ -7,8 +7,12 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD">Add</ToolBarButton>
-        <ToolBarButton v-model="mode" :mode="Modes.DUPLICATE">Duplicate</ToolBarButton>
+        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD"
+          >Add</ToolBarButton
+        >
+        <ToolBarButton v-model="mode" :mode="Modes.DUPLICATE"
+          >Duplicate</ToolBarButton
+        >
       </div>
     </template>
 
@@ -28,7 +32,7 @@
       :key="scenario.id"
       @selected="duplicate($event)"
       @remove="confirmDelete($event)"
-      :selection="mode === Modes.DUPLICATE"
+      :selectable="mode === Modes.DUPLICATE"
       :item="scenario"
       close
       link

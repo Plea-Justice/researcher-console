@@ -292,9 +292,12 @@ export const mutations = {
     const fromIndex = state.frameList.indexOf(payload.frameId);
     const toIndex = fromIndex + payload.modifier;
 
-    // Swap the 2 frames with splice
-    state.frameList.splice(toIndex, 0, state.frameList.splice(fromIndex, 1));
-    // state.frameList.splice(fromIndex, 1, state.frameList.splice(toIndex, 1, payload.frameId)[0]);
+    /* const newFrameList = [...state.frameList];
+    newFrameList.splice(fromIndex, 1, newFrameList.splice(toIndex, 1, payload.frameId)[0]);
+    state.frameList = newFrameList; */
+
+    // Swap 2 frames using splice
+    state.frameList.splice(fromIndex, 1, state.frameList.splice(toIndex, 1, payload.frameId)[0]);
   },
 
   // **** Scene Mutations ****

@@ -13,34 +13,43 @@
           <b-input
             v-model="scenarioForm.description"
             type="textarea"
-            class="has-fixed-size"
+            customClass="has-fixed-size"
             placeholder="Description"
             maxlength="100"
           />
         </b-field>
-        <b-field label="Survey URL">
-          <b-field>
-            <b-input
-              expanded
-              v-model="scenarioForm.survey"
-              type="text"
-              class="has-fixed-size"
-              placeholder="https://"
-              pattern="^(https?:\/\/|\/).*"
-              validation-message="Valid URL required."
-              maxlength="500"
-            />
-            <HelpSidebar
-              :text="propertiesHelp.url"
-              buttonType="is-light"
-              title="Survey URL"
-              class="control"
-            />
-          </b-field>
+        <b-field
+          label="Survey URL"
+          type="is-danger"
+          message="Valid URL required"
+        >
+          <div class="field-body no-help">
+            <!-- FIXME: need's external validator -->
+            <b-field>
+              <b-input
+                v-model="scenarioForm.survey"
+                :has-counter="false"
+                type="text"
+                placeholder="https://"
+                pattern="^(https?:\/\/|\/).*"
+                maxlength="500"
+                expanded
+              />
+
+              <HelpSidebar
+                :text="propertiesHelp.url"
+                buttonType="is-dark"
+                title="Survey URL"
+                class="control"
+              />
+            </b-field>
+          </div>
         </b-field>
       </section>
       <footer class="modal-card-foot">
-        <b-button type="is-primary" native-type="submit" value="Save" expanded>Save</b-button>
+        <b-button type="is-primary" native-type="submit" value="Save" expanded
+          >Save</b-button
+        >
       </footer>
     </form>
   </div>
@@ -79,3 +88,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.no-help .help {
+  display: none;
+}
+</style>

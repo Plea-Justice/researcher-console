@@ -51,7 +51,7 @@
         />
         <!-- FIXME: Remove '!!' from !!frame.collapsed -->
 
-        <GenericCard v-else focused>
+        <GenericCard v-else blank>
           <b-button
             @click="addSceneHelper(index, scene.id)"
             type="is-light"
@@ -63,7 +63,12 @@
     </div>
 
     <div class="frame-footer">
-      <b-button @click="addFrame(frame.id)" type="is-light" size="is-medium" icon-left="plus" />
+      <b-button
+        @click="addFrame(frame.id)"
+        type="is-light"
+        size="is-medium"
+        icon-left="plus"
+      />
     </div>
   </div>
 </template>
@@ -130,12 +135,13 @@ export default {
     },
     moveUp() {
       this.moveFrameUp(this.frame.id);
+
       // emit the frameIndex that must be traveled to
-      this.$emit("scroll-to", this.frameIndex - 1);
+      //this.$emit("scroll-to", this.frameIndex - 1);
     },
     moveDown() {
       this.moveFrameDown(this.frame.id);
-      // emit the frameIndex that must be traveled to
+
       this.$emit("scroll-to", this.frameIndex + 1);
     },
     addSceneHelper(sceneIndex, sceneId) {

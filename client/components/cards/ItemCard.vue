@@ -3,7 +3,7 @@
     @remove="$emit('remove', item.id)"
     @selected="$emit('selected', item.id)"
     :close="close"
-    :selection="selection"
+    :selectable="selectable"
   >
     <template v-slot:header>
       <template v-if="item">
@@ -74,7 +74,7 @@ export default {
       required: false,
       default: false
     },
-    selection: {
+    selectable: {
       type: Boolean,
       required: false,
       default: false
