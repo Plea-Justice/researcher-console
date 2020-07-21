@@ -23,6 +23,7 @@
     "vee-validate": "^3.3.7"
   },
   "devDependencies": {
+    "@nuxtjs/style-resources": "^1.0.0",
     "babel-eslint": "^9.0.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.1",

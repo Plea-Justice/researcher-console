@@ -29,7 +29,7 @@
           :value="scene.props.name"
           name="Scene Name"
           placeholder="Scene Name"
-          class="flex-grow"
+          class="header-input"
           expanded
         />
       </template>
@@ -222,23 +222,21 @@ export default {
 }
 
 .invalid-selection-mask {
-  // FIXME: Make wrappers (masks) extendable classes
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  z-index: 5;
+  @include absoluteMask();
   cursor: pointer;
-  background-color: #ff443a99;
-  // FIXME: use Bulma SASS $radius-large variable
-  // Use mixin of .has-radius-large instead
-  border-radius: 6px;
+  background-color: $selectedRed;
+  border-radius: $radius-large;
 }
 
 .card {
   height: 100%;
 }
 
+.header-input {
+  flex-grow: 1;
+}
+
 .toggle-button {
-  justify-content: center !important;
+  justify-content: center;
 }
 </style>

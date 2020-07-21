@@ -5,25 +5,53 @@
         <h1 class="title login-title">Plea Simulation Researcher Console</h1>
 
         <!-- Login Card -->
-        <form class="box has-text-centered" @submit.prevent="isRegistration ? register() : login()">
+        <form
+          class="box has-text-centered"
+          @submit.prevent="isRegistration ? register() : login()"
+        >
           <div class="block">
             <b-icon icon="account-circle" size="is-large" />
           </div>
 
           <b-field v-if="isRegistration">
-            <b-input v-model="email" type="email" icon="email" 
-              validation-message="A valid email address is required." maxlength="100" :has-counter="isRegistration"
-               placeholder="Email" required />
+            <b-input
+              v-model="email"
+              type="email"
+              icon="email"
+              validation-message="A valid email address is required."
+              maxlength="100"
+              :has-counter="isRegistration"
+              placeholder="Email"
+              required
+            />
           </b-field>
 
           <b-field>
-            <b-input v-model="name" icon="account" v-bind:minlength="isRegistration ? 3 : 0" maxlength="100" :has-counter="isRegistration"
-              validation-message="Username must be at least 3 characters." placeholder="Username" required />
+            <b-input
+              v-model="name"
+              icon="account"
+              v-bind:minlength="isRegistration ? 3 : 0"
+              maxlength="100"
+              :has-counter="isRegistration"
+              validation-message="Username must be at least 3 characters."
+              placeholder="Username"
+              required
+            />
           </b-field>
 
           <b-field>
-            <b-input v-model="password" type="password" icon="lock" v-bind:minlength="isRegistration ? 10 : 0" maxlength="100" :has-counter="isRegistration"
-              validation-message="Password must be at least 10 characters." placeholder="Password" required password-reveal />
+            <b-input
+              v-model="password"
+              type="password"
+              icon="lock"
+              v-bind:minlength="isRegistration ? 10 : 0"
+              maxlength="100"
+              :has-counter="isRegistration"
+              validation-message="Password must be at least 10 characters."
+              placeholder="Password"
+              required
+              password-reveal
+            />
           </b-field>
           <div class="buttons is-centered">
             <!-- FIXME: should submit and let form login -->
@@ -51,10 +79,9 @@
 
           <hr />
 
-          <b-button
-            @click="setFormMode()"
-            type="is-text"
-          >{{ isRegistration ? "Login to existing account" : "Create an account" }}</b-button>
+          <b-button @click="setFormMode()" type="is-text">{{
+            isRegistration ? "Login to existing account" : "Create an account"
+          }}</b-button>
         </form>
       </section>
     </div>
@@ -121,13 +148,11 @@ export default {
 };
 </script>
 
-<style scope>
+<style lang="scss" scope>
 .login-wrapper {
-  height: 100%;
-  display: flex;
+  @include flexCenter();
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  height: 100%;
 }
 
 .login-title {

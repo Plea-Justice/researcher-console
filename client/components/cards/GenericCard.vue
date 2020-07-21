@@ -1,13 +1,9 @@
 <template>
   <!-- FIXME: remove id from events -->
 
-  <div :class="{ invalid: invalid }" class="card has-radius-large">
+  <div :class="{ invalid: invalid }" class="card">
     <!-- Wrapper for highlighting a card -->
-    <div
-      v-if="selectable"
-      @click="$emit('selected')"
-      class="selection-mask has-radius-large"
-    />
+    <div v-if="selectable" @click="$emit('selected')" class="selection-mask" />
 
     <!-- Card Header -->
     <!-- when collapsed style header as body -->
@@ -30,7 +26,7 @@
     <div
       v-show="!collapsed"
       :class="{ 'flex-center': blank }"
-      class="card-content flex-grow"
+      class="card-content"
     >
       <slot name="default" />
     </div>
@@ -90,7 +86,7 @@ export default {
   computed: {
     headerModeStyle() {
       // When collapsed style header as body
-      return this.collapsed ? "card-content flex-grow" : "card-header";
+      return this.collapsed ? "card-content" : "card-header";
     }
   }
 };
@@ -102,19 +98,8 @@ export default {
 }
 
 .selection-mask {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #007aff50;
-  }
-
-  &:active {
-    background-color: #0a84ff64;
-  }
+  @include selectable();
+  border-radius: $radius-large;
 }
 
 .card {
@@ -126,46 +111,38 @@ export default {
   flex-grow: 1;
   // for selection mask
   position: relative;
+
+  border-radius: $radius-large;
 }
 
 // Even out all padding between header, body, and footer
 .card-header {
-  padding: 0.75rem 1.5rem;
+  padding: $cardHeadFootPadding 1.5rem;
+}
+
+.card-content {
+  flex-grow: 1;
 }
 
 .card-footer {
-  padding: 0.75rem;
+  padding: $cardHeadFootPadding;
 }
 
 .card-footer-item {
-  padding: 0 0.75rem 0;
+  padding: 0 $cardHeadFootPadding 0;
 }
 
-// FIXME: use Bulma SASS $radius-large variable
-.has-radius-large {
-  border-radius: 6px;
-}
-
-// FIXME: Combine this with flex-center for less redundant styling
 .flex-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  @include flexCenter();
 
   // Everything except last child & > :not(:last-child)
   & > :nth-last-child(n + 2) {
-    margin-right: 0.75rem;
+    margin-right: $cardHeadFootPadding;
   }
 }
 
 .flex-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.flex-grow {
-  flex-grow: 1;
+  @include flexCenter();
 }
 
 .footer-buttons {

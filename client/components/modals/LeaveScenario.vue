@@ -2,6 +2,12 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Leaving Scenario Edtior</p>
+      <b-button
+        @click="closeModal()"
+        type="is-light"
+        size="is-medium"
+        icon-left="close"
+      />
     </header>
     <section class="modal-card-body is-flex">
       <div class="media">
@@ -11,16 +17,21 @@
         <div class="media-content">
           <p v-if="validationFailed">
             <span class="has-text-weight-bold">ERROR:</span> Saving failed,
-            <u>invalid scenes exists</u> please return and fix them so your work can be saved!
+            <u>invalid scenes exists</u> please return and fix them so your work
+            can be saved!
           </p>
           <p v-else>If you have made any changes, save them before leaving.</p>
         </div>
       </div>
     </section>
     <footer class="modal-card-foot">
-      <b-button v-if="validationFailed" @click="closeModal()" type="is-primary">Return to Fix</b-button>
-      <b-button v-else @click="saveHandler()" type="is-primary">Save & Exit</b-button>
-      <b-button @click="exitHandler()" type="is-danger">Exit Without Saving</b-button>
+      <b-button v-if="validationFailed" @click="closeModal()" type="is-primary"
+        >Return to Fix</b-button
+      >
+      <b-button v-else @click="saveHandler()" type="is-primary"
+        >Save & Exit</b-button
+      >
+      <b-button @click="exitHandler()" type="is-danger">Force Exit </b-button>
     </footer>
   </div>
 </template>

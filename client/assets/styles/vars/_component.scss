@@ -1,0 +1,26 @@
+// ******** Scenario Styles ********
+// pages/scenarios/_id.vue
+
+// ******** Frame Styles ********
+// components/SceneFrame.vue
+
+$frameSideBarBasis: 45px;
+$frameSideBarMargin: 15px;
+$frameSideBarWidth: $frameSideBarBasis + $frameSideBarMargin;
+
+// padding for Buefy .box wrapping .frame
+$framePadding: 1.25rem;
+// Effective flex-gap between scenes
+$frameSceneGap: 20px;
+
+// Width of each scene
+$sceneWidth: 350px;
+
+// ******** Scene Styles ********
+// components/GenericCard.vue
+/*
+ WARNING: This affects all cards
+  If this behavior needs to be changed make slotted class props for Scene.vue cards
+  that overwrite GenericCard.vue styling. atm we want all cards to be consistent.
+*/
+$cardHeadFootPadding: 0.75rem;

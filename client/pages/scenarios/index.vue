@@ -21,8 +21,8 @@
         <b-input
           v-model="scenarioForm.description"
           type="textarea"
-          class="has-fixed-size"
           placeholder="Description"
+          customClass="has-fixed-size"
           maxlength="100"
         />
       </ItemCard>

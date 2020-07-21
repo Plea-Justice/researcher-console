@@ -1,0 +1,14 @@
+@import "./vars/general.scss";
+
+.responsive-container {
+  margin: 0 $responsiveContainerSpacing;
+}
+
+.padded-responsive-container {
+  padding: 0 $responsiveContainerSpacing;
+}
+
+.sticky {
+  position: sticky;
+  z-index: $buefyOverlapIndex + 1;
+}

@@ -87,3 +87,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.flex-grow {
+  flex-grow: 1;
+}
+</style>

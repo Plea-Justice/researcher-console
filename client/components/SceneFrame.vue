@@ -40,6 +40,7 @@
           />
         </template>
       </aside>
+
       <div v-for="(scene, index) in getSceneSet" :key="scene.id" class="scene">
         <Scene
           :ref="`scene_${scene.id}`"
@@ -153,8 +154,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$frame-box-padding: 1.25rem;
-$add-button-height: 105px;
+// This is the default Bulma .box padding
 
 .frame-wrapper {
   display: flex;
@@ -163,50 +163,66 @@ $add-button-height: 105px;
   position: relative;
 }
 
+.box {
+  padding: $framePadding;
+}
+
 .frame {
   display: flex;
   height: max-content;
   width: min-content;
-  /* Remove excessive right-padding */
+  // Remove excessive right-padding
   padding-right: 0;
-  /* fix box model for box-shadow */
+  // Fix box model for box-shadow
   margin-top: 1px;
-  /* remove bottom margin from box */
-  margin-bottom: 0;
+  // Remove bottom margin from box (leave 1px for box model)
+  margin-bottom: 1px;
+
+  // Everything except last child & > :not(:last-child)
+  & > div:nth-last-of-type(n + 2) {
+    margin-right: $frameSceneGap;
+  }
+
+  & > :last-child {
+    // TODO: Pair this with the box padding
+    margin-right: $framePadding;
+  }
 }
 
 .frame-footer {
   display: flex;
   justify-content: center;
-  margin-top: 1.25rem;
-  margin-bottom: 1.25rem;
+  margin-top: $framePadding;
+  margin-bottom: $framePadding;
 }
 
 .sidebar {
+  display: flex;
   flex-direction: column;
-  flex-basis: 60px;
-  margin-right: 15px;
-  /* Get rid of margin-bottom creating needed whitespace */
+  flex-basis: $frameSideBarBasis;
+  margin-right: $frameSideBarMargin;
+  // Get rid of margin-bottom creating whitespace
   margin-bottom: 0;
+
+  // IMPORTANT: Margins need !important to properly overwrite Buefy button margins
+  & > :first-child {
+    // scene-header-input-font-size-difference (1.25 - 1) + ...
+    margin: ((0.25rem + $cardHeadFootPadding) / 2) 0 10px !important;
+  }
+
+  // Everything except first & last child
+  & > :nth-child(n + 2):nth-last-child(n + 2) {
+    margin: 0 0 10px !important;
+  }
+
+  & > :last-child {
+    // scene-close-button-font-size-difference (1.25 - 1) + ...
+    margin: auto 0 ((0.25rem + $cardHeadFootPadding) / 2) !important;
+  }
 }
 
 .scene {
   display: flex;
-  margin-right: 30px;
-  width: 350px;
-}
-
-.sidebar {
-  & > :first-child {
-    margin: 0 0 10px 0 !important;
-  }
-
-  & > :nth-child(n + 2):nth-last-child(n + 2) {
-    margin: 0 0 10px 0 !important;
-  }
-
-  & > :last-child {
-    margin: auto 0 0 !important;
-  }
+  width: $sceneWidth;
 }
 </style>

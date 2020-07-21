@@ -63,26 +63,23 @@
     </ToolBar>
 
     <!-- Titles -->
-    <div ref="titles" class="sticky condition-bar">
-      <div class="responsive-container condition-titles">
+    <div
+      ref="titles"
+      class="sticky padded-responsive-container condition-bar condition-titles"
+    >
+      <div v-for="index in numConditions" :key="index" class="condition-title">
         <div
-          v-for="index in numConditions"
-          :key="index"
-          class="condition-title"
-        >
-          <div
-            v-if="isSelectable(Select.CONDITION)"
-            @click="addToSelection(index, Select.CONDITION)"
-            class="select-title"
-          />
-          <b-button
-            @click="removeCondition(index - 1)"
-            type="is-text"
-            icon-left="close"
-            class="close-button"
-          />
-          <h1 class="subtitle">{{ "Condition " + index }}</h1>
-        </div>
+          v-if="isSelectable(Select.CONDITION)"
+          @click="addToSelection(index, Select.CONDITION)"
+          class="select-title"
+        />
+        <b-button
+          @click="removeCondition(index - 1)"
+          type="is-text"
+          icon-left="close"
+          class="close-button"
+        />
+        <h1 class="subtitle">{{ "Condition " + index }}</h1>
       </div>
     </div>
 
@@ -407,58 +404,55 @@ export default {
 
 <style lang="scss" scoped>
 .condition-bar {
-  margin-top: 2rem;
+  // Scrollable
   overflow-x: hidden;
-  /* Sticky below toolbar */
+  // Sticky below toolbar
   top: 4rem;
   margin-bottom: 0.25rem;
   background-color: #fffe;
-}
 
-.condition-titles {
+  // General Props
+  height: 3rem;
+  margin-top: 2rem;
+  // TODO: pair this to box-padding/sidebar variables
+  // calc(responsive-containter + frame-box-padding + sidebar-flex-basis + sidebar-margin-right)
+  padding-left: calc(
+    #{$responsiveContainerSpacing} + #{$framePadding} + #{$frameSideBarWidth}
+  );
+  margin-right: $framePadding;
+
   display: flex;
   flex-direction: row;
   align-items: center;
-  height: 3rem;
-  padding-left: 75px;
+
+  // Effectively flex-gap .condition-title
+  // For every .condition-title except the last one
+  & > :nth-last-child(n + 2) {
+    //TODO: pair this to scene-flex-gap
+    margin-right: $frameSceneGap;
+  }
 }
 
 .condition-title {
+  @include flexCenter();
   position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 0 0 350px;
-  margin-right: 30px;
+  flex: 0 0 $sceneWidth;
 }
 
 .select-title {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  z-index: 5;
-  // FIXME: use Bulma SASS $radius-large variable
-  // Use mixin of .has-radius-large instead
-  border-radius: 6px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #007aff50;
-  }
-
-  &:active {
-    background-color: #0a84ff64;
-  }
+  @include selectable();
+  border-radius: $radius-large;
 }
 
 .close-button {
-  color: red;
+  color: $danger;
   /* Shift left so title is centerd */
   width: 1rem;
   margin-left: -1rem;
 
-  &:hover {
-    color: red;
+  &:hover,
+  &:active {
+    color: $danger;
   }
 }
 
