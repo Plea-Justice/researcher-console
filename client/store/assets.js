@@ -2,8 +2,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Vue from 'vue';
 
-import { nanoid } from 'nanoid/non-secure';
-
 export const state = () => ({
   assets: {},
   assetList: [],
@@ -26,10 +24,15 @@ export const actions = {
     const response = await this.$axios.$get('/api/v1/a');
     commit('setAssets', response.return);
   },
-  addAsset({ commit }, asset) {
-    const response = this.$axios.$post('/api/v1/a', asset);
-    asset.id = response.return;
-    commit('newAsset', { asset });
+  async addAsset({ commit }, asset) {
+    const formData = new FormData();
+    Object.entries(asset).forEach(([key, value]) => formData.append(key, value));
+
+    this.$axios.$post('/api/v1/a', formData).then(response => {
+      asset.id = response.return;
+      // FIXME: Throw away file at this point? Frontend doesn't need to hold all files
+      commit('newAsset', { asset });
+    });
   },
   removeAsset({ commit }, id) {
     commit('deleteAsset', { id });

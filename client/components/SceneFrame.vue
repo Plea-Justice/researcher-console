@@ -33,7 +33,7 @@
 
           <!-- Remove Frame Button -->
           <b-button
-            @click="removeFrame(frame.id)"
+            @click="removeFrameHelper(frame.id)"
             type="is-danger"
             icon-left="close"
             size="is-medium"
@@ -65,7 +65,7 @@
 
     <div class="frame-footer">
       <b-button
-        @click="addFrame(frame.id)"
+        @click="addFrameHelper(frame.id)"
         type="is-light"
         size="is-medium"
         icon-left="plus"
@@ -138,12 +138,21 @@ export default {
       this.moveFrameUp(this.frame.id);
 
       // emit the frameIndex that must be traveled to
-      //this.$emit("scroll-to", this.frameIndex - 1);
+      this.$emit("scroll-to", { frameIndex: this.frameIndex - 1 });
     },
     moveDown() {
       this.moveFrameDown(this.frame.id);
 
-      this.$emit("scroll-to", this.frameIndex + 1);
+      this.$emit("scroll-to", { frameIndex: this.frameIndex + 1 });
+    },
+    addFrameHelper(frameId) {
+      this.addFrame(frameId);
+      this.$emit("scroll-to", { frameIndex: this.frameIndex + 1 });
+    },
+    removeFrameHelper(frameId) {
+      this.removeFrame(frameId);
+      // Make this a not smooth scroll, just want to re-allign frame
+      this.$emit("scroll-to", { frameIndex: this.frameIndex, smooth: false });
     },
     addSceneHelper(sceneIndex, sceneId) {
       this.addScene(sceneId);

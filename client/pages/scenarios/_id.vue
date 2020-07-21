@@ -290,37 +290,17 @@ export default {
       this.$refs.titles.scrollLeft = leftScroll;
       //TODO: only update add button on current frame(s)
     }, 20),
-    scrollToFrame(frameIndex) {
-      console.time("moveFrame");
-      //console.log("Called from Emit");
-      //console.timeLog("moveFrame");
-
-      console.log(
-        this.$refs.form.$el.children[frameIndex].getBoundingClientRect().top
-      );
-
+    scrollToFrame({ frameIndex, smooth = true }) {
       this.$nextTick(() => {
-        console.log("Next Tick");
-        console.timeLog("moveFrame");
-
         const frameTopPos = this.$refs.form.$el.children[
           frameIndex
         ].getBoundingClientRect().top;
 
-        console.log(frameTopPos);
-
-        //console.log("Caught Size: " + frameTopPos);
-        //console.timeLog("moveFrame");
-
         // Scroll so that the element is at the top of the view
         window.scrollTo({
           top: frameTopPos - this.headerHeight + window.pageYOffset,
-          behavior: "smooth"
+          ...(smooth && { behavior: "smooth" })
         });
-
-        //console.timeEnd("moveFrame");
-        //console.log("**** Done ****");
-        console.timeEnd("moveFrame");
       });
     },
     openScenarioProps() {
@@ -458,5 +438,6 @@ export default {
 
 .scrollable {
   overflow-y: hidden;
+  overflow-anchor: none;
 }
 </style>

@@ -162,14 +162,11 @@ export default {
       });
     },
     onSubmit() {
-      // FIXME: fix whatever this is
-      let asset = new FormData();
-      asset.append("file", this.assetForm.file);
-      asset.append("type", this.assetForm.type);
-      asset.append("name", this.assetForm.name);
-
       // Add the scenario to state
-      this.addAsset(asset);
+      this.addAsset(this.assetForm);
+
+      // Disable form
+      this.addMode = false;
 
       // Reset the inputs
       // FIXME: make this dynamic
@@ -178,9 +175,6 @@ export default {
         type: null,
         file: {}
       };
-
-      // Disable form
-      this.addMode = false;
     }
   },
   head() {
