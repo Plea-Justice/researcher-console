@@ -39,7 +39,7 @@
     >
       <p>{{ scenario.description }}</p>
 
-      <p>DEBUG: {{ scenario }}</p>
+      <!-- <p>DEBUG: {{ scenario }}</p> -->
     </ItemCard>
   </ItemLayout>
 </template>

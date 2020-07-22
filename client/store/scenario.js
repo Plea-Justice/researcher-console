@@ -126,9 +126,9 @@ export const mutations = {
 
   // **** Axios Mutations ****
   setScenario(state, scenario) {
-    state.id = scenario._id;
+    state.id = scenario.meta.id;
 
-    state.meta = { name: scenario.name, description: scenario.description, survey: scenario.survey };
+    state.meta = { name: scenario.meta.name, description: scenario.meta.description, survey: scenario.meta.survey };
 
     // FIXME: make this static or something?
     const emptySceneProps = {
@@ -143,7 +143,7 @@ export const mutations = {
         {
           id: values.id,
           valid: null,
-          type: values.props.type || Object.keys(spec.sceneTypes)[0],
+          type: values.props ? values.props.type : false || Object.keys(spec.sceneTypes)[0],
           props: { ...emptySceneProps, ...values.props }
         }
       ])
