@@ -101,7 +101,14 @@ module.exports = function (options) {
                 res.status(200).json({
                     success: true,
                     message: 'Scenario returned.',
-                    return: obj
+                    return: { 
+                        meta: {id: obj._id, name: obj.name, description: obj.description, survey: obj.survey},
+                        vuex_state: obj.vuex_state || {
+                            frames: {},
+                            frameList: [],
+                            scenes: {}
+                        }
+                    }
                 });
         });
     });
