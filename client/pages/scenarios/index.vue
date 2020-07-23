@@ -63,6 +63,12 @@ export default {
     await store.dispatch("scenarios/getScenarios");
   },
   data() {
+    // Template for Form
+    const ScenarioForm = {
+      name: "",
+      description: ""
+    };
+
     return {
       // import from JS file
       scenariosHelp: scenariosHelp,
@@ -73,11 +79,9 @@ export default {
       },
       // Set to DEFAULT mode
       mode: 0,
-      // TODO: make this dynamic?
-      scenarioForm: {
-        name: "",
-        description: ""
-      }
+
+      ScenarioForm,
+      scenarioForm: Object.assign({}, ScenarioForm)
     };
   },
   computed: {
@@ -113,17 +117,27 @@ export default {
       });
     },
     onSubmit() {
-      // Add the scenario to state
-      this.addScenario(this.scenarioForm);
+      if (
+        this.scenarioSet.some(({ name }) => name === this.scenarioForm.name)
+      ) {
+        this.$buefy.toast.open({
+          message: "A scenario with the same name already exists",
+          type: "is-danger"
+        });
 
-      // Reset the inputs
-      this.scenarioForm = {
-        name: "",
-        description: ""
-      };
+        // Clear name and re-focus on name input
+        this.scenarioForm.name = "";
+        this.$refs["form-card"].focus();
+      } else {
+        // Add the scenario to state
+        this.addScenario(this.scenarioForm);
 
-      // Disable form
-      this.mode = this.Modes.DEFAULT;
+        // Reset inputs
+        this.scenarioForm = Object.assign({}, this.ScenarioForm);
+
+        // Disable form
+        this.mode = this.Modes.DEFAULT;
+      }
     }
   },
   head() {

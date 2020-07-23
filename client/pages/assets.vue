@@ -25,50 +25,51 @@
 
     <form v-show="addMode" @submit.prevent="onSubmit()">
       <ItemCard ref="form-card" v-model="assetForm" save>
-        <b-field label="File Upload">
-          <b-field>
-            <b-upload
-              v-model="assetForm.file"
-              required
-              native
-              accept=".js, .jpg, .png"
-            >
-              <a class="button is-light">
-                <b-icon size="is-small" icon="cloud-upload" />
-                <span>{{ assetForm.file.name || "Click to upload" }}</span>
-              </a>
-            </b-upload>
-            <HelpSidebar
-              :text="assetsHelp.upload"
-              buttonType="is-dark"
-              title="Asset Uploads"
-              class="control"
-            />
+        <div class="input-wrapper">
+          <b-field label="File Upload">
+            <b-field>
+              <b-upload
+                v-model="assetForm.file"
+                accept=".js, .jpg, .png"
+                required
+                native
+              >
+                <a class="button is-light">
+                  <b-icon size="is-small" icon="cloud-upload" />
+                  <span>{{ assetForm.file.name || "Click to upload" }}</span>
+                </a>
+              </b-upload>
+              <HelpSidebar
+                :text="assetsHelp.upload"
+                title="Asset Uploads"
+                class="control"
+              />
+            </b-field>
           </b-field>
-        </b-field>
 
-        <br />
-
-        <b-field label="Asset Type">
-          <b-field>
-            <b-select
-              placeholder="Select a type"
-              v-model="assetForm.type"
-              expanded
-              required
-            >
-              <option v-for="type in allAssetTypes" :key="type" :value="type">{{
-                type | capitalize
-              }}</option>
-            </b-select>
-            <HelpSidebar
-              :text="assetsHelp.type"
-              buttonType="is-dark"
-              title="Asset Types"
-              class="control"
-            />
+          <b-field label="Asset Type">
+            <b-field>
+              <b-select
+                placeholder="Select a type"
+                v-model="assetForm.type"
+                expanded
+                required
+              >
+                <option
+                  v-for="type in allAssetTypes"
+                  :key="type"
+                  :value="type"
+                  >{{ type | capitalize }}</option
+                >
+              </b-select>
+              <HelpSidebar
+                :text="assetsHelp.type"
+                title="Asset Types"
+                class="control"
+              />
+            </b-field>
           </b-field>
-        </b-field>
+        </div>
       </ItemCard>
     </form>
     <ItemCard
@@ -103,18 +104,22 @@ export default {
     await store.dispatch("assets/getAssets");
   },
   data() {
+    // Template for Form
+    const AssetForm = {
+      name: "",
+      type: null,
+      file: {}
+    };
+
     return {
       // import from JS file
       assetsHelp: assetsHelp,
-      addMode: false,
-      selectedAssetType: "all",
 
-      //FIXME: make this dynamic
-      assetForm: {
-        name: "",
-        type: null,
-        file: {}
-      }
+      AssetForm,
+      assetForm: Object.assign({}, AssetForm),
+
+      addMode: false,
+      selectedAssetType: "all"
     };
   },
   computed: {
@@ -162,19 +167,26 @@ export default {
       });
     },
     onSubmit() {
-      // Add the scenario to state
-      this.addAsset(this.assetForm);
+      // If that filename already exists
+      if (this.assetSet.some(({ name }) => name === this.assetForm.name)) {
+        this.$buefy.toast.open({
+          message: "An asset with the same name already exists",
+          type: "is-danger"
+        });
 
-      // Disable form
-      this.addMode = false;
+        // Clear name and re-focus on name input
+        this.assetForm.name = "";
+        this.$refs["form-card"].focus();
+      } else {
+        // Add the scenario to state
+        this.addAsset(this.assetForm);
 
-      // Reset the inputs
-      // FIXME: make this dynamic
-      this.assetForm = {
-        name: "",
-        type: null,
-        file: {}
-      };
+        // Disable form
+        this.addMode = false;
+
+        // Reset inputs
+        this.assetForm = Object.assign({}, this.AssetForm);
+      }
     }
   },
   head() {
@@ -191,3 +203,13 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+// Create space between form inputs
+.input-wrapper {
+  // Everything except last child
+  & > :nth-last-child(n + 2) {
+    margin-bottom: 1.5rem;
+  }
+}
+</style>

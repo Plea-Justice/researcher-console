@@ -56,9 +56,6 @@
             >
           </div>
         </div>
-        <b-field class="level-item">
-          <b-input icon="filter-outline" placeholder="Filter" />
-        </b-field>
       </template>
     </ToolBar>
 
@@ -67,19 +64,25 @@
       ref="titles"
       class="sticky padded-responsive-container condition-bar condition-titles"
     >
-      <div v-for="index in numConditions" :key="index" class="condition-title">
+      <div class="title-wrapper">
         <div
-          v-if="isSelectable(Select.CONDITION)"
-          @click="addToSelection(index, Select.CONDITION)"
-          class="select-title"
-        />
-        <b-button
-          @click="removeCondition(index - 1)"
-          type="is-text"
-          icon-left="close"
-          class="close-button"
-        />
-        <h1 class="subtitle">{{ "Condition " + index }}</h1>
+          v-for="index in numConditions"
+          :key="index"
+          class="condition-title"
+        >
+          <div
+            v-if="isSelectable(Select.CONDITION)"
+            @click="addToSelection(index, Select.CONDITION)"
+            class="select-title"
+          />
+          <b-button
+            @click="removeCondition(index - 1)"
+            type="is-text"
+            icon-left="close"
+            class="close-button"
+          />
+          <h1 class="subtitle">{{ "Condition " + index }}</h1>
+        </div>
       </div>
     </div>
 
@@ -89,10 +92,9 @@
       ref="horizontalScroll"
       class="scrollable"
     >
-      <section class="responsive-container">
+      <section class="padded-responsive-container responsive-center">
         <ValidationObserver ref="form" tag="form" @submit.prevent="onSubmit()">
           <!-- Frames -->
-          <!-- NOTE: for some reason keying without the index causes strange update bahvior conflicting with scrollToFrame -->
           <SceneFrame
             v-for="(frame, index) in frameSet"
             :key="`${frame.id}`"
@@ -192,8 +194,8 @@ export default {
       }
     });
 
-    // Define header height
     this.$nextTick(() => {
+      // Define header height
       this.headerHeight =
         this.$refs["toolbar"].$el.clientHeight +
         this.$refs["titles"].clientHeight;
@@ -207,7 +209,6 @@ export default {
         name: `${test ? "Expand" : "Collapse"} All`
       };
     },
-    // FIXME: make this 1 getter, formalize condition names
     ...mapGetters({
       scenarioMeta: "scenario/scenarioMeta",
       numConditions: "scenario/numConditions",
@@ -394,16 +395,19 @@ export default {
   // General Props
   height: 3rem;
   margin-top: 2rem;
-  // TODO: pair this to box-padding/sidebar variables
-  // calc(responsive-containter + frame-box-padding + sidebar-flex-basis + sidebar-margin-right)
-  padding-left: calc(
-    #{$responsiveContainerSpacing} + #{$framePadding} + #{$frameSideBarWidth}
-  );
-  margin-right: $framePadding;
+}
 
+.title-wrapper {
+  height: 100%;
   display: flex;
-  flex-direction: row;
   align-items: center;
+
+  // calc(responsive-containter + frame-box-padding + sidebar-flex-basis + sidebar-margin-right)
+  /* padding-left: calc(
+    #{$responsiveContainerSpacing} + #{$framePadding} + #{$frameSideBarWidth}
+  ); */
+  padding-left: calc(#{$framePadding} + #{$frameSideBarWidth});
+  // margin-right: $framePadding;
 
   // Effectively flex-gap .condition-title
   // For every .condition-title except the last one
@@ -415,7 +419,7 @@ export default {
 
 .condition-title {
   @include flexCenter();
-  position: relative;
+  //position: relative;
   flex: 0 0 $sceneWidth;
 }
 
@@ -439,5 +443,11 @@ export default {
 .scrollable {
   overflow-y: hidden;
   overflow-anchor: none;
+}
+
+.responsive-center {
+  max-width: max-content;
+  margin-left: auto;
+  margin-right: auto;
 }
 </style>

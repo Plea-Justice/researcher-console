@@ -36,11 +36,7 @@
           >
 
           <!-- Help Menu -->
-          <HelpSidebar v-if="helpText"
-            :title="helpTitle"
-            :text="helpText"
-            buttonType="is-dark"
-          />
+          <HelpSidebar v-if="helpText" :title="helpTitle" :text="helpText" />
         </div>
       </b-navbar-item>
     </template>
@@ -91,13 +87,12 @@ export default {
   },
   computed: {
     userName() {
-      return this.$auth.user ? this.$auth.user.name : "Testing";
+      return this.$auth.user ? this.$auth.user.name : "Dev";
     }
   },
   methods: {
     async logout() {
-      await this.$auth.logout();
-      this.$router.push("/");
+      await this.$auth.logout().then(() => this.$router.push("/"));
     }
   }
 };

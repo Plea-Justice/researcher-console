@@ -13,9 +13,10 @@
             <b-icon icon="account-circle" size="is-large" />
           </div>
 
+          <!-- FIXME: inputs need to re-validate when switching between form types -->
           <b-field v-if="isRegistration">
             <b-input
-              v-model="email"
+              v-model="loginForm.email"
               type="email"
               icon="email"
               validation-message="A valid email address is required."
@@ -26,11 +27,12 @@
             />
           </b-field>
 
+          <!-- FIXME: binding minlength doesn't seem to work -->
           <b-field>
             <b-input
-              v-model="name"
+              v-model="loginForm.username"
               icon="account"
-              v-bind:minlength="isRegistration ? 3 : 0"
+              :minlength="isRegistration ? 3 : 0"
               maxlength="100"
               :has-counter="isRegistration"
               validation-message="Username must be at least 3 characters."
@@ -41,7 +43,7 @@
 
           <b-field>
             <b-input
-              v-model="password"
+              v-model="loginForm.password"
               type="password"
               icon="lock"
               v-bind:minlength="isRegistration ? 10 : 0"
@@ -53,9 +55,8 @@
               password-reveal
             />
           </b-field>
-          <div class="buttons is-centered">
-            <!-- FIXME: should submit and let form login -->
 
+          <div class="buttons is-centered">
             <b-button
               v-if="!isRegistration"
               tag="input"
@@ -92,45 +93,55 @@
 export default {
   name: "LoginPage",
   data() {
-    return {
-      isRegistration: false,
+    // Template for Form
+    const LoginForm = {
       email: "",
-      name: "",
+      username: "",
       password: ""
+    };
+
+    return {
+      LoginForm,
+      loginForm: Object.assign({}, LoginForm),
+
+      isRegistration: false
     };
   },
   methods: {
     setFormMode() {
       this.isRegistration = !this.isRegistration;
     },
-    async login() {
-      await this.$auth.loginWith("local", {
-        data: {
-          username: this.name,
-          password: this.password
-        }
-      });
-      //FIXME: hash
-      this.name = "";
-      this.password = "";
+    login() {
+      this.$auth
+        .loginWith("local", {
+          data: {
+            username: this.loginForm.username,
+            password: this.loginForm.password
+          }
+        })
+        .then(response => {
+          // Reset inputs
+          this.loginForm = Object.assign({}, this.LoginForm);
+          this.$router.push("/scenarios");
+        });
 
-      this.$router.push("/scenarios");
+      // FIXME: reset password even if not successful
     },
-    async register() {
-      let response = await this.$axios.post("/api/v1/auth/register", {
-        email: this.email,
-        username: this.name,
-        password: this.password
-      });
+    register() {
+      this.$axios
+        .post("/api/v1/auth/register", this.loginForm)
+        .then(response => {
+          // Reset inputs
+          this.loginForm = Object.assign({}, this.LoginForm);
 
-      this.$buefy.toast.open({
-        message: response.data.message,
-        type: "is-success"
-      });
+          this.$buefy.toast.open({
+            message: response.data.message,
+            type: "is-success"
+          });
+        });
 
-      this.email = "";
-      this.name = "";
-      this.password = "";
+      // FIXME: reset password even if not successful
+      // FIXME: auto login after creating an account
     }
   },
   head() {

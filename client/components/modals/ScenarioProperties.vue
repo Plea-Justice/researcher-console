@@ -23,8 +23,8 @@
           type="is-danger"
           message="Valid URL required"
         >
+          <!-- FIXME: need's external validator, message will always show -->
           <div class="field-body no-help">
-            <!-- FIXME: need's external validator -->
             <b-field>
               <b-input
                 v-model="scenarioForm.survey"
@@ -38,7 +38,6 @@
 
               <HelpSidebar
                 :text="propertiesHelp.url"
-                buttonType="is-dark"
                 title="Survey URL"
                 class="control"
               />
