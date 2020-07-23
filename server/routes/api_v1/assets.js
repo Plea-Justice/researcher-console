@@ -27,7 +27,7 @@ module.exports = function (options) {
             res.status(413).json({
                 success: false,
                 message: `Uploaded file too large. Assets must be less than ${options.config.max_upload_mb}MiB.`,
-                return: null
+                result: null
             });
             next();
         },
@@ -63,14 +63,14 @@ module.exports = function (options) {
             res.status(200).json({
                 success: true,
                 message: 'Asset listings returned.',
-                return: {assetList, assets, assetTypes}
+                result: {assetList, assets, assetTypes}
             });
         } catch (err) {
             console.log(err);
             res.status(500).json({
                 success: false,
                 message: 'There was an error reading the user\'s assets.',
-                return: err
+                result: err
             });
         }
     });
@@ -87,27 +87,27 @@ module.exports = function (options) {
             res.status(400).json({
                 success: false,
                 message: 'No file was uploaded.',
-                return: null
+                result: null
             });
         else if (!assetTypes.some((el) => el === req.body.type))
             res.status(400).json({
                 success: false,
                 message: `Asset type does not match one of ${assetTypes}.`,
-                return: req.body.type
+                result: req.body.type
             });
         else if ((req.body.type === 'clips' || req.body.type === 'actors') && 
             path.extname(req.files.file.name) !== '.js')
             res.status(400).json({
                 success: false,
                 message: 'Clips and assets must have a JavaScript file extension.',
-                return: null
+                result: null
             });
         else if ((req.body.type === 'foregrounds' || req.body.type === 'backgrounds') && 
             (path.extname(req.files.file.name) !== '.png' && path.extname(req.files.file.name) !== '.jpg'))
             res.status(400).json({
                 success: false,
                 message: 'Foreground and background images must have a PNG or JPEG file extension.',
-                return: null
+                result: null
             });
         else {
             let filepath = path.join(req.body.type, sanitize(req.files.file.name).replace(/[\s,;]+/g, '_'));
@@ -116,12 +116,12 @@ module.exports = function (options) {
                     res.status(500).json({
                         success: false,
                         message: 'Error adding file to user data directory.',
-                        return: err
+                        result: err
                     });
                 else res.status(200).json({
                     success: true,
                     message: 'Asset uploaded.',
-                    return: btoa(filepath)
+                    result: btoa(filepath)
                 });
             });
         }
@@ -141,7 +141,7 @@ module.exports = function (options) {
             res.status(400).json({
                 success: false,
                 message: 'Illegal asset identifier.',
-                return: null
+                result: null
             });
         else {
             try {
@@ -149,13 +149,13 @@ module.exports = function (options) {
                 res.status(200).json({
                     success: true,
                     message: 'Asset deleted successfully.',
-                    return: null
+                    result: null
                 });
             } catch (err) {
                 res.status(500).json({
                     success: false,
                     message: 'The asset could not be deleted.',
-                    return: null
+                    result: null
                 });
             }
         }

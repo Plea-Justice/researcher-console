@@ -40,7 +40,7 @@ export const actions = {
 
     // Reset state representation write in data from server request
     commit('resetState');
-    commit('setScenario', response.return);
+    commit('setScenario', response.result);
 
     // If new new Scenario (has no frames) add an initial frame
     if (!currState.frameList.length) commit('newFrame');

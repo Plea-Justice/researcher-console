@@ -14,13 +14,13 @@ export const getters = {
 export const actions = {
   async getScenarios({ commit }) {
     const response = await this.$axios.$get('api/v1/s');
-    commit('setScenarios', response.return);
+    commit('setScenarios', response.result);
   },
   async addScenario({ commit }, scenario) {
     // Get new scenario id from server
     const response = await this.$axios.$post('/api/v1/s', scenario);
 
-    scenario.id = response.return.id;
+    scenario.id = response.result.id;
     commit('newScenario', { scenario });
   },
   removeScenario({ commit }, id) {
@@ -47,11 +47,11 @@ export const actions = {
     if (duplicateCount > 0) copyName += ` ${duplicateCount}`;
 
     const newResponse = await this.$axios.$post('/api/v1/s', {
-      ...copyResponse.return,
+      ...copyResponse.result,
       ...{ name: copyName }
     });
 
-    commit('copyScenario', { name: copyName, copyId: id, newId: newResponse.return.id });
+    commit('copyScenario', { name: copyName, copyId: id, newId: newResponse.result.id });
   }
 };
 

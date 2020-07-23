@@ -22,14 +22,14 @@ export const getters = {
 export const actions = {
   async getAssets({ commit }) {
     const response = await this.$axios.$get('/api/v1/a');
-    commit('setAssets', response.return);
+    commit('setAssets', response.result);
   },
   async addAsset({ commit }, asset) {
     const formData = new FormData();
     Object.entries(asset).forEach(([key, value]) => formData.append(key, value));
 
     this.$axios.$post('/api/v1/a', formData).then(response => {
-      asset.id = response.return;
+      asset.id = response.result;
       // FIXME: Throw away file at this point? Frontend doesn't need to hold all files
       commit('newAsset', { asset });
     });
