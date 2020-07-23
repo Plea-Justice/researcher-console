@@ -21,8 +21,9 @@ export const getters = {
 
 export const actions = {
   async getAssets({ commit }) {
-    const response = await this.$axios.$get('/api/v1/a');
-    commit('setAssets', response.result);
+    this.$axios.$get('/api/v1/a').then(response => {
+      if (response.success) commit('setAssets', response.result);
+    });
   },
   async addAsset({ commit }, asset) {
     const formData = new FormData();

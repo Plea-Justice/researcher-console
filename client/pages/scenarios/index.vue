@@ -7,12 +7,8 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD"
-          >Add</ToolBarButton
-        >
-        <ToolBarButton v-model="mode" :mode="Modes.DUPLICATE"
-          >Duplicate</ToolBarButton
-        >
+        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD">Add</ToolBarButton>
+        <ToolBarButton v-model="mode" :mode="Modes.DUPLICATE">Duplicate</ToolBarButton>
       </div>
     </template>
 
@@ -38,8 +34,6 @@
       link
     >
       <p>{{ scenario.description }}</p>
-
-      <!-- <p>DEBUG: {{ scenario }}</p> -->
     </ItemCard>
   </ItemLayout>
 </template>

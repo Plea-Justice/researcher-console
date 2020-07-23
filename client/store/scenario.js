@@ -2,7 +2,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Vue from 'vue';
 
-// FIXME: remove where not needed
 import { nanoid } from 'nanoid/non-secure';
 
 // FIXME: make this a build time asset based on spec.json instead of using all of spec directly
@@ -33,17 +32,17 @@ export const getters = {
 
 export const actions = {
   // **** Axios Actions ****
-  async getScenario({ commit, state: currState }, id) {
-    // FIXME: allow this to capture any scenario
+  async getScenario({ commit, state }, id) {
+    this.$axios.$get(`/api/v1/s/${id}`).then(response => {
+      if (response.success) {
+        // Reset state representation write in data from server request
+        commit('resetState');
+        commit('setScenario', response.result);
 
-    const response = await this.$axios.$get(`/api/v1/s/${id}`);
-
-    // Reset state representation write in data from server request
-    commit('resetState');
-    commit('setScenario', response.result);
-
-    // If new new Scenario (has no frames) add an initial frame
-    if (!currState.frameList.length) commit('newFrame');
+        // If new new Scenario (has no frames) add an initial frame
+        if (!state.frameList.length) commit('newFrame');
+      }
+    });
   },
   saveScenario({ commit }) {
     // FIXME: make this a promise so saving errors can be properly reported?
@@ -51,6 +50,7 @@ export const actions = {
   },
 
   // **** Scenario Actions ****
+  // FIXME: deprecate "updateMetaKey"
   updateMetaKey({ commit }, { key, val }) {
     commit('updateMetaKey', { key, val });
   },
@@ -109,7 +109,7 @@ export const actions = {
   updateSceneForm({ commit }, { id, key, val }) {
     commit('setScenePropsKey', { sceneId: id, entry: { [key]: val } });
   },
-  // FIXME: finish these
+  // FIXME: finish these or remove
   setSceneValid({ commit }, sceneId) {
     commit('setSceneValidity', { sceneId, valid: true });
   },
@@ -143,7 +143,7 @@ export const mutations = {
         {
           id: values.id,
           valid: null,
-          type: values.props ? values.props.type : false || Object.keys(spec.sceneTypes)[0],
+          type: values.props ? values.props.type || Object.keys(spec.sceneTypes)[1] : false,
           props: { ...emptySceneProps, ...values.props }
         }
       ])
@@ -180,8 +180,6 @@ export const mutations = {
     Vue.set(state.meta, payload.key, payload.val);
   },
   updateMeta(state, payload) {
-    console.log(payload.meta);
-
     Object.keys(state.meta).forEach(key => {
       if (payload.meta[key]) Vue.set(state.meta, key, payload.meta[key]);
     });
