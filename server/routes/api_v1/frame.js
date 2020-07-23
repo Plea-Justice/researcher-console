@@ -18,13 +18,13 @@ module.exports = function (options) {
                 res.status(500).json({
                     success: false,
                     message: 'There was an error retrieving the scenario\'s frame list.',
-                    return: err
+                    result: err
                 });            
             else 
                 res.status(200).json({
                     success: true,
                     message: 'Frame list returned.',
-                    return: obj.frames
+                    result: obj.frames
                 });
         });
     });

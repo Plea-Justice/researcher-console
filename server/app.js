@@ -96,7 +96,7 @@ app.use(function(err, req, res, next) {
         res.json({
             success: false,
             message: err.message,
-            return: err
+            result: err
         });
     // Otherwise, render an error page.
     } else {

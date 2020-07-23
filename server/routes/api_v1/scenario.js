@@ -21,13 +21,13 @@ module.exports = function (options) {
                 res.status(500).json({
                     success: false,
                     message: 'There was an fetching the scenario list.',
-                    return: err
+                    result: err
                 });
             else
                 res.status(200).json({
                     success: true,
                     message: 'User\'s scenarios returned.',
-                    return: {
+                    result: {
                         scenarios: objs.reduce((o, obj) => {
                             o[obj._id] = { 
                                 id: obj._id, 
@@ -63,13 +63,13 @@ module.exports = function (options) {
                 res.status(500).json({
                     success: false,
                     message: 'There was an error creating the scenario.',
-                    return: err
+                    result: err
                 });
             else 
                 res.status(201).json({
                     success: true,
                     message: 'Scenario created.',
-                    return: {id: obj._id}
+                    result: {id: obj._id}
                 });
         });
        
@@ -89,19 +89,26 @@ module.exports = function (options) {
                 res.status(500).json({
                     success: false,
                     message: 'There was an error retrieving the scenario.',
-                    return: err
+                    result: err
                 });
             else if (obj === null)
                 res.status(400).json({
                     success: false,
                     message: 'The requested scenario does not exist.',
-                    return: null
+                    result: null
                 });     
             else 
                 res.status(200).json({
                     success: true,
                     message: 'Scenario returned.',
-                    return: obj
+                    result: { 
+                        meta: {id: obj._id, name: obj.name, description: obj.description, survey: obj.survey},
+                        vuex_state: obj.vuex_state || {
+                            frames: {},
+                            frameList: [],
+                            scenes: {}
+                        }
+                    }
                 });
         });
     });
@@ -124,25 +131,25 @@ module.exports = function (options) {
                 res.status(500).json({
                     success: false,
                     message: 'There was an error updating the scenario.',
-                    return: err
+                    result: err
                 });
             else if (result.n !== 1)
                 res.status(400).json({
                     success: false,
                     message: 'The requested scenario does not exist.',
-                    return: result
+                    result: result
                 });
             else if (result.nModified !== 1)
                 res.status(400).json({
                     success: false,
                     message: 'The requested scenario could not be updated.',
-                    return: result
+                    result: result
                 });
             else 
                 res.status(200).json({
                     success: true,
                     message: 'Scenario updated.',
-                    return: null
+                    result: null
                 });
         });
     });
@@ -161,25 +168,25 @@ module.exports = function (options) {
                 res.status(500).json({
                     success: false,
                     message: 'There was an error deleting the scenario.',
-                    return: err
+                    result: err
                 });
             else if (result.n !== 1)
                 res.status(400).json({
                     success: false,
                     message: 'The requested scenario does not exist.',
-                    return: result
+                    result: result
                 });
             else if (result.deletedCount !== 1)
                 res.status(400).json({
                     success: false,
                     message: 'The requested scenario could not be deleted.',
-                    return: result
+                    result: result
                 });
             else
                 res.status(200).json({
                     success: true,
                     message: 'Scenario deleted.',
-                    return: null
+                    result: null
                 });
         });
     });

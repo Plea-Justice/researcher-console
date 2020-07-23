@@ -12,13 +12,13 @@ module.exports = function (options) {
     const AuthReqLimit = rateLimit({
         windowMs: 15 * 60 * 1000, // 15 minutes
         max: 10,
-        message: {success: false, message: 'Too many authentication requests. Try again in 15 minutes.', return: null}
+        message: {success: false, message: 'Too many authentication requests. Try again in 15 minutes.', result: null}
     });
 
     const CreateAccountReqLimit = rateLimit({
         windowMs: 15 * 60 * 1000, // 30 minutes
         max: 3,
-        message: {success: false, message: 'Too many account creation requests. Try again in 30 minutes.', return: null}
+        message: {success: false, message: 'Too many account creation requests. Try again in 30 minutes.', result: null}
     });
 
     // Login, logout, and register should not require prior authentication.
@@ -49,19 +49,19 @@ module.exports = function (options) {
             res.status(500).json({
                 success: false,
                 message: 'Session user_id not found.',
-                return: null
+                result: null
             });
         else if (!('username' in req.session))
             res.status(500).json({
                 success: false,
                 message: 'Session username not found.',
-                return: null
+                result: null
             });
         else
             res.status(200).json({
                 success: true,
                 message: 'User info returned.',
-                return: {user: {name: req.session.username, user_id: req.session.user_id}}});
+                result: {user: {name: req.session.username, user_id: req.session.user_id}}});
     });
 
     /**
@@ -80,13 +80,13 @@ module.exports = function (options) {
                 res.status(500).json({
                     success: false,
                     message: 'There was an error logging in.',
-                    return: err
+                    result: err
                 });
             else if (!obj)
                 res.status(401).json({
                     success: false,
                     message: 'Incorrect username or password.',
-                    return: null
+                    result: null
                 });
             else
                 bcrypt.compare(pass, obj.password, (err, same)=>{
@@ -95,13 +95,13 @@ module.exports = function (options) {
                         res.status(500).json({
                             success: false,
                             message: 'There was an error logging in.',
-                            return: err
+                            result: err
                         });
                     else if (!same)
                         res.status(401).json({
                             success: false,
                             message: 'Incorrect username or password.',
-                            return: null
+                            result: null
                         });
                     else {
                         req.session.user_id = obj._id;
@@ -111,7 +111,7 @@ module.exports = function (options) {
                         res.status(200).json({
                             success: true,
                             message: 'Logged in.',
-                            return: null
+                            result: null
                         });
                     }
                 });
@@ -129,13 +129,13 @@ module.exports = function (options) {
                 res.status(500).json({
                     success: false,
                     message: 'There was an error logging out.',
-                    return: null
+                    result: null
                 });
             else
                 res.status(200).json({
                     success: true,
                     message: 'Logged out.',
-                    return: null
+                    result: null
                 });
         });
     });
@@ -157,13 +157,13 @@ module.exports = function (options) {
                 res.status(500).json({
                     success: false,
                     message: 'There was an error registering the requested user.',
-                    return: err
+                    result: err
                 });
             else
                 res.status(201).json({
                     success: true,
                     message: 'User account created. You may now login.',
-                    return: null
+                    result: null
                 });
         });
     });

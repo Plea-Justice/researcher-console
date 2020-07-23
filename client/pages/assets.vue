@@ -79,7 +79,7 @@
       :item="asset"
       close
     >
-      <p>DEBUG: {{ asset }}</p>
+      <!-- <p>DEBUG: {{ asset }}</p> -->
     </ItemCard>
   </ItemLayout>
 </template>
