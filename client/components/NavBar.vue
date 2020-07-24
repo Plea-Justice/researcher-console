@@ -57,7 +57,7 @@ export default {
     title: {
       type: String,
       required: false,
-      default: $siteConfig.title
+      default: ""
     },
     path: {
       type: String,
