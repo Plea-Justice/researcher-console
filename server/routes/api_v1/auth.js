@@ -3,22 +3,24 @@
  */
 
 module.exports = function (options) {
-    var express = require('express');
+    const express = require('express');
     var router = express.Router();
 
+    const util = require('../../common/util');
+
     // Limit authentication request rate.
-    var rateLimit = require('express-rate-limit');
+    const rateLimit = require('express-rate-limit');
 
     const AuthReqLimit = rateLimit({
         windowMs: 15 * 60 * 1000, // 15 minutes
         max: 10,
-        message: {success: false, message: 'Too many authentication requests. Try again in 15 minutes.', result: null}
+        message: util.failure('Too many authentication requests. Try again in 15 minutes.')
     });
 
     const CreateAccountReqLimit = rateLimit({
         windowMs: 15 * 60 * 1000, // 30 minutes
         max: 3,
-        message: {success: false, message: 'Too many account creation requests. Try again in 30 minutes.', result: null}
+        message: util.success('Too many account creation requests. Try again in 30 minutes.')
     });
 
     // Login, logout, and register should not require prior authentication.
@@ -26,10 +28,10 @@ module.exports = function (options) {
     const authenticateRoute = require('../../middleware/authenticateRoute');
 
     // Use bcrypt to hash passwords with cost factor 10.
-    var bcrypt = require('bcrypt');
+    const bcrypt = require('bcrypt');
     var saltRounds = 10;
 
-    var UserModel = require('../../models/UserModel');
+    const UserModel = require('../../models/UserModel');
 
     /**
      * Authentication route index. Displays help message referring to docs.
@@ -46,22 +48,13 @@ module.exports = function (options) {
     router.get('/user', authenticateRoute, (req, res) => {
         // This route should only be accessible from an authenticated session.
         if (!('user_id' in req.session))
-            res.status(500).json({
-                success: false,
-                message: 'Session user_id not found.',
-                result: null
-            });
+            res.status(500).json(util.failure('Session user_id not found.'));
         else if (!('username' in req.session))
-            res.status(500).json({
-                success: false,
-                message: 'Session username not found.',
-                result: null
-            });
+            res.status(500).json(util.failure('Session username not found.'));
         else
-            res.status(200).json({
-                success: true,
-                message: 'User info returned.',
-                result: {user: {name: req.session.username, user_id: req.session.user_id}}});
+            res.status(200).json(util.success('User info returned.',
+                {user: {name: req.session.username, user_id: req.session.user_id}}
+            ));
     });
 
     /**
@@ -77,42 +70,22 @@ module.exports = function (options) {
         UserModel.findOne({ username: user }, (err, obj)=>{
 
             if (err)
-                res.status(500).json({
-                    success: false,
-                    message: 'There was an error logging in.',
-                    result: err
-                });
+                res.status(500).json(util.failure('There was an error logging in.', err));
             else if (!obj)
-                res.status(401).json({
-                    success: false,
-                    message: 'Incorrect username or password.',
-                    result: null
-                });
+                res.status(401).json(util.failure('Incorrect username or password.'));
             else
                 bcrypt.compare(pass, obj.password, (err, same)=>{
 
                     if (err)
-                        res.status(500).json({
-                            success: false,
-                            message: 'There was an error logging in.',
-                            result: err
-                        });
+                        res.status(500).json(util.failure('There was an error logging in.', err));
                     else if (!same)
-                        res.status(401).json({
-                            success: false,
-                            message: 'Incorrect username or password.',
-                            result: null
-                        });
+                        res.status(401).json(util.failure('Incorrect username or password.'));
                     else {
                         req.session.user_id = obj._id;
                         req.session.username = obj.username;
                         req.session.is_logged_in = true;
                         
-                        res.status(200).json({
-                            success: true,
-                            message: 'Logged in.',
-                            result: null
-                        });
+                        res.status(200).json(util.success('Logged in.'));
                     }
                 });
         });
@@ -126,17 +99,9 @@ module.exports = function (options) {
 
         req.session.destroy((err)=>{
             if (err)
-                res.status(500).json({
-                    success: false,
-                    message: 'There was an error logging out.',
-                    result: null
-                });
+                res.status(500).json(util.failure('There was an error logging out.'));
             else
-                res.status(200).json({
-                    success: true,
-                    message: 'Logged out.',
-                    result: null
-                });
+                res.status(200).json(util.success('Logged out.'));
         });
     });
     
@@ -154,17 +119,9 @@ module.exports = function (options) {
         });
         user.save((err) => {
             if (err)
-                res.status(500).json({
-                    success: false,
-                    message: 'There was an error registering the requested user.',
-                    result: err
-                });
+                res.status(500).json(util.failure('There was an error registering the requested user.', err));
             else
-                res.status(201).json({
-                    success: true,
-                    message: 'User account created. You may now login.',
-                    result: null
-                });
+                res.status(201).json(util.success('User account created. You may now login.'));
         });
     });
 

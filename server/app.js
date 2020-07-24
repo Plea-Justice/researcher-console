@@ -1,13 +1,14 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var rfs = require('rotating-file-stream');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const rfs = require('rotating-file-stream');
 
-var config = require('./config');
+const config = require('./config');
+const util = require('./common/util');
 
-var app = express();
+const app = express();
 
 // Use the Jade template engine to generate views.
 app.set('views', path.join(__dirname, 'views'));
@@ -29,17 +30,17 @@ if (config.log_to_console) {
 }
 
 // Connect to the database.
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 mongoose.set('debug', config.log_to_console);
 mongoose.connect(config.mongo_uri, {useUnifiedTopology: true, useNewUrlParser: true});
-var database = mongoose.connection;
+const database = mongoose.connection;
 database.on('error', ()=>console.log('Error connecting to database.'));
 database.once('open', ()=>console.log('Connected to database.'));
 
 // Set up a session store using the database.
 // The session middleware automatically manages cookies on req/res objects.
-var session = require('express-session');
-var MongoStore = require('connect-mongo')(session);
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 app.use(session({
     secret: config.session_secret,
     resave: false,
@@ -59,7 +60,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // Enable Cross-Origin Requests
-var cors = require('cors');
+const cors = require('cors');
 if (config.cors_enabled) {
     app.use(cors({credentials: true, origin: config.cors_origin}));
 }
@@ -86,18 +87,14 @@ app.use(function(req, res, next) {
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function(err, req, res) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
     // If the request was made by XHR (API call), return a json object.
     if (req.xhr) {
-        res.json({
-            success: false,
-            message: err.message,
-            result: err
-        });
+        res.json(util.failure(err.message, err));
     // Otherwise, render an error page.
     } else {
         res.status(err.status || 500);

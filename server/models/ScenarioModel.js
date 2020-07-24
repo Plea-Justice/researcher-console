@@ -1,5 +1,5 @@
 // Mongoose database.
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 var ScenarioSchema = new mongoose.Schema({
     user_id: { type: mongoose.SchemaTypes.ObjectId, required: true },

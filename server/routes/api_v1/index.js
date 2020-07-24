@@ -4,8 +4,8 @@
  */
 
 module.exports = function (options) {
-    var express = require('express');
-    var router = express.Router();
+    const express = require('express');
+    const router = express.Router();
 
     // Authentication Route
     router.use('/auth', require('./auth')(options));

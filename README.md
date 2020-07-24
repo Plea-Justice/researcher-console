@@ -76,7 +76,7 @@ The server will always respond with a JSON object of the following format.
 The API defines endpoints for managing scenarios, assets, and user authentication.
 
 | Method | Endpoint | Function |
-| --- | --- | --- | --- |
+| --- | --- | --- |
 | `GET` | `/api/v1/s` | Get the list of scenarios. |
 | `POST` | `/api/v1/s` | Create a new scenario. |
 | `GET` | `/api/v1/s/{scenario_id}` | Get a scenario. |

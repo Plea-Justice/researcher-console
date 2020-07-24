@@ -4,13 +4,15 @@
  */
 
 module.exports = function (options) {
-    var express = require('express');
+    const express = require('express');
     var router = express.Router();
 
-    var fs = require('fs-extra');
-    var path = require('path');
-    var fileupload = require('express-fileupload');
-    var sanitize = require('sanitize-filename');
+    const util = require('../../common/util');
+
+    const fs = require('fs-extra');
+    const path = require('path');
+    const fileupload = require('express-fileupload');
+    const sanitize = require('sanitize-filename');
 
     const atob = (src) => Buffer.from(src, 'base64').toString('binary');
     const btoa = (src) => Buffer.from(src, 'binary').toString('base64');
@@ -23,13 +25,10 @@ module.exports = function (options) {
         safeFileNames: true,
         preserveExtension: true,
         abortOnLimit: true,
-        limitHandler: (req, res, next)=>{
-            res.status(413).json({
-                success: false,
-                message: `Uploaded file too large. Assets must be less than ${options.config.max_upload_mb}MiB.`,
-                result: null
-            });
-            next();
+        limitHandler: (req, res)=>{
+            res.status(413).json(util.failure(
+                `Uploaded file too large. Assets must be less than ${options.config.max_upload_mb}MiB.`,
+            ));
         },
         createParentPath: true,
         // useTempFiles: true,
@@ -60,18 +59,10 @@ module.exports = function (options) {
 
             let assetList = list.map(p => p.id);
 
-            res.status(200).json({
-                success: true,
-                message: 'Asset listings returned.',
-                result: {assetList, assets, assetTypes}
-            });
+            res.status(200).json(util.success('Asset listings returned.', {assetList, assets, assetTypes}));
         } catch (err) {
             console.log(err);
-            res.status(500).json({
-                success: false,
-                message: 'There was an error reading the user\'s assets.',
-                result: err
-            });
+            res.status(500).json(util.failure('There was an error reading the user\'s assets', err));
         }
     });
 
@@ -83,46 +74,33 @@ module.exports = function (options) {
     router.post('/', (req, res) => {
         let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
 
+        if (options.config.noclobber) {
+            res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
+            return;
+        }
+
         if (!req.files || Object.keys(req.files).length === 0)
-            res.status(400).json({
-                success: false,
-                message: 'No file was uploaded.',
-                result: null
-            });
+            res.status(400).json(util.failure('No file was uploaded.'));
         else if (!assetTypes.some((el) => el === req.body.type))
-            res.status(400).json({
-                success: false,
-                message: `Asset type does not match one of ${assetTypes}.`,
-                result: req.body.type
-            });
+            res.status(400).json(util.failure(
+                `Asset type does not match one of ${assetTypes}.`,
+                req.body.type
+            ));
         else if ((req.body.type === 'clips' || req.body.type === 'actors') && 
             path.extname(req.files.file.name) !== '.js')
-            res.status(400).json({
-                success: false,
-                message: 'Clips and assets must have a JavaScript file extension.',
-                result: null
-            });
+            res.status(400).json(util.failure('Clips and assets must have a JavaScript file extension.'));
         else if ((req.body.type === 'foregrounds' || req.body.type === 'backgrounds') && 
             (path.extname(req.files.file.name) !== '.png' && path.extname(req.files.file.name) !== '.jpg'))
-            res.status(400).json({
-                success: false,
-                message: 'Foreground and background images must have a PNG or JPEG file extension.',
-                result: null
-            });
+            res.status(400).json(util.failure(
+                'Foreground and background images must have a PNG or JPEG file extension.', 
+                null
+            ));
         else {
             let filepath = path.join(req.body.type, sanitize(req.files.file.name).replace(/[\s,;]+/g, '_'));
             req.files.file.mv(path.join(user_data_dir, filepath), (err)=>{
                 if (err)
-                    res.status(500).json({
-                        success: false,
-                        message: 'Error adding file to user data directory.',
-                        result: err
-                    });
-                else res.status(200).json({
-                    success: true,
-                    message: 'Asset uploaded.',
-                    result: btoa(filepath)
-                });
+                    res.status(500).json(util.failure('Error adding file to user data directory.', err));
+                else res.status(200).json(util.success('Asset uploaded.', btoa(filepath)));
             });
         }
     });
@@ -134,29 +112,22 @@ module.exports = function (options) {
         let user_data_dir = path.join(options.config.data_dir, req.session.user_id);        
         let asset = path.parse(atob(req.params.asset_id));
 
+        if (options.config.noclobber) {
+            res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
+            return;
+        }
+
         asset.dir = sanitize(asset.dir);
         asset.base = sanitize(asset.base);
 
         if (!assetTypes.some((el) => el === asset.dir)) 
-            res.status(400).json({
-                success: false,
-                message: 'Illegal asset identifier.',
-                result: null
-            });
+            res.status(400).json(util.failure('Illegal asset identifier.'));
         else {
             try {
                 await fs.unlink(path.join(user_data_dir, path.format(asset)));
-                res.status(200).json({
-                    success: true,
-                    message: 'Asset deleted successfully.',
-                    result: null
-                });
+                res.status(200).json(util.success('Asset deleted successfully.'));
             } catch (err) {
-                res.status(500).json({
-                    success: false,
-                    message: 'The asset could not be deleted.',
-                    result: null
-                });
+                res.status(500).json(util.failure('The asset could not be deleted.'));
             }
         }
     });

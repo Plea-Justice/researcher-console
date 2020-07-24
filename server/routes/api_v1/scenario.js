@@ -3,10 +3,12 @@
  * This route handles requests regarding experiment scenarios.
  */
 module.exports = function (options) {
-    var express = require('express');
+    const express = require('express');
     var router = express.Router();
 
-    var ScenarioModel = require('../../models/ScenarioModel');
+    const util = require('../../common/util');
+
+    const ScenarioModel = require('../../models/ScenarioModel');
 
     /**
      * Get a list of the current user's scenarios.
@@ -18,16 +20,10 @@ module.exports = function (options) {
 
         ScenarioModel.find({ user_id: req.session.user_id }, (err, objs) => {
             if (err)
-                res.status(500).json({
-                    success: false,
-                    message: 'There was an fetching the scenario list.',
-                    result: err
-                });
+                res.status(500).json(util.failure('There was an fetching the scenario list.', err));
             else
-                res.status(200).json({
-                    success: true,
-                    message: 'User\'s scenarios returned.',
-                    result: {
+                res.status(200).json(util.success('User\'s scenarios returned.',
+                    {
                         scenarios: objs.reduce((o, obj) => {
                             o[obj._id] = { 
                                 id: obj._id, 
@@ -39,7 +35,7 @@ module.exports = function (options) {
                         }, {}),
                         scenarioList: objs.map(obj => obj._id)
                     }
-                });
+                ));
         });
     });
 
@@ -60,17 +56,9 @@ module.exports = function (options) {
 
         scenario.save((err, obj) => {
             if (err)
-                res.status(500).json({
-                    success: false,
-                    message: 'There was an error creating the scenario.',
-                    result: err
-                });
+                res.status(500).json(util.failure('There was an error creating the scenario.', err));
             else 
-                res.status(201).json({
-                    success: true,
-                    message: 'Scenario created.',
-                    result: {id: obj._id}
-                });
+                res.status(201).json(util.success('Scenario created.', {id: obj._id}));
         });
        
     });
@@ -86,22 +74,12 @@ module.exports = function (options) {
 
         ScenarioModel.findOne({_id: id, user_id: uid}, (err, obj)=>{
             if (err)
-                res.status(500).json({
-                    success: false,
-                    message: 'There was an error retrieving the scenario.',
-                    result: err
-                });
+                res.status(500).json(util.failure('There was an error retrieving the scenario.', err));
             else if (obj === null)
-                res.status(400).json({
-                    success: false,
-                    message: 'The requested scenario does not exist.',
-                    result: null
-                });     
+                res.status(400).json(util.failure('The requested scenario does not exist.'));     
             else 
-                res.status(200).json({
-                    success: true,
-                    message: 'Scenario returned.',
-                    result: { 
+                res.status(200).json(util.success('Scenario returned.',
+                    { 
                         meta: {id: obj._id, name: obj.name, description: obj.description, survey: obj.survey},
                         vuex_state: obj.vuex_state || {
                             frames: {},
@@ -109,7 +87,7 @@ module.exports = function (options) {
                             scenes: {}
                         }
                     }
-                });
+                ));
         });
     });
 
@@ -121,6 +99,11 @@ module.exports = function (options) {
         let id = req.params.scenario_id;
         let uid = req.session.user_id;
 
+        if (options.config.noclobber) {
+            res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
+            return;
+        }
+
         ScenarioModel.updateOne({_id: id, user_id: uid}, {$set: {
             name: req.body.name,
             description: req.body.description,
@@ -128,29 +111,13 @@ module.exports = function (options) {
             vuex_state: req.body.vuex_state
         }}, (err, result)=>{
             if (err)
-                res.status(500).json({
-                    success: false,
-                    message: 'There was an error updating the scenario.',
-                    result: err
-                });
+                res.status(500).json(util.failure('There was an error updating the scenario.', err));
             else if (result.n !== 1)
-                res.status(400).json({
-                    success: false,
-                    message: 'The requested scenario does not exist.',
-                    result: result
-                });
+                res.status(400).json(util.failure('The requested scenario does not exist.', result));
             else if (result.nModified !== 1)
-                res.status(400).json({
-                    success: false,
-                    message: 'The requested scenario could not be updated.',
-                    result: result
-                });
+                res.status(400).json(util.failure('The requested scenario could not be updated.', result));
             else 
-                res.status(200).json({
-                    success: true,
-                    message: 'Scenario updated.',
-                    result: null
-                });
+                res.status(200).json(util.success('Scenario updated.'));
         });
     });
     
@@ -163,36 +130,24 @@ module.exports = function (options) {
         let id = req.params.scenario_id;
         let uid = req.session.user_id;
 
+        if (options.config.noclobber) {
+            res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
+            return;
+        }
+
         ScenarioModel.deleteOne({_id: id, user_id: uid}, (err, result)=>{
             if (err)
-                res.status(500).json({
-                    success: false,
-                    message: 'There was an error deleting the scenario.',
-                    result: err
-                });
+                res.status(500).json(util.failure('There was an error deleting the scenario.', err));
             else if (result.n !== 1)
-                res.status(400).json({
-                    success: false,
-                    message: 'The requested scenario does not exist.',
-                    result: result
-                });
+                res.status(400).json(util.failure('The requested scenario does not exist.', result));
             else if (result.deletedCount !== 1)
-                res.status(400).json({
-                    success: false,
-                    message: 'The requested scenario could not be deleted.',
-                    result: result
-                });
+                res.status(400).json(util.failure('The requested scenario could not be deleted.', result));
             else
-                res.status(200).json({
-                    success: true,
-                    message: 'Scenario deleted.',
-                    result: null
-                });
+                res.status(200).json(util.success('Scenario deleted.'));
         });
     });
 
-    // Sub-route to frame endpoint.
-    router.use('/:scenario_id/f', require('./frame')(options));
+    // Zip generation sub-route.
     router.use('/:scenario_id/zip', require('./zip')(options));
 
     return router;

@@ -76,7 +76,7 @@ export default {
         endpoints: {
           login: { url: '/api/v1/auth/login', method: 'post' },
           logout: { url: '/api/v1/auth/logout', method: 'post' },
-          user: { url: '/api/v1/auth/user', method: 'get', propertyName: 'return.user' },
+          user: { url: '/api/v1/auth/user', method: 'get', propertyName: 'result.user' },
           tokenRequired: false,
           tokenType: false,
           cookie: false
