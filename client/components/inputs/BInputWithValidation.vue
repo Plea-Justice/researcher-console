@@ -10,11 +10,7 @@
       :type="{ 'is-danger': errors[0], 'is-success': passed }"
       :message="errors"
     >
-      <b-input
-        ref="focus_target"
-        v-model="innerValue"
-        v-bind="$attrs"
-      ></b-input>
+      <b-input ref="focus_target" v-model="innerValue" v-bind="$attrs" />
     </b-field>
   </ValidationProvider>
 </template>
@@ -39,22 +35,14 @@ export default {
       type: null
     }
   },
-  data: () => ({
-    innerValue: ""
-  }),
-  watch: {
-    // Handles internal model changes.
-    innerValue(newVal) {
-      this.$emit("input", newVal);
-    },
-    // Handles external model changes.
-    value(newVal) {
-      this.innerValue = newVal;
-    }
-  },
-  created() {
-    if (this.value) {
-      this.innerValue = this.value;
+  computed: {
+    innerValue: {
+      get: function() {
+        return this.value;
+      },
+      set: function(newVal) {
+        this.$emit("input", newVal);
+      }
     }
   },
   methods: {

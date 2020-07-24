@@ -133,7 +133,6 @@ export const mutations = {
     // FIXME: make this static or something?
     const emptySceneProps = {
       ...Object.fromEntries(Object.keys(spec.scene).map(key => [key, ''])),
-      name: 'Default Scene',
       type: Object.keys(spec.sceneTypes)[1]
     };
 
@@ -154,14 +153,14 @@ export const mutations = {
   },
   putScenario(state) {
     // FIXME: REMOVE DEBUG
-    console.table(
+    /* console.table(
       state.frameList.flatMap(frameId =>
         state.frames[frameId].scenes.map(sceneId => {
           const scene = state.scenes[sceneId];
           return !!scene.valid;
         })
       )
-    );
+    ); */
 
     this.$axios.$put(`/api/v1/s/${state.id}`, {
       name: state.meta.name,
@@ -312,7 +311,6 @@ export const mutations = {
     // FIXME: make this static or something?
     const newSceneProps = prevSceneProps || {
       ...Object.fromEntries(Object.keys(spec.scene).map(key => [key, ''])),
-      name: 'Default Scene',
       type: Object.keys(spec.sceneTypes)[1]
     };
 

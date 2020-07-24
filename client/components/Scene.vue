@@ -1,15 +1,6 @@
 <template>
-  <ValidationObserver
-    ref="form"
-    tag="fieldset"
-    class="flex-wrap"
-    v-slot="{ failed }"
-  >
-    <div
-      v-if="selectable && failed"
-      @click="invalidSelectionToast"
-      class="invalid-selection-mask"
-    />
+  <ValidationObserver ref="form" tag="fieldset" class="flex-wrap" v-slot="{ failed }">
+    <div v-if="selectable && failed" @click="invalidSelectionToast" class="invalid-selection-mask" />
     <GenericCard
       @remove="removeScene(scene.id)"
       @selected="$emit('selected', scene.id)"
@@ -24,11 +15,11 @@
         <!-- Scene Name -->
         <BInputWithValidation
           ref="focus_target"
-          rules="required|alpha_spaces"
+          rules="alpha_spaces"
           @input="updateForm(scene.id, 'name', $event)"
           :value="scene.props.name"
-          name="Scene Name"
-          placeholder="Scene Name"
+          name="Scene Label"
+          placeholder="Scene Label (Optional)"
           class="header-input"
           expanded
         />
@@ -43,8 +34,7 @@
             @input="updateSceneForm({ id: scene.id, key: 'type', val: $event })"
             :value="scene.props.type"
             :native-value="type"
-            >{{ type }}</b-radio-button
-          >
+          >{{ type }}</b-radio-button>
         </b-field>
 
         <template v-for="field in validFieldNames">
@@ -64,16 +54,17 @@
           <BInputWithValidation
             :key="field"
             v-if="isType(field, 'text')"
-            type="textarea"
-            rules="required|max:220"
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
             :label="field | capitalize"
+            type="textarea"
+            rules="required|max:220"
+            :placeholder="field + '...' | capitalize"
             custom-class="has-fixed-size"
             expanded
           />
 
-          <ButtonInput
+          <TagInputWithValidation
             :key="field"
             v-if="isType(field, 'buttons')"
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
@@ -99,7 +90,7 @@ import { ValidationObserver } from "vee-validate";
 
 import GenericCard from "~/components/cards/GenericCard";
 import FileSelector from "~/components/inputs/FileSelector";
-import ButtonInput from "~/components/inputs/ButtonInput";
+import TagInputWithValidation from "~/components/inputs/TagInputWithValidation";
 
 import BInputWithValidation from "~/components/inputs/BInputWithValidation";
 
@@ -115,7 +106,7 @@ export default {
   components: {
     GenericCard,
     FileSelector,
-    ButtonInput,
+    TagInputWithValidation,
     BInputWithValidation
   },
   props: {

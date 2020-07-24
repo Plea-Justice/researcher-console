@@ -2,6 +2,7 @@
   <div>
     <NavBar
       :title="scenarioMeta.name"
+      :logout="logout"
       helpTitle="Scenario Story Editor"
       :helpText="scenarioHelp.navbar"
       path="/scenarios"
@@ -15,25 +16,20 @@
             :value="mode"
             type="is-primary"
             icon-left="content-save"
-            >Save</ToolBarButton
-          >
+          >Save</ToolBarButton>
 
           <ToolBarButton
             @click="openScenarioProps()"
             :value="mode"
             icon-left="movie-edit-outline"
-            >Properties</ToolBarButton
-          >
+          >Properties</ToolBarButton>
 
           <b-button
             @click="collapseAll()"
             :icon-left="collapsedBtnProps.icon"
-            >{{ collapsedBtnProps.name }}</b-button
-          >
+          >{{ collapsedBtnProps.name }}</b-button>
 
-          <ToolBarButton @click="addCondition()" :value="mode"
-            >Add Condition</ToolBarButton
-          >
+          <ToolBarButton @click="addCondition()" :value="mode">Add Condition</ToolBarButton>
 
           <ToolBarButton
             v-model="mode"
@@ -41,8 +37,7 @@
               toggleHandler($event, selectionReset, startSelectionToast, 'copy')
             "
             :mode="Modes.COPY"
-            >Copy</ToolBarButton
-          >
+          >Copy</ToolBarButton>
         </div>
       </template>
       <template v-slot:end>
@@ -52,24 +47,16 @@
               @click="downloadZip()"
               type="is-primary"
               icon-left="folder-download"
-              >Download Package</b-button
-            >
+            >Download Package</b-button>
           </div>
         </div>
       </template>
     </ToolBar>
 
     <!-- Titles -->
-    <div
-      ref="titles"
-      class="sticky padded-responsive-container condition-bar condition-titles"
-    >
+    <div ref="titles" class="sticky padded-responsive-container condition-bar condition-titles">
       <div class="title-wrapper">
-        <div
-          v-for="index in numConditions"
-          :key="index"
-          class="condition-title"
-        >
+        <div v-for="index in numConditions" :key="index" class="condition-title">
           <div
             v-if="isSelectable(Select.CONDITION)"
             @click="addToSelection(index, Select.CONDITION)"
@@ -87,11 +74,7 @@
     </div>
 
     <!-- Scrolling Wrapper -->
-    <div
-      @scroll="handleScroll($event)"
-      ref="horizontalScroll"
-      class="scrollable"
-    >
+    <div @scroll="handleScroll($event)" ref="horizontalScroll" class="scrollable">
       <section class="padded-responsive-container responsive-center">
         <ValidationObserver ref="form" tag="form" @submit.prevent="onSubmit()">
           <!-- Frames -->
@@ -126,9 +109,9 @@ import ToolBar from "~/components/ToolBar";
 import ToolBarButton from "~/components/ToolBarButton";
 import SceneFrame from "~/components/SceneFrame";
 import ScenarioProperties from "~/components/modals/ScenarioProperties";
-import LeaveScenarioModal from "~/components/modals/LeaveScenario";
+import LeaveScenario from "~/components/modals/LeaveScenario";
 
-// Import Helper Functions
+// Import Utils
 import { noop, throttle } from "~/assets/util";
 
 // Content for help fields
@@ -144,7 +127,6 @@ export default {
     ScenarioProperties
   },
   data() {
-    // FIXME: make this a mixin ?
     return {
       // import from JS file
       scenarioHelp: scenarioHelp,
@@ -216,6 +198,21 @@ export default {
     })
   },
   methods: {
+    logout() {
+      if (this.scenarioStoreHasChanged) {
+        this.$buefy.modal.open({
+          parent: this,
+          component: LeaveScenario,
+          props: {
+            afterSave: this.$auth.logout,
+            validate: this.$refs.form.validate
+          },
+          hasModalCard: true,
+          customClass: "dialog",
+          trapFocus: true
+        });
+      }
+    },
     submitHandler() {
       this.$refs.submit.$el.click();
     },
@@ -223,6 +220,10 @@ export default {
       this.$refs.form.validate().then(success => {
         if (success) {
           this.saveScenario();
+          this.$buefy.toast.open({
+            message: "Scenario Saved",
+            type: "is-success"
+          });
         } else {
           this.$buefy.toast.open({
             message: "An invalid scene exists",
@@ -358,8 +359,8 @@ export default {
     if (this.scenarioStoreHasChanged) {
       this.$buefy.modal.open({
         parent: this,
-        component: LeaveScenarioModal,
-        props: { next, validate: this.$refs.form.validate },
+        component: LeaveScenario,
+        props: { afterSave: next, validate: this.$refs.form.validate },
         hasModalCard: true,
         customClass: "dialog",
         trapFocus: true

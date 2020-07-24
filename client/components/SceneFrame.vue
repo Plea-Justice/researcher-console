@@ -3,7 +3,7 @@
     <div class="frame box">
       <!-- Sidebar -->
       <aside class="sidebar buttons">
-        <template v-show="!(isFirst && isLast && frame.blank)">
+        <template v-if="!(isFirst && isLast && frame.blank)">
           <!-- Collapse Button -->
           <b-button
             v-show="!frame.blank"
@@ -65,6 +65,7 @@
 
     <div class="frame-footer">
       <b-button
+        v-show="!(isFirst && isLast && frame.blank)"
         @click="addFrameHelper(frame.id)"
         type="is-light"
         size="is-medium"
@@ -128,6 +129,7 @@ export default {
       updateFrame: "scenario/updateFrame"
     }),
     collapseFrame() {
+      //FIXME: rename to updateFrameKey
       this.updateFrame({
         id: this.frame.id,
         key: "collapsed",
@@ -136,13 +138,11 @@ export default {
     },
     moveUp() {
       this.moveFrameUp(this.frame.id);
-
       // emit the frameIndex that must be traveled to
       this.$emit("scroll-to", { frameIndex: this.frameIndex - 1 });
     },
     moveDown() {
       this.moveFrameDown(this.frame.id);
-
       this.$emit("scroll-to", { frameIndex: this.frameIndex + 1 });
     },
     addFrameHelper(frameId) {

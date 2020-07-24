@@ -2,6 +2,9 @@
 // https://buefy.org/documentation/customization/
 @import "~bulma/sass/utilities/_all";
 
+// FIXME: temp override
+$primary: #7957d5 !default;
+
 // ******** Color ********
 $smokeywhite: whitesmoke;
 

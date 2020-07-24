@@ -2,9 +2,7 @@
   <b-navbar type="is-dark">
     <template slot="brand">
       <b-navbar-item :tag="path ? 'n-link' : 'div'" :to="path || null">
-        <h1 class="subtitle has-text-light">
-          {{ title || $siteConfig.title }}
-        </h1>
+        <h1 class="subtitle has-text-light">{{ title || $siteConfig.title }}</h1>
       </b-navbar-item>
     </template>
 
@@ -18,11 +16,11 @@
         <b-navbar-item
           v-if="route.name != 'index'"
           :key="route.path"
-          tag="n-link"
+          :active="route.path === $nuxt.$route.path"
           :to="route.path"
+          tag="n-link"
           class="is-capitalized"
-          >{{ route.name }}</b-navbar-item
-        >
+        >{{ route.name }}</b-navbar-item>
       </template>
     </template>
 
@@ -31,9 +29,11 @@
         <div class="buttons">
           <slot name="end" />
           <!-- Logout Button -->
-          <b-button @click="logout()" type="is-danger" icon-left="exit-run"
-            >Log Out, {{ userName }}</b-button
-          >
+          <b-button
+            @click="logoutHandler()"
+            type="is-danger"
+            icon-left="exit-run"
+          >Log Out, {{ userName }}</b-button>
 
           <!-- Help Menu -->
           <HelpSidebar v-if="helpText" :title="helpTitle" :text="helpText" />
@@ -44,17 +44,20 @@
 </template>
 
 <script>
+// Import Components
 import HelpSidebar from "~/components/HelpSidebar";
+
+// Import Utilities
+import { noop } from "~/assets/util";
 
 export default {
   name: "NavBar",
   components: { HelpSidebar },
-  // FIXME: use site title as title fallback
   props: {
     title: {
       type: String,
       required: false,
-      default: ""
+      default: $siteConfig.title
     },
     path: {
       type: String,
@@ -68,6 +71,10 @@ export default {
     },
     helpTitle: {
       type: String,
+      required: false
+    },
+    logout: {
+      type: Function,
       required: false
     }
   },
@@ -91,8 +98,8 @@ export default {
     }
   },
   methods: {
-    async logout() {
-      await this.$auth.logout().then(() => this.$router.push("/"));
+    logoutHandler() {
+      this.logout ? this.logout() : this.$auth.logout();
     }
   }
 };

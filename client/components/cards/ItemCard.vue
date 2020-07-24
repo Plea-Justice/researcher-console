@@ -8,11 +8,10 @@
     <template v-slot:header>
       <template v-if="item">
         <!-- If header's not in form mode print name w or w/o link -->
-        <n-link v-if="link" :to="item.id" append>
-          <h1 class="subtitle">{{ item.name }}</h1>
-        </n-link>
-
-        <h1 v-else class="subtitle">{{ item.name }}</h1>
+        <h1 class="subtitle">
+          <n-link v-if="link" :to="item.id" class="link-animate" append>{{ item.name }}</n-link>
+          <template v-else>{{ item.name }}</template>
+        </h1>
       </template>
 
       <!-- In form mode v-model item name as input -->
@@ -88,7 +87,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .flex-grow {
   flex-grow: 1;
 }

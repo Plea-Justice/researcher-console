@@ -5,10 +5,7 @@
         <h1 class="title login-title">Plea Simulation Researcher Console</h1>
 
         <!-- Login Card -->
-        <form
-          class="box has-text-centered"
-          @submit.prevent="isRegistration ? register() : login()"
-        >
+        <form class="box has-text-centered" @submit.prevent="isRegistration ? register() : login()">
           <div class="block">
             <b-icon icon="account-circle" size="is-large" />
           </div>
@@ -80,9 +77,11 @@
 
           <hr />
 
-          <b-button @click="setFormMode()" type="is-text">{{
+          <b-button @click="setFormMode()" type="is-text">
+            {{
             isRegistration ? "Login to existing account" : "Create an account"
-          }}</b-button>
+            }}
+          </b-button>
         </form>
       </section>
     </div>
@@ -122,7 +121,6 @@ export default {
         .then(response => {
           // Reset inputs
           this.loginForm = Object.assign({}, this.LoginForm);
-          this.$router.push("/scenarios");
         });
 
       // FIXME: reset password even if not successful

@@ -2,12 +2,6 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Leaving Scenario Edtior</p>
-      <b-button
-        @click="closeModal()"
-        type="is-light"
-        size="is-medium"
-        icon-left="close"
-      />
     </header>
     <section class="modal-card-body is-flex">
       <div class="media">
@@ -25,13 +19,9 @@
       </div>
     </section>
     <footer class="modal-card-foot">
-      <b-button v-if="validationFailed" @click="closeModal()" type="is-primary"
-        >Return to Fix</b-button
-      >
-      <b-button v-else @click="saveHandler()" type="is-primary"
-        >Save & Exit</b-button
-      >
-      <b-button @click="exitHandler()" type="is-danger">Force Exit </b-button>
+      <b-button v-if="validationFailed" @click="closeModal()" type="is-primary">Return to Fix</b-button>
+      <b-button v-else @click="saveHandler()" type="is-primary">Save & Exit</b-button>
+      <b-button @click="exitHandler()" type="is-danger">Force Exit</b-button>
     </footer>
   </div>
 </template>
@@ -40,12 +30,16 @@
 // Import VueX
 import { mapActions } from "vuex";
 
+// Import Utils
+import { noop } from "~/assets/util";
+
 export default {
   name: "LeaveScenario",
   props: {
-    next: {
+    afterSave: {
       type: Function,
-      required: true
+      required: false,
+      default: noop
     },
     validate: {
       type: Function,
@@ -61,6 +55,10 @@ export default {
     closeModal() {
       this.$parent.close();
     },
+    exitHandler() {
+      this.closeModal();
+      this.afterSave();
+    },
     saveHandler() {
       this.validate().then(success => {
         if (success) {
@@ -70,10 +68,6 @@ export default {
           this.validationFailed = true;
         }
       });
-    },
-    exitHandler() {
-      this.closeModal();
-      this.next();
     },
     ...mapActions({
       saveScenario: "scenario/saveScenario"

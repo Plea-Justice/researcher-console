@@ -1,7 +1,7 @@
 <template>
   <ValidationProvider
     :vid="vid"
-    :name="$attrs.label"
+    :name="$attrs.name || $attrs.label"
     :rules="rules"
     :immediate="immediate"
     v-slot="{ errors, passed }"
@@ -46,22 +46,14 @@ export default {
       required: true
     }
   },
-  data: () => ({
-    innerValue: ""
-  }),
-  watch: {
-    // Handles internal model changes.
-    innerValue(newVal) {
-      this.$emit("input", newVal);
-    },
-    // Handles external model changes.
-    value(newVal) {
-      this.innerValue = newVal;
-    }
-  },
-  created() {
-    if (this.value) {
-      this.innerValue = this.value;
+  computed: {
+    innerValue: {
+      get: function() {
+        return this.value;
+      },
+      set: function(newVal) {
+        this.$emit("input", newVal);
+      }
     }
   }
 };
