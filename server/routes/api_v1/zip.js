@@ -4,25 +4,28 @@
  */
 
 module.exports = function (options) {
-    var express = require('express');
+    const express = require('express');
     // Access parent's parameters.
     var router = express.Router({ mergeParams: true });
 
-    var fs = require('fs-extra');
-    var zip = require('cross-zip');
-    var path = require('path');
-    var os = require('os');
+    const util = require('../../common/util');
 
-    var ScenarioModel = require('../../models/ScenarioModel');
+    const fs = require('fs-extra');
+    const zip = require('cross-zip');
+    const path = require('path');
+    const os = require('os');
+
+    const ScenarioModel = require('../../models/ScenarioModel');
 
     /**
      * Generate and download a zipped simulation.
      */
     router.get('/', async (req, res)=>{
         let id = req.params.scenario_id;
+        let uid = req.session.user_id;
 
         try {
-            let scenario = await ScenarioModel.findById(id);
+            let scenario = await ScenarioModel.findOne({_id: id, user_id: uid});
             let tmpdir = path.join(os.tmpdir(), `sim-${id}`);
             await fs.emptyDir(tmpdir);
 
@@ -148,11 +151,7 @@ module.exports = function (options) {
 
         } catch (err) {
             console.log(err);
-            res.status(500).json({
-                success: false,
-                message: 'There was an error generating the simulation download.',
-                result: null
-            });
+            res.status(500).json(util.failure('There was an error generating the simulation download.'));
         }
 
 

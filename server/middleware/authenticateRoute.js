@@ -1,4 +1,5 @@
 module.exports = function(req, res, next) {
+    const util = require('../common/util');
     if (req.session.is_logged_in) next();
-    else res.status(401).json({success: false, error: 'auth', message: 'Not logged in.', result: null});
+    else res.status(401).json(util.failure('Not logged in.'));
 };

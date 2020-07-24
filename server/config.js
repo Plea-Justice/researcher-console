@@ -42,5 +42,8 @@ module.exports = {
     client_dir: '../client/dist/',
 
     // Location of the simulation template with simulation as toplevel index.html.
-    sim_dir: '../../simulation/'
+    sim_dir: '../../simulation/',
+
+    // Disable resource deletion or overwriting.
+    noclobber: false
 };
