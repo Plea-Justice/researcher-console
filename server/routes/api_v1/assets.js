@@ -23,13 +23,12 @@ module.exports = function (options) {
         safeFileNames: true,
         preserveExtension: true,
         abortOnLimit: true,
-        limitHandler: (req, res, next)=>{
+        limitHandler: (req, res)=>{
             res.status(413).json({
                 success: false,
                 message: `Uploaded file too large. Assets must be less than ${options.config.max_upload_mb}MiB.`,
                 result: null
             });
-            next();
         },
         createParentPath: true,
         // useTempFiles: true,

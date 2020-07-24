@@ -152,16 +152,25 @@ export default {
         // Clear name and re-focus on name input
         this.assetForm.name = "";
         this.$refs["form-card"].focus();
+        return;
+
+        // TODO: This file upload size is defined in server config.js.  
+      } else if (this.assetForm.file.size > 1024 * 1024 * 20) {
+        this.$buefy.toast.open({
+          message: `${this.assetForm.file.name} too large. Must be less than 20MiB in size.`,
+          type: "is-danger"
+        });
+
       } else {
         // Add the scenario to state
         this.addAsset(this.assetForm);
+      }
 
         // Disable form
         this.addMode = false;
 
         // Reset inputs
         this.assetForm = Object.assign({}, this.AssetForm);
-      }
     }
   },
   head() {
