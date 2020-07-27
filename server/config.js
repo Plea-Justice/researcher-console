@@ -45,5 +45,13 @@ module.exports = {
     sim_dir: '../../simulation/',
 
     // Disable resource deletion or overwriting.
-    noclobber: false
+    noclobber: false,
+
+    // Rate limit for login/logout.
+    auth_attempts: 10,
+    auth_minutes: 15,
+
+    // Rate limit for new account registration.
+    reg_attempts: 3,
+    reg_minutes: 30
 };

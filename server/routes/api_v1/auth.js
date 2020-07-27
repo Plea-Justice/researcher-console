@@ -12,15 +12,15 @@ module.exports = function (options) {
     const rateLimit = require('express-rate-limit');
 
     const AuthReqLimit = rateLimit({
-        windowMs: 15 * 60 * 1000, // 15 minutes
-        max: 10,
-        message: util.failure('Too many authentication requests. Try again in 15 minutes.')
+        windowMs: options.config.auth_minutes * 60 * 1000,
+        max: options.config.auth_attempts,
+        message: util.failure(`Too many authentication requests. Try again in ${options.config.auth_minutes} minutes.`)
     });
 
     const CreateAccountReqLimit = rateLimit({
-        windowMs: 15 * 60 * 1000, // 30 minutes
-        max: 3,
-        message: util.success('Too many account creation requests. Try again in 30 minutes.')
+        windowMs: options.config.reg_minutes * 60 * 1000,
+        max: options.config.reg_attempts,
+        message: util.failure(`Too many account creation requests. Try again in ${options.config.reg_minutes} minutes.`)
     });
 
     // Login, logout, and register should not require prior authentication.
