@@ -1,32 +1,33 @@
 <template>
-  <div>
+  <div ref="scroll" class="scroll-wrapper">
     <NavBar
       :title="scenarioMeta.name"
-      :logout="logout"
+      :logout="this.onLogout"
       helpTitle="Scenario Story Editor"
       :helpText="scenarioHelp.navbar"
       path="/scenarios"
+      class="horizontal-sticky"
     />
 
-    <ToolBar ref="toolbar">
+    <ToolBar ref="toolbar" class="horizontal-sticky">
       <template v-slot:start>
         <div class="level-item buttons">
           <ToolBarButton
             @click="submitHandler()"
             :value="mode"
             type="is-primary"
-            icon-left="content-save"
+            icon-right="content-save"
           >Save</ToolBarButton>
 
           <ToolBarButton
             @click="openScenarioProps()"
             :value="mode"
-            icon-left="movie-edit-outline"
+            icon-right="playlist-edit"
           >Properties</ToolBarButton>
 
           <b-button
             @click="collapseAll()"
-            :icon-left="collapsedBtnProps.icon"
+            :icon-right="collapsedBtnProps.icon"
           >{{ collapsedBtnProps.name }}</b-button>
 
           <ToolBarButton @click="addCondition()" :value="mode">Add Condition</ToolBarButton>
@@ -54,7 +55,7 @@
     </ToolBar>
 
     <!-- Titles -->
-    <div ref="titles" class="sticky padded-responsive-container condition-bar condition-titles">
+    <div ref="titlebar" :style="titleBarStyle" class="padded-responsive-container title-bar">
       <div class="title-wrapper">
         <div v-for="index in numConditions" :key="index" class="condition-title">
           <div
@@ -73,27 +74,24 @@
       </div>
     </div>
 
-    <!-- Scrolling Wrapper -->
-    <div @scroll="handleScroll($event)" ref="horizontalScroll" class="scrollable">
-      <section class="padded-responsive-container responsive-center">
-        <ValidationObserver ref="form" tag="form" @submit.prevent="onSubmit()">
-          <!-- Frames -->
-          <SceneFrame
-            v-for="(frame, index) in frameSet"
-            :key="`${frame.id}`"
-            @scroll-to="scrollToFrame($event)"
-            @selected="addToSelection($event, Select.SCENE)"
-            :frame="frame"
-            :frameIndex="index"
-            :isFirst="index === 0"
-            :isLast="index === frameSet.length - 1"
-            :selectable="isSelectable(Select.SCENE)"
-          />
+    <section class="padded-responsive-container responsive-center">
+      <ValidationObserver ref="form" tag="form" @submit.prevent="onSubmit()">
+        <!-- Frames -->
+        <SceneFrame
+          v-for="(frame, index) in frameSet"
+          :key="`${frame.id}`"
+          @scroll-to="scrollToFrame($event)"
+          @selected="addToSelection($event, Select.SCENE)"
+          :frame="frame"
+          :frameIndex="index"
+          :isFirst="index === 0"
+          :isLast="index === frameSet.length - 1"
+          :selectable="isSelectable(Select.SCENE)"
+        />
 
-          <b-button ref="submit" native-type="submit" class="is-hidden" />
-        </ValidationObserver>
-      </section>
-    </div>
+        <b-button ref="submit" native-type="submit" class="is-hidden" />
+      </ValidationObserver>
+    </section>
   </div>
 </template>
 
@@ -112,7 +110,7 @@ import ScenarioProperties from "~/components/modals/ScenarioProperties";
 import LeaveScenario from "~/components/modals/LeaveScenario";
 
 // Import Utils
-import { noop, throttle } from "~/assets/util";
+import { noop } from "~/assets/util";
 
 // Content for help fields
 import { scenarioHelp } from "~/assets/helpText";
@@ -137,6 +135,7 @@ export default {
       headerHeight: 0,
 
       collapsed: false,
+      logout: false,
       Modes: {
         DEFAULT: 0,
         COPY: 1,
@@ -180,10 +179,13 @@ export default {
       // Define header height
       this.headerHeight =
         this.$refs["toolbar"].$el.clientHeight +
-        this.$refs["titles"].clientHeight;
+        this.$refs["titlebar"].clientHeight;
     });
   },
   computed: {
+    titleBarStyle() {
+      return { "--num-conditions": this.numConditions };
+    },
     collapsedBtnProps() {
       const test = this.scenarioMeta.collapsed;
       return {
@@ -198,15 +200,17 @@ export default {
     })
   },
   methods: {
-    logout() {
+    logoutHelper() {
+      console.log("logged out");
+      this.$auth.logout();
+    },
+    onLogout() {
       if (this.scenarioStoreHasChanged) {
         this.$buefy.modal.open({
           parent: this,
           component: LeaveScenario,
-          props: {
-            afterSave: this.$auth.logout,
-            validate: this.$refs.form.validate
-          },
+          props: { validate: this.$refs.form.validate },
+          events: { exit: this.logoutHelper },
           hasModalCard: true,
           customClass: "dialog",
           trapFocus: true
@@ -285,13 +289,6 @@ export default {
     ) {
       eventState ? onToggle(modeName) : onUntoggle();
     },
-    handleScroll: throttle(function(event) {
-      const leftScroll = event.target.scrollLeft;
-
-      // Target elements you want to move now
-      this.$refs.titles.scrollLeft = leftScroll;
-      //TODO: only update add button on current frame(s)
-    }, 20),
     scrollToFrame({ frameIndex, smooth = true }) {
       this.$nextTick(() => {
         const frameTopPos = this.$refs.form.$el.children[
@@ -299,8 +296,9 @@ export default {
         ].getBoundingClientRect().top;
 
         // Scroll so that the element is at the top of the view
-        window.scrollTo({
-          top: frameTopPos - this.headerHeight + window.pageYOffset,
+        const scrollElement = this.$refs.scroll;
+        scrollElement.scrollTo({
+          top: frameTopPos - this.headerHeight + scrollElement.scrollTop,
           ...(smooth && { behavior: "smooth" })
         });
       });
@@ -356,11 +354,12 @@ export default {
     }
   },
   beforeRouteLeave(to, from, next) {
-    if (this.scenarioStoreHasChanged) {
+    if (!this.logout && this.scenarioStoreHasChanged) {
       this.$buefy.modal.open({
         parent: this,
         component: LeaveScenario,
-        props: { afterSave: next, validate: this.$refs.form.validate },
+        props: { validate: this.$refs.form.validate },
+        events: { exit: next },
         hasModalCard: true,
         customClass: "dialog",
         trapFocus: true
@@ -385,17 +384,31 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.condition-bar {
-  // Scrollable
-  overflow-x: hidden;
-  // Sticky below toolbar
-  top: 4rem;
-  margin-bottom: 0.25rem;
-  background-color: #fffe;
+.scroll-wrapper {
+  height: 100vh;
+  width: 100%;
+  overflow-x: scroll;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  overflow-anchor: none;
+}
 
-  // General Props
+.horizontal-sticky {
+  @include sticky();
+  left: 0;
+}
+
+.title-bar {
+  // Sticky below toolbar
+  @include sticky();
+  top: 4rem;
+
+  // Width & sizing
   height: 3rem;
-  margin-top: 2rem;
+  width: max-content;
+  margin: 2rem auto 0.25rem;
+
+  background-color: #fffe;
 }
 
 .title-wrapper {
@@ -403,17 +416,16 @@ export default {
   display: flex;
   align-items: center;
 
-  // calc(responsive-containter + frame-box-padding + sidebar-flex-basis + sidebar-margin-right)
-  /* padding-left: calc(
-    #{$responsiveContainerSpacing} + #{$framePadding} + #{$frameSideBarWidth}
-  ); */
+  $scene: $frameSceneGap + $sceneWidth;
+  width: calc(
+    #{$scene} * var(--num-conditions) - #{$frameSceneGap} + #{$frameSideBarWidth} +
+      #{$framePadding} * 2
+  );
   padding-left: calc(#{$framePadding} + #{$frameSideBarWidth});
-  // margin-right: $framePadding;
 
-  // Effectively flex-gap .condition-title
+  // This is effectively flex-gap .condition-title
   // For every .condition-title except the last one
   & > :nth-last-child(n + 2) {
-    //TODO: pair this to scene-flex-gap
     margin-right: $frameSceneGap;
   }
 }
@@ -439,11 +451,6 @@ export default {
   &:active {
     color: $danger;
   }
-}
-
-.scrollable {
-  overflow-y: hidden;
-  overflow-anchor: none;
 }
 
 .responsive-center {

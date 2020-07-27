@@ -1,6 +1,6 @@
 <template>
   <!-- Level Toolbar -->
-  <nav class="level padded-responsive-container sticky toolbar">
+  <nav class="level padded-responsive-container toolbar">
     <!-- Left Side Toolbar -->
     <div class="level-left">
       <slot name="start" />
@@ -21,10 +21,11 @@ export default {
 
 <style lang="scss" scoped>
 .toolbar {
-  margin-bottom: 0;
-  // Sticky below toolbar
+  @include sticky();
   top: 0;
+
   height: 4rem;
+  margin-bottom: 0;
   background-color: $smokeywhite;
 }
 </style>

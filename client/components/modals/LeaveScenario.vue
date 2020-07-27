@@ -30,17 +30,9 @@
 // Import VueX
 import { mapActions } from "vuex";
 
-// Import Utils
-import { noop } from "~/assets/util";
-
 export default {
   name: "LeaveScenario",
   props: {
-    afterSave: {
-      type: Function,
-      required: false,
-      default: noop
-    },
     validate: {
       type: Function,
       required: true
@@ -57,7 +49,7 @@ export default {
     },
     exitHandler() {
       this.closeModal();
-      this.afterSave();
+      this.$emit("exit");
     },
     saveHandler() {
       this.validate().then(success => {

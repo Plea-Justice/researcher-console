@@ -99,7 +99,10 @@ export default {
   },
   methods: {
     logoutHandler() {
-      this.logout ? this.logout() : this.$auth.logout();
+      this.logout();
+      //this.logout.logout();
+      //this.$auth.logout();
+      //this.logout ? this.logout() : console.log("No");
     }
   }
 };

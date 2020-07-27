@@ -180,8 +180,6 @@ export default {
   display: flex;
   height: max-content;
   width: min-content;
-  // Remove excessive right-padding
-  padding-right: 0;
   // Fix box model for box-shadow
   margin-top: 1px;
   // Remove bottom margin from box (leave 1px for box model)
@@ -190,11 +188,6 @@ export default {
   // Everything except last child & > :not(:last-child)
   & > div:nth-last-of-type(n + 2) {
     margin-right: $frameSceneGap;
-  }
-
-  & > :last-child {
-    // TODO: Pair this with the box padding
-    margin-right: $framePadding;
   }
 }
 

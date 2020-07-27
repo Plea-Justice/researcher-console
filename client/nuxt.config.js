@@ -97,7 +97,7 @@ export default {
     scss: ['~/assets/styles/vars/*.scss', '~/assets/styles/_mixins.scss']
   },
   router: {
-    // middleware: ['auth']
+    middleware: ['auth']
   },
   /*
    ** Build configuration

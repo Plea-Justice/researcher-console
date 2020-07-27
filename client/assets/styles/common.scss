@@ -8,11 +8,6 @@
   padding: 0 $responsiveContainerSpacing;
 }
 
-.sticky {
-  position: sticky;
-  z-index: $buefyOverlapIndex + 1;
-}
-
 .link-animate {
   position: relative;
   text-decoration: none;

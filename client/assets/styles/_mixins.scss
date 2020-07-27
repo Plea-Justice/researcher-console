@@ -6,6 +6,11 @@
   align-items: center;
 }
 
+@mixin sticky {
+  position: sticky;
+  z-index: $buefyOverlapIndex + 1;
+}
+
 @mixin absoluteMask {
   position: absolute;
   width: 100%;
