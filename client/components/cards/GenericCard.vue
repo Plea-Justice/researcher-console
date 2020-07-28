@@ -7,27 +7,14 @@
 
     <!-- Card Header -->
     <!-- when collapsed style header as body -->
-    <header
-      v-if="!blank"
-      class="card-header flex-header"
-      :class="headerModeStyle"
-    >
+    <header v-if="!blank" class="card-header flex-header" :class="headerModeStyle">
       <!-- When collapsed show remove button in header -->
-      <b-button
-        v-if="collapsed"
-        @click="$emit('remove')"
-        type="is-danger"
-        icon-left="close"
-      />
+      <b-button v-if="collapsed" @click="$emit('remove')" type="is-danger" icon-left="close" />
       <slot name="header" />
     </header>
 
     <!-- Card Body -->
-    <div
-      v-show="!collapsed"
-      :class="{ 'flex-center': blank }"
-      class="card-content"
-    >
+    <div v-show="!collapsed" :class="{ 'flex-center': blank }" class="card-content">
       <slot name="default" />
     </div>
 
@@ -35,12 +22,7 @@
     <footer v-if="!collapsed && !blank" class="card-footer">
       <div class="card-footer-item buttons footer-buttons flex-left">
         <!-- Check if remove listener exists instead of using remove -->
-        <b-button
-          v-if="close"
-          @click="$emit('remove')"
-          type="is-danger"
-          icon-left="close"
-        />
+        <b-button v-if="close" @click="$emit('remove')" type="is-danger" icon-left="close" />
         <slot name="footer" />
       </div>
     </footer>
@@ -52,7 +34,7 @@
 import { mapActions } from "vuex";
 
 export default {
-  name: "ItemCard",
+  name: "GenericCard",
   props: {
     close: {
       type: Boolean,

@@ -67,7 +67,10 @@ export const actions = {
   },
   copyCondition({ commit }, indexList) {
     // Vue indexes start at 1 (off by 1) so subtract 1
-    commit('copyCondition', { fromIndex: indexList[0] - 1, toIndex: indexList[1] - 1 });
+    commit('copyCondition', { fromIndex: indexList[0], toIndex: indexList[1] });
+  },
+  swapCondition({ commit }, indexList) {
+    commit('swapCondition', { indexList });
   },
 
   // **** Frame Actions ****
@@ -101,6 +104,9 @@ export const actions = {
   },
   copyScene({ commit }, idList) {
     commit('copyScene', { fromId: idList[0], toId: idList[1] });
+  },
+  swapScene({ commit }, idList) {
+    commit('swapScene', { idList });
   },
   // Form Actions
   updateSceneType({ commit }, { id, value }) {
@@ -235,6 +241,18 @@ export const mutations = {
       Vue.set(state.scenes, toId, { ...targetScene, ...{ id: toId } });
     }
   },
+  swapCondition(state, payload) {
+    const numFrames = state.frameList.length;
+    for (let i = 0; i < numFrames; i++) {
+      const currFrame = state.frames[state.frameList[i]];
+
+      currFrame.scenes.splice(
+        payload.indexList[0],
+        1,
+        currFrame.scenes.splice(payload.indexList[1], 1, currFrame.scenes[payload.indexList[0]])[0]
+      );
+    }
+  },
 
   // **** Frame Mutations ****
   newFrame(state, payload) {
@@ -289,10 +307,6 @@ export const mutations = {
     const fromIndex = state.frameList.indexOf(payload.frameId);
     const toIndex = fromIndex + payload.modifier;
 
-    /* const newFrameList = [...state.frameList];
-    newFrameList.splice(fromIndex, 1, newFrameList.splice(toIndex, 1, payload.frameId)[0]);
-    state.frameList = newFrameList; */
-
     // Swap 2 frames using splice
     state.frameList.splice(fromIndex, 1, state.frameList.splice(toIndex, 1, payload.frameId)[0]);
   },
@@ -320,8 +334,12 @@ export const mutations = {
     Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: null });
   },
   copyScene(state, payload) {
-    const copiedScene = { ...state.scenes[payload.fromId], ...{ id: payload.toId } };
-    Vue.set(state.scenes, payload.toId, copiedScene);
+    Vue.set(state.scenes, payload.toId, { ...state.scenes[payload.fromId], ...{ id: payload.toId } });
+  },
+  swapScene(state, payload) {
+    const swappedScene = { ...state.scenes[payload.idList[1]], ...{ id: payload.idList[0] } };
+    Vue.set(state.scenes, payload.idList[1], { ...state.scenes[payload.idList[0]], ...{ id: payload.idList[1] } });
+    Vue.set(state.scenes, payload.idList[0], swappedScene);
   },
   setScenePropsKey(state, payload) {
     const newProps = { ...state.scenes[payload.sceneId].props, ...payload.entry };

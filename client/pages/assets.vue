@@ -10,11 +10,7 @@
         <!-- FIXME: make this a simplified custom selector -->
         <b-select placeholder="Asset Type" v-model="selectedAssetType">
           <option value="all">all</option>
-          <option v-for="type in validAssetTypes" :key="type" :value="type">
-            {{
-            type | capitalize
-            }}
-          </option>
+          <option v-for="type in validAssetTypes" :key="type" :value="type">{{ type | capitalize }}</option>
         </b-select>
       </b-field>
     </template>
@@ -55,7 +51,7 @@
       @remove="removeAsset($event)"
       :item="asset"
       close
-    ></ItemCard>
+    >{{ asset }}</ItemCard>
   </ItemLayout>
 </template>
 
@@ -154,23 +150,22 @@ export default {
         this.$refs["form-card"].focus();
         return;
 
-        // TODO: This file upload size is defined in server config.js.  
+        // TODO: This file upload size is defined in server config.js.
       } else if (this.assetForm.file.size > 1024 * 1024 * 20) {
         this.$buefy.toast.open({
           message: `${this.assetForm.file.name} too large. Must be less than 20MiB in size.`,
           type: "is-danger"
         });
-
       } else {
         // Add the scenario to state
         this.addAsset(this.assetForm);
       }
 
-        // Disable form
-        this.addMode = false;
+      // Disable form
+      this.addMode = false;
 
-        // Reset inputs
-        this.assetForm = Object.assign({}, this.AssetForm);
+      // Reset inputs
+      this.assetForm = Object.assign({}, this.AssetForm);
     }
   },
   head() {

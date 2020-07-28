@@ -4,15 +4,13 @@
     :rules="invalidOldFile ? `excluded:${value}` : null"
     :immediate="invalidOldFile"
     :label="label"
-    :type="error.flag ? 'is-danger' : null"
-    :message="error.flag ? error.message : null"
     :icon="icon"
+    :status="status.flag ? status : null"
     v-bind="$attrs"
   >
-    <!-- FIXME: warning for empty selector, selector with no options? -->
     <option value>None</option>
-    <!-- If value does not exists insert dummy value and flag error -->
-    <option v-if="error.flag" :value="value">{{ value }}</option>
+    <!-- If value does not exists insert dummy value -->
+    <option v-if="invalidOldFile" :value="value">{{ value }}</option>
     <option v-for="file in options" :key="file" :value="file">{{ file }}</option>
   </BSelectWithValidation>
 </template>
@@ -23,11 +21,12 @@ import BSelectWithValidation from "~/components/inputs/BSelectWithValidation";
 export default {
   components: { BSelectWithValidation },
   props: {
-    value: {
-      required: true
-    },
+    // This is false to allow data to load
     options: {
       type: Array,
+      required: false
+    },
+    value: {
       required: true
     },
     label: {
@@ -39,50 +38,37 @@ export default {
       required: false
     }
   },
-  data: () => ({
-    innerValue: ""
-  }),
-  // FIXME: Update these to computed options
-  // FIXME: extrapolate commmon to shared component or mixin
-  watch: {
-    // Handles internal model changes.
-    innerValue(newVal) {
-      this.$emit("input", newVal);
-    },
-    // Handles external model changes.
-    value(newVal) {
-      this.innerValue = newVal;
-    }
-  },
-  created() {
-    if (this.value) {
-      this.innerValue = this.value;
-    }
-  },
   computed: {
-    invalidOldFile() {
-      return this.value &&
-        this.value !== "None" &&
-        !this.options.includes(this.value)
-        ? true
-        : false;
+    innerValue: {
+      get: function() {
+        return this.value;
+      },
+      set: function(newVal) {
+        this.$emit("input", newVal);
+      }
     },
-    error() {
-      let isError = true;
+    invalidOldFile() {
+      return this.value && this.options && !this.options.includes(this.value);
+    },
+    status() {
+      let flag = true;
+      let type = "";
       let message = null;
 
-      if (this.options.length === 0) {
-        message = `No files for "${this.label}" exists`;
-      } else if (this.invalidOldFile) {
+      // Errors
+      if (this.invalidOldFile) {
+        type = "is-danger";
         message = `File "${this.value}" does not exist`;
+      }
+      // Warnings
+      else if (this.options && this.options.length === 0) {
+        type = "is-warning";
+        message = `No files for "${this.label}" exists`;
       } else {
-        isError = false;
+        flag = false;
       }
 
-      return {
-        flag: isError,
-        message: message
-      };
+      return { flag, type, message };
     }
   }
 };

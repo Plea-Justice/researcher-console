@@ -16,18 +16,18 @@
             @click="submitHandler()"
             :value="mode"
             type="is-primary"
-            icon-right="content-save"
+            icon-left="content-save"
           >Save</ToolBarButton>
 
           <ToolBarButton
             @click="openScenarioProps()"
             :value="mode"
-            icon-right="playlist-edit"
+            icon-left="playlist-edit"
           >Properties</ToolBarButton>
 
           <b-button
             @click="collapseAll()"
-            :icon-right="collapsedBtnProps.icon"
+            :icon-left="collapsedBtnProps.icon"
           >{{ collapsedBtnProps.name }}</b-button>
 
           <ToolBarButton @click="addCondition()" :value="mode">Add Condition</ToolBarButton>
@@ -39,6 +39,14 @@
             "
             :mode="Modes.COPY"
           >Copy</ToolBarButton>
+
+          <ToolBarButton
+            v-model="mode"
+            @click="
+              toggleHandler($event, selectionReset, startSelectionToast, 'swap')
+            "
+            :mode="Modes.SWAP"
+          >Swap</ToolBarButton>
         </div>
       </template>
       <template v-slot:end>
@@ -60,7 +68,7 @@
         <div v-for="index in numConditions" :key="index" class="condition-title">
           <div
             v-if="isSelectable(Select.CONDITION)"
-            @click="addToSelection(index, Select.CONDITION)"
+            @click="addToSelection(index - 1, Select.CONDITION)"
             class="select-title"
           />
           <b-button
@@ -136,10 +144,12 @@ export default {
 
       collapsed: false,
       logout: false,
+      snackbar: null,
       Modes: {
         DEFAULT: 0,
         COPY: 1,
-        BIND: 2
+        BIND: 2,
+        SWAP: 3
       },
       // Set to DEFAULT mode
       mode: 0,
@@ -189,7 +199,7 @@ export default {
     collapsedBtnProps() {
       const test = this.scenarioMeta.collapsed;
       return {
-        icon: `${test ? "expand" : "collapse"}-all-outline`,
+        icon: `${test ? "expand" : "collapse"}-all`,
         name: `${test ? "Expand" : "Collapse"} All`
       };
     },
@@ -201,7 +211,7 @@ export default {
   },
   methods: {
     logoutHelper() {
-      console.log("logged out");
+      this.logout = true;
       this.$auth.logout();
     },
     onLogout() {
@@ -238,14 +248,21 @@ export default {
     },
     isSelectable(selectionType) {
       return (
-        this.mode === this.Modes.COPY &&
+        this.mode !== this.Modes.DEFAULT &&
         (this.select === this.Select.ALL || this.select === selectionType)
       );
     },
     startSelectionToast(modeName) {
-      this.$buefy.toast.open({
+      this.snackbar = this.$buefy.snackbar.open({
         message: `Select element to ${modeName} from`,
-        type: "is-info"
+        type: "is-danger",
+        position: "is-top",
+        indefinite: true,
+        actionText: "Cancel",
+        onAction: () => {
+          this.selectionReset;
+          this.mode = this.Modes.DEFAULT;
+        }
       });
     },
     selectionReset() {
@@ -253,6 +270,7 @@ export default {
       this.select = this.Select.ALL;
     },
     addToSelection(eSceneId, selectedType) {
+      this.snackbar.close();
       this.selectionList.push(eSceneId);
 
       // If first item
@@ -266,15 +284,28 @@ export default {
         const modeName = Object.keys(this.Modes)
           .find(key => this.Modes[key] === this.mode)
           .toLowerCase();
-        this.$buefy.toast.open({
+
+        this.snackbar = this.$buefy.snackbar.open({
           message: `Select ${typeName} to ${modeName} to`,
-          type: "is-info"
+          type: "is-danger",
+          position: "is-top",
+          indefinite: true,
+          actionText: "Cancel",
+          onAction: () => {
+            this.selectionReset;
+            this.mode = this.Modes.DEFAULT;
+          }
         });
       } else if (this.selectionList.length >= 2) {
+        //FIXME: make this dynamic or a case statement?
         if (this.select === this.Select.SCENE) {
-          this.copyScene(this.selectionList);
+          this.mode === this.Modes.COPY && this.copyScene(this.selectionList);
+          this.mode === this.Modes.SWAP && this.swapScene(this.selectionList);
         } else if (this.select === this.Select.CONDITION) {
-          this.copyCondition(this.selectionList);
+          this.mode === this.Modes.COPY &&
+            this.copyCondition(this.selectionList);
+          this.mode === this.Modes.SWAP &&
+            this.swapCondition(this.selectionList);
         }
         // Reset
         this.selectionReset();
@@ -287,7 +318,12 @@ export default {
       onToggle = noop,
       modeName = ""
     ) {
-      eventState ? onToggle(modeName) : onUntoggle();
+      if (eventState) {
+        onToggle(modeName);
+      } else {
+        this.snackbar && this.snackbar.close();
+        onUntoggle();
+      }
     },
     scrollToFrame({ frameIndex, smooth = true }) {
       this.$nextTick(() => {
@@ -319,7 +355,6 @@ export default {
         });
         window.location = `${this.$axios.defaults.baseURL}/api/v1/s/${this.scenarioMeta.id}/zip`;
       };
-
       // TODO: Ask on unsaved, invalid, etc.
       if (!this.scenarioMeta.survey)
         this.$buefy.dialog.confirm({
@@ -340,7 +375,9 @@ export default {
       updateFrames: "scenario/updateFrames",
       updateMetaKey: "scenario/updateMetaKey",
       copyScene: "scenario/copyScene",
-      copyCondition: "scenario/copyCondition"
+      copyCondition: "scenario/copyCondition",
+      swapScene: "scenario/swapScene",
+      swapCondition: "scenario/swapCondition"
     }),
     //FIXME: make collapsing VueX independent
     collapseAll() {
@@ -432,8 +469,9 @@ export default {
 
 .condition-title {
   @include flexCenter();
-  //position: relative;
   flex: 0 0 $sceneWidth;
+  // For .select-title placement
+  position: relative;
 }
 
 .select-title {

@@ -8,8 +8,8 @@
   >
     <b-field
       v-bind="$attrs"
-      :type="{ 'is-danger': errors[0], 'is-success': passed }"
-      :message="errors"
+      :type="(status && status.type) || { 'is-danger': errors[0], 'is-success': passed }"
+      :message="status ? [status.message, ...errors] : errors"
     >
       <b-select v-model="innerValue" v-bind="$attrs">
         <slot />
@@ -39,6 +39,10 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    status: {
+      type: Object,
+      required: false
     },
     // must be included in props
     value: {

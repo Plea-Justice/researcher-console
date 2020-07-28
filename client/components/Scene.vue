@@ -37,20 +37,20 @@
           >{{ type }}</b-radio-button>
         </b-field>
 
+        <!-- options props needs a preloaded value because .includes in AssetNamesByType will return false positive while loading -->
         <template v-for="field in validFieldNames">
           <FileSelector
             :key="field"
             v-if="isType(field, ['image', 'video'])"
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
-            :options="AssetNamesByType[field + 's'] || []"
+            :options="AssetNamesByType[field + 's']"
             :label="field | capitalize"
             :icon="getIcon(field)"
             custom-class="is-capitalized"
             expanded
           />
 
-          <!-- FIXME: has-fixed-size -->
           <BInputWithValidation
             :key="field"
             v-if="isType(field, 'text')"
@@ -74,7 +74,7 @@
             expanded
           />
 
-          <!-- TODO: Display error for incorrect types/types that don't match anything ? -->
+          <!-- TODO: Display error for incorrect types/types that don't match anything ?-->
         </template>
       </template>
     </GenericCard>
