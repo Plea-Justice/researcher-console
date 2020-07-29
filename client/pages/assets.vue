@@ -1,8 +1,14 @@
 <template>
-  <ItemLayout contentTitle="Assets" helpTitle="Asset Management" :helpText="assetsHelp.navbar">
+  <ItemLayout
+    contentTitle="Assets"
+    helpTitle="Asset Management"
+    :helpText="assetsHelp.navbar"
+  >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton v-model="addMode" @click="toggleAddMode()">Add</ToolBarButton>
+        <ToolBarButton v-model="addMode" @click="toggleAddMode()"
+          >Add</ToolBarButton
+        >
       </div>
     </template>
     <template v-slot:toolbar-end>
@@ -10,7 +16,9 @@
         <!-- FIXME: make this a simplified custom selector -->
         <b-select placeholder="Asset Type" v-model="selectedAssetType">
           <option value="all">all</option>
-          <option v-for="type in validAssetTypes" :key="type" :value="type">{{ type | capitalize }}</option>
+          <option v-for="type in validAssetTypes" :key="type" :value="type">{{
+            type | capitalize
+          }}</option>
         </b-select>
       </b-field>
     </template>
@@ -20,26 +28,45 @@
         <div class="input-wrapper">
           <b-field label="File Upload">
             <b-field>
-              <b-upload v-model="assetForm.file" accept=".js, .jpg, .png" required native>
+              <b-upload
+                v-model="assetForm.file"
+                accept=".js, .jpg, .png"
+                required
+                native
+              >
                 <a class="button is-light">
-                  <b-icon size="is-small" icon="cloud-upload" />
+                  <b-icon size="is-small" icon="cloud-upload-alt" />
                   <span>{{ assetForm.file.name || "Click to upload" }}</span>
                 </a>
               </b-upload>
-              <HelpSidebar :text="assetsHelp.upload" title="Asset Uploads" class="control" />
+              <HelpSidebar
+                :text="assetsHelp.upload"
+                title="Asset Uploads"
+                class="control"
+              />
             </b-field>
           </b-field>
 
           <b-field label="Asset Type">
             <b-field>
-              <b-select placeholder="Select a type" v-model="assetForm.type" expanded required>
+              <b-select
+                placeholder="Select a type"
+                v-model="assetForm.type"
+                expanded
+                required
+              >
                 <option
                   v-for="type in allAssetTypes"
                   :key="type"
                   :value="type"
-                >{{ type | capitalize }}</option>
+                  >{{ type | capitalize }}</option
+                >
               </b-select>
-              <HelpSidebar :text="assetsHelp.type" title="Asset Types" class="control" />
+              <HelpSidebar
+                :text="assetsHelp.type"
+                title="Asset Types"
+                class="control"
+              />
             </b-field>
           </b-field>
         </div>
@@ -51,7 +78,8 @@
       @remove="removeAsset($event)"
       :item="asset"
       close
-    >{{ asset }}</ItemCard>
+      >{{ asset }}</ItemCard
+    >
   </ItemLayout>
 </template>
 

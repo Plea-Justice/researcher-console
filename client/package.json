@@ -23,6 +23,8 @@
     "vee-validate": "^3.3.7"
   },
   "devDependencies": {
+    "@fortawesome/free-solid-svg-icons": "^5.14.0",
+    "@nuxtjs/fontawesome": "^1.1.2",
     "@nuxtjs/style-resources": "^1.0.0",
     "babel-eslint": "^9.0.0",
     "eslint": "^5.16.0",

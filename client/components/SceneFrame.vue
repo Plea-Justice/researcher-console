@@ -35,7 +35,7 @@
           <b-button
             @click="removeFrameHelper(frame.id)"
             type="is-danger"
-            icon-left="close"
+            icon-left="times"
             size="is-medium"
           />
         </template>

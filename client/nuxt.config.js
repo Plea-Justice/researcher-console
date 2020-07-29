@@ -35,7 +35,9 @@ export default {
    */
   buildModules: [
     // Doc: https://github.com/nuxt-community/style-resources-module
-    '@nuxtjs/style-resources'
+    '@nuxtjs/style-resources',
+    // Doc: https://github.com/nuxt-community/fontawesome-module
+    '@nuxtjs/fontawesome'
     // Doc: https://github.com/Developmint/nuxt-purgecss
     // 'nuxt-purgecss',
   ],
@@ -60,6 +62,48 @@ export default {
     // baseURL: process.env.BASE_URL || 'http://localhost:3000',
     // credentials: true
   },
+  // See https://github.com/buefy/nuxt-buefy
+  buefy: {
+    materialDesignIcons: false,
+    defaultIconPack: 'fas',
+    defaultIconComponent: 'FontAwesomeIcon'
+  },
+  // See https://github.com/nuxt-community/style-resources-module
+  styleResources: {
+    scss: ['~/assets/styles/vars/*.scss', '~/assets/styles/_mixins.scss']
+  },
+  // See https://github.com/Developmint/nuxt-purgecss
+  // purgeCSS: { // your settings here },
+  // See https://github.com/nuxt-community/fontawesome-module
+  fontawesome: {
+    icons: {
+      // addCss: false,
+      // useLayers: false,
+      // useLayersText: false,
+      solid: [
+        'faPlus',
+        'faTimes',
+        'faQuestion',
+        'faChevronUp',
+        'faChevronDown',
+        'faArrowUp',
+        'faArrowDown',
+        'faCompressAlt',
+        'faExpandAlt',
+        'faSignInAlt',
+        'faSignOutAlt',
+        'faUser',
+        'faUserCircle',
+        'faEnvelope',
+        'faLock',
+        'faSave',
+        'faEdit',
+        'faFileDownload',
+        'faExclamationCircle'
+      ]
+    }
+  },
+
   /*
    ** Auth module configuration
    ** See https://auth.nuxtjs.org/guide/setup.html
@@ -83,18 +127,6 @@ export default {
         }
       }
     }
-  },
-  /*
-   ** PurgeCSS module configuration
-   ** See https://github.com/Developmint/nuxt-purgecss
-   */
-  // purgeCSS: { // your settings here },
-  /*
-   ** Style Resources configuration
-   ** See https://github.com/nuxt-community/style-resources-module
-   */
-  styleResources: {
-    scss: ['~/assets/styles/vars/*.scss', '~/assets/styles/_mixins.scss']
   },
   router: {
     middleware: ['auth']

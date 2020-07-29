@@ -5,9 +5,12 @@
         <h1 class="title login-title">Plea Simulation Researcher Console</h1>
 
         <!-- Login Card -->
-        <form class="box has-text-centered" @submit.prevent="isRegistration ? register() : login()">
+        <form
+          class="box has-text-centered"
+          @submit.prevent="isRegistration ? register() : login()"
+        >
           <div class="block">
-            <b-icon icon="account-circle" size="is-large" />
+            <b-icon icon="user-circle" size="is-large" />
           </div>
 
           <!-- FIXME: inputs need to re-validate when switching between form types -->
@@ -15,7 +18,7 @@
             <b-input
               v-model="loginForm.email"
               type="email"
-              icon="email"
+              icon="envelope"
               validation-message="A valid email address is required."
               maxlength="100"
               :has-counter="isRegistration"
@@ -28,7 +31,7 @@
           <b-field>
             <b-input
               v-model="loginForm.username"
-              icon="account"
+              icon="user"
               :minlength="isRegistration ? 3 : 0"
               maxlength="100"
               :has-counter="isRegistration"
@@ -59,7 +62,7 @@
               tag="input"
               native-type="submit"
               value="Login"
-              icon-right="login-variant"
+              icon-left="sign-in-alt"
               type="is-primary"
               expanded
             />
@@ -69,7 +72,7 @@
               tag="input"
               native-type="submit"
               value="Create Account"
-              icon-right="account-plus"
+              icon-left="user-plus"
               type="is-primary"
               expanded
             />
@@ -79,7 +82,7 @@
 
           <b-button @click="setFormMode()" type="is-text">
             {{
-            isRegistration ? "Login to existing account" : "Create an account"
+              isRegistration ? "Login to existing account" : "Create an account"
             }}
           </b-button>
         </form>

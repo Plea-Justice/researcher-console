@@ -6,7 +6,7 @@
     <section class="modal-card-body is-flex">
       <div class="media">
         <div class="media-left">
-          <b-icon icon="alert-circle" type="is-danger" size="is-large" />
+          <b-icon icon="exclamation-circle" type="is-danger" size="is-large" />
         </div>
         <div class="media-content">
           <p v-if="validationFailed">
@@ -19,8 +19,12 @@
       </div>
     </section>
     <footer class="modal-card-foot">
-      <b-button v-if="validationFailed" @click="closeModal()" type="is-primary">Return to Fix</b-button>
-      <b-button v-else @click="saveHandler()" type="is-primary">Save & Exit</b-button>
+      <b-button v-if="validationFailed" @click="closeModal()" type="is-primary"
+        >Return to Fix</b-button
+      >
+      <b-button v-else @click="saveHandler()" type="is-primary"
+        >Save & Exit</b-button
+      >
       <b-button @click="exitHandler()" type="is-danger">Force Exit</b-button>
     </footer>
   </div>

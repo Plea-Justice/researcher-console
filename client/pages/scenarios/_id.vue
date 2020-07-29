@@ -16,21 +16,24 @@
             @click="submitHandler()"
             :value="mode"
             type="is-primary"
-            icon-left="content-save"
-          >Save</ToolBarButton>
+            icon-left="save"
+            >Save</ToolBarButton
+          >
 
           <ToolBarButton
             @click="openScenarioProps()"
             :value="mode"
-            icon-left="playlist-edit"
-          >Properties</ToolBarButton>
+            icon-left="edit"
+            >Properties</ToolBarButton
+          >
 
-          <b-button
-            @click="collapseAll()"
-            :icon-left="collapsedBtnProps.icon"
-          >{{ collapsedBtnProps.name }}</b-button>
+          <b-button @click="collapseAll()" :icon-left="collapseBtnProps.icon">{{
+            collapseBtnProps.name
+          }}</b-button>
 
-          <ToolBarButton @click="addCondition()" :value="mode">Add Condition</ToolBarButton>
+          <ToolBarButton @click="addCondition()" :value="mode"
+            >Add Condition</ToolBarButton
+          >
 
           <ToolBarButton
             v-model="mode"
@@ -38,7 +41,8 @@
               toggleHandler($event, selectionReset, startSelectionToast, 'copy')
             "
             :mode="Modes.COPY"
-          >Copy</ToolBarButton>
+            >Copy</ToolBarButton
+          >
 
           <ToolBarButton
             v-model="mode"
@@ -46,7 +50,8 @@
               toggleHandler($event, selectionReset, startSelectionToast, 'swap')
             "
             :mode="Modes.SWAP"
-          >Swap</ToolBarButton>
+            >Swap</ToolBarButton
+          >
         </div>
       </template>
       <template v-slot:end>
@@ -55,17 +60,26 @@
             <b-button
               @click="downloadZip()"
               type="is-primary"
-              icon-left="folder-download"
-            >Download Package</b-button>
+              icon-left="file-download"
+              >Download Package</b-button
+            >
           </div>
         </div>
       </template>
     </ToolBar>
 
     <!-- Titles -->
-    <div ref="titlebar" :style="titleBarStyle" class="padded-responsive-container title-bar">
+    <div
+      ref="titlebar"
+      :style="titleBarStyle"
+      class="padded-responsive-container title-bar"
+    >
       <div class="title-wrapper">
-        <div v-for="index in numConditions" :key="index" class="condition-title">
+        <div
+          v-for="index in numConditions"
+          :key="index"
+          class="condition-title"
+        >
           <div
             v-if="isSelectable(Select.CONDITION)"
             @click="addToSelection(index - 1, Select.CONDITION)"
@@ -74,7 +88,7 @@
           <b-button
             @click="removeCondition(index - 1)"
             type="is-text"
-            icon-left="close"
+            icon-left="times"
             class="close-button"
           />
           <h1 class="subtitle">{{ "Condition " + index }}</h1>
@@ -196,10 +210,10 @@ export default {
     titleBarStyle() {
       return { "--num-conditions": this.numConditions };
     },
-    collapsedBtnProps() {
+    collapseBtnProps() {
       const test = this.scenarioMeta.collapsed;
       return {
-        icon: `${test ? "expand" : "collapse"}-all`,
+        icon: `${test ? "expand" : "compress"}-alt`,
         name: `${test ? "Expand" : "Collapse"} All`
       };
     },
