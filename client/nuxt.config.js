@@ -99,7 +99,8 @@ export default {
         'faSave',
         'faEdit',
         'faFileDownload',
-        'faExclamationCircle'
+        'faFileImage',
+        'faFileVideo'
       ]
     }
   },

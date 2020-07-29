@@ -154,6 +154,7 @@ export const mutations = {
       ])
     );
 
+    // FIXME: Should add properties to each frame as well or does server-side gurantee this
     state.frames = scenario.vuex_state.frames;
     state.frameList = scenario.vuex_state.frameList;
   },
@@ -313,13 +314,11 @@ export const mutations = {
 
   // **** Scene Mutations ****
   newScene(state, payload) {
-    // FIXME: make this static or something?
-
-    const prevSceneProps = state.frameList.reduce((acc, id) => {
-      const { scenes } = state.frames[id];
-      const index = scenes.indexOf(payload.sceneId);
-      return index > 0 ? Object.assign({}, state.scenes[scenes[index - 1]].props) : acc;
-    }, null);
+    const currFrame =
+      state.frames[state.frameList[state.frameList.findIndex(id => state.frames[id].scenes.includes(payload.sceneId))]];
+    const prevSceneIdx = currFrame.scenes.indexOf(payload.sceneId) - 1;
+    const prevSceneProps =
+      prevSceneIdx >= 0 ? Object.assign({}, state.scenes[currFrame.scenes[prevSceneIdx]].props) : null;
 
     // If prev scene has props use those, otherwise create default props list
     // FIXME: make this static or something?
@@ -329,9 +328,21 @@ export const mutations = {
     };
 
     Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, valid: null, props: newSceneProps });
+
+    // Update frame if necessary
+    // TODO: improve this to use a counter instead
+    if (currFrame.blank) Vue.set(state.frames, currFrame.id, { ...currFrame, blank: false });
   },
   deleteScene(state, payload) {
     Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: null });
+
+    // Update frame if necessary
+    // TODO: improve this to use a counter instead
+    const currFrame =
+      state.frames[state.frameList[state.frameList.findIndex(id => state.frames[id].scenes.includes(payload.sceneId))]];
+    if (!currFrame.blank)
+      if (currFrame.scenes.every(id => state.scenes[id].props === null))
+        Vue.set(state.frames, currFrame.id, { ...currFrame, blank: true });
   },
   copyScene(state, payload) {
     Vue.set(state.scenes, payload.toId, { ...state.scenes[payload.fromId], ...{ id: payload.toId } });

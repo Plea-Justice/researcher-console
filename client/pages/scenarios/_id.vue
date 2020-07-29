@@ -20,13 +20,6 @@
             >Save</ToolBarButton
           >
 
-          <ToolBarButton
-            @click="openScenarioProps()"
-            :value="mode"
-            icon-left="edit"
-            >Properties</ToolBarButton
-          >
-
           <b-button @click="collapseAll()" :icon-left="collapseBtnProps.icon">{{
             collapseBtnProps.name
           }}</b-button>
@@ -41,6 +34,7 @@
               toggleHandler($event, selectionReset, startSelectionToast, 'copy')
             "
             :mode="Modes.COPY"
+            :disabled="toolBarBtnDisable"
             >Copy</ToolBarButton
           >
 
@@ -50,6 +44,7 @@
               toggleHandler($event, selectionReset, startSelectionToast, 'swap')
             "
             :mode="Modes.SWAP"
+            :disabled="toolBarBtnDisable"
             >Swap</ToolBarButton
           >
         </div>
@@ -57,6 +52,13 @@
       <template v-slot:end>
         <div class="level-item">
           <div class="buttons">
+            <ToolBarButton
+              @click="openScenarioProps()"
+              :value="mode"
+              icon-left="edit"
+              >Properties</ToolBarButton
+            >
+
             <b-button
               @click="downloadZip()"
               type="is-primary"
@@ -207,6 +209,24 @@ export default {
     });
   },
   computed: {
+    toolBarBtnDisable() {
+      let minimumState = false;
+
+      const idx = this.frameSet.findIndex(frame => !frame.blank);
+      if (idx != -1 && this.frameSet[idx].scenes.length >= 2) {
+        minimumState = true;
+      } else if (idx != -1 && this.frameSet.length > idx) {
+        const newIdx = this.frameSet
+          .slice(idx)
+          .findIndex(frame => !frame.blank);
+        minimumState =
+          newIdx != -1 && this.frameSet[newIdx].scenes.length >= 1
+            ? true
+            : false;
+      }
+
+      return !minimumState;
+    },
     titleBarStyle() {
       return { "--num-conditions": this.numConditions };
     },

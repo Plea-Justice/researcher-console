@@ -104,7 +104,7 @@ export default {
   methods: {
     logoutHandler() {
       console.log(this.logout);
-      this.logout ? this.logout() : console.log("No");
+      this.logout ? this.logout() : this.$auth.logout();
     }
   }
 };

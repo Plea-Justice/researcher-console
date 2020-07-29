@@ -39,7 +39,7 @@ export const actions = {
         ? scenarioName
         : `${state.scenarios[id].name} Copy`;
 
-    // Add number of 'Copy' if multiple copies exists
+    // Add number to ' Copy #' if multiple copies exists
     const duplicateCount = getters.scenarioSet.reduce(
       (count, scenario) => (scenario.name === copyName ? count + 1 : count),
       0
