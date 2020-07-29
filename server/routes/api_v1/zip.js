@@ -20,13 +20,13 @@ module.exports = function (options) {
     /**
      * Generate and download a zipped simulation.
      */
-    router.get('/', async (req, res)=>{
+    router.post('/', async (req, res)=>{
         let id = req.params.scenario_id;
         let uid = req.session.user_id;
 
         try {
             let scenario = await ScenarioModel.findOne({_id: id, user_id: uid});
-            let tmpdir = path.join(os.tmpdir(), `sim-${id}`);
+            let tmpdir = path.join(os.tmpdir(), 'sim-serve' , `sim-${id}`);
             await fs.emptyDir(tmpdir);
 
             let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
@@ -41,10 +41,9 @@ module.exports = function (options) {
             // Construct manifest.
             // FIXME: Survey URL!
             let survey = '/no-url-set.html';
-            let scenes = scenario.vuex_state.scenes;
-            let frames = scenario.vuex_state.frames;
-            let frameList = scenario.vuex_state.frameList;
-            let conditionLengths = scenario.vuex_state.conditionLengths;
+            let scenes = scenario.scenes;
+            let frames = scenario.frames;
+            let frameList = scenario.frameList;
 
             let actors = [];
             let images = [];
@@ -56,6 +55,15 @@ module.exports = function (options) {
             for (const frameID of frameList) {
                 let frame = frames[frameID];
                 for (var i = 0; i < frame.scenes.length; ++i) {
+                    let sceneID = frame.scenes[i];
+
+                    if (!scenes[sceneID])
+                        throw Error('SceneID does not exist.');
+                    
+                    if (!scenes[sceneID].props)
+                        continue;
+
+
                     let scene = scenes[frame.scenes[i]].props;
 
                     switch (scene.type) {
@@ -74,10 +82,10 @@ module.exports = function (options) {
                         images[scene.foreground] = true;
                         images[scene.background] = true;
                         break;
-                    case 'buttons':
+                    case 'question':
                         conditions[i].push(
                             {
-                                'type': scene.type,
+                                'type': 'dialogue',
                                 'name': scene.name,
                                 'script': scene.script,
                                 'actor': scene.actor,
@@ -93,7 +101,7 @@ module.exports = function (options) {
                     case 'clip':
                         conditions[i].push(
                             {
-                                'type':'dialogue',
+                                'type': 'clip',
                                 'name': scene.name,
                                 'clip': scene.clip
                             }
@@ -101,7 +109,7 @@ module.exports = function (options) {
                         clips[scene.clip] = true;
                         break;
                     default:
-                      //  throw Error(`Improper scene type: ${scene.id}.`);
+                        throw Error(`Improper scene type: ${scene.id}.`);
                     }
                 }
             }
@@ -143,15 +151,13 @@ module.exports = function (options) {
             };
 
             await fs.writeFile(path.join(tmpdir, 'manifest.json'), JSON.stringify(manifest));
-            await fs.remove(path.join(os.tmpdir(), `sim-${id}.zip`));
-            zip.zipSync(tmpdir, path.join(os.tmpdir(), `sim-${id}.zip`));
-            await fs.remove(tmpdir);
-            //res.send('okay');
-            res.download(path.join(os.tmpdir(), `sim-${id}.zip`));
+            await fs.remove(path.join(os.tmpdir(), 'sim-serve', `sim-${id}.zip`));
+            zip.zipSync(tmpdir, path.join(os.tmpdir(), 'sim-serve', `sim-${id}.zip`));
 
+            res.status(200).json(util.success('Simulation generated successfully.'));
         } catch (err) {
             console.log(err);
-            res.status(500).json(util.failure('There was an error generating the simulation download.'));
+            res.status(500).json(util.failure('Error generating simulation.'));
         }
 
 

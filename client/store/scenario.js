@@ -143,7 +143,7 @@ export const mutations = {
     };
 
     state.scenes = Object.fromEntries(
-      Object.entries(scenario.vuex_state.scenes).map(([key, values]) => [
+      Object.entries(scenario.scenes).map(([key, values]) => [
         key,
         {
           id: values.id,
@@ -155,8 +155,9 @@ export const mutations = {
     );
 
     // FIXME: Should add properties to each frame as well or does server-side gurantee this
-    state.frames = scenario.vuex_state.frames;
-    state.frameList = scenario.vuex_state.frameList;
+    state.frames = scenario.frames;
+    state.frameList = scenario.frameList;
+
   },
   putScenario(state) {
     // FIXME: REMOVE DEBUG
@@ -170,14 +171,10 @@ export const mutations = {
     ); */
 
     this.$axios.$put(`/api/v1/s/${state.id}`, {
-      name: state.meta.name,
-      description: state.meta.description,
-      survey: state.meta.survey,
-      vuex_state: {
-        scenes: state.scenes,
-        frames: state.frames,
-        frameList: state.frameList
-      }
+      meta: state.meta,
+      scenes: state.scenes,
+      frames: state.frames,
+      frameList: state.frameList
     });
   },
 
