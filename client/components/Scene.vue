@@ -1,6 +1,15 @@
 <template>
-  <ValidationObserver ref="form" tag="fieldset" class="flex-wrap" v-slot="{ failed }">
-    <div v-if="selectable && failed" @click="invalidSelectionToast" class="invalid-selection-mask" />
+  <ValidationObserver
+    ref="form"
+    tag="fieldset"
+    class="flex-wrap"
+    v-slot="{ failed }"
+  >
+    <div
+      v-if="selectable && failed"
+      @click="invalidSelectionToast"
+      class="invalid-selection-mask"
+    />
     <GenericCard
       @remove="removeScene(scene.id)"
       @selected="$emit('selected', scene.id)"
@@ -34,7 +43,8 @@
             @input="updateSceneForm({ id: scene.id, key: 'type', val: $event })"
             :value="scene.props.type"
             :native-value="type"
-          >{{ type }}</b-radio-button>
+            >{{ type }}</b-radio-button
+          >
         </b-field>
 
         <!-- options props needs a preloaded value because .includes in AssetNamesByType will return false positive while loading -->
@@ -59,7 +69,7 @@
             :label="field | capitalize"
             type="textarea"
             rules="required|max:220"
-            :placeholder="field + '...' | capitalize"
+            :placeholder="(field + '...') | capitalize"
             custom-class="has-fixed-size"
             expanded
           />
@@ -163,14 +173,12 @@ export default {
     focus() {
       this.$refs.focus_target.focus();
     },
-    validationScheduler: debounce(function() {
-      this.$refs.form
-        .validate()
-        .then(success =>
-          success
-            ? this.setSceneValid(this.scene.id)
-            : this.setSceneInvalid(this.scene.id)
-        );
+    validationScheduler: debounce(async function() {
+      const valid = await this.$refs.form.validate();
+      // FIXME: make these do something or remove them
+      valid
+        ? this.setSceneValid(this.scene.id)
+        : this.setSceneInvalid(this.scene.id);
     }, 350),
     isType(field, validTypes) {
       const targetType = spec.scene[field];

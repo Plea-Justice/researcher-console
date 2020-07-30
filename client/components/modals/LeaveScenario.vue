@@ -55,15 +55,14 @@ export default {
       this.closeModal();
       this.$emit("exit");
     },
-    saveHandler() {
-      this.validate().then(success => {
-        if (success) {
-          this.saveScenario();
-          this.exitHandler();
-        } else {
-          this.validationFailed = true;
-        }
-      });
+    async saveHandler() {
+      const valid = await this.validate();
+      if (valid) {
+        this.saveScenario();
+        this.exitHandler();
+      } else {
+        this.validationFailed = true;
+      }
     },
     ...mapActions({
       saveScenario: "scenario/saveScenario"

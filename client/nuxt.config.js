@@ -105,7 +105,8 @@ export default {
         'faFileImage',
         'faFileVideo',
         'faEye',
-        'faCog'
+        'faCog',
+        'faCheck'
       ]
     }
   },

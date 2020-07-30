@@ -15,6 +15,7 @@
           <ToolBarButton
             @click="submitHandler()"
             :value="mode"
+            :loading="saving"
             type="is-primary"
             icon-left="save"
             >Save
@@ -170,6 +171,7 @@ export default {
       scenarioStoreHasChanged: false,
       headerHeight: 0,
 
+      saving: false,
       collapsed: false,
       logout: false,
       snackbar: null,
@@ -195,8 +197,10 @@ export default {
     };
   },
   async fetch({ store, params }) {
-    await store.dispatch("scenario/getScenario", params.id);
-    await store.dispatch("assets/getAssets");
+    await Promise.all([
+      store.dispatch("scenario/getScenario", params.id),
+      store.dispatch("assets/getAssets")
+    ]);
   },
   created() {
     this.$store.subscribe((mutation, state) => {
@@ -266,10 +270,14 @@ export default {
     submitHandler() {
       this.$refs.submit.$el.click();
     },
-    onSubmit() {
-      this.$refs.form.validate().then(success => {
-        if (success) {
-          this.saveScenario();
+    async onSubmit() {
+      const valid = await this.$refs.form.validate();
+      if (valid) {
+        // TODO: make this make the save button have a load mode
+        this.saving = true;
+        const status = this.saveScenario();
+        if (status) {
+          this.saving = false;
           this.$buefy.toast.open({
             message: "Scenario Saved",
             type: "is-success"
@@ -280,7 +288,7 @@ export default {
             type: "is-danger"
           });
         }
-      });
+      }
     },
     isSelectable(selectionType) {
       return (

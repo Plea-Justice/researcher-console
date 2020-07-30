@@ -21,24 +21,23 @@ export const getters = {
 
 export const actions = {
   async getAssets({ commit }) {
-    this.$axios.$get('/api/v1/a').then(response => {
-      if (response.success) commit('setAssets', response.result);
-    });
+    const response = await this.$axios.$get('/api/v1/a');
+    if (response.success) commit('setAssets', response.result);
   },
   async addAsset({ commit }, asset) {
     const formData = new FormData();
     Object.entries(asset).forEach(([key, value]) => formData.append(key, value));
 
-    this.$axios.$post('/api/v1/a', formData).then(response => {
+    const response = await this.$axios.$post('/api/v1/a', formData);
+    if (response.success) {
       asset.id = response.result;
       // FIXME: Throw away file at this point? Frontend doesn't need to hold all files
       commit('newAsset', { asset });
-    });
+    }
   },
-  removeAsset({ commit }, id) {
-    commit('deleteAsset', { id });
-    // FIXME: use id to delete assets
-    this.$axios.$delete(`/api/v1/a/${id}`);
+  async removeAsset({ commit }, id) {
+    const response = await this.$axios.$delete(`/api/v1/a/${id}`);
+    if (response.success) commit('deleteAsset', { id });
   }
 };
 

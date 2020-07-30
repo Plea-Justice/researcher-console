@@ -1,3 +1,4 @@
+/* eslint no-shadow: ["error", { "allow": ["state"] }] */
 export const state = () => ({
   counter: 0
 });

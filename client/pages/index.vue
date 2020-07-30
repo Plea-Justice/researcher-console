@@ -113,33 +113,38 @@ export default {
     setFormMode() {
       this.isRegistration = !this.isRegistration;
     },
-    login() {
-      this.$auth
-        .loginWith("local", {
-          data: {
-            username: this.loginForm.username,
-            password: this.loginForm.password
-          }
-        })
-        .then(response => {
-          // Reset inputs
-          this.loginForm = Object.assign({}, this.LoginForm);
-        });
+    async login() {
+      const res = this.$auth.loginWith("local", {
+        data: {
+          username: this.loginForm.username,
+          password: this.loginForm.password
+        }
+      });
 
+      if (success) {
+        // Reset inputs
+        this.loginForm = Object.assign({}, this.LoginForm);
+      } else {
+        this.loginForm.password = "";
+      }
       // FIXME: reset password even if not successful
     },
-    register() {
-      this.$axios
-        .post("/api/v1/auth/register", this.loginForm)
-        .then(response => {
-          // Reset inputs
-          this.loginForm = Object.assign({}, this.LoginForm);
+    async register() {
+      const response = await this.$axios.post(
+        "/api/v1/auth/register",
+        this.loginForm
+      );
+      if (response.success) {
+        // Reset inputs
+        this.loginForm = Object.assign({}, this.LoginForm);
 
-          this.$buefy.toast.open({
-            message: response.data.message,
-            type: "is-success"
-          });
+        this.$buefy.toast.open({
+          message: response.data.message,
+          type: "is-success"
         });
+      } else {
+        this.loginForm.password = "";
+      }
 
       // FIXME: reset password even if not successful
       // FIXME: auto login after creating an account

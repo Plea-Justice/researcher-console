@@ -13,46 +13,47 @@ export const getters = {
 
 export const actions = {
   async getScenarios({ commit }) {
-    this.$axios.$get('api/v1/s').then(response => {
-      if (response.success) commit('setScenarios', response.result);
-    });
+    const response = await this.$axios.$get('api/v1/s');
+    if (response.success) commit('setScenarios', response.result);
   },
   async addScenario({ commit }, scenario) {
     // Get new scenario id from server
     const response = await this.$axios.$post('/api/v1/s', { meta: scenario });
-
-    scenario.id = response.result.id;
-    commit('newScenario', { scenario });
+    if (response.success) {
+      scenario.id = response.result.id;
+      commit('newScenario', { scenario });
+    }
   },
-  removeScenario({ commit }, id) {
-    commit('deleteScenario', { id });
-    this.$axios.$delete(`/api/v1/s/${id}`);
+  async removeScenario({ commit }, id) {
+    const response = await this.$axios.$delete(`/api/v1/s/${id}`);
+    if (response.success) commit('deleteScenario', { id });
   },
   async duplicateScenario({ commit, state, getters }, id) {
-    const copyResponse = await this.$axios.$get(`/api/v1/s/${id}`);
+    const response = await this.$axios.$get(`/api/v1/s/${id}`);
+    if (response.success) {
+      const scenarioName = state.scenarios[id].name;
 
-    const scenarioName = state.scenarios[id].name;
+      // Prevent 'Copy' chaining on duplicates
+      let copyName =
+        scenarioName.substring(scenarioName.lastIndexOf(' ')) === 'Copy'
+          ? scenarioName
+          : `${state.scenarios[id].name} Copy`;
 
-    // Prevent 'Copy' chaining on duplicates
-    let copyName =
-      scenarioName.substring(scenarioName.lastIndexOf(' ')) === 'Copy'
-        ? scenarioName
-        : `${state.scenarios[id].name} Copy`;
+      // Add number to ' Copy #' if multiple copies exists
+      const duplicateCount = getters.scenarioSet.reduce(
+        (count, scenario) => (scenario.name === copyName ? count + 1 : count),
+        0
+      );
 
-    // Add number to ' Copy #' if multiple copies exists
-    const duplicateCount = getters.scenarioSet.reduce(
-      (count, scenario) => (scenario.name === copyName ? count + 1 : count),
-      0
-    );
+      if (duplicateCount > 0) copyName += ` ${duplicateCount}`;
 
-    if (duplicateCount > 0) copyName += ` ${duplicateCount}`;
+      const newResponse = await this.$axios.$post('/api/v1/s', {
+        ...response.result,
+        meta: { name: copyName }
+      });
 
-    const newResponse = await this.$axios.$post('/api/v1/s', {
-      ...copyResponse.result,
-      meta: { name: copyName }
-    });
-
-    commit('copyScenario', { name: copyName, copyId: id, newId: newResponse.result.id });
+      commit('copyScenario', { name: copyName, copyId: id, newId: newResponse.result.id });
+    }
   }
 };
 

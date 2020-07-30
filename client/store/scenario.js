@@ -35,20 +35,33 @@ export const getters = {
 export const actions = {
   // **** Axios Actions ****
   async getScenario({ commit, state }, id) {
-    this.$axios.$get(`/api/v1/s/${id}`).then(response => {
-      if (response.success) {
-        // Reset state representation write in data from server request
-        commit('resetState');
-        commit('setScenario', response.result);
+    const response = await this.$axios.$get(`/api/v1/s/${id}`);
+    if (response.success) {
+      // Reset state representation write in data from server request
+      commit('resetState');
+      commit('setScenario', response.result);
 
-        // If new new Scenario (has no frames) add an initial frame
-        if (!state.frameList.length) commit('newFrame');
-      }
-    });
+      // If new new Scenario (no frames exists) create an initial frame
+      if (!state.frameList.length) commit('newFrame');
+    }
   },
-  saveScenario({ commit }) {
-    // FIXME: make this a promise so saving errors can be properly reported?
-    commit('putScenario');
+  async saveScenario({ state }) {
+    // FIXME: REMOVE DEBUG
+    /* console.table(
+      state.frameList.flatMap(frameId =>
+        state.frames[frameId].scenes.map(sceneId => {
+          const scene = state.scenes[sceneId];
+          return !!scene.valid;
+        })
+      )
+    ); */
+
+    await this.$axios.$put(`/api/v1/s/${state.id}`, {
+      meta: state.meta,
+      scenes: state.scenes,
+      frames: state.frames,
+      frameList: state.frameList
+    });
   },
 
   // **** Scenario Actions ****
@@ -156,27 +169,9 @@ export const mutations = {
       ])
     );
 
-    // FIXME: Should add properties to each frame as well or does server-side gurantee this
+    // FIXME: Should add properties to each frame as well or does server-side guarantee this
     state.frames = scenario.frames;
     state.frameList = scenario.frameList;
-  },
-  putScenario(state) {
-    // FIXME: REMOVE DEBUG
-    /* console.table(
-      state.frameList.flatMap(frameId =>
-        state.frames[frameId].scenes.map(sceneId => {
-          const scene = state.scenes[sceneId];
-          return !!scene.valid;
-        })
-      )
-    ); */
-
-    this.$axios.$put(`/api/v1/s/${state.id}`, {
-      meta: state.meta,
-      scenes: state.scenes,
-      frames: state.frames,
-      frameList: state.frameList
-    });
   },
 
   // **** Scenario Mutations ****
