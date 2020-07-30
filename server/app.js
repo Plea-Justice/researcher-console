@@ -1,6 +1,8 @@
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
+const os = require('os');
+const fs = require('fs-extra');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const rfs = require('rotating-file-stream');
@@ -13,6 +15,7 @@ const app = express();
 // Use the Jade template engine to generate views.
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+app.set('trust proxy', config.trust_proxy);
 
 // Use Morgan to log HTTP requests in Apache format.
 // Rotate logs daily.
@@ -31,7 +34,6 @@ if (config.log_to_console) {
 
 // Connect to the database.
 const mongoose = require('mongoose');
-mongoose.set('debug', config.log_to_console);
 mongoose.connect(config.mongo_uri, {useUnifiedTopology: true, useNewUrlParser: true});
 const database = mongoose.connection;
 database.on('error', ()=>console.log('Error connecting to database.'));
@@ -47,13 +49,13 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         // Sessiion ends at browser close.
-        expires: false
-        //maxAge: 3600000 * 24 * 7
+        expires: false,
+        secure: config.secure_cookies
     },
     store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 
-
+app.use(require('./middleware/userSessionCount'));
 // Enable parsing of JSON payloads into req.body.
 app.use(express.json());
 
@@ -68,7 +70,8 @@ const cors = require('cors');
 if (config.cors_enabled) {
     app.use(cors({credentials: true, origin: config.cors_origin}));
 }
-
+fs.ensureDir(path.join(os.tmpdir(), 'sim-serve'));
+app.use('/sim-serve', express.static(path.join(os.tmpdir(), 'sim-serve')));
 // Serve static files in public.
 app.use(express.static(path.join(__dirname, 'public')));
 

@@ -48,10 +48,12 @@ module.exports = function (options) {
 
         let scenario = new ScenarioModel({
             user_id: req.session.user_id,
-            name: req.body.name,
-            description: req.body.description,
-            survey: req.body.survey,
-            vuex_state: req.body.vuex_state
+            name: req.body.meta.name,
+            description: req.body.meta.description,
+            survey: req.body.meta.survey,
+            scenes: req.body.scenes,
+            frames: req.body.frames,
+            frameList: req.body.frameList
         });
 
         scenario.save((err, obj) => {
@@ -81,11 +83,10 @@ module.exports = function (options) {
                 res.status(200).json(util.success('Scenario returned.',
                     { 
                         meta: {id: obj._id, name: obj.name, description: obj.description, survey: obj.survey},
-                        vuex_state: obj.vuex_state || {
-                            frames: {},
-                            frameList: [],
-                            scenes: {}
-                        }
+                        vuex_state: obj.vuex_state,
+                        scenes: obj.scenes || {},
+                        frames: obj.frames || {},
+                        frameList: obj.frameList || [],
                     }
                 ));
         });
@@ -105,10 +106,12 @@ module.exports = function (options) {
         }
 
         ScenarioModel.updateOne({_id: id, user_id: uid}, {$set: {
-            name: req.body.name,
-            description: req.body.description,
-            survey: req.body.survey,
-            vuex_state: req.body.vuex_state
+            name: req.body.meta.name,
+            description: req.body.meta.description,
+            survey: req.body.meta.survey,
+            scenes: req.body.scenes,
+            frames: req.body.frames,
+            frameList: req.body.frameList
         }}, (err, result)=>{
             if (err)
                 res.status(500).json(util.failure('There was an error updating the scenario.', err));

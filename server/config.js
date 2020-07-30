@@ -11,6 +11,12 @@ module.exports = {
     cors_enabled: true,
     cors_origin: 'http://localhost:3001',
 
+    // Restrict cookies from being sent over unencrypted connections.
+    secure_cookies: false,
+
+    // When running behind a proxy, trust X-Forwarded headers.
+    trust_proxy: true,
+
     // API.
     api_definition: './routes/api_v1',
     api_mount_point: '/api/v1',

@@ -17,14 +17,19 @@
             :value="mode"
             type="is-primary"
             icon-left="save"
-          >Save</ToolBarButton>
+            >Save</ToolBarButton
+          >
 
-          <b-button
-            @click="collapseAll()"
-            :icon-left="collapseBtnProps.icon"
-          >{{ collapseBtnProps.name }}</b-button>
+          <b-button @click="collapseAll()" :icon-left="collapseBtnProps.icon">{{
+            collapseBtnProps.name
+          }}</b-button>
 
-          <ToolBarButton @click="addCondition()" :value="mode" :disabled="!numScenes">Add Condition</ToolBarButton>
+          <ToolBarButton
+            @click="addCondition()"
+            :value="mode"
+            :disabled="!numScenes"
+            >Add Condition</ToolBarButton
+          >
 
           <ToolBarButton
             v-model="mode"
@@ -33,7 +38,8 @@
             "
             :mode="Modes.COPY"
             :disabled="toolBarBtnDisable"
-          >Copy</ToolBarButton>
+            >Copy</ToolBarButton
+          >
 
           <ToolBarButton
             v-model="mode"
@@ -42,28 +48,46 @@
             "
             :mode="Modes.SWAP"
             :disabled="toolBarBtnDisable"
-          >Swap</ToolBarButton>
+            >Swap</ToolBarButton
+          >
         </div>
       </template>
       <template v-slot:end>
         <div class="level-item">
           <div class="buttons">
-            <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="edit">Properties</ToolBarButton>
+            <ToolBarButton
+              @click="openScenarioProps()"
+              :value="mode"
+              icon-left="edit"
+              >Properties</ToolBarButton
+            >
 
+            <b-button @click="previewSim()" type="is-primary" icon-left="eye"
+              >Preview</b-button
+            >
             <b-button
               @click="downloadZip()"
               type="is-primary"
               icon-left="file-download"
-            >Download Package</b-button>
+              >Download</b-button
+            >
           </div>
         </div>
       </template>
     </ToolBar>
 
     <!-- Titles -->
-    <div ref="titlebar" :style="titleBarStyle" class="padded-responsive-container title-bar">
+    <div
+      ref="titlebar"
+      :style="titleBarStyle"
+      class="padded-responsive-container title-bar"
+    >
       <div :style="frameSideBarActive" class="title-wrapper">
-        <div v-for="index in numConditions" :key="index" class="condition-title">
+        <div
+          v-for="index in numConditions"
+          :key="index"
+          class="condition-title"
+        >
           <div
             v-if="isSelectable(Select.CONDITION)"
             @click="addToSelection(index - 1, Select.CONDITION)"
@@ -353,26 +377,43 @@ export default {
         trapFocus: true
       });
     },
-    downloadZip() {
-      let start = () => {
-        this.$buefy.toast.open({
-          message: "Simulation download will begin shortly.",
-          type: "is-success"
-        });
-        window.location = `${this.$axios.defaults.baseURL}/api/v1/s/${this.scenarioMeta.id}/zip`;
-      };
+    async genSim() {
       // TODO: Ask on unsaved, invalid, etc.
       if (!this.scenarioMeta.survey)
-        this.$buefy.dialog.confirm({
+        this.$buefy.dialog.alert({
           title: "Survey Redirect Unset",
           message:
             "No survey URL has been set. Set the survey URL in 'Properties'.",
-          confirmText: "Download Anyway",
           type: "is-danger",
-          hasIcon: true,
-          onConfirm: start
+          hasIcon: true
         });
-      else start();
+      else {
+        this.$buefy.toast.open({
+          message: "Please wait. Generating simulation...",
+          type: "is-success",
+          duration: 4000
+        });
+
+        let response = await this.$axios.post(
+          `/api/v1/s/${this.scenarioMeta.id}/zip`
+        );
+        if (response.status != 200) return false;
+        return true;
+      }
+
+      return false;
+    },
+    async downloadZip() {
+      if (await this.genSim())
+        window.open(
+          `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}.zip`
+        );
+    },
+    async previewSim() {
+      if (await this.genSim())
+        window.open(
+          `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}/`
+        );
     },
     ...mapActions({
       addCondition: "scenario/addCondition",

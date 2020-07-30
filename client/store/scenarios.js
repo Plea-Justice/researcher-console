@@ -19,7 +19,7 @@ export const actions = {
   },
   async addScenario({ commit }, scenario) {
     // Get new scenario id from server
-    const response = await this.$axios.$post('/api/v1/s', scenario);
+    const response = await this.$axios.$post('/api/v1/s', { meta: scenario });
 
     scenario.id = response.result.id;
     commit('newScenario', { scenario });
@@ -49,7 +49,7 @@ export const actions = {
 
     const newResponse = await this.$axios.$post('/api/v1/s', {
       ...copyResponse.result,
-      ...{ name: copyName }
+      meta: { name: copyName }
     });
 
     commit('copyScenario', { name: copyName, copyId: id, newId: newResponse.result.id });
