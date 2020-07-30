@@ -17,19 +17,19 @@
             :value="mode"
             type="is-primary"
             icon-left="save"
-            >Save</ToolBarButton
-          >
+            >Save
+          </ToolBarButton>
 
-          <b-button @click="collapseAll()" :icon-left="collapseBtnProps.icon">{{
-            collapseBtnProps.name
-          }}</b-button>
+          <b-button @click="collapseAll()" :icon-left="collapseBtnProps.icon">
+            {{ collapseBtnProps.name }}
+          </b-button>
 
           <ToolBarButton
             @click="addCondition()"
             :value="mode"
             :disabled="!numScenes"
-            >Add Condition</ToolBarButton
-          >
+            >Add Condition
+          </ToolBarButton>
 
           <ToolBarButton
             v-model="mode"
@@ -37,9 +37,9 @@
               toggleHandler($event, selectionReset, startSelectionToast, 'copy')
             "
             :mode="Modes.COPY"
-            :disabled="toolBarBtnDisable"
-            >Copy</ToolBarButton
-          >
+            :disabled="numScenes < 2"
+            >Copy
+          </ToolBarButton>
 
           <ToolBarButton
             v-model="mode"
@@ -47,9 +47,9 @@
               toggleHandler($event, selectionReset, startSelectionToast, 'swap')
             "
             :mode="Modes.SWAP"
-            :disabled="toolBarBtnDisable"
-            >Swap</ToolBarButton
-          >
+            :disabled="numScenes < 2"
+            >Swap
+          </ToolBarButton>
         </div>
       </template>
       <template v-slot:end>
@@ -59,18 +59,24 @@
               @click="openScenarioProps()"
               :value="mode"
               icon-left="edit"
-              >Properties</ToolBarButton
-            >
+              >Properties
+            </ToolBarButton>
 
-            <b-button @click="previewSim()" type="is-primary" icon-left="eye"
-              >Preview</b-button
-            >
-            <b-button
+            <ToolBarButton
+              @click="previewSimulation()"
+              :value="mode"
+              type="is-primary"
+              icon-left="eye"
+              >Preview
+            </ToolBarButton>
+
+            <ToolBarButton
               @click="downloadZip()"
+              :value="mode"
               type="is-primary"
               icon-left="file-download"
-              >Download</b-button
-            >
+              >Download
+            </ToolBarButton>
           </div>
         </div>
       </template>
@@ -221,14 +227,10 @@ export default {
       numScenes: "scenario/numScenes",
       frameSet: "scenario/frameSet"
     }),
-    toolBarBtnDisable() {
-      return this.numScenes < 2;
-    },
     titleBarStyle() {
       return { "--num-conditions": this.numConditions };
     },
     frameSideBarActive() {
-      console.log(`Sidebar: ${this.numScenes ? 1 : 0}`);
       return { "--frame-sidebar-active": this.numScenes ? 1 : 0 };
     },
     collapseBtnProps() {
@@ -240,6 +242,10 @@ export default {
     }
   },
   methods: {
+    closeSnackbar() {
+      this.snackbar.close();
+      this.snackbar = null;
+    },
     logoutHelper() {
       this.logout = true;
       this.$auth.logout();
@@ -300,7 +306,7 @@ export default {
       this.select = this.Select.ALL;
     },
     addToSelection(eSceneId, selectedType) {
-      this.snackbar.close();
+      this.closeSnackbar();
       this.selectionList.push(eSceneId);
 
       // If first item
@@ -351,7 +357,7 @@ export default {
       if (eventState) {
         onToggle(modeName);
       } else {
-        this.snackbar && this.snackbar.close();
+        this.snackbar !== null && this.closeSnackbar();
         onUntoggle();
       }
     },
@@ -377,40 +383,46 @@ export default {
         trapFocus: true
       });
     },
-    async genSim() {
+    async generateSimulation() {
       // TODO: Ask on unsaved, invalid, etc.
+      // Create an array of warnings & display the messages accordingly
       if (!this.scenarioMeta.survey)
         this.$buefy.dialog.alert({
-          title: "Survey Redirect Unset",
+          title: "Survey Redirect Not Set",
           message:
-            "No survey URL has been set. Set the survey URL in 'Properties'.",
-          type: "is-danger",
-          hasIcon: true
+            'Please set the survey URL. This can be found under the "Properties" Toolbar Button',
+          type: "is-warning",
+          hasIcon: true,
+          icon: "exclamation-triangle",
+          onConfirm: () => setTimeout(this.openScenarioProps, 150)
         });
       else {
-        this.$buefy.toast.open({
-          message: "Please wait. Generating simulation...",
-          type: "is-success",
-          duration: 4000
+        this.snackbar = this.$buefy.snackbar.open({
+          message: "Please wait, generating simulation...",
+          position: "is-top",
+          indefinite: true,
+          actionText: null
         });
 
-        let response = await this.$axios.post(
+        const response = await this.$axios.post(
           `/api/v1/s/${this.scenarioMeta.id}/zip`
         );
-        if (response.status != 200) return false;
-        return true;
+        this.closeSnackbar();
+        return response.status === 200;
       }
 
       return false;
     },
     async downloadZip() {
-      if (await this.genSim())
+      const status = await this.generateSimulation();
+      if (status)
         window.open(
           `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}.zip`
         );
     },
-    async previewSim() {
-      if (await this.genSim())
+    async previewSimulation() {
+      const status = await this.generateSimulation();
+      if (status)
         window.open(
           `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}/`
         );

@@ -159,7 +159,6 @@ export const mutations = {
     // FIXME: Should add properties to each frame as well or does server-side gurantee this
     state.frames = scenario.frames;
     state.frameList = scenario.frameList;
-
   },
   putScenario(state) {
     // FIXME: REMOVE DEBUG
