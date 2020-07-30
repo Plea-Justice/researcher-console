@@ -27,6 +27,7 @@ module.exports = function (options) {
         try {
             let scenario = await ScenarioModel.findOne({_id: id, user_id: uid});
             let tmpdir = path.join(os.tmpdir(), 'sim-serve' , `sim-${id}`);
+            let zippath = path.join(os.tmpdir(), 'sim-serve', `sim-${id}.zip`);
             await fs.emptyDir(tmpdir);
 
             let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
@@ -151,13 +152,13 @@ module.exports = function (options) {
             };
 
             await fs.writeFile(path.join(tmpdir, 'manifest.json'), JSON.stringify(manifest));
-            await fs.remove(path.join(os.tmpdir(), 'sim-serve', `sim-${id}.zip`));
-            zip.zipSync(tmpdir, path.join(os.tmpdir(), 'sim-serve', `sim-${id}.zip`));
+            await fs.remove(zippath);
+            zip.zipSync(tmpdir, zippath);
 
             res.status(200).json(util.success('Simulation generated successfully.'));
         } catch (err) {
             console.log(err);
-            res.status(500).json(util.failure('Error generating simulation.'));
+            res.status(500).json(util.failure('Error generating simulation.', err));
         }
 
 

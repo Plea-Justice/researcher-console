@@ -14,7 +14,7 @@ module.exports = {
     // Restrict cookies from being sent over unencrypted connections.
     secure_cookies: false,
 
-    // When running behind a proxy, trust X-Forwarded headers.
+    // When running behind a reverse proxy, trust X-Forwarded headers.
     trust_proxy: true,
 
     // API.
