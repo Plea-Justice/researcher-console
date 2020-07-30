@@ -10,6 +10,7 @@ import spec from '../assets/spec.json';
 
 const initialState = () => ({
   id: '',
+  numScenes: 0,
   meta: {
     name: '',
     description: '',
@@ -27,7 +28,8 @@ export const getters = {
   scenarioMeta: state => ({ id: state.id, ...state.meta }),
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
-  numConditions: state => (state.frameList.length <= 0 ? 0 : state.frames[state.frameList[0]].scenes.length)
+  numConditions: state => (state.frameList.length ? state.frames[state.frameList[0]].scenes.length : 0),
+  numScenes: state => state.numScenes
 };
 
 export const actions = {
@@ -133,7 +135,7 @@ export const mutations = {
   // **** Axios Mutations ****
   setScenario(state, scenario) {
     state.id = scenario.meta.id;
-
+    state.numScenes = scenario.numScenes;
     state.meta = { name: scenario.meta.name, description: scenario.meta.description, survey: scenario.meta.survey };
 
     // FIXME: make this static or something?
@@ -201,7 +203,12 @@ export const mutations = {
       const lastScene = state.scenes[currFrame.scenes[currFrame.scenes.length - 1]];
 
       Vue.set(state.scenes, id, { ...lastScene, ...{ id } });
+      // FIXME: fix these being direct mutations?
       currFrame.scenes.push(id);
+      if (lastScene.props !== null) {
+        Vue.set(currFrame, 'size', currFrame.size + 1);
+        state.numScenes += 1;
+      }
     }
   },
   deleteCondition(state, payload) {
@@ -217,15 +224,21 @@ export const mutations = {
       // Add blank scene
       const sceneId = nanoid();
       Vue.set(state.scenes, sceneId, { id: sceneId, props: null });
-      // Create new frame with new scene
+      // Create new frame holding only new blank scene
       const frameId = nanoid();
-      Vue.set(state.frames, frameId, { id: frameId, blank: true, collapsed: false, scenes: [sceneId] });
+      Vue.set(state.frames, frameId, { id: frameId, size: 0, collapsed: false, scenes: [sceneId] });
       state.frameList.push(frameId);
     } else {
       state.frameList.forEach(frameId => {
         // Remove that conditions scene's from each frame
+        // FIXME: fix this being a direct mutation?
         const removedSceneId = state.frames[frameId].scenes.splice(payload.index, 1);
-
+        // Adjust frame size
+        if (state.scenes[removedSceneId].props !== null) {
+          const currFrame = state.frames[frameId];
+          Vue.set(state.frames, frameId, { ...currFrame, size: currFrame.size - 1 });
+          state.numScene -= 1;
+        }
         // Remove scene from scenes
         Vue.delete(state.scenes, removedSceneId);
       });
@@ -257,12 +270,11 @@ export const mutations = {
 
   // **** Frame Mutations ****
   newFrame(state, payload) {
-    // TODO: cache this in root VueX state, use cache for everywhere else as well
-    const frameLength = state.frameList.length ? state.frames[state.frameList[0]].scenes.length : 1;
+    const framesLength = state.frameList.length ? state.frames[state.frameList[0]].scenes.length : 1;
 
     // Create scenes for new frame
     const frameScenes = [];
-    for (let i = 0; i < frameLength; i++) {
+    for (let i = 0; i < framesLength; i++) {
       const id = nanoid();
       Vue.set(state.scenes, id, { id, valid: null, props: null });
       frameScenes.push(id);
@@ -270,7 +282,7 @@ export const mutations = {
 
     // Create frame
     const id = nanoid();
-    Vue.set(state.frames, id, { id, blank: true, collapsed: false, scenes: frameScenes });
+    Vue.set(state.frames, id, { id, size: 0, collapsed: false, scenes: frameScenes });
     if (payload && state.frameList.length) state.frameList.splice(state.frameList.indexOf(payload.frameId) + 1, 0, id);
     else state.frameList.push(id);
   },
@@ -282,7 +294,7 @@ export const mutations = {
       lastFrame.scenes.forEach(sceneId => Vue.set(state.scenes, sceneId, { id: sceneId, props: null }));
 
       // Update Frame data
-      Vue.set(state.frames, payload.frameId, { ...lastFrame, ...{ blank: true } });
+      Vue.set(state.frames, payload.frameId, { ...lastFrame, size: 0 });
     } else {
       const frameIndex = state.frameList.indexOf(payload.frameId);
 
@@ -328,10 +340,9 @@ export const mutations = {
     };
 
     Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, valid: null, props: newSceneProps });
-
-    // Update frame if necessary
-    // TODO: improve this to use a counter instead
-    if (currFrame.blank) Vue.set(state.frames, currFrame.id, { ...currFrame, blank: false });
+    // FIXME: Can you reactively update a key instead of replacing everything else?
+    Vue.set(state.frames, currFrame.id, { ...currFrame, size: currFrame.size + 1 });
+    state.numScenes += 1;
   },
   deleteScene(state, payload) {
     Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: null });
@@ -340,9 +351,9 @@ export const mutations = {
     // TODO: improve this to use a counter instead
     const currFrame =
       state.frames[state.frameList[state.frameList.findIndex(id => state.frames[id].scenes.includes(payload.sceneId))]];
-    if (!currFrame.blank)
-      if (currFrame.scenes.every(id => state.scenes[id].props === null))
-        Vue.set(state.frames, currFrame.id, { ...currFrame, blank: true });
+
+    Vue.set(state.frames, currFrame.id, { ...currFrame, size: currFrame.size - 1 });
+    state.numScenes -= 1;
   },
   copyScene(state, payload) {
     Vue.set(state.scenes, payload.toId, { ...state.scenes[payload.fromId], ...{ id: payload.toId } });

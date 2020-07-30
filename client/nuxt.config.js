@@ -84,6 +84,7 @@ export default {
         'faPlus',
         'faTimes',
         'faQuestion',
+        'faExclamationCircle',
         'faChevronUp',
         'faChevronDown',
         'faArrowUp',
@@ -99,6 +100,7 @@ export default {
         'faSave',
         'faEdit',
         'faFileDownload',
+        'faCloudUploadAlt',
         'faFileImage',
         'faFileVideo'
       ]

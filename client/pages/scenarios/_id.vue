@@ -17,16 +17,14 @@
             :value="mode"
             type="is-primary"
             icon-left="save"
-            >Save</ToolBarButton
-          >
+          >Save</ToolBarButton>
 
-          <b-button @click="collapseAll()" :icon-left="collapseBtnProps.icon">{{
-            collapseBtnProps.name
-          }}</b-button>
+          <b-button
+            @click="collapseAll()"
+            :icon-left="collapseBtnProps.icon"
+          >{{ collapseBtnProps.name }}</b-button>
 
-          <ToolBarButton @click="addCondition()" :value="mode"
-            >Add Condition</ToolBarButton
-          >
+          <ToolBarButton @click="addCondition()" :value="mode" :disabled="!numScenes">Add Condition</ToolBarButton>
 
           <ToolBarButton
             v-model="mode"
@@ -35,8 +33,7 @@
             "
             :mode="Modes.COPY"
             :disabled="toolBarBtnDisable"
-            >Copy</ToolBarButton
-          >
+          >Copy</ToolBarButton>
 
           <ToolBarButton
             v-model="mode"
@@ -45,43 +42,28 @@
             "
             :mode="Modes.SWAP"
             :disabled="toolBarBtnDisable"
-            >Swap</ToolBarButton
-          >
+          >Swap</ToolBarButton>
         </div>
       </template>
       <template v-slot:end>
         <div class="level-item">
           <div class="buttons">
-            <ToolBarButton
-              @click="openScenarioProps()"
-              :value="mode"
-              icon-left="edit"
-              >Properties</ToolBarButton
-            >
+            <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="edit">Properties</ToolBarButton>
 
             <b-button
               @click="downloadZip()"
               type="is-primary"
               icon-left="file-download"
-              >Download Package</b-button
-            >
+            >Download Package</b-button>
           </div>
         </div>
       </template>
     </ToolBar>
 
     <!-- Titles -->
-    <div
-      ref="titlebar"
-      :style="titleBarStyle"
-      class="padded-responsive-container title-bar"
-    >
-      <div class="title-wrapper">
-        <div
-          v-for="index in numConditions"
-          :key="index"
-          class="condition-title"
-        >
+    <div ref="titlebar" :style="titleBarStyle" class="padded-responsive-container title-bar">
+      <div :style="frameSideBarActive" class="title-wrapper">
+        <div v-for="index in numConditions" :key="index" class="condition-title">
           <div
             v-if="isSelectable(Select.CONDITION)"
             @click="addToSelection(index - 1, Select.CONDITION)"
@@ -209,26 +191,21 @@ export default {
     });
   },
   computed: {
+    ...mapGetters({
+      scenarioMeta: "scenario/scenarioMeta",
+      numConditions: "scenario/numConditions",
+      numScenes: "scenario/numScenes",
+      frameSet: "scenario/frameSet"
+    }),
     toolBarBtnDisable() {
-      let minimumState = false;
-
-      const idx = this.frameSet.findIndex(frame => !frame.blank);
-      if (idx != -1 && this.frameSet[idx].scenes.length >= 2) {
-        minimumState = true;
-      } else if (idx != -1 && this.frameSet.length > idx) {
-        const newIdx = this.frameSet
-          .slice(idx)
-          .findIndex(frame => !frame.blank);
-        minimumState =
-          newIdx != -1 && this.frameSet[newIdx].scenes.length >= 1
-            ? true
-            : false;
-      }
-
-      return !minimumState;
+      return this.numScenes < 2;
     },
     titleBarStyle() {
       return { "--num-conditions": this.numConditions };
+    },
+    frameSideBarActive() {
+      console.log(`Sidebar: ${this.numScenes ? 1 : 0}`);
+      return { "--frame-sidebar-active": this.numScenes ? 1 : 0 };
     },
     collapseBtnProps() {
       const test = this.scenarioMeta.collapsed;
@@ -236,12 +213,7 @@ export default {
         icon: `${test ? "expand" : "compress"}-alt`,
         name: `${test ? "Expand" : "Collapse"} All`
       };
-    },
-    ...mapGetters({
-      scenarioMeta: "scenario/scenarioMeta",
-      numConditions: "scenario/numConditions",
-      frameSet: "scenario/frameSet"
-    })
+    }
   },
   methods: {
     logoutHelper() {
@@ -489,10 +461,12 @@ export default {
 
   $scene: $frameSceneGap + $sceneWidth;
   width: calc(
-    #{$scene} * var(--num-conditions) - #{$frameSceneGap} + #{$frameSideBarWidth} +
-      #{$framePadding} * 2
+    #{$scene} * var(--num-conditions) - #{$frameSceneGap} +
+      var(--frame-sidebar-active) * #{$frameSideBarWidth} + #{$framePadding} * 2
   );
-  padding-left: calc(#{$framePadding} + #{$frameSideBarWidth});
+  padding-left: calc(
+    #{$framePadding} + var(--frame-sidebar-active) * #{$frameSideBarWidth}
+  );
 
   // This is effectively flex-gap .condition-title
   // For every .condition-title except the last one

@@ -2,34 +2,32 @@
   <div class="frame-wrapper">
     <div class="frame box">
       <!-- Sidebar -->
-      <aside class="sidebar buttons">
-        <template v-if="!(isFirst && isLast && frame.blank)">
-          <!-- Collapse Button -->
-          <b-button
-            v-show="!frame.blank"
-            @click="collapseFrame()"
-            :icon-left="`chevron-${frame.collapsed ? 'down' : 'up'}`"
-            type="is-text"
-            size="is-medium"
-          />
+      <aside v-show="!(isFirst && isLast && !frame.size)" class="sidebar buttons">
+        <!-- Collapse Button -->
+        <b-button
+          v-show="frame.size"
+          @click="collapseFrame()"
+          :icon-left="`chevron-${frame.collapsed ? 'down' : 'up'}`"
+          type="is-text"
+          size="is-medium"
+        />
 
-          <!-- Move Up/Down Buttons -->
-          <template v-show="!frame.collapsed">
-            <b-button
-              v-show="!isFirst"
-              @click="moveUp()"
-              type="is-light"
-              size="is-medium"
-              icon-left="arrow-up"
-            />
-            <b-button
-              v-show="!isLast"
-              @click="moveDown()"
-              type="is-light"
-              size="is-medium"
-              icon-left="arrow-down"
-            />
-          </template>
+        <!-- Move Up/Down Buttons -->
+        <template v-show="!frame.collapsed">
+          <b-button
+            v-show="!isFirst"
+            @click="moveUp()"
+            type="is-light"
+            size="is-medium"
+            icon-left="arrow-up"
+          />
+          <b-button
+            v-show="!isLast"
+            @click="moveDown()"
+            type="is-light"
+            size="is-medium"
+            icon-left="arrow-down"
+          />
 
           <!-- Remove Frame Button -->
           <b-button
@@ -65,7 +63,7 @@
 
     <div class="frame-footer">
       <b-button
-        v-show="!(isFirst && isLast && frame.blank)"
+        v-show="!(isFirst && isLast && !frame.size)"
         @click="addFrameHelper(frame.id)"
         type="is-light"
         size="is-medium"
