@@ -18,19 +18,14 @@
             :loading="saving"
             type="is-primary"
             icon-left="save"
-            >Save
-          </ToolBarButton>
+          >Save</ToolBarButton>
 
-          <b-button @click="collapseAll()" :icon-left="collapseBtnProps.icon">
-            {{ collapseBtnProps.name }}
-          </b-button>
+          <b-button
+            @click="collapseAll()"
+            :icon-left="collapseBtnProps.icon"
+          >{{ collapseBtnProps.name }}</b-button>
 
-          <ToolBarButton
-            @click="addCondition()"
-            :value="mode"
-            :disabled="!numScenes"
-            >Add Condition
-          </ToolBarButton>
+          <ToolBarButton @click="addCondition()" :value="mode" :disabled="!numScenes">Add Condition</ToolBarButton>
 
           <ToolBarButton
             v-model="mode"
@@ -39,8 +34,7 @@
             "
             :mode="Modes.COPY"
             :disabled="numScenes < 2"
-            >Copy
-          </ToolBarButton>
+          >Copy</ToolBarButton>
 
           <ToolBarButton
             v-model="mode"
@@ -49,52 +43,36 @@
             "
             :mode="Modes.SWAP"
             :disabled="numScenes < 2"
-            >Swap
-          </ToolBarButton>
+          >Swap</ToolBarButton>
         </div>
       </template>
       <template v-slot:end>
         <div class="level-item">
           <div class="buttons">
-            <ToolBarButton
-              @click="openScenarioProps()"
-              :value="mode"
-              icon-left="edit"
-              >Properties
-            </ToolBarButton>
+            <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="edit">Properties</ToolBarButton>
 
             <ToolBarButton
               @click="previewSimulation()"
               :value="mode"
               type="is-primary"
               icon-left="eye"
-              >Preview
-            </ToolBarButton>
+            >Preview</ToolBarButton>
 
             <ToolBarButton
               @click="downloadZip()"
               :value="mode"
               type="is-primary"
               icon-left="file-download"
-              >Download
-            </ToolBarButton>
+            >Download</ToolBarButton>
           </div>
         </div>
       </template>
     </ToolBar>
 
     <!-- Titles -->
-    <div
-      ref="titlebar"
-      :style="titleBarStyle"
-      class="padded-responsive-container title-bar"
-    >
+    <div ref="titlebar" :style="titleBarStyle" class="padded-responsive-container title-bar">
       <div :style="frameSideBarActive" class="title-wrapper">
-        <div
-          v-for="index in numConditions"
-          :key="index"
-          class="condition-title"
-        >
+        <div v-for="index in numConditions" :key="index" class="condition-title">
           <div
             v-if="isSelectable(Select.CONDITION)"
             @click="addToSelection(index - 1, Select.CONDITION)"

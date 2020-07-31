@@ -46,22 +46,7 @@ export const actions = {
     }
   },
   async saveScenario({ state }) {
-    // FIXME: REMOVE DEBUG
-    /* console.table(
-      state.frameList.flatMap(frameId =>
-        state.frames[frameId].scenes.map(sceneId => {
-          const scene = state.scenes[sceneId];
-          return !!scene.valid;
-        })
-      )
-    ); */
-
-    await this.$axios.$put(`/api/v1/s/${state.id}`, {
-      meta: state.meta,
-      scenes: state.scenes,
-      frames: state.frames,
-      frameList: state.frameList
-    });
+    await this.$axios.$put(`/api/v1/s/${state.id}`, state);
   },
 
   // **** Scenario Actions ****
@@ -147,31 +132,7 @@ export const mutations = {
 
   // **** Axios Mutations ****
   setScenario(state, scenario) {
-    state.id = scenario.meta.id;
-    state.numScenes = scenario.numScenes;
-    state.meta = { name: scenario.meta.name, description: scenario.meta.description, survey: scenario.meta.survey };
-
-    // FIXME: make this static or something?
-    const emptySceneProps = {
-      ...Object.fromEntries(Object.keys(spec.scene).map(key => [key, ''])),
-      type: Object.keys(spec.sceneTypes)[1]
-    };
-
-    state.scenes = Object.fromEntries(
-      Object.entries(scenario.scenes).map(([key, values]) => [
-        key,
-        {
-          id: values.id,
-          valid: null,
-          type: values.props ? values.props.type || Object.keys(spec.sceneTypes)[1] : false,
-          props: { ...emptySceneProps, ...values.props }
-        }
-      ])
-    );
-
-    // FIXME: Should add properties to each frame as well or does server-side guarantee this
-    state.frames = scenario.frames;
-    state.frameList = scenario.frameList;
+    Object.assign(state, scenario);
   },
 
   // **** Scenario Mutations ****
