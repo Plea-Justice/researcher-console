@@ -194,7 +194,8 @@ The API defines endpoints for managing scenarios, assets, and user authenticatio
 | `GET` | `/api/v1/s/{scenario_id}` | Get a scenario. |
 | `PUT` | `/api/v1/s/{scenario_id}` | Save a scenario. |
 | `DELETE` | `/api/v1/s/{scenario_id}` | Delete a scenario. |
-| `GET` | `/api/v1/s/{scenario_id}/zip` | Get a scenario. |
+| `POST` | `/api/v1/s/{scenario_id}/generate` | Generate a simulation. |
+| `POST` | `/api/v1/s/{scenario_id}/zip` | Prepare a ZIP of a generated simulation. |
 | `GET` | `/api/v1/a` | Get the list of assets. |
 | `POST` | `/api/v1/a` | Upload an asset. |
 | `DELETE` | `/api/v1/a/{asset_id}` | Get the list of assets. |

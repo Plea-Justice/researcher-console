@@ -84,9 +84,9 @@ module.exports = function (options) {
                     { 
                         meta: {id: obj._id, name: obj.name, description: obj.description, survey: obj.survey},
                         vuex_state: obj.vuex_state,
-                        scenes: obj.scenes || {},
-                        frames: obj.frames || {},
-                        frameList: obj.frameList || [],
+                        scenes: obj.scenes,
+                        frames: obj.frames,
+                        frameList: obj.frameList,
                     }
                 ));
         });
@@ -150,8 +150,8 @@ module.exports = function (options) {
         });
     });
 
-    // Zip generation sub-route.
-    router.use('/:scenario_id/zip', require('./zip')(options));
+    // Simulation generation sub-route.
+    router.use('/:scenario_id', require('./zip')(options));
 
     return router;
 };

@@ -10,11 +10,11 @@ var ScenarioSchema = new mongoose.Schema({
     name: { type: String, default: 'New Scenario' },
     description: { type: String, default: '' },
     survey: { type: String, default: '/no-url-set.html' },
-    scenes: { type: Object },
-    frames: { type: Object },
-    frameList: { type: Array },
+    scenes: { type: Object, default: {} },
+    frames: { type: Object, default: {} },
+    frameList: { type: Array, default: [] },
     created: { type: Date, default: Date.now }
-}, { strict: 'throw', strictQuery: true });
+}, { strict: 'throw', strictQuery: true, minimize: false });
 
 var ScenarioModel = mongoose.model('Scenario', ScenarioSchema);
 module.exports = ScenarioModel;

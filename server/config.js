@@ -31,6 +31,9 @@ module.exports = {
     // Switch this to a different database for development.
     mongo_uri: 'mongodb://localhost:27017/researcher',
 
+    // Log debug info from Mongoose.
+    mongoose_debug: false,
+
     // Data directory for uploaded assets and user files.
     data_dir: './data/',
 
