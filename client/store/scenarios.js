@@ -28,6 +28,10 @@ export const actions = {
     const response = await this.$axios.$delete(`/api/v1/s/${id}`);
     if (response.success) commit('deleteScenario', { id });
   },
+  async editScenario({ commit }, scenario) {
+    const response = await this.$axios.$put(`/api/v1/s/${scenario.id}`, scenario);
+    if (response.success) commit('updateScenario', scenario);
+  },
   async duplicateScenario({ commit, state, getters }, id) {
     const response = await this.$axios.$get(`/api/v1/s/${id}`);
     if (response.success) {
@@ -71,6 +75,9 @@ export const mutations = {
     // Remove scenario
     state.scenarioList.splice(state.scenarioList.indexOf(payload.id), 1);
     Vue.delete(state.scenarios, payload.id);
+  },
+  updateScenario(state, payload) {
+    Vue.set(state.scenarios, payload.id, payload);
   },
   copyScenario(state, payload) {
     const copiedScenario = Object.assign({}, state.scenarios[payload.copyId]);

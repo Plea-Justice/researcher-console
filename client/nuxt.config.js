@@ -101,7 +101,7 @@ export default {
         'faEnvelope',
         'faLock',
         'faSave',
-        'faEdit',
+        'faPencilAlt',
         'faFileDownload',
         'faCloudUploadAlt',
         'faFileImage',
@@ -109,7 +109,9 @@ export default {
         'faEye',
         'faEyeSlash',
         'faCog',
-        'faCheck'
+        'faCheck',
+        'faLink',
+        'faUnlink'
       ]
     }
   },

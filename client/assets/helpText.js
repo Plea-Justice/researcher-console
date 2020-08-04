@@ -13,10 +13,10 @@ export const scenariosHelp = {
 
 export const scenarioHelp = {
   navbar:
-    "The simulation storyline progresses downwards. Each column is the variation of the storyline that will be presented to participants subject to the experimental condition specified at the top of the column. Click 'Properties' to edit the survey link to which participants will be redirected when they complete the simulation. 'Download Package' will create a fully configured, zipped simulation package, ready to deploy on any web server."
+    "The simulation storyline progresses downwards. Each column is the variation of the storyline that will be presented to participants subject to the experimental condition specified at the top of the column. Click 'Options' to edit the survey link to which participants will be redirected when they complete the simulation. 'Download Package' will create a fully configured, zipped simulation package, ready to deploy on any web server."
 };
 
-export const scenarioPropertiesHelp = {
+export const scenarioOptionsHelp = {
   url:
     "The survey URL is the web address the participant will be redirected to at the end of the simulation. This may be a Qualtrics or other questionnaire or web page ready to recieve the participant's data."
 };

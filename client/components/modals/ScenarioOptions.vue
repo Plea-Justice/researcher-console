@@ -2,7 +2,7 @@
   <div class="modal-card" style="width: 30vw">
     <form @submit.prevent="onSubmit()">
       <header class="modal-card-head">
-        <p class="modal-card-title">Scenario Properties</p>
+        <p class="modal-card-title">Scenario Options</p>
       </header>
       <section class="modal-card-body">
         <b-field label="Name">
@@ -18,11 +18,7 @@
             maxlength="100"
           />
         </b-field>
-        <b-field
-          label="Survey URL"
-          type="is-danger"
-          message="Valid URL required"
-        >
+        <b-field label="Survey URL" type="is-danger" message="Valid URL required">
           <!-- FIXME: need's external validator, message will always show -->
           <div class="field-body no-help">
             <b-field>
@@ -36,19 +32,13 @@
                 expanded
               />
 
-              <HelpSidebar
-                :text="propertiesHelp.url"
-                title="Survey URL"
-                class="control"
-              />
+              <HelpSidebar :text="OptionsHelp.url" title="Survey URL" class="control" />
             </b-field>
           </div>
         </b-field>
       </section>
       <footer class="modal-card-foot">
-        <b-button type="is-primary" native-type="submit" value="Save" expanded
-          >Save</b-button
-        >
+        <b-button type="is-primary" native-type="submit" value="Save" expanded>Save</b-button>
       </footer>
     </form>
   </div>
@@ -62,14 +52,14 @@ import { mapGetters, mapActions } from "vuex";
 import HelpSidebar from "~/components/HelpSidebar";
 
 // Content for help fields
-import { scenarioPropertiesHelp } from "~/assets/helpText";
+import { scenarioOptionsHelp } from "~/assets/helpText";
 
 export default {
-  name: "ScenarioProperties",
+  name: "ScenarioOptions",
   components: { HelpSidebar },
   data() {
     return {
-      propertiesHelp: scenarioPropertiesHelp,
+      OptionsHelp: scenarioOptionsHelp,
       scenarioForm: Object.assign({}, this.$store.state.scenario.meta)
     };
   },

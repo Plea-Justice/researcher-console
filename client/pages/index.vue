@@ -111,30 +111,34 @@ export default {
       this.isRegistration = !this.isRegistration;
     },
     async login() {
-      const res = this.$auth.loginWith("local", {
+      const response = this.$auth.loginWith("local", {
         data: {
           username: this.loginForm.username,
           password: this.loginForm.password
         }
       });
 
-      if (res.success) {
+      if (response.success) {
         // Reset inputs
         this.loginForm = Object.assign({}, this.LoginForm);
       } else {
         this.loginForm.password = "";
       }
-      // FIXME: reset password even if not successful
     },
     async register() {
       const response = await this.$axios.post(
         "/api/v1/auth/register",
         this.loginForm
       );
-      if (response.success) {
+
+      // FIXME: After a 500 on unsuccesful creation nothing happens after this so
+      // this can never be handled (reset password field, etc.)
+
+      if (response.data.success) {
         // Reset inputs
         this.loginForm = Object.assign({}, this.LoginForm);
 
+        console.log(response.data.message);
         this.$buefy.toast.open({
           message: response.data.message,
           type: "is-success"
@@ -143,8 +147,7 @@ export default {
         this.loginForm.password = "";
       }
 
-      // FIXME: reset password even if not successful
-      // FIXME: auto login after creating an account
+      // TODO: auto login after creating an account
     }
   },
   head() {

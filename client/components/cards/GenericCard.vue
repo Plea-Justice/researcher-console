@@ -7,14 +7,10 @@
 
     <!-- Card Header -->
     <!-- when collapsed style header as body -->
-    <header
-      v-if="!blank"
-      class="card-header flex-header"
-      :class="headerModeStyle"
-    >
+    <header v-if="!blank" class="card-header flex-header" :class="headerModeStyle">
       <!-- When collapsed show remove button in header -->
       <b-button
-        v-if="collapsed"
+        v-if="collapsed && close"
         @click="$emit('remove')"
         type="is-danger"
         icon-left="times"
@@ -23,24 +19,15 @@
     </header>
 
     <!-- Card Body -->
-    <div
-      v-show="!collapsed"
-      :class="{ 'flex-center': blank }"
-      class="card-content"
-    >
+    <div v-show="!collapsed" :class="{ 'flex-center': blank }" class="card-content">
       <slot name="default" />
     </div>
 
     <!-- Card Footer -->
     <footer v-if="!collapsed && !blank" class="card-footer">
-      <div class="card-footer-item buttons footer-buttons flex-left">
-        <!-- Check if remove listener exists instead of using remove -->
-        <b-button
-          v-if="close"
-          @click="$emit('remove')"
-          type="is-danger"
-          icon-left="times"
-        />
+      <div class="card-footer-item buttons footer-buttons">
+        <!-- TODO: Check if remove listener exists instead of using remove? -->
+        <b-button v-if="close" @click="$emit('remove')" type="is-danger" icon-left="times" />
         <slot name="footer" />
       </div>
     </footer>
@@ -132,6 +119,10 @@ export default {
   padding: 0 $cardHeadFootPadding 0;
 }
 
+.card-footer-item:empty {
+  display: none;
+}
+
 .flex-header {
   @include flexCenter();
 
@@ -146,16 +137,13 @@ export default {
 }
 
 .footer-buttons {
-  border: none;
-  padding-bottom: 0;
+  justify-content: flex-start !important;
   margin-bottom: 0;
+  padding-bottom: 0;
+  border: none;
 
   & > .button {
     margin-bottom: 0;
   }
-}
-
-.flex-left {
-  justify-content: flex-start !important;
 }
 </style>

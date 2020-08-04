@@ -29,14 +29,16 @@
       <slot name="default" />
     </template>
 
-    <template v-if="save" v-slot:footer>
+    <template v-slot:footer>
       <b-button
+        v-if="save"
         class="is-fullwidth clear-button-margin"
         type="is-primary"
         tag="input"
         native-type="submit"
         value="Save"
       />
+      <b-button v-else @click="$emit('edit', item.id)" icon-left="pencil-alt" />
     </template>
   </GenericCard>
 </template>

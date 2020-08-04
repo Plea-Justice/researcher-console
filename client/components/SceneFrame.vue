@@ -39,18 +39,8 @@
         </template>
       </aside>
 
-      <div v-for="(scene, index) in getSceneSet" :key="scene.id" class="scene">
-        <Scene
-          :ref="`scene_${scene.id}`"
-          v-if="scene.props !== null"
-          @selected="$emit('selected', $event)"
-          :scene="scene"
-          :collapsed="!!frame.collapsed"
-          :selectable="selectable"
-        />
-        <!-- FIXME: Remove '!!' from !!frame.collapsed -->
-
-        <GenericCard v-else blank>
+      <div v-for="(scene, index) in sceneSet" :key="scene.id" class="scene">
+        <GenericCard v-if="scene.props === null" blank>
           <b-button
             @click="addSceneHelper(index, scene.id)"
             type="is-light"
@@ -58,12 +48,37 @@
             icon-left="plus"
           />
         </GenericCard>
+
+        <!--
+        <GenericCard v-else-if="typeof scene.props === 'string'">
+          <p>Props: {{ scene.props }}</p>
+        </GenericCard>
+        -->
+
+        <!-- FIXME: make sure the string check is rigorous -->
+        <!-- FIXME: no ref might break this? -->
+        <Scene
+          v-else-if="typeof scene.props === 'string'"
+          :bound="scene.id"
+          :scene="getSiblingScene(scene.props)"
+          :collapsed="frame.collapsed"
+        />
+
+        <!-- FIXME: Remove '!!' from !!frame.collapsed -->
+        <Scene
+          :ref="`scene_${scene.id}`"
+          v-else
+          @selected="$emit('selected', $event)"
+          :scene="scene"
+          :collapsed="!!frame.collapsed"
+          :selectable="selectable"
+        />
       </div>
     </div>
 
     <div class="frame-footer">
       <b-button
-        v-show="!(isFirst && isLast && !frame.size)"
+        v-show="!(isLast && !frame.size)"
         @click="addFrameHelper(frame.id)"
         type="is-light"
         size="is-medium"
@@ -111,10 +126,10 @@ export default {
   },
   computed: {
     ...mapGetters({
-      sceneSet: "scenario/sceneSet"
+      getSceneSet: "scenario/sceneSet"
     }),
-    getSceneSet() {
-      return this.sceneSet(this.frame.id);
+    sceneSet() {
+      return this.getSceneSet(this.frame.id);
     }
   },
   methods: {
@@ -155,6 +170,9 @@ export default {
     addSceneHelper(sceneIndex, sceneId) {
       this.addScene(sceneId);
       this.$nextTick(() => this.$refs[`scene_${sceneId}`][0].focus());
+    },
+    getSiblingScene(sceneId) {
+      for (const scene of this.sceneSet) if (scene.id === sceneId) return scene;
     }
   }
 };

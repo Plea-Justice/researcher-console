@@ -1,15 +1,6 @@
 <template>
-  <ValidationObserver
-    ref="form"
-    tag="fieldset"
-    class="flex-wrap"
-    v-slot="{ failed }"
-  >
-    <div
-      v-if="selectable && failed"
-      @click="invalidSelectionToast"
-      class="invalid-selection-mask"
-    />
+  <ValidationObserver ref="form" tag="fieldset" class="flex-wrap" v-slot="{ failed }">
+    <div v-if="selectable && failed" @click="invalidSelectionToast" class="invalid-selection-mask" />
     <GenericCard
       @remove="removeScene(scene.id)"
       @selected="$emit('selected', scene.id)"
@@ -27,6 +18,7 @@
           rules="alpha_spaces"
           @input="updateForm(scene.id, 'name', $event)"
           :value="scene.props.name"
+          :disabled="isBound"
           name="Scene Label"
           placeholder="Scene Label (Optional)"
           class="header-input"
@@ -43,8 +35,8 @@
             @input="updateSceneForm({ id: scene.id, key: 'type', val: $event })"
             :value="scene.props.type"
             :native-value="type"
-            >{{ type }}</b-radio-button
-          >
+            :disabled="isBound"
+          >{{ type }}</b-radio-button>
         </b-field>
 
         <!-- options props needs a preloaded value because .includes in AssetNamesByType will return false positive while loading -->
@@ -57,6 +49,7 @@
             :options="AssetNamesByType[field + 's']"
             :label="field | capitalize"
             :icon="getIcon(field)"
+            :disabled="isBound"
             custom-class="is-capitalized"
             expanded
           />
@@ -70,6 +63,7 @@
             type="textarea"
             rules="required|max:220"
             :placeholder="(field + '...') | capitalize"
+            :disabled="isBound"
             custom-class="has-fixed-size"
             expanded
           />
@@ -80,12 +74,17 @@
             @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
             :value="scene.props[field]"
             :label="field | capitalize"
+            :disabled="isBound"
             custom-class="is-capitalized"
             expanded
           />
 
           <!-- TODO: Display error for incorrect types/types that don't match anything ?-->
         </template>
+      </template>
+
+      <template v-slot:footer v-if="isBound">
+        <b-button @click="unbindScene({ id: bound, props: scene.id })" icon-left="unlink" />
       </template>
     </GenericCard>
   </ValidationObserver>
@@ -133,6 +132,11 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    bound: {
+      type: [String, Boolean],
+      required: false,
+      default: false
     }
   },
   data() {
@@ -141,6 +145,9 @@ export default {
     };
   },
   computed: {
+    isBound() {
+      return this.bound ? true : false;
+    },
     isBlank() {
       return this.scene.props == null;
     },
@@ -199,9 +206,9 @@ export default {
     },
     ...mapActions({
       removeScene: "scenario/removeScene",
+      unbindScene: "scenario/unbindScene",
       setSceneInvalid: "scenario/setSceneInvalid",
       setSceneValid: "scenario/setSceneValid",
-      updateSceneType: "scenario/updateSceneType",
       updateSceneForm: "scenario/updateSceneForm"
     }),
     updateForm(id, key, val) {

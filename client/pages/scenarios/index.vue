@@ -15,7 +15,7 @@
       </div>
     </template>
 
-    <form v-show="mode === Modes.ADD" @submit.prevent="onSubmit()">
+    <form v-show="mode === Modes.ADD" @submit.prevent="onSaveSubmit()">
       <ItemCard ref="form-card" v-model="scenarioForm" save>
         <b-input
           v-model="scenarioForm.description"
@@ -35,18 +35,33 @@
       <br />Add a scenario from the toolbar to get started.
     </p>
     <template v-else>
-      <ItemCard
-        v-for="scenario in scenarioSet"
-        :key="scenario.id"
-        @selected="duplicate($event)"
-        @remove="confirmDelete($event)"
-        :selectable="mode === Modes.DUPLICATE"
-        :item="scenario"
-        close
-        link
-      >
-        <p>{{ scenario.description }}</p>
-      </ItemCard>
+      <template v-for="scenario in scenarioSet">
+        <ItemCard
+          v-if="editId === null && scenario.id !== editId"
+          :key="scenario.id"
+          @selected="duplicate($event)"
+          @remove="confirmDelete($event)"
+          @edit="editMode($event)"
+          :selectable="mode === Modes.DUPLICATE"
+          :item="scenario"
+          close
+          link
+        >
+          <p>{{ scenario.description }}</p>
+        </ItemCard>
+
+        <form v-else :key="scenario.id" @submit.prevent="onEditSubmit()">
+          <ItemCard ref="form-card" v-model="scenarioForm" save>
+            <b-input
+              v-model="scenarioForm.description"
+              type="textarea"
+              placeholder="Description"
+              customClass="has-fixed-size"
+              maxlength="100"
+            />
+          </ItemCard>
+        </form>
+      </template>
     </template>
   </ItemLayout>
 </template>
@@ -82,10 +97,12 @@ export default {
       Modes: {
         DEFAULT: 0,
         ADD: 1,
-        DUPLICATE: 2
+        DUPLICATE: 2,
+        EDIT: 3
       },
       // Set to DEFAULT mode
       mode: 0,
+      editId: null,
 
       ScenarioForm,
       scenarioForm: Object.assign({}, ScenarioForm)
@@ -97,6 +114,10 @@ export default {
     })
   },
   methods: {
+    editMode(eScenarioId) {
+      this.mode = this.Modes.EDIT;
+      this.editId = eScenarioId;
+    },
     toggleAddMode() {
       if (this.mode === this.Modes.ADD)
         this.$nextTick(() => {
@@ -106,6 +127,7 @@ export default {
     ...mapActions({
       addScenario: "scenarios/addScenario",
       removeScenario: "scenarios/removeScenario",
+      editScenario: "scenarios/editScenario",
       duplicateScenario: "scenarios/duplicateScenario"
     }),
     duplicate(eScenarioId) {
@@ -123,7 +145,7 @@ export default {
         onConfirm: () => this.removeScenario(event)
       });
     },
-    onSubmit() {
+    onSaveSubmit() {
       if (
         this.scenarioSet.some(({ name }) => name === this.scenarioForm.name)
       ) {
@@ -145,6 +167,16 @@ export default {
         // Disable form
         this.mode = this.Modes.DEFAULT;
       }
+    },
+    onEditSubmit() {
+      // Add the scenario to state
+      this.editScenario({ id: this.editId, ...this.scenarioForm });
+
+      // Reset inputs
+      this.scenarioForm = Object.assign({}, this.ScenarioForm);
+
+      this.mode = this.Modes.DEFAULT;
+      this.editId = null;
     }
   },
   head() {

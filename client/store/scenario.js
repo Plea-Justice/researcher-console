@@ -105,9 +105,16 @@ export const actions = {
   copyScene({ commit }, idList) {
     commit('copyScene', { fromId: idList[0], toId: idList[1] });
   },
+  bindScene({ commit }, idList) {
+    commit('bindScene', { fromId: idList[0], toId: idList[1] });
+  },
+  unbindScene({ commit }, { id, props }) {
+    commit('unbindScene', { fromId: id, toId: props });
+  },
   swapScene({ commit }, idList) {
     commit('swapScene', { idList });
   },
+
   // Form Actions
   updateSceneType({ commit }, { id, value }) {
     commit('updateSceneProps', { sceneId: id, entry: { type: value } });
@@ -284,15 +291,15 @@ export const mutations = {
     const prevSceneProps =
       prevSceneIdx >= 0 ? Object.assign({}, state.scenes[currFrame.scenes[prevSceneIdx]].props) : null;
 
-    // If prev scene has props use those, otherwise create default props list
     // FIXME: make this static or something?
+    // If prev scene has props use those, otherwise create default props list
     const newSceneProps = prevSceneProps || {
       ...Object.fromEntries(Object.keys(spec.scene).map(key => [key, ''])),
       type: Object.keys(spec.sceneTypes)[1]
     };
 
     Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, valid: null, props: newSceneProps });
-    // FIXME: Can you reactively update a key instead of replacing everything else?
+    // TODO: Can you reactively update a key instead of replacing everything else?
     Vue.set(state.frames, currFrame.id, { ...currFrame, size: currFrame.size + 1 });
     state.numScenes += 1;
   },
@@ -308,16 +315,30 @@ export const mutations = {
     state.numScenes -= 1;
   },
   copyScene(state, payload) {
-    Vue.set(state.scenes, payload.toId, { ...state.scenes[payload.fromId], ...{ id: payload.toId } });
+    Vue.set(state.scenes, payload.toId, { ...state.scenes[payload.fromId], id: payload.toId });
+  },
+  bindScene(state, payload) {
+    const parent = state.scenes[payload.fromId];
+    const child = state.scenes[payload.toId];
+    // Setup the parent being bound to, set parents reference counter
+    const bound = parent.bound ? parent.bound + 1 : 0;
+    Vue.set(state.scenes, payload.fromId, { ...state.scenes[payload.fromId], bound });
+    // Set the child binding
+    Vue.set(state.scenes, payload.toId, { id: child.id, props: parent.id });
+  },
+  unbindScene(state, payload) {
+    // FIXME: move logic to actions make one addScene func
+    const parentProps = { ...state.scenes[payload.toId].props };
+    Vue.set(state.scenes, payload.fromId, { id: payload.fromId, props: parentProps });
   },
   swapScene(state, payload) {
     const swappedScene = { ...state.scenes[payload.idList[1]], ...{ id: payload.idList[0] } };
-    Vue.set(state.scenes, payload.idList[1], { ...state.scenes[payload.idList[0]], ...{ id: payload.idList[1] } });
+    Vue.set(state.scenes, payload.idList[1], { ...state.scenes[payload.idList[0]], id: payload.idList[1] });
     Vue.set(state.scenes, payload.idList[0], swappedScene);
   },
   setScenePropsKey(state, payload) {
     const newProps = { ...state.scenes[payload.sceneId].props, ...payload.entry };
-    Vue.set(state.scenes, payload.sceneId, { ...state.scenes[payload.sceneId], ...{ props: newProps } });
+    Vue.set(state.scenes, payload.sceneId, { ...state.scenes[payload.sceneId], props: newProps });
   },
   setSceneValidity(state, payload) {
     const sceneProps = state.scenes[payload.sceneId].props;

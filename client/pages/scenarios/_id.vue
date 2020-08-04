@@ -30,6 +30,15 @@
           <ToolBarButton
             v-model="mode"
             @click="
+              toggleHandler($event, selectionReset, startSelectionToast, 'swap')
+            "
+            :mode="Modes.SWAP"
+            :disabled="numScenes < 2"
+          >Swap</ToolBarButton>
+
+          <ToolBarButton
+            v-model="mode"
+            @click="
               toggleHandler($event, selectionReset, startSelectionToast, 'copy')
             "
             :mode="Modes.COPY"
@@ -39,17 +48,17 @@
           <ToolBarButton
             v-model="mode"
             @click="
-              toggleHandler($event, selectionReset, startSelectionToast, 'swap')
+              toggleHandler($event, selectionReset, startSelectionToast, 'bind')
             "
-            :mode="Modes.SWAP"
+            :mode="Modes.BIND"
             :disabled="numScenes < 2"
-          >Swap</ToolBarButton>
+          >Bind</ToolBarButton>
         </div>
       </template>
       <template v-slot:end>
         <div class="level-item">
           <div class="buttons">
-            <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="edit">Properties</ToolBarButton>
+            <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="cog">Options</ToolBarButton>
 
             <ToolBarButton
               @click="previewSimulation()"
@@ -121,7 +130,7 @@ import NavBar from "~/components/NavBar";
 import ToolBar from "~/components/ToolBar";
 import ToolBarButton from "~/components/ToolBarButton";
 import SceneFrame from "~/components/SceneFrame";
-import ScenarioProperties from "~/components/modals/ScenarioProperties";
+import ScenarioOptions from "~/components/modals/ScenarioOptions";
 import LeaveScenario from "~/components/modals/LeaveScenario";
 
 // Import Utils
@@ -137,7 +146,7 @@ export default {
     ToolBar,
     ToolBarButton,
     SceneFrame,
-    ScenarioProperties
+    ScenarioOptions
   },
   data() {
     return {
@@ -243,6 +252,8 @@ export default {
           customClass: "dialog",
           trapFocus: true
         });
+      } else {
+        this.logoutHelper();
       }
     },
     submitHandler() {
@@ -321,8 +332,9 @@ export default {
       } else if (this.selectionList.length >= 2) {
         //FIXME: make this dynamic or a case statement?
         if (this.select === this.Select.SCENE) {
-          this.mode === this.Modes.COPY && this.copyScene(this.selectionList);
           this.mode === this.Modes.SWAP && this.swapScene(this.selectionList);
+          this.mode === this.Modes.COPY && this.copyScene(this.selectionList);
+          this.mode === this.Modes.BIND && this.bindScene(this.selectionList);
         } else if (this.select === this.Select.CONDITION) {
           this.mode === this.Modes.COPY &&
             this.copyCondition(this.selectionList);
@@ -364,7 +376,7 @@ export default {
     openScenarioProps() {
       this.$buefy.modal.open({
         parent: this,
-        component: ScenarioProperties,
+        component: ScenarioOptions,
         hasModalCard: true,
         trapFocus: true
       });
@@ -376,7 +388,7 @@ export default {
         this.$buefy.dialog.alert({
           title: "Survey Redirect Not Set",
           message:
-            'Please set the survey URL. This can be found under the "Properties" Toolbar Button',
+            'Please set the survey URL. This can be found under the "Options" Toolbar Button',
           type: "is-warning",
           hasIcon: true,
           icon: "exclamation-triangle",
@@ -419,10 +431,11 @@ export default {
       saveScenario: "scenario/saveScenario",
       updateFrames: "scenario/updateFrames",
       updateMetaKey: "scenario/updateMetaKey",
+      swapScene: "scenario/swapScene",
+      swapCondition: "scenario/swapCondition",
       copyScene: "scenario/copyScene",
       copyCondition: "scenario/copyCondition",
-      swapScene: "scenario/swapScene",
-      swapCondition: "scenario/swapCondition"
+      bindScene: "scenario/bindScene"
     }),
     //FIXME: make collapsing VueX independent
     collapseAll() {
@@ -436,6 +449,8 @@ export default {
     }
   },
   beforeRouteLeave(to, from, next) {
+    this.snackbar && this.closeSnackbar();
+
     if (!this.logout && this.scenarioStoreHasChanged) {
       this.$buefy.modal.open({
         parent: this,
