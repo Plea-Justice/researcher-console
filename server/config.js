@@ -5,7 +5,7 @@
 module.exports = {
     // Server settings.
     port: 3000,
-    host: 'locahost',
+    host: 'localhost',
 
     // Cross origin requests. Enable if server and client running separately.
     cors_enabled: true,

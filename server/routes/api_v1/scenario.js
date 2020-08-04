@@ -25,11 +25,11 @@ module.exports = function (options) {
                 res.status(200).json(util.success('User\'s scenarios returned.',
                     {
                         scenarios: objs.reduce((o, obj) => {
-                            o[obj._id] = { 
-                                id: obj._id, 
-                                name: obj.name, 
-                                description: obj.description, 
-                                survey: obj.survey 
+                            o[obj._id] = {
+                                id: obj._id,
+                                name: obj.name,
+                                description: obj.description,
+                                survey: obj.survey
                             };
                             return o;
                         }, {}),
@@ -51,6 +51,7 @@ module.exports = function (options) {
             name: req.body.meta.name,
             description: req.body.meta.description,
             survey: req.body.meta.survey,
+            numScenes: req.body.numScenes,
             scenes: req.body.scenes,
             frames: req.body.frames,
             frameList: req.body.frameList
@@ -59,10 +60,10 @@ module.exports = function (options) {
         scenario.save((err, obj) => {
             if (err)
                 res.status(500).json(util.failure('There was an error creating the scenario.', err));
-            else 
+            else
                 res.status(201).json(util.success('Scenario created.', {id: obj._id}));
         });
-       
+
     });
 
     /**
@@ -78,12 +79,13 @@ module.exports = function (options) {
             if (err)
                 res.status(500).json(util.failure('There was an error retrieving the scenario.', err));
             else if (obj === null)
-                res.status(400).json(util.failure('The requested scenario does not exist.'));     
-            else 
+                res.status(400).json(util.failure('The requested scenario does not exist.'));
+            else
                 res.status(200).json(util.success('Scenario returned.',
-                    { 
-                        meta: {id: obj._id, name: obj.name, description: obj.description, survey: obj.survey},
-                        vuex_state: obj.vuex_state,
+                    {
+                        id: obj._id,
+                        numScenes: obj.numScenes || 0,
+                        meta: {name: obj.name, description: obj.description, survey: obj.survey},
                         scenes: obj.scenes || {},
                         frames: obj.frames || {},
                         frameList: obj.frameList || [],
@@ -109,6 +111,7 @@ module.exports = function (options) {
             name: req.body.meta.name,
             description: req.body.meta.description,
             survey: req.body.meta.survey,
+            numScenes: req.body.numScenes,
             scenes: req.body.scenes,
             frames: req.body.frames,
             frameList: req.body.frameList
@@ -119,15 +122,15 @@ module.exports = function (options) {
                 res.status(400).json(util.failure('The requested scenario does not exist.', result));
             else if (result.nModified !== 1)
                 res.status(400).json(util.failure('The requested scenario could not be updated.', result));
-            else 
+            else
                 res.status(200).json(util.success('Scenario updated.'));
         });
     });
-    
+
     /**
      * Delete a scenario.
      * @param void
-     * @return 
+     * @return
      */
     router.delete('/:scenario_id', (req, res) => {
         let id = req.params.scenario_id;
