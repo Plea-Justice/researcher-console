@@ -18,70 +18,87 @@
             :loading="saving"
             type="is-primary"
             icon-left="save"
-          >Save</ToolBarButton>
+            >Save</ToolBarButton
+          >
 
-          <b-button
-            @click="collapseAll()"
-            :icon-left="collapseBtnProps.icon"
-          >{{ collapseBtnProps.name }}</b-button>
+          <b-button @click="collapseAll()" :icon-left="collapseBtnProps.icon">{{
+            collapseBtnProps.name
+          }}</b-button>
 
-          <ToolBarButton @click="addCondition()" :value="mode" :disabled="!numScenes">Add Condition</ToolBarButton>
+          <ToolBarButton
+            @click="addCondition()"
+            :value="mode"
+            :disabled="!numScenes"
+            >Add Condition</ToolBarButton
+          >
 
           <ToolBarButton
             v-model="mode"
-            @click="
-              toggleHandler($event, selectionReset, startSelectionToast, 'swap')
-            "
+            @click="toggleHandler($event, 'swap')"
             :mode="Modes.SWAP"
             :disabled="numScenes < 2"
-          >Swap</ToolBarButton>
+            >Swap</ToolBarButton
+          >
 
           <ToolBarButton
             v-model="mode"
-            @click="
-              toggleHandler($event, selectionReset, startSelectionToast, 'copy')
-            "
+            @click="toggleHandler($event, 'copy')"
             :mode="Modes.COPY"
             :disabled="numScenes < 2"
-          >Copy</ToolBarButton>
+            >Copy</ToolBarButton
+          >
 
           <ToolBarButton
             v-model="mode"
-            @click="
-              toggleHandler($event, selectionReset, startSelectionToast, 'bind')
-            "
+            @click="toggleHandler($event, 'bind')"
             :mode="Modes.BIND"
             :disabled="numScenes < 2"
-          >Bind</ToolBarButton>
+            >Bind</ToolBarButton
+          >
         </div>
       </template>
       <template v-slot:end>
         <div class="level-item">
           <div class="buttons">
-            <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="cog">Options</ToolBarButton>
+            <ToolBarButton
+              @click="openScenarioProps()"
+              :value="mode"
+              icon-left="cog"
+              >Options</ToolBarButton
+            >
 
             <ToolBarButton
               @click="previewSimulation()"
               :value="mode"
               type="is-primary"
               icon-left="eye"
-            >Preview</ToolBarButton>
+              >Preview</ToolBarButton
+            >
 
             <ToolBarButton
               @click="downloadZip()"
               :value="mode"
               type="is-primary"
               icon-left="file-download"
-            >Download</ToolBarButton>
+              >Download</ToolBarButton
+            >
           </div>
         </div>
       </template>
     </ToolBar>
 
     <!-- Titles -->
-    <div ref="titlebar" :style="titleBarStyle" class="padded-responsive-container title-bar">
+    <div
+      ref="titlebar"
+      :style="titleBarStyle"
+      class="padded-responsive-container title-bar"
+    >
       <div :style="frameSideBarActive" class="title-wrapper">
-        <div v-for="index in numConditions" :key="index" class="condition-title">
+        <div
+          v-for="index in numConditions"
+          :key="index"
+          class="condition-title"
+        >
           <div
             v-if="isSelectable(Select.CONDITION)"
             @click="addToSelection(index - 1, Select.CONDITION)"
@@ -149,6 +166,50 @@ export default {
     ScenarioOptions
   },
   data() {
+    const Modes = {
+      DEFAULT: 0,
+      COPY: 1,
+      BIND: 2,
+      SWAP: 3
+    };
+    const modeNames = [];
+    Object.entries(Modes).forEach(
+      ([key, val]) => (modeNames[val] = key.toLowerCase())
+    );
+
+    const Select = {
+      NONE: 0,
+      ANY: 1,
+      SCENE: 2,
+      CONDITION: 3
+    };
+    const selectNames = [];
+    Object.entries(Select).forEach(
+      ([key, val]) => (selectNames[val] = key.toLowerCase())
+    );
+
+    const modeOptions = {
+      [Modes.COPY]: {
+        type: Select.ANY,
+        actions: {
+          [Select.SCENE]: this.copyScene,
+          [Select.CONDITION]: this.copyCondition
+        }
+      },
+      [Modes.BIND]: {
+        type: Select.SCENE,
+        actions: {
+          [Select.SCENE]: this.bindScene
+        }
+      },
+      [Modes.SWAP]: {
+        type: Select.ANY,
+        actions: {
+          [Select.SCENE]: this.swapScene,
+          [Select.CONDITION]: this.swapCondition
+        }
+      }
+    };
     return {
       // import from JS file
       scenarioHelp: scenarioHelp,
@@ -162,22 +223,17 @@ export default {
       collapsed: false,
       logout: false,
       snackbar: null,
-      Modes: {
-        DEFAULT: 0,
-        COPY: 1,
-        BIND: 2,
-        SWAP: 3
-      },
-      // Set to DEFAULT mode
-      mode: 0,
-      // Selection state
-      Select: {
-        ALL: 0,
-        SCENE: 1,
-        CONDITION: 2
-      },
-      // Set to DEFAULT mode
-      select: 0,
+
+      Modes,
+      modeNames,
+      // Set to initial
+      mode: Modes.DEFAULT,
+
+      Select,
+      selectNames,
+      // Set to initial
+      select: Select.ANY,
+      modeOptions,
 
       selectionCounter: 0,
       selectionList: []
@@ -282,25 +338,12 @@ export default {
     isSelectable(selectionType) {
       return (
         this.mode !== this.Modes.DEFAULT &&
-        (this.select === this.Select.ALL || this.select === selectionType)
+        (this.select === this.Select.ANY || this.select === selectionType)
       );
-    },
-    startSelectionToast(modeName) {
-      this.snackbar = this.$buefy.snackbar.open({
-        message: `Select element to ${modeName} from`,
-        type: "is-danger",
-        position: "is-top",
-        indefinite: true,
-        actionText: "Cancel",
-        onAction: () => {
-          this.selectionReset;
-          this.mode = this.Modes.DEFAULT;
-        }
-      });
     },
     selectionReset() {
       this.selectionList = [];
-      this.select = this.Select.ALL;
+      this.select = this.Select.NONE;
     },
     addToSelection(eSceneId, selectedType) {
       this.closeSnackbar();
@@ -308,55 +351,49 @@ export default {
 
       // If first item
       if (this.selectionList.length === 1) {
+        // Update selection
         this.select = selectedType;
 
-        // FIXME: make these static maps
-        const typeName = Object.keys(this.Select)
-          .find(key => this.Select[key] === selectedType)
-          .toLowerCase();
-        const modeName = Object.keys(this.Modes)
-          .find(key => this.Modes[key] === this.mode)
-          .toLowerCase();
+        const selectionName = this.selectNames[selectedType];
+        const modeName = this.modeNames[this.mode];
 
         this.snackbar = this.$buefy.snackbar.open({
-          message: `Select ${typeName} to ${modeName} to`,
+          message: `Select ${selectionName} to ${modeName} to`,
           type: "is-danger",
           position: "is-top",
           indefinite: true,
           actionText: "Cancel",
           onAction: () => {
-            this.selectionReset;
+            this.selectionReset();
             this.mode = this.Modes.DEFAULT;
           }
         });
-      } else if (this.selectionList.length >= 2) {
-        //FIXME: make this dynamic or a case statement?
-        if (this.select === this.Select.SCENE) {
-          this.mode === this.Modes.SWAP && this.swapScene(this.selectionList);
-          this.mode === this.Modes.COPY && this.copyScene(this.selectionList);
-          this.mode === this.Modes.BIND && this.bindScene(this.selectionList);
-        } else if (this.select === this.Select.CONDITION) {
-          this.mode === this.Modes.COPY &&
-            this.copyCondition(this.selectionList);
-          this.mode === this.Modes.SWAP &&
-            this.swapCondition(this.selectionList);
-        }
-        // Reset
+      } else {
+        // Call appropriate action from modeOptions actions based on current selection
+        this.modeOptions[this.mode].actions[this.select](this.selectionList);
+
         this.selectionReset();
         this.mode = this.Modes.DEFAULT;
       }
     },
-    toggleHandler(
-      eventState,
-      onUntoggle = noop,
-      onToggle = noop,
-      modeName = ""
-    ) {
-      if (eventState) {
-        onToggle(modeName);
+    toggleHandler(toggledOn, modeName) {
+      if (toggledOn) {
+        this.snackbar = this.$buefy.snackbar.open({
+          message: `Select element to ${this.modeNames[this.mode]} from`,
+          type: "is-danger",
+          position: "is-top",
+          indefinite: true,
+          actionText: "Cancel",
+          onAction: () => {
+            this.selectionReset();
+            this.mode = this.Modes.DEFAULT;
+          }
+        });
+
+        this.select = this.modeOptions[this.mode].type;
       } else {
-        this.snackbar !== null && this.closeSnackbar();
-        onUntoggle();
+        this.closeSnackbar();
+        this.selectionReset();
       }
     },
     scrollToFrame({ frameIndex, smooth = true }) {
@@ -395,7 +432,6 @@ export default {
           icon: "exclamation-triangle",
           onConfirm: () => setTimeout(this.openScenarioProps, 150)
         });
-
       } else {
         this.snackbar = this.$buefy.snackbar.open({
           message: "Please wait, generating simulation...",
@@ -405,13 +441,15 @@ export default {
         });
 
         try {
-          const res = await this.$axios.post(`/api/v1/s/${this.scenarioMeta.id}/generate`);
+          const res = await this.$axios.post(
+            `/api/v1/s/${this.scenarioMeta.id}/generate`
+          );
           status = res.status === 200;
         } catch (err) {
           status = false;
         }
-        
-        this.closeSnackbar(); 
+
+        this.closeSnackbar();
       }
 
       return status;
@@ -426,15 +464,17 @@ export default {
       });
 
       try {
-        const res = await this.$axios.post(`/api/v1/s/${this.scenarioMeta.id}/zip`);
+        const res = await this.$axios.post(
+          `/api/v1/s/${this.scenarioMeta.id}/zip`
+        );
         if (res.status === 200)
           window.open(
             `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}.zip`
           );
       } catch (err) {
-          console.log(err);
+        console.log(err);
       }
-      
+
       this.closeSnackbar();
     },
     async previewSimulation() {

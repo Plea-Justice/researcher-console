@@ -6,12 +6,15 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD">Add</ToolBarButton>
+        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD"
+          >Add</ToolBarButton
+        >
         <ToolBarButton
           v-model="mode"
           :mode="Modes.DUPLICATE"
           :disabled="!scenarioSet.length"
-        >Duplicate</ToolBarButton>
+          >Duplicate</ToolBarButton
+        >
       </div>
     </template>
 
@@ -119,10 +122,13 @@ export default {
       this.editId = eScenarioId;
     },
     toggleAddMode() {
-      if (this.mode === this.Modes.ADD)
+      if (this.mode === this.Modes.ADD) {
         this.$nextTick(() => {
           this.$refs["form-card"].focus();
         });
+      } else {
+        this.scenarioForm = Object.assign({}, this.ScenarioForm);
+      }
     },
     ...mapActions({
       addScenario: "scenarios/addScenario",
