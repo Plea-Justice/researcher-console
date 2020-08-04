@@ -14,6 +14,7 @@ module.exports = function (options) {
     const AuthReqLimit = rateLimit({
         windowMs: options.config.auth_minutes * 60 * 1000,
         max: options.config.auth_attempts,
+        skipSuccessfulRequests: true,
         message: util.failure(`Too many authentication requests. Try again in ${options.config.auth_minutes} minutes.`)
     });
 

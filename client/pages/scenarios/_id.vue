@@ -384,7 +384,8 @@ export default {
     async generateSimulation() {
       // TODO: Ask on unsaved, invalid, etc.
       // Create an array of warnings & display the messages accordingly
-      if (!this.scenarioMeta.survey)
+      let status = false;
+      if (!this.scenarioMeta.survey) {
         this.$buefy.dialog.alert({
           title: "Survey Redirect Not Set",
           message:
@@ -394,7 +395,8 @@ export default {
           icon: "exclamation-triangle",
           onConfirm: () => setTimeout(this.openScenarioProps, 150)
         });
-      else {
+
+      } else {
         this.snackbar = this.$buefy.snackbar.open({
           message: "Please wait, generating simulation...",
           position: "is-top",
@@ -402,28 +404,49 @@ export default {
           actionText: null
         });
 
-        const response = await this.$axios.post(
-          `/api/v1/s/${this.scenarioMeta.id}/zip`
-        );
-        this.closeSnackbar();
-        return response.status === 200;
+        try {
+          const res = await this.$axios.post(`/api/v1/s/${this.scenarioMeta.id}/generate`);
+          status = res.status === 200;
+        } catch (err) {
+          status = false;
+        }
+        
+        this.closeSnackbar(); 
       }
 
-      return false;
+      return status;
     },
     async downloadZip() {
-      const status = await this.generateSimulation();
-      if (status)
-        window.open(
-          `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}.zip`
-        );
+      if (!(await this.generateSimulation())) return;
+      this.snackbar = this.$buefy.snackbar.open({
+        message: "Preparing simulation ZIP...",
+        position: "is-top",
+        indefinite: true,
+        actionText: null
+      });
+
+      try {
+        const res = await this.$axios.post(`/api/v1/s/${this.scenarioMeta.id}/zip`);
+        if (res.status === 200)
+          window.open(
+            `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}.zip`
+          );
+      } catch (err) {
+          console.log(err);
+      }
+      
+      this.closeSnackbar();
     },
     async previewSimulation() {
-      const status = await this.generateSimulation();
-      if (status)
-        window.open(
-          `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}/`
-        );
+      if (!(await this.generateSimulation())) return;
+      this.$buefy.toast.open({
+        message: "Preview ready.",
+        type: "is-success"
+      });
+
+      window.open(
+        `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}/`
+      );
     },
     ...mapActions({
       addCondition: "scenario/addCondition",

@@ -34,6 +34,7 @@ if (config.log_to_console) {
 
 // Connect to the database.
 const mongoose = require('mongoose');
+mongoose.set('debug', config.mongoose_debug);
 mongoose.connect(config.mongo_uri, {useUnifiedTopology: true, useNewUrlParser: true});
 const database = mongoose.connection;
 database.on('error', ()=>console.log('Error connecting to database.'));
@@ -55,6 +56,7 @@ app.use(session({
     store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 
+// Check the user's IP address
 app.use(require('./middleware/userSessionCount'));
 // Enable parsing of JSON payloads into req.body.
 app.use(express.json());

@@ -8,6 +8,7 @@ module.exports = function (options) {
     var router = express.Router();
 
     const util = require('../../common/util');
+    const { fork } = require('child_process');
 
     const fs = require('fs-extra');
     const path = require('path');
@@ -102,7 +103,25 @@ module.exports = function (options) {
                     res.status(500).json(util.failure('Error adding file to user data directory.', err));
                 else res.status(200).json(util.success('Asset uploaded.', btoa(filepath)));
             });
+
+            // Generate a thumbnail for the asset in the background.
+            fork('common/thumbnail', [
+                path.resolve(path.join(user_data_dir, filepath)),
+                path.resolve(path.join(user_data_dir, 'thumbnails', `${btoa(filepath)}.jpg`))
+            ]);
         }
+    });
+
+    /**
+     * Fetch an asset's thumbnail, if it exists.
+     */
+    router.get('/:asset_id/thumbnail', (req, res) => {
+        let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
+        let thumbnail = path.resolve(path.join(user_data_dir, 'thumbnails', `${req.params.asset_id}.jpg`));
+        if (fs.pathExists(thumbnail))
+            res.sendFile(thumbnail);
+        else
+            res.status(404).json(util.failure('The requested thumbnail image could not be found.'));
     });
 
     /**
@@ -111,6 +130,7 @@ module.exports = function (options) {
     router.delete('/:asset_id', async (req, res) => {
         let user_data_dir = path.join(options.config.data_dir, req.session.user_id);        
         let asset = path.parse(atob(req.params.asset_id));
+        let thumbnail = path.join(user_data_dir, 'thumbnails', `${req.params.asset_id}.jpg`);
 
         if (options.config.noclobber) {
             res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
@@ -125,6 +145,8 @@ module.exports = function (options) {
         else {
             try {
                 await fs.unlink(path.join(user_data_dir, path.format(asset)));
+                if (fs.pathExists(thumbnail))
+                    await fs.unlink(thumbnail);
                 res.status(200).json(util.success('Asset deleted successfully.'));
             } catch (err) {
                 res.status(500).json(util.failure('The asset could not be deleted.'));

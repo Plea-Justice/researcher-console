@@ -18,21 +18,21 @@ module.exports = function (options) {
     const ScenarioModel = require('../../models/ScenarioModel');
 
     /**
-     * Generate and download a zipped simulation.
+     * Generate simulation.
      */
-    router.post('/', async (req, res)=>{
+    router.post('/generate', async (req, res)=>{
         let id = req.params.scenario_id;
         let uid = req.session.user_id;
 
         try {
             let scenario = await ScenarioModel.findOne({_id: id, user_id: uid});
             let tmpdir = path.join(os.tmpdir(), 'sim-serve' , `sim-${id}`);
-            let zippath = path.join(os.tmpdir(), 'sim-serve', `sim-${id}.zip`);
             await fs.emptyDir(tmpdir);
 
             let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
 
             // Copy simulation template and user's assets.
+            // TODO: Filter out unused assets.
             await fs.copy(path.normalize(options.config.sim_dir), tmpdir, {filter: src => !src.includes('.git')});
             await fs.copy(
                 path.normalize(user_data_dir),
@@ -40,8 +40,7 @@ module.exports = function (options) {
             );
 
             // Construct manifest.
-            // FIXME: Survey URL!
-            let survey = '/no-url-set.html';
+            let survey = scenario.survey;
             let scenes = scenario.scenes;
             let frames = scenario.frames;
             let frameList = scenario.frameList;
@@ -152,16 +151,36 @@ module.exports = function (options) {
             };
 
             await fs.writeFile(path.join(tmpdir, 'manifest.json'), JSON.stringify(manifest));
-            await fs.remove(zippath);
-            zip.zipSync(tmpdir, zippath);
 
             res.status(200).json(util.success('Simulation generated successfully.'));
         } catch (err) {
             console.log(err);
             res.status(500).json(util.failure('Error generating simulation.', err));
         }
+    });
 
+    /**
+     * Generate ZIP.
+     */
+    router.post('/zip', async (req, res)=>{
+        let id = req.params.scenario_id;
 
+        try {
+            let tmpdir = path.join(os.tmpdir(), 'sim-serve' , `sim-${id}`);
+            let zippath = path.join(os.tmpdir(), 'sim-serve', `sim-${id}.zip`);
+
+            let generated = await fs.pathExists(path.join(tmpdir, 'manifest.json'));
+            if (!generated)
+                throw Error('A simulation must be generated before it can be zipped.');
+
+            await fs.remove(zippath);
+            zip.zipSync(tmpdir, zippath);
+
+            res.status(200).json(util.success('Simulation ZIP generated successfully.'));
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(util.failure('Error generating simulation ZIP.', err));
+        }
     });
 
     return router;
