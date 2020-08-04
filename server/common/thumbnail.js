@@ -23,7 +23,11 @@ async function thumbnail (inPath, outPath) {
             eyes: 0,
             hair: 0,
             figure: 0
-        };`
+        };`,
+        imageQuality: 0.9,
+        width: 400,
+        height: 225,
+        scale: 0.208
     });
     DataURLToImage(res, outPath);
 }

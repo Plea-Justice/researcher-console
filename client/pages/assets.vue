@@ -58,7 +58,10 @@
         @remove="removeAsset($event)"
         :item="asset"
         close
-      />
+      >
+        <img :src="`${$axios.defaults.baseURL}/api/v1/a/${asset.id}/thumbnail`" width="100%" 
+        onerror="this.src = 'defaultThumbnail.png';"/>
+      </ItemCard>
     </template>
   </ItemLayout>
 </template>
