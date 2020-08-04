@@ -98,6 +98,10 @@ module.exports = function (options) {
             ));
         else {
             let filepath = path.join(req.body.type, sanitize(req.files.file.name).replace(/[\s,;]+/g, '_'));
+            if (fs.pathExists(path.join(user_data_dir, filepath))) {
+                res.status(400).json(util.failure('An asset with the specified name already exists.'));
+                return;
+            }
             req.files.file.mv(path.join(user_data_dir, filepath), (err)=>{
                 if (err)
                     res.status(500).json(util.failure('Error adding file to user data directory.', err));

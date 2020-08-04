@@ -82,22 +82,13 @@ module.exports = function (options) {
                 res.status(400).json(util.failure('The requested scenario does not exist.'));
             else
                 res.status(200).json(util.success('Scenario returned.',
-<<<<<<< HEAD
                     {
                         id: obj._id,
-                        numScenes: obj.numScenes || 0,
+                        numScenes: obj.numScenes,
                         meta: {name: obj.name, description: obj.description, survey: obj.survey},
-                        scenes: obj.scenes || {},
-                        frames: obj.frames || {},
-                        frameList: obj.frameList || [],
-=======
-                    { 
-                        meta: {id: obj._id, name: obj.name, description: obj.description, survey: obj.survey},
-                        vuex_state: obj.vuex_state,
                         scenes: obj.scenes,
                         frames: obj.frames,
                         frameList: obj.frameList,
->>>>>>> df15432db22245e22a5769c86db76e29db324c08
                     }
                 ));
         });

@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 
 var ScenarioSchema = new mongoose.Schema({
     user_id: { type: mongoose.SchemaTypes.ObjectId, required: true },
-    numScenes: { type: Number },
+    numScenes: { type: Number, default: 0 },
     name: { type: String, default: 'New Scenario' },
     description: { type: String, default: '' },
     survey: { type: String, default: '/no-url-set.html' },
