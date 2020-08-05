@@ -7,6 +7,7 @@ module.exports = function (options) {
     var router = express.Router();
 
     const util = require('../../common/util');
+    const { getUserSessionCount } = require('../../middleware/userSessionCount');
 
     // Limit authentication request rate.
     const rateLimit = require('express-rate-limit');
@@ -46,7 +47,7 @@ module.exports = function (options) {
      * Get the user_id of the current session if the user is logged in.
      * @return {user: {name: String, user_id: String}}
      */
-    router.get('/user', authenticateRoute, (req, res) => {
+    router.get('/user', authenticateRoute, async (req, res) => {
         // This route should only be accessible from an authenticated session.
         if (!('user_id' in req.session))
             res.status(500).json(util.failure('Session user_id not found.'));
@@ -54,7 +55,11 @@ module.exports = function (options) {
             res.status(500).json(util.failure('Session username not found.'));
         else
             res.status(200).json(util.success('User info returned.',
-                {user: {name: req.session.username, user_id: req.session.user_id}}
+                {user: {
+                    name: req.session.username,
+                    user_id: req.session.user_id,
+                    n_sessions: await getUserSessionCount(req.session.user_id)
+                }}
             ));
     });
 
