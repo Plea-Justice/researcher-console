@@ -5,7 +5,10 @@
         <h1 class="title login-title">Plea Simulation Researcher Console</h1>
 
         <!-- Login Card -->
-        <form class="box has-text-centered" @submit.prevent="isRegistration ? register() : login()">
+        <form
+          class="box has-text-centered"
+          @submit.prevent="isRegistration ? register() : login()"
+        >
           <div class="block">
             <b-icon icon="user-circle" size="is-large" />
           </div>
@@ -79,7 +82,7 @@
 
           <b-button @click="setFormMode()" type="is-text">
             {{
-            isRegistration ? "Login to existing account" : "Create an account"
+              isRegistration ? "Login to existing account" : "Create an account"
             }}
           </b-button>
         </form>

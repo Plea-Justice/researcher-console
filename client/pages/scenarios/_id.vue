@@ -18,87 +18,66 @@
             :loading="saving"
             type="is-primary"
             icon-left="save"
-            >Save</ToolBarButton
-          >
+          >Save</ToolBarButton>
 
-          <b-button @click="collapseAll()" :icon-left="collapseBtnProps.icon">{{
-            collapseBtnProps.name
-          }}</b-button>
+          <b-button
+            @click="collapseAll()"
+            :icon-left="collapseBtnProps.icon"
+          >{{ collapseBtnProps.name }}</b-button>
 
-          <ToolBarButton
-            @click="addCondition()"
-            :value="mode"
-            :disabled="!numScenes"
-            >Add Condition</ToolBarButton
-          >
+          <ToolBarButton @click="addCondition()" :value="mode" :disabled="!numScenes">Add Condition</ToolBarButton>
 
           <ToolBarButton
             v-model="mode"
             @click="toggleHandler($event, 'swap')"
             :mode="Modes.SWAP"
             :disabled="numScenes < 2"
-            >Swap</ToolBarButton
-          >
+          >Swap</ToolBarButton>
 
           <ToolBarButton
             v-model="mode"
             @click="toggleHandler($event, 'copy')"
             :mode="Modes.COPY"
             :disabled="numScenes < 2"
-            >Copy</ToolBarButton
-          >
+          >Copy</ToolBarButton>
 
           <ToolBarButton
             v-model="mode"
             @click="toggleHandler($event, 'bind')"
             :mode="Modes.BIND"
             :disabled="numScenes < 2"
-            >Bind</ToolBarButton
-          >
+          >Bind</ToolBarButton>
+
+          <p>{{ numScenes }}</p>
         </div>
       </template>
       <template v-slot:end>
         <div class="level-item">
           <div class="buttons">
-            <ToolBarButton
-              @click="openScenarioProps()"
-              :value="mode"
-              icon-left="cog"
-              >Options</ToolBarButton
-            >
+            <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="cog">Options</ToolBarButton>
 
             <ToolBarButton
               @click="previewSimulation()"
               :value="mode"
               type="is-primary"
               icon-left="eye"
-              >Preview</ToolBarButton
-            >
+            >Preview</ToolBarButton>
 
             <ToolBarButton
               @click="downloadZip()"
               :value="mode"
               type="is-primary"
               icon-left="file-download"
-              >Download</ToolBarButton
-            >
+            >Download</ToolBarButton>
           </div>
         </div>
       </template>
     </ToolBar>
 
     <!-- Titles -->
-    <div
-      ref="titlebar"
-      :style="titleBarStyle"
-      class="padded-responsive-container title-bar"
-    >
+    <div ref="titlebar" :style="titleBarStyle" class="padded-responsive-container title-bar">
       <div :style="frameSideBarActive" class="title-wrapper">
-        <div
-          v-for="index in numConditions"
-          :key="index"
-          class="condition-title"
-        >
+        <div v-for="index in numConditions" :key="index" class="condition-title">
           <div
             v-if="isSelectable(Select.CONDITION)"
             @click="addToSelection(index - 1, Select.CONDITION)"
@@ -140,6 +119,9 @@
 // Import VueX
 import { mapGetters, mapActions } from "vuex";
 
+// Import Bus
+import { EventBus, Event } from "~/bus/eventbus";
+
 // Import Components
 import { ValidationObserver } from "vee-validate";
 
@@ -149,9 +131,6 @@ import ToolBarButton from "~/components/ToolBarButton";
 import SceneFrame from "~/components/SceneFrame";
 import ScenarioOptions from "~/components/modals/ScenarioOptions";
 import LeaveScenario from "~/components/modals/LeaveScenario";
-
-// Import Utils
-import { noop } from "~/assets/util";
 
 // Content for help fields
 import { scenarioHelp } from "~/assets/helpText";
@@ -281,14 +260,17 @@ export default {
       return { "--frame-sidebar-active": this.numScenes ? 1 : 0 };
     },
     collapseBtnProps() {
-      const test = this.scenarioMeta.collapsed;
       return {
-        icon: `${test ? "expand" : "compress"}-alt`,
-        name: `${test ? "Expand" : "Collapse"} All`
+        icon: `${this.collapsed ? "expand" : "compress"}-alt`,
+        name: `${this.collapsed ? "Expand" : "Collapse"} All`
       };
     }
   },
   methods: {
+    collapseAll() {
+      this.collapsed = !this.collapsed;
+      Event.collapseAll();
+    },
     closeSnackbar() {
       this.snackbar.close();
       this.snackbar = null;
@@ -492,24 +474,12 @@ export default {
       addCondition: "scenario/addCondition",
       removeCondition: "scenario/removeCondition",
       saveScenario: "scenario/saveScenario",
-      updateFrames: "scenario/updateFrames",
-      updateMetaKey: "scenario/updateMetaKey",
       swapScene: "scenario/swapScene",
       swapCondition: "scenario/swapCondition",
       copyScene: "scenario/copyScene",
       copyCondition: "scenario/copyCondition",
       bindScene: "scenario/bindScene"
-    }),
-    //FIXME: make collapsing VueX independent
-    collapseAll() {
-      const entry = {
-        key: "collapsed",
-        val: !this.scenarioMeta.collapsed
-      };
-
-      this.updateMetaKey(entry);
-      this.updateFrames(entry);
-    }
+    })
   },
   beforeRouteLeave(to, from, next) {
     this.snackbar && this.closeSnackbar();

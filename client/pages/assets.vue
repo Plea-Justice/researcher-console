@@ -89,8 +89,12 @@
         :item="asset"
         close
       >
-        <img :src="`${$axios.defaults.baseURL}/api/v1/a/${asset.id}/thumbnail`" width="100%" 
-        onerror="this.src = 'defaultThumbnail.png';"/>
+        <!-- FIXME: use lazyloading for this, loading indicator -->
+        <img
+          :src="`${$axios.defaults.baseURL}/api/v1/a/${asset.id}/thumbnail`"
+          width="100%"
+          onerror="this.src = 'defaultThumbnail.png';"
+        />
       </ItemCard>
     </template>
   </ItemLayout>

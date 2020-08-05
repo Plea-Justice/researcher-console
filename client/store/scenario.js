@@ -14,8 +14,7 @@ const initialState = () => ({
   meta: {
     name: '',
     description: '',
-    survey: '',
-    collapsed: false
+    survey: ''
   },
   frames: {},
   frameList: [],
@@ -50,10 +49,6 @@ export const actions = {
   },
 
   // **** Scenario Actions ****
-  // FIXME: deprecate "updateMetaKey"
-  updateMetaKey({ commit }, { key, val }) {
-    commit('updateMetaKey', { key, val });
-  },
   updateMeta({ commit }, meta) {
     commit('updateMeta', { meta });
   },
@@ -79,12 +74,6 @@ export const actions = {
   },
   removeFrame({ commit }, frameId) {
     commit('deleteFrame', { frameId });
-  },
-  updateFrame({ commit }, { id, key, val }) {
-    commit('setFrameKey', { frameId: id, entry: { [key]: val } });
-  },
-  updateFrames({ commit }, { key, val }) {
-    commit('setFramesKey', { entry: { [key]: val } });
   },
   moveFrameDown({ commit }, frameId) {
     // Frame stack goes from 0 down incrementally, so add 1 to move down
@@ -143,9 +132,6 @@ export const mutations = {
   },
 
   // **** Scenario Mutations ****
-  updateMetaKey(state, payload) {
-    Vue.set(state.meta, payload.key, payload.val);
-  },
   updateMeta(state, payload) {
     Object.keys(state.meta).forEach(key => {
       if (payload.meta[key]) Vue.set(state.meta, key, payload.meta[key]);
@@ -185,7 +171,7 @@ export const mutations = {
       Vue.set(state.scenes, sceneId, { id: sceneId, props: null });
       // Create new frame holding only new blank scene
       const frameId = nanoid();
-      Vue.set(state.frames, frameId, { id: frameId, size: 0, collapsed: false, scenes: [sceneId] });
+      Vue.set(state.frames, frameId, { id: frameId, size: 0, scenes: [sceneId] });
       state.frameList.push(frameId);
     } else {
       state.frameList.forEach(frameId => {
@@ -241,39 +227,31 @@ export const mutations = {
 
     // Create frame
     const id = nanoid();
-    Vue.set(state.frames, id, { id, size: 0, collapsed: false, scenes: frameScenes });
+    Vue.set(state.frames, id, { id, size: 0, scenes: frameScenes });
     if (payload && state.frameList.length) state.frameList.splice(state.frameList.indexOf(payload.frameId) + 1, 0, id);
     else state.frameList.push(id);
   },
   deleteFrame(state, payload) {
+    const frame = state.frames[payload.frameId];
+    const sceneLength = frame.scenes.length;
+
     // If last frame just replace scenes with empty scenes
     if (state.frameList.length <= 1) {
-      const lastFrame = state.frames[payload.frameId];
-
-      lastFrame.scenes.forEach(sceneId => Vue.set(state.scenes, sceneId, { id: sceneId, props: null }));
+      frame.scenes.forEach(sceneId => Vue.set(state.scenes, sceneId, { id: sceneId, props: null }));
 
       // Update Frame data
-      Vue.set(state.frames, payload.frameId, { ...lastFrame, size: 0 });
+      Vue.set(state.frames, payload.frameId, { ...frame, size: 0 });
     } else {
-      const frameIndex = state.frameList.indexOf(payload.frameId);
-
       // Remove scenes in frame
       state.frames[payload.frameId].scenes.forEach(sceneId => Vue.delete(state.scenes, sceneId));
 
       // Remove frame
-      state.frameList.splice(frameIndex, 1);
+      state.frameList.splice(state.frameList.indexOf(payload.frameId), 1);
       Vue.delete(state.frames, payload.frameId);
     }
-  },
-  setFrameKey(state, payload) {
-    const frame = state.frames[payload.frameId];
-    Vue.set(state.frames, payload.frameId, { ...frame, ...payload.entry });
-  },
-  setFramesKey(state, payload) {
-    state.frameList.forEach(frameId => {
-      const frame = state.frames[frameId];
-      Vue.set(state.frames, frameId, { ...frame, ...payload.entry });
-    });
+
+    // Update scene count
+    state.numScenes -= sceneLength;
   },
   moveFrame(state, payload) {
     const fromIndex = state.frameList.indexOf(payload.frameId);

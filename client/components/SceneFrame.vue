@@ -7,13 +7,13 @@
         <b-button
           v-show="frame.size"
           @click="collapseFrame()"
-          :icon-left="`chevron-${frame.collapsed ? 'down' : 'up'}`"
+          :icon-left="`chevron-${collapsed ? 'down' : 'up'}`"
           type="is-text"
           size="is-medium"
         />
 
         <!-- Move Up/Down Buttons -->
-        <template v-show="!frame.collapsed">
+        <template v-show="!collapsed">
           <b-button
             v-show="!isFirst"
             @click="moveUp()"
@@ -49,28 +49,21 @@
           />
         </GenericCard>
 
-        <!--
-        <GenericCard v-else-if="typeof scene.props === 'string'">
-          <p>Props: {{ scene.props }}</p>
-        </GenericCard>
-        -->
-
         <!-- FIXME: make sure the string check is rigorous -->
         <!-- FIXME: no ref might break this? -->
         <Scene
           v-else-if="typeof scene.props === 'string'"
           :bound="scene.id"
           :scene="getSiblingScene(scene.props)"
-          :collapsed="frame.collapsed"
+          :collapsed="collapsed"
         />
 
-        <!-- FIXME: Remove '!!' from !!frame.collapsed -->
         <Scene
           :ref="`scene_${scene.id}`"
           v-else
           @selected="$emit('selected', $event)"
           :scene="scene"
-          :collapsed="!!frame.collapsed"
+          :collapsed="collapsed"
           :selectable="selectable"
         />
       </div>
@@ -91,6 +84,9 @@
 <script>
 // Import VueX
 import { mapGetters, mapActions } from "vuex";
+
+// Import Bus
+import { EventBus, EventListener } from "~/bus/eventbus";
 
 // Import Components
 import GenericCard from "~/components/cards/GenericCard";
@@ -124,6 +120,16 @@ export default {
       default: false
     }
   },
+  data() {
+    return {
+      collapsed: false
+    };
+  },
+  mounted() {
+    EventListener.collapseAll(() => {
+      this.collapseFrame();
+    });
+  },
   computed: {
     ...mapGetters({
       getSceneSet: "scenario/sceneSet"
@@ -133,22 +139,16 @@ export default {
     }
   },
   methods: {
+    collapseFrame() {
+      this.collapsed = !this.collapsed;
+    },
     ...mapActions({
       moveFrameUp: "scenario/moveFrameUp",
       moveFrameDown: "scenario/moveFrameDown",
       addFrame: "scenario/addFrame",
       removeFrame: "scenario/removeFrame",
-      addScene: "scenario/addScene",
-      updateFrame: "scenario/updateFrame"
+      addScene: "scenario/addScene"
     }),
-    collapseFrame() {
-      //FIXME: rename to updateFrameKey
-      this.updateFrame({
-        id: this.frame.id,
-        key: "collapsed",
-        val: !this.frame.collapsed
-      });
-    },
     moveUp() {
       this.moveFrameUp(this.frame.id);
       // emit the frameIndex that must be traveled to
