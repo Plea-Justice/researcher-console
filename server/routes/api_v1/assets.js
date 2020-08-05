@@ -97,8 +97,12 @@ module.exports = function (options) {
                 null
             ));
         else {
-            let filepath = path.join(req.body.type, sanitize(req.files.file.name).replace(/[\s,;]+/g, '_'));
-            if (fs.pathExists(path.join(user_data_dir, filepath))) {
+            let name = req.body.name.length > 0
+                ? req.body.name + path.extname(req.files.file.name)
+                : req.files.file.name;
+ 
+            let filepath = path.join(req.body.type, sanitize(name).replace(/[\s,;]+/g, '_'));
+            if (fs.pathExistsSync(path.join(user_data_dir, filepath))) {
                 res.status(400).json(util.failure('An asset with the specified name already exists.'));
                 return;
             }
