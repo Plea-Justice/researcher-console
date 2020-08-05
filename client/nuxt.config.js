@@ -127,6 +127,7 @@ export default {
       callback: '/',
       home: '/scenarios'
     },
+    cookie: false,
     strategies: {
       local: {
         endpoints: {
@@ -134,8 +135,7 @@ export default {
           logout: { url: '/api/v1/auth/logout', method: 'post' },
           user: { url: '/api/v1/auth/user', method: 'get', propertyName: 'result.user' },
           tokenRequired: false,
-          tokenType: false,
-          cookie: false
+          tokenType: false
         }
       }
     }

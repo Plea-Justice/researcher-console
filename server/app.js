@@ -56,8 +56,9 @@ app.use(session({
     store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 
-// Check the user's IP address
-app.use(require('./middleware/userSessionCount'));
+// Count the user's IP connections.
+app.use(require('./middleware/userSessionCount').countUserSessions);
+
 // Enable parsing of JSON payloads into req.body.
 app.use(express.json());
 

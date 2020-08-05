@@ -22,6 +22,11 @@
           class="is-capitalized"
         >{{ route.name }}</b-navbar-item>
       </template>
+      <b-navbar-item v-if="user.n_sessions > 1">
+        <b-tag type="is-warning" size="is-small">
+            Warning: Another user may be active.
+        </b-tag>
+      </b-navbar-item>
     </template>
 
     <template slot="end">
@@ -33,7 +38,7 @@
             @click="logoutHandler()"
             type="is-danger"
             icon-left="sign-out-alt"
-          >Log Out, {{ userName }}</b-button>
+          >Log Out, {{ user.name }}</b-button>
 
           <!-- Help Menu -->
           <HelpSidebar v-if="helpText" :title="helpTitle" :text="helpText" />
@@ -93,8 +98,8 @@ export default {
     };
   },
   computed: {
-    userName() {
-      return this.$auth.user ? this.$auth.user.name : "Dev";
+    user() {
+      return this.$auth.user ? this.$auth.user : {name: "dev", n_sessions: 1};
     }
   },
   methods: {
