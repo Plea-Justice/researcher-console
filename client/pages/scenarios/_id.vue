@@ -1,98 +1,93 @@
 <template>
-  <div ref="scroll" class="scroll-wrapper">
-    <NavBar
-      :title="scenarioMeta.name"
-      :logout="this.onLogout"
-      helpTitle="Scenario Story Editor"
-      :helpText="scenarioHelp.navbar"
-      path="/scenarios"
-      class="horizontal-sticky"
-    />
+  <ScenarioLayout ref="layout" :title="scenarioMeta.name" :logout="onLogout">
+    <template ref="header">
+      <ToolBar ref="toolbar" class="horizontal-sticky">
+        <template v-slot:start>
+          <div class="level-item buttons">
+            <ToolBarButton
+              @click="submitHandler()"
+              :value="mode"
+              :loading="saving"
+              type="is-primary"
+              icon-left="save"
+            >Save</ToolBarButton>
 
-    <ToolBar ref="toolbar" class="horizontal-sticky">
-      <template v-slot:start>
-        <div class="level-item buttons">
-          <ToolBarButton
-            @click="submitHandler()"
-            :value="mode"
-            :loading="saving"
-            type="is-primary"
-            icon-left="save"
-          >Save</ToolBarButton>
-
-          <b-button
-            @click="collapseAll()"
-            :icon-left="collapseBtnProps.icon"
-          >{{ collapseBtnProps.name }}</b-button>
-
-          <ToolBarButton @click="addCondition()" :value="mode" :disabled="!numScenes">Add Condition</ToolBarButton>
-
-          <ToolBarButton
-            v-model="mode"
-            @click="toggleHandler($event, 'swap')"
-            :mode="Modes.SWAP"
-            :disabled="numScenes < 2"
-          >Swap</ToolBarButton>
-
-          <ToolBarButton
-            v-model="mode"
-            @click="toggleHandler($event, 'copy')"
-            :mode="Modes.COPY"
-            :disabled="numScenes < 2"
-          >Copy</ToolBarButton>
-
-          <ToolBarButton
-            v-model="mode"
-            @click="toggleHandler($event, 'bind')"
-            :mode="Modes.BIND"
-            :disabled="numScenes < 2"
-          >Bind</ToolBarButton>
-
-          <p>{{ numScenes }}</p>
-        </div>
-      </template>
-      <template v-slot:end>
-        <div class="level-item">
-          <div class="buttons">
-            <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="cog">Options</ToolBarButton>
+            <b-button
+              @click="collapseAll()"
+              :icon-left="collapseBtnProps.icon"
+            >{{ collapseBtnProps.name }}</b-button>
 
             <ToolBarButton
-              @click="previewSimulation()"
+              @click="addCondition()"
               :value="mode"
-              type="is-primary"
-              icon-left="eye"
-            >Preview</ToolBarButton>
+              :disabled="!numScenes"
+            >Add Condition</ToolBarButton>
 
             <ToolBarButton
-              @click="downloadZip()"
-              :value="mode"
-              type="is-primary"
-              icon-left="file-download"
-            >Download</ToolBarButton>
+              v-model="mode"
+              @click="toggleHandler($event, 'swap')"
+              :mode="Modes.SWAP"
+              :disabled="numScenes < 2"
+            >Swap</ToolBarButton>
+
+            <ToolBarButton
+              v-model="mode"
+              @click="toggleHandler($event, 'copy')"
+              :mode="Modes.COPY"
+              :disabled="numScenes < 2"
+            >Copy</ToolBarButton>
+
+            <ToolBarButton
+              v-model="mode"
+              @click="toggleHandler($event, 'bind')"
+              :mode="Modes.BIND"
+              :disabled="numScenes < 2"
+            >Bind</ToolBarButton>
+          </div>
+        </template>
+        <template v-slot:end>
+          <div class="level-item">
+            <div class="buttons">
+              <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="cog">Options</ToolBarButton>
+
+              <ToolBarButton
+                @click="previewSimulation()"
+                :value="mode"
+                type="is-primary"
+                icon-left="eye"
+              >Preview</ToolBarButton>
+
+              <ToolBarButton
+                @click="downloadZip()"
+                :value="mode"
+                type="is-primary"
+                icon-left="file-download"
+              >Download</ToolBarButton>
+            </div>
+          </div>
+        </template>
+      </ToolBar>
+
+      <!-- Titles -->
+      <div ref="titlebar" :style="titleBarStyle" class="padded-responsive-container title-bar">
+        <div :style="frameSideBarActive" class="title-wrapper">
+          <div v-for="index in numConditions" :key="index" class="condition-title">
+            <div
+              v-if="isSelectable(Select.CONDITION)"
+              @click="addToSelection(index - 1, Select.CONDITION)"
+              class="select-title"
+            />
+            <b-button
+              @click="removeCondition(index - 1)"
+              type="is-text"
+              icon-left="times"
+              class="close-button"
+            />
+            <h1 class="subtitle">{{ "Condition " + index }}</h1>
           </div>
         </div>
-      </template>
-    </ToolBar>
-
-    <!-- Titles -->
-    <div ref="titlebar" :style="titleBarStyle" class="padded-responsive-container title-bar">
-      <div :style="frameSideBarActive" class="title-wrapper">
-        <div v-for="index in numConditions" :key="index" class="condition-title">
-          <div
-            v-if="isSelectable(Select.CONDITION)"
-            @click="addToSelection(index - 1, Select.CONDITION)"
-            class="select-title"
-          />
-          <b-button
-            @click="removeCondition(index - 1)"
-            type="is-text"
-            icon-left="times"
-            class="close-button"
-          />
-          <h1 class="subtitle">{{ "Condition " + index }}</h1>
-        </div>
       </div>
-    </div>
+    </template>
 
     <section class="padded-responsive-container responsive-center">
       <ValidationObserver ref="form" tag="form" @submit.prevent="onSubmit()">
@@ -112,7 +107,7 @@
         <b-button ref="submit" native-type="submit" class="is-hidden" />
       </ValidationObserver>
     </section>
-  </div>
+  </ScenarioLayout>
 </template>
 
 <script>
@@ -125,6 +120,7 @@ import { EventBus, Event } from "~/bus/eventbus";
 // Import Components
 import { ValidationObserver } from "vee-validate";
 
+import ScenarioLayout from "~/components/layouts/ScenarioLayout";
 import NavBar from "~/components/NavBar";
 import ToolBar from "~/components/ToolBar";
 import ToolBarButton from "~/components/ToolBarButton";
@@ -138,6 +134,7 @@ import { scenarioHelp } from "~/assets/helpText";
 export default {
   name: "Scenario",
   components: {
+    ScenarioLayout,
     NavBar,
     ToolBar,
     ToolBarButton,
@@ -238,13 +235,11 @@ export default {
         this.scenarioStoreHasChanged = true;
       }
     });
-
-    this.$nextTick(() => {
-      // Define header height
-      this.headerHeight =
-        this.$refs["toolbar"].$el.clientHeight +
-        this.$refs["titlebar"].clientHeight;
-    });
+  },
+  mounted() {
+    // Define header height
+    this.headerHeight =
+      this.$refs.toolbar.$el.clientHeight + this.$refs.titlebar.clientHeight;
   },
   computed: {
     ...mapGetters({
@@ -300,7 +295,6 @@ export default {
     async onSubmit() {
       const valid = await this.$refs.form.validate();
       if (valid) {
-        // TODO: make this make the save button have a load mode
         this.saving = true;
         const status = this.saveScenario();
         if (status) {
@@ -385,7 +379,8 @@ export default {
         ].getBoundingClientRect().top;
 
         // Scroll so that the element is at the top of the view
-        const scrollElement = this.$refs.scroll;
+        const scrollElement = this.$refs.layout.$refs.scroll;
+
         scrollElement.scrollTo({
           top: frameTopPos - this.headerHeight + scrollElement.scrollTop,
           ...(smooth && { behavior: "smooth" })
@@ -497,32 +492,11 @@ export default {
     } else {
       next();
     }
-  },
-  head() {
-    return {
-      title: `${this.$siteConfig.title} | ${this.scenarioMeta.name}`,
-      meta: [
-        {
-          hid: "description",
-          name: "description",
-          content: "Scenario Chart"
-        }
-      ]
-    };
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.scroll-wrapper {
-  height: 100vh;
-  width: 100%;
-  overflow-x: scroll;
-  overflow-y: scroll;
-  -webkit-overflow-scrolling: touch;
-  overflow-anchor: none;
-}
-
 .horizontal-sticky {
   @include sticky();
   left: 0;

@@ -13,30 +13,28 @@
         />
 
         <!-- Move Up/Down Buttons -->
-        <template v-show="!collapsed">
-          <b-button
-            v-show="!isFirst"
-            @click="moveUp()"
-            type="is-light"
-            size="is-medium"
-            icon-left="arrow-up"
-          />
-          <b-button
-            v-show="!isLast"
-            @click="moveDown()"
-            type="is-light"
-            size="is-medium"
-            icon-left="arrow-down"
-          />
+        <b-button
+          v-show="!isFirst"
+          @click="moveUp()"
+          type="is-light"
+          size="is-medium"
+          icon-left="arrow-up"
+        />
+        <b-button
+          v-show="!isLast"
+          @click="moveDown()"
+          type="is-light"
+          size="is-medium"
+          icon-left="arrow-down"
+        />
 
-          <!-- Remove Frame Button -->
-          <b-button
-            @click="removeFrameHelper(frame.id)"
-            type="is-danger"
-            icon-left="times"
-            size="is-medium"
-          />
-        </template>
+        <!-- Remove Frame Button -->
+        <b-button
+          @click="removeFrameHelper(frame.id)"
+          type="is-danger"
+          icon-left="times"
+          size="is-medium"
+        />
       </aside>
 
       <div v-for="(scene, index) in sceneSet" :key="scene.id" class="scene">

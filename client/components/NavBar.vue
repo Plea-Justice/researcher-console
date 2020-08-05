@@ -23,9 +23,7 @@
         >{{ route.name }}</b-navbar-item>
       </template>
       <b-navbar-item v-if="user.n_sessions > 1">
-        <b-tag type="is-warning" size="is-small">
-            Warning: Another user may be active.
-        </b-tag>
+        <b-tag type="is-warning" size="is-small">Warning: Another user may be active.</b-tag>
       </b-navbar-item>
     </template>
 
@@ -99,7 +97,7 @@ export default {
   },
   computed: {
     user() {
-      return this.$auth.user ? this.$auth.user : {name: "dev", n_sessions: 1};
+      return this.$auth.user ? this.$auth.user : { name: "dev", n_sessions: 1 };
     }
   },
   methods: {
