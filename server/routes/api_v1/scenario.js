@@ -85,7 +85,7 @@ module.exports = function (options) {
                     {
                         id: obj._id,
                         numScenes: obj.numScenes,
-                        meta: {name: obj.name, description: obj.description, survey: obj.survey},
+                        meta: {name: obj.name, description: obj.description, survey: obj.survey, created: obj.created},
                         scenes: obj.scenes,
                         frames: obj.frames,
                         frameList: obj.frameList,

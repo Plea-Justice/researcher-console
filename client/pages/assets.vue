@@ -93,7 +93,8 @@
         <img
           :src="`${$axios.defaults.baseURL}/api/v1/a/${asset.id}/thumbnail`"
           width="100%"
-          onerror="this.src = 'defaultThumbnail.png';"
+          loading="lazy"
+          onerror="this.src = '/defaultThumbnail.png'; this.onerror = false;"
         />
       </ItemCard>
     </template>

@@ -85,6 +85,7 @@
 
       <template v-slot:footer v-if="isBound">
         <b-button @click="unbindScene({ id: bound, props: scene.id })" icon-left="unlink" />
+        <b-tag type="is-warning">Bound to: {{ scene.props.name }}</b-tag>
       </template>
     </GenericCard>
   </ValidationObserver>

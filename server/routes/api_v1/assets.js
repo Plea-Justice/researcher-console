@@ -56,7 +56,8 @@ module.exports = function (options) {
                     .map(p => ({...p, 'id': btoa(path.format(p))})));
             
             list = Array.prototype.concat(...list);
-            list.forEach(p => assets[p.id] = {'id': p.id, 'name': p.name, 'type': p.dir, 'thumbnail': null});
+            list.forEach(p => assets[p.id] = {'id': p.id, 'name': p.name, 'type': p.dir, 
+                'created': util.posixTimeToHoursAgo(fs.statSync(path.join(user_data_dir, path.format(p))).mtimeMs)});
 
             let assetList = list.map(p => p.id);
 
@@ -97,9 +98,12 @@ module.exports = function (options) {
                 null
             ));
         else {
+            /* FIXME: Renaming disabled until simulation compatible.
             let name = req.body.name.length > 0
                 ? req.body.name + path.extname(req.files.file.name)
                 : req.files.file.name;
+            */
+            let name = req.files.file.name;
  
             let filepath = path.join(req.body.type, sanitize(name).replace(/[\s,;]+/g, '_'));
             if (fs.pathExistsSync(path.join(user_data_dir, filepath))) {
@@ -126,7 +130,7 @@ module.exports = function (options) {
     router.get('/:asset_id/thumbnail', (req, res) => {
         let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
         let thumbnail = path.resolve(path.join(user_data_dir, 'thumbnails', `${req.params.asset_id}.jpg`));
-        if (fs.pathExists(thumbnail))
+        if (fs.pathExistsSync(thumbnail))
             res.sendFile(thumbnail);
         else
             res.status(404).json(util.failure('The requested thumbnail image could not be found.'));
@@ -153,7 +157,7 @@ module.exports = function (options) {
         else {
             try {
                 await fs.unlink(path.join(user_data_dir, path.format(asset)));
-                if (fs.pathExists(thumbnail))
+                if (fs.pathExistsSync(thumbnail))
                     await fs.unlink(thumbnail);
                 res.status(200).json(util.success('Asset deleted successfully.'));
             } catch (err) {
