@@ -27,6 +27,30 @@
             />
           </b-field>
 
+          <b-field v-if="isRegistration">
+            <b-input
+              v-model="loginForm.profession"
+              icon="graduation-cap"
+              maxlength="100"
+              :has-counter="isRegistration"
+              validation-message="Please list your profession."
+              placeholder="Profession"
+              required
+            />
+          </b-field>
+
+          <b-field v-if="isRegistration">
+            <b-input
+              v-model="loginForm.affiliation"
+              icon="university"
+              maxlength="100"
+              :has-counter="isRegistration"
+              validation-message="Please list the institution you are affiliated with."
+              placeholder="Institutional Affiliation"
+              required
+            />
+          </b-field>
+
           <!-- FIXME: binding minlength doesn't seem to work -->
           <b-field>
             <b-input
@@ -98,6 +122,8 @@ export default {
     // Template for Form
     const LoginForm = {
       email: "",
+      profession: "",
+      affiliation: "",
       username: "",
       password: ""
     };

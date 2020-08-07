@@ -120,6 +120,8 @@ module.exports = function (options) {
 
         let user = new UserModel({
             username: req.body.username,
+            profession: req.body.profession,
+            affiliation: req.body.affiliation,
             email: req.body.email,
             password: bcrypt.hashSync(req.body.password, saltRounds)
         });
