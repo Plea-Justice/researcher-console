@@ -96,6 +96,7 @@
           loading="lazy"
           onerror="this.src = '/defaultThumbnail.png'; this.onerror = false;"
         />
+        <p class="content is-small">Uploaded {{ posixTimeToHoursAgo(asset.created) }}</p>
       </ItemCard>
     </template>
   </ItemLayout>
@@ -113,6 +114,9 @@ import HelpSidebar from "~/components/HelpSidebar";
 
 // Content for help fields
 import { assetsHelp } from "~/assets/helpText";
+
+// Last modified time
+import { posixTimeToHoursAgo } from "~/assets/util"
 
 export default {
   name: "Scenarios",
@@ -216,7 +220,8 @@ export default {
 
       // Reset inputs
       this.assetForm = Object.assign({}, this.AssetForm);
-    }
+    },
+    posixTimeToHoursAgo: posixTimeToHoursAgo
   },
   head() {
     return {

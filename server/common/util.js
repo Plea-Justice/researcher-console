@@ -14,11 +14,4 @@ function failure(message, result) {
     };
 }
 
-function posixTimeToHoursAgo(milliseconds) {
-    let time = Date.now() - milliseconds;
-    time *= 1 / (1000 * 60 * 60);
-
-    return time;
-}
-
-module.exports = {success, failure, posixTimeToHoursAgo};
+module.exports = {success, failure};

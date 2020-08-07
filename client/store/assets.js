@@ -31,6 +31,7 @@ export const actions = {
     const response = await this.$axios.$post('/api/v1/a', formData);
     if (response.success) {
       asset.id = response.result;
+      asset.created = Date.now();
       // FIXME: Throw away file at this point? Frontend doesn't need to hold all files
       commit('newAsset', { asset });
     }

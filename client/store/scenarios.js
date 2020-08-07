@@ -21,6 +21,7 @@ export const actions = {
     const response = await this.$axios.$post('/api/v1/s', { meta: scenario });
     if (response.success) {
       scenario.id = response.result.id;
+      scenario.created = Date.now();
       commit('newScenario', { scenario });
     }
   },

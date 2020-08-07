@@ -50,7 +50,8 @@
           close
           link
         >
-          <p>{{ scenario.description }}</p>
+          <p class="content">{{ scenario.description }}</p>
+          <p class="content is-small">Created {{ posixTimeToHoursAgo(scenario.created) }}</p>
         </ItemCard>
 
         <form v-else :key="scenario.id" @submit.prevent="onEditSubmit()">
@@ -80,6 +81,9 @@ import ItemCard from "~/components/cards/ItemCard";
 
 // Content for help fields
 import { scenariosHelp } from "~/assets/helpText";
+
+// Last modified time
+import { posixTimeToHoursAgo } from "~/assets/util"; 
 
 export default {
   name: "Scenarios",
@@ -183,7 +187,8 @@ export default {
 
       this.mode = this.Modes.DEFAULT;
       this.editId = null;
-    }
+    },
+    posixTimeToHoursAgo: posixTimeToHoursAgo
   },
   head() {
     return {
