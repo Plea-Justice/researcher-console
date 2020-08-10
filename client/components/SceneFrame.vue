@@ -118,15 +118,15 @@ export default {
       default: false
     }
   },
-  data() {
-    return {
-      collapsed: false
-    };
-  },
   mounted() {
     EventListener.collapseAll(() => {
       this.collapseFrame();
     });
+  },
+  data() {
+    return {
+      collapsed: false
+    };
   },
   computed: {
     ...mapGetters({

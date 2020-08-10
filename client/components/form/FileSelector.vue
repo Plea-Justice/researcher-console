@@ -1,36 +1,31 @@
 <template>
-  <BSelectWithValidation
-    v-model="innerValue"
-    :rules="invalidOldFile ? `excluded:${value}` : null"
-    :immediate="invalidOldFile"
-    :label="label"
-    :icon="icon"
-    :status="status.flag ? status : null"
-    v-bind="$attrs"
-  >
-    <option value>None</option>
-    <!-- If value does not exists insert dummy value -->
-    <option v-if="invalidOldFile" :value="value">{{ value }}</option>
-    <option v-for="file in options" :key="file" :value="file">{{ file }}</option>
-  </BSelectWithValidation>
+  <form-group :label="label" :validator="validator">
+    <!-- :rules="invalidOldFile ? `excluded:${value}` : null" -->
+    <b-select v-model="innerValue" :icon="icon" :expanded="$attrs.expanded">
+      <option value>None</option>
+      <!-- If value does not exists insert dummy value -->
+      <option v-if="invalidOldFile" :value="value">{{ value }}</option>
+      <option v-for="file in options" :key="file" :value="file">{{ file }}</option>
+    </b-select>
+  </form-group>
 </template>
 
 <script>
-import BSelectWithValidation from "~/components/inputs/BSelectWithValidation";
-
 export default {
-  components: { BSelectWithValidation },
   props: {
+    label: {
+      type: String,
+      required: false
+    },
     // This is false to allow data to load
     options: {
       type: Array,
       required: false
     },
-    value: {
+    validator: {
       required: true
     },
-    label: {
-      type: String,
+    value: {
       required: true
     },
     icon: {

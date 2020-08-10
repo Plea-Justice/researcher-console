@@ -18,7 +18,12 @@ const initialState = () => ({
   },
   frames: {},
   frameList: [],
-  scenes: {}
+  scenes: {},
+  status: {
+    valid: false,
+    errors: [],
+    dirty: 0
+  }
 });
 
 export const state = () => initialState();
@@ -45,6 +50,7 @@ export const actions = {
     }
   },
   async saveScenario({ state }) {
+    while (state.status.dirty);
     await this.$axios.$put(`/api/v1/s/${state.id}`, state);
   },
 
@@ -91,8 +97,8 @@ export const actions = {
   removeScene({ commit }, sceneId) {
     commit('deleteScene', { sceneId });
   },
-  copyScene({ commit }, idList) {
-    commit('copyScene', { fromId: idList[0], toId: idList[1] });
+  updateScene({ commit }, { id, props, valid }) {
+    commit('setScene', { id, props: { ...props }, valid });
   },
   bindScene({ commit }, idList) {
     commit('bindScene', { fromId: idList[0], toId: idList[1] });
@@ -102,21 +108,6 @@ export const actions = {
   },
   swapScene({ commit }, idList) {
     commit('swapScene', { idList });
-  },
-
-  // Form Actions
-  updateSceneType({ commit }, { id, value }) {
-    commit('updateSceneProps', { sceneId: id, entry: { type: value } });
-  },
-  updateSceneForm({ commit }, { id, key, val }) {
-    commit('setScenePropsKey', { sceneId: id, entry: { [key]: val } });
-  },
-  // FIXME: finish these or remove
-  setSceneValid({ commit }, sceneId) {
-    commit('setSceneValidity', { sceneId, valid: true });
-  },
-  setSceneInvalid({ commit }, sceneId) {
-    commit('setSceneValidity', { sceneId, valid: false });
   }
 };
 
@@ -221,7 +212,7 @@ export const mutations = {
     const frameScenes = [];
     for (let i = 0; i < framesLength; i++) {
       const id = nanoid();
-      Vue.set(state.scenes, id, { id, valid: null, props: null });
+      Vue.set(state.scenes, id, { id, props: null });
       frameScenes.push(id);
     }
 
@@ -276,7 +267,7 @@ export const mutations = {
       type: Object.keys(spec.sceneTypes)[1]
     };
 
-    Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, valid: null, props: newSceneProps });
+    Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: newSceneProps });
     // TODO: Can you reactively update a key instead of replacing everything else?
     Vue.set(state.frames, currFrame.id, { ...currFrame, size: currFrame.size + 1 });
     state.numScenes += 1;
@@ -294,6 +285,18 @@ export const mutations = {
   },
   copyScene(state, payload) {
     Vue.set(state.scenes, payload.toId, { ...state.scenes[payload.fromId], id: payload.toId });
+  },
+  setScene(state, payload) {
+    const { id, props } = payload;
+    // Mark dirty and start working
+    Vue.set(state.status, 'dirty', state.status.dirty + 1);
+    // If invalid scene add to scenario errors
+    // FIXME:
+    // if (payload.valid) state.status.errors.push(id);
+    if (!payload.valid) Vue.set(state.status, 'errors', [...state.status.errors, id]);
+    // Update scene
+    Vue.set(state.scenes, id, { ...state.scenes[id], props });
+    Vue.set(state.status, 'dirty', state.status.dirty - 1);
   },
   bindScene(state, payload) {
     const parent = state.scenes[payload.fromId];
@@ -313,17 +316,5 @@ export const mutations = {
     const swappedScene = { ...state.scenes[payload.idList[1]], ...{ id: payload.idList[0] } };
     Vue.set(state.scenes, payload.idList[1], { ...state.scenes[payload.idList[0]], id: payload.idList[1] });
     Vue.set(state.scenes, payload.idList[0], swappedScene);
-  },
-  setScenePropsKey(state, payload) {
-    const newProps = { ...state.scenes[payload.sceneId].props, ...payload.entry };
-    Vue.set(state.scenes, payload.sceneId, { ...state.scenes[payload.sceneId], props: newProps });
-  },
-  setSceneValidity(state, payload) {
-    const sceneProps = state.scenes[payload.sceneId].props;
-    Vue.set(state.scenes, payload.sceneId, {
-      id: payload.sceneId,
-      valid: payload.valid,
-      props: sceneProps
-    });
   }
 };

@@ -1,39 +1,44 @@
 <template>
-  <ValidationObserver ref="form" tag="fieldset" class="flex-wrap" v-slot="{ failed }">
-    <div v-if="selectable && failed" @click="invalidSelectionToast" class="invalid-selection-mask" />
+  <form ref="form" class="flex-wrap">
+    <div
+      v-if="selectable && $v.form.$invalid"
+      @click="invalidSelectionToast"
+      class="invalid-selection-mask"
+    />
+
     <GenericCard
       @remove="removeScene(scene.id)"
       @selected="$emit('selected', scene.id)"
       :selectable="selectable && !failed"
       :collapsed="collapsed"
       :blank="isBlank"
-      :invalid="failed"
+      :invalid="$v.form.$invalid"
       close
     >
       <!-- Card Header -->
       <template v-slot:header>
         <!-- Scene Name -->
-        <BInputWithValidation
-          ref="focus_target"
-          rules="alpha_spaces"
-          @input="updateForm(scene.id, 'name', $event)"
-          :value="scene.props.name"
-          :disabled="isBound"
-          name="Scene Label"
-          placeholder="Scene Label (Optional)"
-          class="header-input"
-          expanded
-        />
+        <form-group :validator="$v.form.name" class="header-input">
+          <b-input
+            ref="focus_target"
+            v-model="$v.form.name.$model"
+            :disabled="isBound"
+            placeholder="Scene Label (Optional)"
+            expanded
+          />
+        </form-group>
       </template>
 
       <template v-slot:default>
+        <!-- <p>Dirty: {{ $v.form.$anyDirty }}</p>
+        <p>Invalid: {{ $v.form.$invalid }}</p>-->
+
         <!-- Scene Type Toggle -->
         <b-field class="is-capitalized toggle-button">
           <b-radio-button
             v-for="type in validSceneTypes"
             :key="type"
-            @input="updateSceneForm({ id: scene.id, key: 'type', val: $event })"
-            :value="scene.props.type"
+            v-model="$v.form.type.$model"
             :native-value="type"
             :disabled="isBound"
           >{{ type }}</b-radio-button>
@@ -41,41 +46,47 @@
 
         <!-- options props needs a preloaded value because .includes in AssetNamesByType will return false positive while loading -->
         <template v-for="field in validFieldNames">
-          <FileSelector
+          <form-group
             :key="field"
             v-if="isType(field, ['image', 'video'])"
-            @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
-            :value="scene.props[field]"
-            :options="AssetNamesByType[field + 's']"
-            :label="field | capitalize"
-            :icon="getIcon(field)"
-            :disabled="isBound"
-            custom-class="is-capitalized"
-            expanded
-          />
+            :validator="$v.form[field]"
+          >
+            <FileSelector
+              :validator="$v.form[field]"
+              v-model="$v.form[field].$model"
+              :options="AssetNamesByType[field + 's']"
+              :label="field"
+              :icon="getIcon(field)"
+              :disabled="isBound"
+              class="is-capitalized"
+              expanded
+            />
+          </form-group>
 
-          <BInputWithValidation
+          <form-group
             :key="field"
             v-if="isType(field, 'text')"
-            @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
-            :value="scene.props[field]"
-            :label="field | capitalize"
-            type="textarea"
-            rules="required|max:220"
-            :placeholder="(field + '...') | capitalize"
-            :disabled="isBound"
-            custom-class="has-fixed-size"
-            expanded
-          />
+            :validator="$v.form[field]"
+            :label="field"
+            class="is-capitalized"
+          >
+            <b-input
+              v-model="$v.form[field].$model"
+              :disabled="isBound"
+              :placeholder="`${field}...` | capitalize"
+              type="textarea"
+              custom-class="has-fixed-size"
+              expanded
+            />
+          </form-group>
 
-          <TagInputWithValidation
+          <BTagInput
             :key="field"
             v-if="isType(field, 'buttons')"
-            @input="updateSceneForm({ id: scene.id, key: field, val: $event })"
-            :value="scene.props[field]"
-            :label="field | capitalize"
+            :label="field"
+            v-model="form[field]"
             :disabled="isBound"
-            custom-class="is-capitalized"
+            class="is-capitalized"
             expanded
           />
 
@@ -86,23 +97,25 @@
       <template v-slot:footer v-if="isBound">
         <b-button @click="unbindScene({ id: bound, props: scene.id })" icon-left="unlink" />
         <b-tag type="is-warning">Bound to: {{ scene.props.name }}</b-tag>
+
+        <b-button @click="unbindScene({ id: bound, props: scene.id })" icon-left="unlink" />
       </template>
     </GenericCard>
-  </ValidationObserver>
+  </form>
 </template>
 
 <script>
 // Import VueX
 import { mapGetters, mapActions } from "vuex";
 
+// Import Vuelidate Rules
+import { required, alphaNum, maxLength } from "vuelidate/lib/validators";
+import { helpers } from "vuelidate/lib/validators";
+
 // Import Components
-import { ValidationObserver } from "vee-validate";
-
 import GenericCard from "~/components/cards/GenericCard";
-import FileSelector from "~/components/inputs/FileSelector";
-import TagInputWithValidation from "~/components/inputs/TagInputWithValidation";
-
-import BInputWithValidation from "~/components/inputs/BInputWithValidation";
+import FileSelector from "~/components/form/FileSelector";
+import BTagInput from "~/components/form/BTagInput";
 
 // Import Helper Functions
 import { debounce } from "~/assets/util";
@@ -116,8 +129,7 @@ export default {
   components: {
     GenericCard,
     FileSelector,
-    TagInputWithValidation,
-    BInputWithValidation
+    BTagInput
   },
   props: {
     scene: {
@@ -141,9 +153,74 @@ export default {
     }
   },
   data() {
-    return {
-      validSceneTypes: Object.keys(spec.sceneTypes)
+    const form = {
+      ...Object.fromEntries(Object.keys(spec.scene).map(key => [key, null])),
+      ...this.scene.props
     };
+
+    return {
+      validSceneTypes: Object.keys(spec.sceneTypes),
+      form
+    };
+  },
+  validations() {
+    // FIXME: add error message
+    // FIXME: extend this from main vuelidate.js ?
+    const included = options => value =>
+      !helpers.req(value) || (options ? options.includes(value) : false);
+
+    const dynamicEntries = Object.fromEntries(
+      Object.entries(spec.scene).map(([key, val]) => {
+        if (val === "image" || val === "video") {
+          return [
+            key,
+            {
+              included: included(this.AssetNamesByType[key + "s"])
+            }
+          ];
+        } else {
+          return [key, {}];
+        }
+      })
+    );
+
+    return {
+      form: {
+        ...dynamicEntries,
+        name: {
+          alphaNum,
+          maxLength: maxLength(20)
+        },
+        type: {
+          required
+        },
+        script: {
+          maxLength: maxLength(220)
+        },
+        buttons: {}
+      }
+    };
+  },
+  watch: {
+    form: {
+      deep: true,
+      handler: debounce(function() {
+        // await this.$v.form.$touch();
+        this.updateScene({
+          id: this.scene.id,
+          props: this.form,
+          valid: !this.$v.form.$invalid
+        });
+      }, 350)
+    }
+    //FIXME: get $anyDirty working so we don't have to deep watch
+    /* "$v.form.$anyDirty": function() {
+      console.log("caught");
+      // Object.keys(this.form).forEach(key => console.log(key));
+      this.$v.$touch();
+      // console.log(JSON.stringify(this.$v.form.$dirty));
+      console.log("updated");
+    } */
   },
   computed: {
     isBound() {
@@ -171,6 +248,7 @@ export default {
     }
   },
   methods: {
+    //FIXME: this does nothing atm (I believe), maybe do to snackbars so fix or remove
     invalidSelectionToast() {
       this.$buefy.toast.open({
         message: "Can't select an invalid scene, correct scene first.",
@@ -181,13 +259,6 @@ export default {
     focus() {
       this.$refs.focus_target.focus();
     },
-    validationScheduler: debounce(async function() {
-      const valid = await this.$refs.form.validate();
-      // FIXME: make these do something or remove them
-      valid
-        ? this.setSceneValid(this.scene.id)
-        : this.setSceneInvalid(this.scene.id);
-    }, 350),
     isType(field, validTypes) {
       const targetType = spec.scene[field];
       return Array.isArray(validTypes)
@@ -207,16 +278,12 @@ export default {
     },
     ...mapActions({
       removeScene: "scenario/removeScene",
+      updateScene: "scenario/updateScene",
       unbindScene: "scenario/unbindScene",
       setSceneInvalid: "scenario/setSceneInvalid",
       setSceneValid: "scenario/setSceneValid",
       updateSceneForm: "scenario/updateSceneForm"
-    }),
-    updateForm(id, key, val) {
-      // TODO: change order of these, validate on update?
-      this.updateSceneForm({ id, key, val });
-      this.validationScheduler();
-    }
+    })
   }
 };
 </script>

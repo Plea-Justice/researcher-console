@@ -18,6 +18,9 @@ import NavBar from "~/components/NavBar";
 // Content for help fields
 import { scenarioHelp } from "~/assets/helpText";
 
+// Import Utilities
+import { noop } from "~/assets/util";
+
 export default {
   name: "ScenarioLayout",
   components: {
@@ -30,7 +33,8 @@ export default {
     },
     logout: {
       required: false,
-      type: Function
+      type: Function,
+      default: noop
     }
   },
   data() {

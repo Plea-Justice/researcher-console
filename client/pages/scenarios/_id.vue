@@ -5,7 +5,7 @@
         <template v-slot:start>
           <div class="level-item buttons">
             <ToolBarButton
-              @click="submitHandler()"
+              @click="saveScenario()"
               :value="mode"
               :loading="saving"
               type="is-primary"
@@ -90,22 +90,18 @@
     </template>
 
     <section class="padded-responsive-container responsive-center">
-      <ValidationObserver ref="form" tag="form" @submit.prevent="onSubmit()">
-        <!-- Frames -->
-        <SceneFrame
-          v-for="(frame, index) in frameSet"
-          :key="`${frame.id}`"
-          @scroll-to="scrollToFrame($event)"
-          @selected="addToSelection($event, Select.SCENE)"
-          :frame="frame"
-          :frameIndex="index"
-          :isFirst="index === 0"
-          :isLast="index === frameSet.length - 1"
-          :selectable="isSelectable(Select.SCENE)"
-        />
-
-        <b-button ref="submit" native-type="submit" class="is-hidden" />
-      </ValidationObserver>
+      <!-- Frames -->
+      <SceneFrame
+        v-for="(frame, index) in frameSet"
+        :key="`${frame.id}`"
+        @scroll-to="scrollToFrame($event)"
+        @selected="addToSelection($event, Select.SCENE)"
+        :frame="frame"
+        :frameIndex="index"
+        :isFirst="index === 0"
+        :isLast="index === frameSet.length - 1"
+        :selectable="isSelectable(Select.SCENE)"
+      />
     </section>
   </ScenarioLayout>
 </template>
@@ -116,9 +112,6 @@ import { mapGetters, mapActions } from "vuex";
 
 // Import Bus
 import { EventBus, Event } from "~/bus/eventbus";
-
-// Import Components
-import { ValidationObserver } from "vee-validate";
 
 import ScenarioLayout from "~/components/layouts/ScenarioLayout";
 import NavBar from "~/components/NavBar";
@@ -288,9 +281,6 @@ export default {
       } else {
         this.logoutHelper();
       }
-    },
-    submitHandler() {
-      this.$refs.submit.$el.click();
     },
     async onSubmit() {
       const valid = await this.$refs.form.validate();

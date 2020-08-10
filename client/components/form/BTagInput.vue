@@ -1,46 +1,27 @@
 <template>
-  <!-- ValidationProvider is only used here to sync validate event, passed state -->
-  <ValidationProvider
-    :vid="vid"
-    :name="$attrs.name || $attrs.label"
-    :rules="rules"
-    v-slot="{ passed }"
+  <b-field
+    :label="$attrs.label"
+    :validator="validator"
+    :type="{ 'is-danger': error.status, 'is-success': touched && !error.status }"
+    :message="error.message"
   >
-    <b-field
-      v-bind="$attrs"
-      :type="{ 'is-danger': error.status, 'is-success': passed && !error.status }"
-      :message="error.message"
-    >
-      <b-taginput
-        v-model="innerValue"
-        @blur="onBlur()"
-        ref="tagInput"
-        :before-adding="validateTagInput"
-        attached
-        placeholder="Name Buttons"
-        allow-duplicates
-      />
-    </b-field>
-  </ValidationProvider>
+    <b-taginput
+      v-model="innerValue"
+      @blur="onBlur()"
+      :before-adding="validateTagInput"
+      placeholder="Name Buttons"
+      attached
+      allow-duplicates
+    />
+  </b-field>
 </template>
 
 <script>
-import { ValidationProvider } from "vee-validate";
-
 export default {
-  components: {
-    ValidationProvider
-  },
+  name: "BTagInput",
   props: {
-    vid: {
-      type: String
-    },
-    rules: {
-      type: [Object, String],
-      default: ""
-    },
-    // must be included in props
     value: {
+      required: true,
       type: null
     }
   },
@@ -52,6 +33,7 @@ export default {
 
     return {
       StatusObj,
+      touched: false,
       error: Object.assign({}, StatusObj)
     };
   },
@@ -68,6 +50,8 @@ export default {
   methods: {
     //FIXME: make this more specific to when you leave a scene?
     onBlur() {
+      if (!this.touched) this.touched = true;
+
       if (this.error.status) {
         setTimeout(
           () => (this.error = Object.assign({}, this.StatusObj)),
@@ -80,6 +64,8 @@ export default {
       this.error.message = message;
     },
     validateTagInput(tagName) {
+      if (!this.touched) this.touched = true;
+
       // FIXME: Set limit on character length
       let valid = false;
 
