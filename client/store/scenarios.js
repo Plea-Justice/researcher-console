@@ -18,7 +18,7 @@ export const actions = {
   },
   async addScenario({ commit }, scenario) {
     // Get new scenario id from server
-    const response = await this.$axios.$post('/api/v1/s', { meta: scenario });
+    const response = await this.$axios.$post('/api/v1/scenarios', { meta: scenario });
     if (response.success) {
       scenario.id = response.result.id;
       scenario.created = Date.now();
@@ -26,15 +26,15 @@ export const actions = {
     }
   },
   async removeScenario({ commit }, id) {
-    const response = await this.$axios.$delete(`/api/v1/s/${id}`);
+    const response = await this.$axios.$delete(`/api/v1/scenarios/${id}`);
     if (response.success) commit('deleteScenario', { id });
   },
   async editScenario({ commit }, scenario) {
-    const response = await this.$axios.$put(`/api/v1/s/${scenario.id}`, scenario);
+    const response = await this.$axios.$put(`/api/v1/scenarios/${scenario.id}`, scenario);
     if (response.success) commit('updateScenario', scenario);
   },
   async duplicateScenario({ commit, state, getters }, id) {
-    const response = await this.$axios.$get(`/api/v1/s/${id}`);
+    const response = await this.$axios.$get(`/api/v1/scenarios/${id}`);
     if (response.success) {
       const scenarioName = state.scenarios[id].name;
 
@@ -52,7 +52,7 @@ export const actions = {
 
       if (duplicateCount > 0) copyName += ` ${duplicateCount}`;
 
-      const newResponse = await this.$axios.$post('/api/v1/s', {
+      const newResponse = await this.$axios.$post('/api/v1/scenarios', {
         ...response.result,
         meta: { name: copyName }
       });

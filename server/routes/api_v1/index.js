@@ -7,17 +7,21 @@ module.exports = function (options) {
     const express = require('express');
     const router = express.Router();
 
+    const { authenticatedRoute, administratorRoute } = require('../../middleware/authenticateRoutes');
+
     // Authentication Route
     router.use('/auth', require('./auth')(options));
 
     // All routes defined after this line will require authentication.
-    router.use(require('../../middleware/authenticateRoute'));
+    router.use(authenticatedRoute);
 
     // Scenario Route
-    router.use('/s', require('./scenario')(options));
+    router.use('/scenarios', require('./scenario')(options));
 
     // Asset Route
-    router.use('/a', require('./assets')(options));
+    router.use('/assets', require('./assets')(options));
+
+    router.use('/admin', administratorRoute, require('./admin')(options));
 
     // Default Route
     router.get('/', function (req, res) {

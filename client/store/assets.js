@@ -21,14 +21,14 @@ export const getters = {
 
 export const actions = {
   async getAssets({ commit }) {
-    const response = await this.$axios.$get('/api/v1/a');
+    const response = await this.$axios.$get('/api/v1/assets');
     if (response.success) commit('setAssets', response.result);
   },
   async addAsset({ commit }, asset) {
     const formData = new FormData();
     Object.entries(asset).forEach(([key, value]) => formData.append(key, value));
 
-    const response = await this.$axios.$post('/api/v1/a', formData);
+    const response = await this.$axios.$post('/api/v1/assets', formData);
     if (response.success) {
       asset.id = response.result;
       asset.created = Date.now();
@@ -37,7 +37,7 @@ export const actions = {
     }
   },
   async removeAsset({ commit }, id) {
-    const response = await this.$axios.$delete(`/api/v1/a/${id}`);
+    const response = await this.$axios.$delete(`/api/v1/assets/${id}`);
     if (response.success) commit('deleteAsset', { id });
   }
 };

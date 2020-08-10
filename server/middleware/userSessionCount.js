@@ -19,6 +19,7 @@ function countUserSessions (req, res, next) {
                 });
 
                 obj.addresses.set(ip, Date.now());
+                obj.lastActive = Date.now();
 
                 obj.save((err)=>{
                     if (err)

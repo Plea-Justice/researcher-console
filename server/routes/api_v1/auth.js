@@ -27,7 +27,7 @@ module.exports = function (options) {
 
     // Login, logout, and register should not require prior authentication.
     // Fetch user should require authentication.
-    const authenticateRoute = require('../../middleware/authenticateRoute');
+    const { authenticatedRoute } = require('../../middleware/authenticateRoutes');
 
     // Use bcrypt to hash passwords with cost factor 10.
     const bcrypt = require('bcrypt');
@@ -47,7 +47,7 @@ module.exports = function (options) {
      * Get the user_id of the current session if the user is logged in.
      * @return {user: {name: String, user_id: String}}
      */
-    router.get('/user', authenticateRoute, async (req, res) => {
+    router.get('/user', authenticatedRoute, async (req, res) => {
         // This route should only be accessible from an authenticated session.
         if (!('user_id' in req.session))
             res.status(500).json(util.failure('Session user_id not found.'));
@@ -58,6 +58,7 @@ module.exports = function (options) {
                 {user: {
                     name: req.session.username,
                     user_id: req.session.user_id,
+                    admin: await util.userIsAdmin(req.session.user_id),
                     n_sessions: await getUserSessionCount(req.session.user_id)
                 }}
             ));

@@ -8,6 +8,8 @@ var UserSchema = new mongoose.Schema({
     profession: {type: String, required: false},
     affiliation: {type: String, required: false},
     addresses: {type: Map, of: String, default: new Map()},
+    administrator: {type: Boolean, default: false},
+    lastActive: {type: Date, default: Date.now},
     created: {type: Date, default: Date.now}
 }, {strict: 'throw', strictQuery: true, minimize: false });
 

@@ -91,7 +91,7 @@
       >
         <!-- FIXME: use lazyloading for this, loading indicator -->
         <img
-          :src="`${$axios.defaults.baseURL}/api/v1/a/${asset.id}/thumbnail`"
+          :src="`${$axios.defaults.baseURL}/api/v1/assets/${asset.id}/thumbnail`"
           width="100%"
           loading="lazy"
           onerror="this.src = '/defaultThumbnail.png'; this.onerror = false;"

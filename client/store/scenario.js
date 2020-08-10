@@ -34,7 +34,7 @@ export const getters = {
 export const actions = {
   // **** Axios Actions ****
   async getScenario({ commit, state }, id) {
-    const response = await this.$axios.$get(`/api/v1/s/${id}`);
+    const response = await this.$axios.$get(`/api/v1/scenarios/${id}`);
     if (response.success) {
       // Reset state representation write in data from server request
       commit('resetState');
@@ -45,7 +45,7 @@ export const actions = {
     }
   },
   async saveScenario({ state }) {
-    await this.$axios.$put(`/api/v1/s/${state.id}`, state);
+    await this.$axios.$put(`/api/v1/scenarios/${state.id}`, state);
   },
 
   // **** Scenario Actions ****

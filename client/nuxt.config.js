@@ -113,7 +113,9 @@ export default {
         'faLink',
         'faUnlink',
         'faGraduationCap',
-        'faUniversity'
+        'faUniversity',
+        'faAngleLeft',
+        'faAngleRight'
       ]
     }
   },
