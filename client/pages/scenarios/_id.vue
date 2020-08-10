@@ -409,7 +409,7 @@ export default {
 
         try {
           const res = await this.$axios.post(
-            `/api/v1/s/${this.scenarioMeta.id}/generate`
+            `/api/v1/scenarios/${this.scenarioMeta.id}/generate`
           );
           status = res.status === 200;
         } catch (err) {
@@ -432,7 +432,7 @@ export default {
 
       try {
         const res = await this.$axios.post(
-          `/api/v1/s/${this.scenarioMeta.id}/zip`
+          `/api/v1/scenarios/${this.scenarioMeta.id}/zip`
         );
         if (res.status === 200)
           window.open(

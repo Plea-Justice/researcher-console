@@ -111,7 +111,11 @@ export default {
         'faCog',
         'faCheck',
         'faLink',
-        'faUnlink'
+        'faUnlink',
+        'faGraduationCap',
+        'faUniversity',
+        'faAngleLeft',
+        'faAngleRight'
       ]
     }
   },

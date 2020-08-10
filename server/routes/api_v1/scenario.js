@@ -16,7 +16,6 @@ module.exports = function (options) {
      * @return [{id, name, description}]
      */
     router.get('/', (req, res) => {
-        req.session.user_id;
 
         ScenarioModel.find({ user_id: req.session.user_id }, (err, objs) => {
             if (err)
@@ -29,7 +28,8 @@ module.exports = function (options) {
                                 id: obj._id,
                                 name: obj.name,
                                 description: obj.description,
-                                survey: obj.survey
+                                survey: obj.survey,
+                                created: obj.created
                             };
                             return o;
                         }, {}),

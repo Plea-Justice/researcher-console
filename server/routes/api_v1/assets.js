@@ -56,8 +56,8 @@ module.exports = function (options) {
                     .map(p => ({...p, 'id': btoa(path.format(p))})));
             
             list = Array.prototype.concat(...list);
-            list.forEach(p => assets[p.id] = {'id': p.id, 'name': p.name, 'type': p.dir, 
-                'created': util.posixTimeToHoursAgo(fs.statSync(path.join(user_data_dir, path.format(p))).mtimeMs)});
+            list.forEach(p => assets[p.id] = {'id': p.id, 'name': p.name, 'type': p.dir, 'filename': p.base,
+                'created': fs.statSync(path.join(user_data_dir, path.format(p))).mtimeMs});
 
             let assetList = list.map(p => p.id);
 

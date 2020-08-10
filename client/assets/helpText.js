@@ -6,6 +6,11 @@ export const assetsHelp = {
     "Asset types may be actor, clip, foreground or background. Actors are individual characters who may speak whereas clips are premade movie clips that will play through like a video. Both must be files exported from Adobe Animate ending in '.js'. Foregrounds and backgrounds are image files and must end in '.png' or '.jpg'."
 };
 
+export const adminHelp = {
+  navbar:
+    'View and search user account information. Operations performed here are destructive and may not be undone. If you have accessed this page in error, please contact a project member.'
+};
+
 export const scenariosHelp = {
   navbar:
     'On this page you may create and organize simulated scenarios. Click the name of any scenario to open the storyline editor.'

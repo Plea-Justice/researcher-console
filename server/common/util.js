@@ -1,3 +1,5 @@
+const UserModel = require('../models/UserModel');
+
 function success(message, result) {
     return {
         success: true,
@@ -14,11 +16,15 @@ function failure(message, result) {
     };
 }
 
-function posixTimeToHoursAgo(milliseconds) {
-    let time = Date.now() - milliseconds;
-    time *= 1 / (1000 * 60 * 60);
+async function userIsAdmin(user_id) {
+    try {
+        let obj = await UserModel.findById(user_id);
+        return obj.administrator;
 
-    return time;
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
 }
 
-module.exports = {success, failure, posixTimeToHoursAgo};
+module.exports = {success, failure, userIsAdmin};
