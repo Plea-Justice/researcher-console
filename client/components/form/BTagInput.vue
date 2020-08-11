@@ -1,7 +1,6 @@
 <template>
   <b-field
     :label="$attrs.label"
-    :validator="validator"
     :type="{ 'is-danger': error.status, 'is-success': touched && !error.status }"
     :message="error.message"
   >

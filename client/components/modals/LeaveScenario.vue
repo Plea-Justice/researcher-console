@@ -19,12 +19,8 @@
       </div>
     </section>
     <footer class="modal-card-foot">
-      <b-button v-if="validationFailed" @click="closeModal()" type="is-primary"
-        >Return to Fix</b-button
-      >
-      <b-button v-else @click="saveHandler()" type="is-primary"
-        >Save & Exit</b-button
-      >
+      <b-button v-if="validationFailed" @click="closeModal()" type="is-primary">Return to Fix</b-button>
+      <b-button v-else @click="saveHandler()" type="is-primary">Save & Exit</b-button>
       <b-button @click="exitHandler()" type="is-danger">Force Exit</b-button>
     </footer>
   </div>
@@ -37,8 +33,8 @@ import { mapActions } from "vuex";
 export default {
   name: "LeaveScenario",
   props: {
-    validate: {
-      type: Function,
+    valid: {
+      type: Boolean,
       required: true
     }
   },
@@ -56,8 +52,7 @@ export default {
       this.$emit("exit");
     },
     async saveHandler() {
-      const valid = await this.validate();
-      if (valid) {
+      if (this.valid) {
         this.saveScenario();
         this.exitHandler();
       } else {

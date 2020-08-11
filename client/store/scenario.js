@@ -33,7 +33,8 @@ export const getters = {
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
   numConditions: state => (state.frameList.length ? state.frames[state.frameList[0]].scenes.length : 0),
-  numScenes: state => state.numScenes
+  numScenes: state => state.numScenes,
+  errors: state => state.status.errors
 };
 
 export const actions = {
@@ -50,7 +51,6 @@ export const actions = {
     }
   },
   async saveScenario({ state }) {
-    while (state.status.dirty);
     await this.$axios.$put(`/api/v1/scenarios/${state.id}`, state);
   },
 
@@ -293,7 +293,14 @@ export const mutations = {
     // If invalid scene add to scenario errors
     // FIXME:
     // if (payload.valid) state.status.errors.push(id);
-    if (!payload.valid) Vue.set(state.status, 'errors', [...state.status.errors, id]);
+
+    if (!payload.valid && !state.status.errors.includes(id)) {
+      Vue.set(state.status, 'errors', [...state.status.errors, id]);
+    } else {
+      const index = state.status.errors.indexOf(id);
+      if (index !== -1) state.status.errors.splice(index, 1);
+    }
+
     // Update scene
     Vue.set(state.scenes, id, { ...state.scenes[id], props });
     Vue.set(state.status, 'dirty', state.status.dirty - 1);

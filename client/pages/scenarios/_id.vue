@@ -5,7 +5,7 @@
         <template v-slot:start>
           <div class="level-item buttons">
             <ToolBarButton
-              @click="saveScenario()"
+              @click="saveHelper()"
               :value="mode"
               :loading="saving"
               type="is-primary"
@@ -89,7 +89,7 @@
       </div>
     </template>
 
-    <section class="padded-responsive-container responsive-center">
+    <section ref="frames" class="padded-responsive-container responsive-center">
       <!-- Frames -->
       <SceneFrame
         v-for="(frame, index) in frameSet"
@@ -237,6 +237,7 @@ export default {
   computed: {
     ...mapGetters({
       scenarioMeta: "scenario/scenarioMeta",
+      sceneErrors: "scenario/errors",
       numConditions: "scenario/numConditions",
       numScenes: "scenario/numScenes",
       frameSet: "scenario/frameSet"
@@ -255,6 +256,40 @@ export default {
     }
   },
   methods: {
+    async saveHelper() {
+      if (this.scenarioStoreHasChanged) {
+        this.saving = true;
+        const numErrors = this.sceneErrors.length;
+        if (numErrors > 0) {
+          for (const [i, { scenes }] of this.frameSet.entries()) {
+            const index = scenes.indexOf(this.sceneErrors[0]);
+            if (index !== -1) {
+              this.$buefy.toast.open({
+                message: `${numErrors} ${
+                  numErrors > 1 ? "errors exists, starting" : "error exists"
+                } at scene ${index}`,
+                type: "is-danger"
+              });
+              this.scrollToFrame({ frameIndex: i });
+              break;
+            }
+          }
+        } else {
+          await this.saveScenario();
+          this.scenarioStoreHasChanged = false;
+          this.$buefy.toast.open({
+            message: "Scenario Saved",
+            type: "is-success"
+          });
+        }
+        this.saving = false;
+      } else {
+        this.$buefy.toast.open({
+          message: "Scenario is already up to date",
+          type: "is-success"
+        });
+      }
+    },
     collapseAll() {
       this.collapsed = !this.collapsed;
       Event.collapseAll();
@@ -364,7 +399,10 @@ export default {
     },
     scrollToFrame({ frameIndex, smooth = true }) {
       this.$nextTick(() => {
-        const frameTopPos = this.$refs.form.$el.children[
+        console.log(frameIndex);
+        console.log(this.$refs.frames.children);
+
+        const frameTopPos = this.$refs.frames.children[
           frameIndex
         ].getBoundingClientRect().top;
 
@@ -469,11 +507,12 @@ export default {
   beforeRouteLeave(to, from, next) {
     this.snackbar && this.closeSnackbar();
 
+    //FIXME: validate needs to be updated, doesn't work
     if (!this.logout && this.scenarioStoreHasChanged) {
       this.$buefy.modal.open({
         parent: this,
         component: LeaveScenario,
-        props: { validate: this.$refs.form.validate },
+        props: { valid: !this.sceneErrors.length },
         events: { exit: next },
         hasModalCard: true,
         customClass: "dialog",

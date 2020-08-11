@@ -201,11 +201,14 @@ export default {
       }
     };
   },
+  mounted() {
+    this.$v.form.$touch();
+  },
   watch: {
     form: {
       deep: true,
-      handler: debounce(function() {
-        // await this.$v.form.$touch();
+      handler: debounce(async function() {
+        await this.$v.form.$touch();
         this.updateScene({
           id: this.scene.id,
           props: this.form,
