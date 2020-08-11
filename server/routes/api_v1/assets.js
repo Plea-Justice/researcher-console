@@ -3,6 +3,8 @@
  * This route handles requests regarding user animation assets.
  */
 
+const ScenarioModel = require('../../models/ScenarioModel');
+
 module.exports = function (options) {
     const express = require('express');
     var router = express.Router();
@@ -135,6 +137,37 @@ module.exports = function (options) {
         else
             res.status(404).json(util.failure('The requested thumbnail image could not be found.'));
     });
+
+    /**
+     * Find references to an asset (for safe deletion).
+     */
+    router.get('/:asset_id/references', async (req, res) => {
+        let matches = await ScenarioModel.find({
+            user_id: req.session.user_id
+        });
+        console.log(`Matches: ${matches}`);
+        let asset = path.parse(atob(req.params.asset_id));
+        let type = asset.dir;
+        
+        matches = matches.filter(scenario => 
+            Object.entries((scenario.scenes)).map(([id, scene])=> 
+                scene.props ?
+                    [scene.props.actor, scene.props.clip, 
+                        scene.props.foreground, scene.props.background].includes(asset.name) : false
+            ).some(y=>y)
+        );
+        
+        matches = matches.map(x=>({
+            id: x._id,
+            name: x.name,
+            description: x.description,
+            survey: x.survey,
+            created: x.created,
+            modified: x.modified
+        }));
+
+        res.json(util.success('Returned scenarios that reference the asset.', matches ));
+    });    
 
     /**
      * Delete a file. Asset ID is base64 encoded path.
