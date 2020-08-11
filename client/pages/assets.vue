@@ -1,5 +1,9 @@
 <template>
-  <ItemLayout contentTitle="Assets" helpTitle="Asset Management" :helpText="assetsHelp.navbar">
+  <ItemLayout
+    :contentTitle="`Assets: ${this.selectedAssetType}`"
+    helpTitle="Asset Management"
+    :helpText="assetsHelp.navbar"
+  >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
         <ToolBarButton v-model="addMode" @click="toggleAddMode()">Add</ToolBarButton>
@@ -16,7 +20,19 @@
     </template>
 
     <form v-show="addMode" @submit.prevent="onSubmit()">
-      <ItemCard ref="form-card" v-model="assetForm" save>
+      <ItemCard ref="form-card" save>
+        <template v-slot:header>
+          <b-button @click="closeForm()" icon-left="times" type="is-text" />
+
+          <b-input
+            ref="focus_target"
+            v-model="assetForm.name"
+            placeholder="Name"
+            class="flex-grow"
+            required
+          />
+        </template>
+
         <div class="input-wrapper">
           <b-field label="File Upload">
             <b-field>
@@ -142,10 +158,14 @@ export default {
   methods: {
     toggleAddMode() {
       if (this.addMode) {
-        this.$nextTick(() => this.$refs["form-card"].focus());
+        this.$nextTick(() => this.$refs.focus_target.focus());
       } else {
         this.assetForm = Object.assign({}, this.AssetForm);
       }
+    },
+    closeForm() {
+      this.addMode = false;
+      this.assetForm = Object.assign({}, this.AssetForm);
     },
     ...mapActions({
       addAsset: "assets/addAsset",
@@ -162,7 +182,7 @@ export default {
       this.$buefy.modal.open({
         parent: this,
         component: DeleteAsset,
-        props: { name, onConfirm: () => this.removeAsset(id) },
+        props: { id, name, onConfirm: () => this.removeAsset(id) },
         hasModalCard: true,
         customClass: "dialog",
         trapFocus: true
@@ -222,6 +242,10 @@ export default {
   & > :nth-last-child(n + 2) {
     margin-bottom: 1.5rem;
   }
+}
+
+.flex-grow {
+  flex-grow: 1;
 }
 
 .empty-text {

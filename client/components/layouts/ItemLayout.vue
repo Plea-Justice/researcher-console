@@ -12,7 +12,7 @@
     </ToolBar>
 
     <section class="section container">
-      <h1 class="title">{{ contentTitle }}</h1>
+      <h1 class="title is-capitalized">{{ contentTitle }}</h1>
 
       <div class="grid">
         <slot name="default" />

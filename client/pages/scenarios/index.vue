@@ -6,20 +6,29 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD"
-          >Add</ToolBarButton
-        >
+        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD">Add</ToolBarButton>
         <ToolBarButton
           v-model="mode"
           :mode="Modes.DUPLICATE"
           :disabled="!scenarioSet.length"
-          >Duplicate</ToolBarButton
-        >
+        >Duplicate</ToolBarButton>
       </div>
     </template>
 
     <form v-show="mode === Modes.ADD" @submit.prevent="onSaveSubmit()">
-      <ItemCard ref="form-card" v-model="scenarioForm" save>
+      <ItemCard ref="form-card" save>
+        <template v-slot:header>
+          <b-button icon-left="times" type="is-text" />
+
+          <b-input
+            ref="focus_target"
+            v-model="scenarioForm.name"
+            placeholder="Name"
+            class="flex-grow"
+            required
+          />
+        </template>
+
         <b-input
           v-model="scenarioForm.description"
           type="textarea"
@@ -83,7 +92,7 @@ import ItemCard from "~/components/cards/ItemCard";
 import { scenariosHelp } from "~/assets/helpText";
 
 // Last modified time
-import { posixTimeToHoursAgo } from "~/assets/util"; 
+import { posixTimeToHoursAgo } from "~/assets/util";
 
 export default {
   name: "Scenarios",
@@ -128,7 +137,7 @@ export default {
     toggleAddMode() {
       if (this.mode === this.Modes.ADD) {
         this.$nextTick(() => {
-          this.$refs["form-card"].focus();
+          this.$refs.focus_target.focus();
         });
       } else {
         this.scenarioForm = Object.assign({}, this.ScenarioForm);
@@ -206,6 +215,10 @@ export default {
 </script>
 
 <style scoped>
+.flex-grow {
+  flex-grow: 1;
+}
+
 .empty-text {
   position: absolute;
 }

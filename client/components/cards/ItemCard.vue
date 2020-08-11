@@ -6,6 +6,8 @@
     :selectable="selectable"
   >
     <template v-slot:header>
+      <slot name="header" />
+
       <template v-if="item">
         <!-- If header's not in form mode print name w or w/o link -->
         <h1 class="subtitle">
@@ -13,16 +15,6 @@
           <template v-else>{{ item.name }}</template>
         </h1>
       </template>
-
-      <!-- In form mode v-model item name as input -->
-      <b-input
-        v-else
-        ref="focus_target"
-        v-model="value.name"
-        placeholder="Name"
-        class="flex-grow"
-        required
-      />
     </template>
 
     <template v-slot:default>
@@ -80,17 +72,6 @@ export default {
       required: false,
       default: false
     }
-  },
-  methods: {
-    focus() {
-      this.$refs.focus_target.focus();
-    }
   }
 };
 </script>
-
-<style lang="scss" scoped>
-.flex-grow {
-  flex-grow: 1;
-}
-</style>

@@ -12,7 +12,7 @@
           <div v-if="references && references.length" class="content">
             <p>"{{ name }}" is used in the following scenarios:</p>
             <ul>
-              <li v-for="ref in references" :key="ref">{{ ref }}</li>
+              <li v-for="ref in references" :key="ref.id">{{ ref.name }}</li>
             </ul>
           </div>
 
@@ -37,6 +37,10 @@ import { mapActions } from "vuex";
 export default {
   name: "LeaveScenario",
   props: {
+    id: {
+      type: String,
+      required: true
+    },
     name: {
       type: String,
       required: true
@@ -52,6 +56,7 @@ export default {
     };
   },
   mounted() {
+    console.log(this.id);
     this.$axios.$get(`/api/v1/assets/${this.id}/references`).then(response => {
       if (response.success) this.references = response.result;
     });
