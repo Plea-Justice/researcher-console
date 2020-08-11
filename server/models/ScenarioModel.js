@@ -14,7 +14,8 @@ var ScenarioSchema = new mongoose.Schema({
     scenes: { type: Object, default: {} },
     frames: { type: Object, default: {} },
     frameList: { type: Array, default: [] },
-    created: { type: Date, default: Date.now }
+    created: { type: Date, default: Date.now },
+    modified: { type: Date, default: Date.now }
 }, { strict: 'throw', strictQuery: true, minimize: false });
 
 var ScenarioModel = mongoose.model('Scenario', ScenarioSchema);

@@ -19,7 +19,7 @@ module.exports = function (options) {
 
         ScenarioModel.find({ user_id: req.session.user_id }, (err, objs) => {
             if (err)
-                res.status(500).json(util.failure('There was an fetching the scenario list.', err));
+                res.status(500).json(util.failure('There was an error fetching the scenario list.', err));
             else
                 res.status(200).json(util.success('User\'s scenarios returned.',
                     {
@@ -29,7 +29,8 @@ module.exports = function (options) {
                                 name: obj.name,
                                 description: obj.description,
                                 survey: obj.survey,
-                                created: obj.created
+                                created: obj.created,
+                                modified: obj.modified
                             };
                             return o;
                         }, {}),
@@ -85,7 +86,13 @@ module.exports = function (options) {
                     {
                         id: obj._id,
                         numScenes: obj.numScenes,
-                        meta: {name: obj.name, description: obj.description, survey: obj.survey, created: obj.created},
+                        meta: {
+                            name: obj.name,
+                            description: obj.description,
+                            survey: obj.survey,
+                            created: obj.created, 
+                            modified: obj.modified
+                        },
                         scenes: obj.scenes,
                         frames: obj.frames,
                         frameList: obj.frameList,
@@ -114,7 +121,8 @@ module.exports = function (options) {
             numScenes: req.body.numScenes,
             scenes: req.body.scenes,
             frames: req.body.frames,
-            frameList: req.body.frameList
+            frameList: req.body.frameList,
+            modified: Date.now()
         }}, (err, result)=>{
             if (err)
                 res.status(500).json(util.failure('There was an error updating the scenario.', err));

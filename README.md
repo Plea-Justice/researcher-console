@@ -189,17 +189,19 @@ The API defines endpoints for managing scenarios, assets, and user authenticatio
 
 | Method | Endpoint | Function |
 | --- | --- | --- |
-| `GET` | `/api/v1/s` | Get the list of scenarios. |
-| `POST` | `/api/v1/s` | Create a new scenario. |
-| `GET` | `/api/v1/s/{scenario_id}` | Get a scenario. |
-| `PUT` | `/api/v1/s/{scenario_id}` | Save a scenario. |
-| `DELETE` | `/api/v1/s/{scenario_id}` | Delete a scenario. |
-| `POST` | `/api/v1/s/{scenario_id}/generate` | Generate a simulation. |
-| `POST` | `/api/v1/s/{scenario_id}/zip` | Prepare a ZIP of a generated simulation. |
-| `GET` | `/api/v1/a` | Get the list of assets. |
-| `POST` | `/api/v1/a` | Upload an asset. |
-| `DELETE` | `/api/v1/a/{asset_id}` | Get the list of assets. |
+| `GET` | `/api/v1/scenarios` | Get the list of scenarios. |
+| `POST` | `/api/v1/scenarios` | Create a new scenario. |
+| `GET` | `/api/v1/scenarios/{scenario_id}` | Get a scenario. |
+| `PUT` | `/api/v1/scenarios/{scenario_id}` | Save a scenario. |
+| `DELETE` | `/api/v1/scenarios/{scenario_id}` | Delete a scenario. |
+| `POST` | `/api/v1/scenarios/{scenario_id}/generate` | Generate a simulation. |
+| `POST` | `/api/v1/scenarios/{scenario_id}/zip` | Prepare a ZIP of a generated simulation. |
+| `GET` | `/api/v1/assets` | Get the list of assets. |
+| `POST` | `/api/v1/assets` | Upload an asset. |
+| `DELETE` | `/api/v1/assets/{asset_id}` | Delete an asset. |
+| `GET` | `/api/v1/assets/{asset_id}/thumbnail` | Get an assets image thumbnail. |
 | `POST` | `/api/v1/auth/login` | Begin a logged in session. |
 | `POST` | `/api/v1/auth/logout` | Destroy a logged in session. |
 | `POST` | `/api/v1/auth/register` | Register new credentials. |
 | `GET` | `/api/v1/auth/user` | Get the user of the current session. |
+| `GET` | `/api/v1/admin/users` | Get the list of user information. |

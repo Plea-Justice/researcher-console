@@ -13,7 +13,7 @@ export const getters = {
 
 export const actions = {
   async getScenarios({ commit }) {
-    const response = await this.$axios.$get('api/v1/s');
+    const response = await this.$axios.$get('/api/v1/scenarios');
     if (response.success) commit('setScenarios', response.result);
   },
   async addScenario({ commit }, scenario) {

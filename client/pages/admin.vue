@@ -13,7 +13,7 @@
     
     <template v-slot:toolbar-end>
       <div class="level-item has-text-centered">
-        <span>{{ users.length }} Users</span>
+        <span>{{ users.length }} users, {{ activeCount }} active this week.</span>
       </div>
     </template>
 
@@ -35,6 +35,7 @@
         <b-table-column field="created" label="Account Created" sortable>{{ props.row.created }}</b-table-column>
         <b-table-column field="profession" label="Profession" sortable>{{ props.row.profession }}</b-table-column>
         <b-table-column field="affiliation" label="Institutional Affiliation" sortable>{{ props.row.affiliation }}</b-table-column>
+        <b-table-column field="address" label="Last IP Address" sortable>{{ props.row.address }}</b-table-column>
         <b-table-column field="administrator" label="Admin" sortable>
           <span>
             <b-tag :type="props.row.administrator ? 'is-success' : 'is-danger'">
@@ -71,6 +72,10 @@ export default {
 
     try {
       const { data } = await $axios.get("/api/v1/admin/users");
+
+      ret["activeCount"] = data.result.reduce((acc, curr)=>
+        (Date.now() - new Date(curr.lastActive) < 1000 * 60 * 60 * 24 * 7) ? ++acc : acc, 0);
+
       ret["users"] = data.result.map(user => ({
         ...user,
         address: user.addresses[0] || "None",
@@ -79,6 +84,7 @@ export default {
       }));
     } catch (err) {
       ret["users"] = null;
+      ret["activeCount"] = 0;
     }
 
     return ret;
