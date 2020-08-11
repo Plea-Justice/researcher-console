@@ -17,38 +17,28 @@ module.exports = function (options) {
 
     const ScenarioModel = require('../../models/ScenarioModel');
 
+    const assetTypes = ['clips', 'actors', 'foregrounds', 'backgrounds'];
+
     /**
      * Generate simulation.
      */
     router.post('/generate', async (req, res)=>{
         let id = req.params.scenario_id;
         let uid = req.session.user_id;
+        let tmpdir = util.simTmpDir(options, id);
+        let user_data_dir = util.userDir(options, uid);
 
         try {
             let scenario = await ScenarioModel.findOne({_id: id, user_id: uid});
-            let tmpdir = path.join(os.tmpdir(), 'sim-serve' , `sim-${id}`);
-            await fs.emptyDir(tmpdir);
 
-            let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
-
-            // Copy simulation template and user's assets.
-            // TODO: Filter out unused assets.
-            await fs.copy(path.normalize(options.config.sim_dir), tmpdir, {filter: src => !src.includes('.git')});
-            await fs.copy(
-                path.normalize(user_data_dir),
-                path.join(tmpdir, 'assets')
-            );
-
-            // Construct manifest.
-            let survey = scenario.survey;
             let scenes = scenario.scenes;
             let frames = scenario.frames;
             let frameList = scenario.frameList;
 
-            let actors = [];
-            let images = [];
-            let clips = [];
-            
+            // Requested assets by type.
+            const requested = new Map();
+            assetTypes.forEach(type => requested[type] = new Set());
+
             // TODO: Send error on no frames or scenes.
             let conditions = new Array(frames[frameList[0]].scenes.length).fill(0).map(() => new Array());
 
@@ -78,9 +68,9 @@ module.exports = function (options) {
                                 'fg': scene.foreground
                             }
                         );
-                        actors[scene.actor] = true;
-                        images[scene.foreground] = true;
-                        images[scene.background] = true;
+                        if (scene.actor) requested['actors'].add(scene.actor);
+                        if (scene.foreground) requested['foregrounds'].add(scene.foreground);
+                        if (scene.background) requested['backgrounds'].add(scene.background);
                         break;
                     case 'question':
                         conditions[i].push(
@@ -94,9 +84,9 @@ module.exports = function (options) {
                                 'buttons': scene.buttons
                             }
                         );
-                        actors[scene.actor] = true;
-                        images[scene.foreground] = true;
-                        images[scene.background] = true;
+                        if (scene.actor) requested['actors'].add(scene.actor);
+                        if (scene.foreground) requested['foregrounds'].add(scene.foreground);
+                        if (scene.background) requested['backgrounds'].add(scene.background);
                         break;
                     case 'clip':
                         conditions[i].push(
@@ -106,7 +96,7 @@ module.exports = function (options) {
                                 'clip': scene.clip
                             }
                         );
-                        clips[scene.clip] = true;
+                        if (scene.clip) requested['clips'].add(scene.clip);
                         break;
                     default:
                         throw Error(`Improper scene type: ${scene.id}.`);
@@ -114,43 +104,52 @@ module.exports = function (options) {
                 }
             }
 
-            console.log(actors);
-            console.log(images);
-            console.log(clips);
-            
-            await fs.mkdirp(path.join(tmpdir, 'assets', 'clips'));
-            await fs.mkdirp(path.join(tmpdir, 'assets', 'actors'));
-            await fs.mkdirp(path.join(tmpdir, 'assets', 'foregrounds'));
-            await fs.mkdirp(path.join(tmpdir, 'assets', 'backgrounds'));
+            // Get the list of file paths and names without extension for each asset type.
+            let assets = new Map();
+            assetTypes.forEach(type => assets[type] = 
+                fs.readdirSync(path.join(user_data_dir, type))
+                    .map(x=>[path.join(type, x), x.replace(/\..*$/, '')]));
 
-            let fileList = Array.prototype.concat(
-                (await fs.readdir(path.join(tmpdir, 'assets', 'clips'))).map(x => path.join('clips', x)),
-                (await fs.readdir(path.join(tmpdir, 'assets', 'actors'))).map(x => path.join('actors', x)),
-                (await fs.readdir(path.join(tmpdir, 'assets', 'foregrounds'))).map(x => path.join('foregrounds', x)),
-                (await fs.readdir(path.join(tmpdir, 'assets', 'backgrounds'))).map(x => path.join('backgrounds', x))
-            );
-            
-            console.log(fileList);
+            // Add the requested files to the manifest.
+            let files = new Set();
+            assetTypes.forEach(type => assets[type].forEach(([file, name])=>{
+                if (requested[type].has(name)) files.add(file);
+            }));
 
+            console.log('Requested files:');
+            console.log(files);
+            
+            // Copy in a clean simulation from the template directory.
+            fs.emptyDirSync(tmpdir);
+            assetTypes.map(type => fs.mkdirpSync(path.join(tmpdir, 'assets', type)));
+            fs.copySync(path.normalize(options.config.sim_dir), tmpdir, {filter: src => !src.includes('.git')});
+
+            // Copy user's assets.
+            files.forEach(file => fs.copyFileSync(
+                path.join(user_data_dir, file),
+                path.join(tmpdir, 'assets', file)
+            ));
+
+            // Create the manifest.
             let manifest = {
                 'name': scenario.title,
                 'description': scenario.description,
                 // Simulation preload.js requires 'path' and 'manifest'.
                 'path': 'assets/',
                 // FIXME: Generate list of files.
-                'manifest': fileList,
+                'manifest': Array.from(files),
                 // 'conditions' array used by simulation to render each in order.
                 'conditions': conditions.map((scene_list, i) => ({
-                    'name': `Experimental Condition ${i}/${conditions.length}`,
+                    'name': `Experimental Condition ${i+1}/${conditions.length}`,
                     'scenes': scene_list
                 })),
                 // Actor and clip names needed by simulation to lookup filenames.
-                'actors': actors,
-                'clips': clips,
-                'survey': survey
+                'actors': Array.from(requested['actors']),
+                'clips': Array.from(requested['clips']),
+                'survey': scenario.survey || '/no-url-set.html'
             };
 
-            await fs.writeFile(path.join(tmpdir, 'manifest.json'), JSON.stringify(manifest));
+            fs.writeJSONSync(path.join(tmpdir, 'manifest.json'), manifest);
 
             res.status(200).json(util.success('Simulation generated successfully.'));
         } catch (err) {
