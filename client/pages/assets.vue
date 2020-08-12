@@ -19,48 +19,14 @@
       </b-field>
     </template>
 
-    <form v-show="addMode" @submit.prevent="onSubmit()">
-      <ItemCard ref="form-card" save>
-        <template v-slot:header>
-          <b-button @click="closeForm()" icon-left="times" type="is-text" />
-
-          <b-input
-            ref="focus_target"
-            v-model="assetForm.name"
-            placeholder="Name"
-            class="flex-grow"
-            required
-          />
-        </template>
-
-        <div class="input-wrapper">
-          <b-field label="File Upload">
-            <b-field>
-              <b-upload v-model="assetForm.file" accept=".js, .jpg, .png" required native>
-                <a class="button is-light">
-                  <b-icon size="is-small" icon="cloud-upload-alt" />
-                  <span>{{ assetForm.file.name || "Click to upload" }}</span>
-                </a>
-              </b-upload>
-              <HelpSidebar :text="assetsHelp.upload" title="Asset Uploads" class="control" />
-            </b-field>
-          </b-field>
-
-          <b-field label="Asset Type">
-            <b-field>
-              <b-select placeholder="Select a type" v-model="assetForm.type" expanded required>
-                <option
-                  v-for="type in allAssetTypes"
-                  :key="type"
-                  :value="type"
-                >{{ type | capitalize }}</option>
-              </b-select>
-              <HelpSidebar :text="assetsHelp.type" title="Asset Types" class="control" />
-            </b-field>
-          </b-field>
-        </div>
-      </ItemCard>
-    </form>
+    <AssetForm
+      ref="form"
+      v-show="addMode"
+      @close="closeForm()"
+      @submit="onSubmit()"
+      :assetForm="assetForm"
+      :types="allAssetTypes"
+    />
 
     <p v-if="!addMode && !assetSet.length" class="empty-text has-text-weight-medium is-size-5">
       No assets exists!
@@ -96,6 +62,7 @@ import { mapGetters, mapActions } from "vuex";
 import ItemLayout from "~/components/layouts/ItemLayout";
 import ToolBarButton from "~/components/ToolBarButton";
 import ItemCard from "~/components/cards/ItemCard";
+import AssetForm from "~/components/cards/AssetForm";
 import HelpSidebar from "~/components/HelpSidebar";
 import DeleteAsset from "../components/modals/DeleteAsset";
 
@@ -107,7 +74,7 @@ import { posixTimeToHoursAgo } from "~/assets/util";
 
 export default {
   name: "Scenarios",
-  components: { ItemLayout, ToolBarButton, ItemCard, HelpSidebar },
+  components: { ItemLayout, ToolBarButton, ItemCard, AssetForm, HelpSidebar },
   async fetch({ store, params }) {
     await store.dispatch("assets/getAssets");
   },
@@ -156,12 +123,13 @@ export default {
     }
   },
   methods: {
+    formFocus() {
+      this.$refs.form.focus();
+    },
     toggleAddMode() {
-      if (this.addMode) {
-        this.$nextTick(() => this.$refs.focus_target.focus());
-      } else {
-        this.assetForm = Object.assign({}, this.AssetForm);
-      }
+      this.addMode
+        ? this.formFocus()
+        : (this.assetForm = Object.assign({}, this.AssetForm));
     },
     closeForm() {
       this.addMode = false;
@@ -198,7 +166,7 @@ export default {
 
         // Clear name and re-focus on name input
         this.assetForm.name = "";
-        this.$refs["form-card"].focus();
+        this.formFocus();
         return;
 
         // TODO: This file upload size is defined in server config.js.
@@ -212,11 +180,7 @@ export default {
         this.addAsset(this.assetForm);
       }
 
-      // Disable form
-      this.addMode = false;
-
-      // Reset inputs
-      this.assetForm = Object.assign({}, this.AssetForm);
+      this.closeForm();
     },
     posixTimeToHoursAgo: posixTimeToHoursAgo
   },
@@ -242,10 +206,6 @@ export default {
   & > :nth-last-child(n + 2) {
     margin-bottom: 1.5rem;
   }
-}
-
-.flex-grow {
-  flex-grow: 1;
 }
 
 .empty-text {

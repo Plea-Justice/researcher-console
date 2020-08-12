@@ -15,32 +15,16 @@
       </div>
     </template>
 
-    <form v-show="mode === Modes.ADD" @submit.prevent="onSaveSubmit()">
-      <ItemCard ref="form-card" save>
-        <template v-slot:header>
-          <b-button icon-left="times" type="is-text" />
-
-          <b-input
-            ref="focus_target"
-            v-model="scenarioForm.name"
-            placeholder="Name"
-            class="flex-grow"
-            required
-          />
-        </template>
-
-        <b-input
-          v-model="scenarioForm.description"
-          type="textarea"
-          placeholder="Description"
-          customClass="has-fixed-size"
-          maxlength="100"
-        />
-      </ItemCard>
-    </form>
+    <ScenarioForm
+      ref="save_form"
+      v-show="mode === Modes.ADD"
+      @close="closeForm()"
+      @submit="onSaveSubmit()"
+      :scenarioForm="scenarioForm"
+    />
 
     <p
-      v-if="this.mode !== this.Modes.ADD && !scenarioSet.length"
+      v-if="mode === Modes.DEFAULT && !scenarioSet.length"
       class="empty-text has-text-weight-medium is-size-5"
     >
       No scenarios exists!
@@ -48,12 +32,21 @@
     </p>
     <template v-else>
       <template v-for="scenario in scenarioSet">
+        <ScenarioForm
+          ref="edit_form"
+          v-if="mode === Modes.EDIT && scenario.id === editId"
+          :key="scenario.id"
+          @close="closeForm()"
+          @submit="onEditSubmit()"
+          :scenarioForm="scenarioForm"
+        />
+
         <ItemCard
-          v-if="editId === null && scenario.id !== editId"
+          v-else
           :key="scenario.id"
           @selected="duplicate($event)"
           @remove="confirmDelete($event)"
-          @edit="editMode($event)"
+          @edit="setEditMode($event)"
           :selectable="mode === Modes.DUPLICATE"
           :item="scenario"
           close
@@ -62,18 +55,6 @@
           <p class="content">{{ scenario.description }}</p>
           <p class="content is-small">Created {{ posixTimeToHoursAgo(scenario.created) }}</p>
         </ItemCard>
-
-        <form v-else :key="scenario.id" @submit.prevent="onEditSubmit()">
-          <ItemCard ref="form-card" v-model="scenarioForm" save>
-            <b-input
-              v-model="scenarioForm.description"
-              type="textarea"
-              placeholder="Description"
-              customClass="has-fixed-size"
-              maxlength="100"
-            />
-          </ItemCard>
-        </form>
       </template>
     </template>
   </ItemLayout>
@@ -87,6 +68,7 @@ import { mapGetters, mapActions } from "vuex";
 import ItemLayout from "~/components/layouts/ItemLayout";
 import ToolBarButton from "~/components/ToolBarButton";
 import ItemCard from "~/components/cards/ItemCard";
+import ScenarioForm from "~/components/cards/ScenarioForm";
 
 // Content for help fields
 import { scenariosHelp } from "~/assets/helpText";
@@ -96,7 +78,7 @@ import { posixTimeToHoursAgo } from "~/assets/util";
 
 export default {
   name: "Scenarios",
-  components: { ItemLayout, ToolBarButton, ItemCard },
+  components: { ItemLayout, ToolBarButton, ItemCard, ScenarioForm },
   async fetch({ store, params }) {
     await store.dispatch("scenarios/getScenarios");
   },
@@ -130,18 +112,22 @@ export default {
     })
   },
   methods: {
-    editMode(eScenarioId) {
+    closeForm() {
+      if (this.mode === this.Modes.EDIT) this.editId = null;
+      this.mode = this.Modes.DEFAULT;
+      this.scenarioForm = Object.assign({}, this.ScenarioForm);
+    },
+    focusForm() {
+      this.$refs.save_form.focus();
+    },
+    setEditMode(eScenarioId) {
       this.mode = this.Modes.EDIT;
       this.editId = eScenarioId;
     },
     toggleAddMode() {
-      if (this.mode === this.Modes.ADD) {
-        this.$nextTick(() => {
-          this.$refs.focus_target.focus();
-        });
-      } else {
-        this.scenarioForm = Object.assign({}, this.ScenarioForm);
-      }
+      this.mode === this.Modes.ADD
+        ? this.focusForm()
+        : (this.scenarioForm = Object.assign({}, this.ScenarioForm));
     },
     ...mapActions({
       addScenario: "scenarios/addScenario",
@@ -175,26 +161,18 @@ export default {
 
         // Clear name and re-focus on name input
         this.scenarioForm.name = "";
-        this.$refs["form-card"].focus();
+        this.focusForm();
       } else {
         // Add the scenario to state
         this.addScenario(this.scenarioForm);
-
-        // Reset inputs
-        this.scenarioForm = Object.assign({}, this.ScenarioForm);
-
-        // Disable form
-        this.mode = this.Modes.DEFAULT;
+        this.closeForm();
       }
     },
     onEditSubmit() {
       // Add the scenario to state
       this.editScenario({ id: this.editId, ...this.scenarioForm });
 
-      // Reset inputs
-      this.scenarioForm = Object.assign({}, this.ScenarioForm);
-
-      this.mode = this.Modes.DEFAULT;
+      this.closeForm();
       this.editId = null;
     },
     posixTimeToHoursAgo: posixTimeToHoursAgo
@@ -215,10 +193,6 @@ export default {
 </script>
 
 <style scoped>
-.flex-grow {
-  flex-grow: 1;
-}
-
 .empty-text {
   position: absolute;
 }

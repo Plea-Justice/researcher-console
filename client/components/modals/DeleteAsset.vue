@@ -24,8 +24,8 @@
       </div>
     </section>
     <footer class="modal-card-foot">
-      <b-button @click="onConfirm()">Cancel</b-button>
-      <b-button @click="removeAsset()" type="is-danger">Delete</b-button>
+      <b-button @click="closeModal()">Cancel</b-button>
+      <b-button @click="confirmHelper()" type="is-danger">Delete</b-button>
     </footer>
   </div>
 </template>
@@ -56,7 +56,6 @@ export default {
     };
   },
   mounted() {
-    console.log(this.id);
     this.$axios.$get(`/api/v1/assets/${this.id}/references`).then(response => {
       if (response.success) this.references = response.result;
     });
@@ -67,7 +66,11 @@ export default {
     },
     ...mapActions({
       removeAsset: "assets/removeAsset"
-    })
+    }),
+    confirmHelper() {
+      this.onConfirm();
+      this.closeModal();
+    }
   }
 };
 </script>

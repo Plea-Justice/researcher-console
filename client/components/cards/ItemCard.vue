@@ -9,7 +9,7 @@
       <slot name="header" />
 
       <template v-if="item">
-        <!-- If header's not in form mode print name w or w/o link -->
+        <!-- If header is in default mode print name w or w/o link -->
         <h1 class="subtitle">
           <n-link v-if="link" :to="item.id" class="link-animate" append>{{ item.name }}</n-link>
           <template v-else>{{ item.name }}</template>
