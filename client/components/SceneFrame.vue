@@ -2,7 +2,10 @@
   <div class="frame-wrapper">
     <div class="frame box">
       <!-- Sidebar -->
-      <aside v-show="!(isFirst && isLast && !frame.size)" class="sidebar buttons">
+      <aside
+        v-show="!(isFirst && isLast && !frame.size)"
+        class="sidebar buttons"
+      >
         <!-- Collapse Button -->
         <b-button
           v-show="frame.size"
@@ -163,7 +166,10 @@ export default {
     removeFrameHelper(frameId) {
       this.removeFrame(frameId);
       // Make this a not smooth scroll, just want to re-allign frame
-      this.$emit("scroll-to", { frameIndex: this.frameIndex, smooth: false });
+      this.$emit("scroll-to", {
+        frameIndex: this.frameIndex - 1,
+        smooth: false
+      });
     },
     addSceneHelper(sceneIndex, sceneId) {
       this.addScene(sceneId);

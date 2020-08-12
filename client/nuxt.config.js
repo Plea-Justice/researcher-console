@@ -25,7 +25,7 @@ export default {
   /*
    ** Global CSS
    */
-  css: ['~/assets/styles/common.scss'],
+  css: ['~/assets/styles/common.scss', '~/assets/styles/overrides.scss'],
   /*
    ** Plugins to load before mounting the App
    */
@@ -65,6 +65,7 @@ export default {
   },
   // See https://github.com/buefy/nuxt-buefy
   buefy: {
+    css: false,
     materialDesignIcons: false,
     defaultIconPack: 'fas',
     defaultIconComponent: 'FontAwesomeIcon'

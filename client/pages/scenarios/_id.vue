@@ -10,68 +10,89 @@
               :loading="saving"
               type="is-primary"
               icon-left="save"
-            >Save</ToolBarButton>
+              >Save</ToolBarButton
+            >
 
             <b-button
               @click="collapseAll()"
               :icon-left="collapseBtnProps.icon"
-            >{{ collapseBtnProps.name }}</b-button>
+              >{{ collapseBtnProps.name }}</b-button
+            >
 
             <ToolBarButton
               @click="addCondition()"
               :value="mode"
               :disabled="!numScenes"
-            >Add Condition</ToolBarButton>
+              >Add Condition</ToolBarButton
+            >
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'swap')"
               :mode="Modes.SWAP"
               :disabled="numScenes < 2"
-            >Swap</ToolBarButton>
+              >Swap</ToolBarButton
+            >
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'copy')"
               :mode="Modes.COPY"
               :disabled="numScenes < 2"
-            >Copy</ToolBarButton>
+              >Copy</ToolBarButton
+            >
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'bind')"
               :mode="Modes.BIND"
               :disabled="numScenes < 2"
-            >Bind</ToolBarButton>
+              >Bind</ToolBarButton
+            >
           </div>
         </template>
         <template v-slot:end>
           <div class="level-item">
             <div class="buttons">
-              <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="cog">Options</ToolBarButton>
+              <ToolBarButton
+                @click="openScenarioProps()"
+                :value="mode"
+                icon-left="cog"
+                >Options</ToolBarButton
+              >
 
               <ToolBarButton
                 @click="previewSimulation()"
                 :value="mode"
                 type="is-primary"
                 icon-left="eye"
-              >Preview</ToolBarButton>
+                >Preview</ToolBarButton
+              >
 
               <ToolBarButton
                 @click="downloadZip()"
                 :value="mode"
                 type="is-primary"
                 icon-left="file-download"
-              >Download</ToolBarButton>
+                >Download</ToolBarButton
+              >
             </div>
           </div>
         </template>
       </ToolBar>
 
       <!-- Titles -->
-      <div ref="titlebar" :style="titleBarStyle" class="padded-responsive-container title-bar">
+      <div
+        ref="titlebar"
+        :style="titleBarStyle"
+        class="padded-responsive-container title-bar"
+      >
         <div :style="frameSideBarActive" class="title-wrapper">
-          <div v-for="index in numConditions" :key="index" class="condition-title">
+          <div
+            v-for="index in numConditions"
+            :key="index"
+            class="condition-title"
+          >
             <div
               v-if="isSelectable(Select.CONDITION)"
               @click="addToSelection(index - 1, Select.CONDITION)"
@@ -372,9 +393,6 @@ export default {
       } else {
         // Call appropriate action from modeOptions actions based on current selection
         this.modeOptions[this.mode].actions[this.select](this.selectionList);
-
-        this.selectionReset();
-        this.mode = this.Modes.DEFAULT;
       }
     },
     toggleHandler(toggledOn, modeName) {
@@ -399,9 +417,6 @@ export default {
     },
     scrollToFrame({ frameIndex, smooth = true }) {
       this.$nextTick(() => {
-        console.log(frameIndex);
-        console.log(this.$refs.frames.children);
-
         const frameTopPos = this.$refs.frames.children[
           frameIndex
         ].getBoundingClientRect().top;

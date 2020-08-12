@@ -6,12 +6,15 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD">Add</ToolBarButton>
+        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD"
+          >Add</ToolBarButton
+        >
         <ToolBarButton
           v-model="mode"
           :mode="Modes.DUPLICATE"
           :disabled="!scenarioSet.length"
-        >Duplicate</ToolBarButton>
+          >Duplicate</ToolBarButton
+        >
       </div>
     </template>
 
@@ -53,7 +56,9 @@
           link
         >
           <p class="content">{{ scenario.description }}</p>
-          <p class="content is-small">Created {{ posixTimeToHoursAgo(scenario.created) }}</p>
+          <p class="content is-small">
+            Created {{ posixTimeToHoursAgo(scenario.created) }}
+          </p>
         </ItemCard>
       </template>
     </template>
