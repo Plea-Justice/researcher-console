@@ -6,6 +6,8 @@
       <slot name="start" />
     </div>
 
+    <slot name="default" />
+
     <!-- Right Side Toolbar -->
     <div class="level-right">
       <slot name="end" />

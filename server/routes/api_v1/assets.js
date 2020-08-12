@@ -145,7 +145,7 @@ module.exports = function (options) {
         let matches = await ScenarioModel.find({
             user_id: req.session.user_id
         });
-        console.log(`Matches: ${matches}`);
+        
         let asset = path.parse(atob(req.params.asset_id));
         let type = asset.dir;
         
