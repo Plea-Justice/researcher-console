@@ -12,16 +12,23 @@
               icon-left="save"
             >Save</ToolBarButton>
 
+            <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="cog">Options</ToolBarButton>
+
             <b-button
               @click="collapseAll()"
-              :icon-left="collapseBtnProps.icon"
-            >{{ collapseBtnProps.name }}</b-button>
+              :icon-left="`${collapsed ? 'expand' : 'compress'}-alt`"
+              :disabled="numScenes < 1"
+            />
+
+            <span style="width: 30px;" />
 
             <ToolBarButton
               @click="addCondition()"
               :value="mode"
               :disabled="!numScenes"
             >Add Condition</ToolBarButton>
+
+            <span style="width: 30px;" />
 
             <ToolBarButton
               v-model="mode"
@@ -45,11 +52,14 @@
             >Bind</ToolBarButton>
           </div>
         </template>
+
+        <div class="level-item">
+          <b-tag v-if="scenarioStoreHasChanged" type="is-warning">Warning: Unsaved changes.</b-tag>
+        </div>
+
         <template v-slot:end>
           <div class="level-item">
             <div class="buttons">
-              <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="cog">Options</ToolBarButton>
-
               <ToolBarButton
                 @click="previewSimulation()"
                 :value="mode"
@@ -247,12 +257,6 @@ export default {
     },
     frameSideBarActive() {
       return { "--frame-sidebar-active": this.numScenes ? 1 : 0 };
-    },
-    collapseBtnProps() {
-      return {
-        icon: `${this.collapsed ? "expand" : "compress"}-alt`,
-        name: `${this.collapsed ? "Expand" : "Collapse"} All`
-      };
     }
   },
   methods: {

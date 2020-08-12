@@ -53,7 +53,10 @@
           link
         >
           <p class="content">{{ scenario.description }}</p>
-          <p class="content is-small">Created {{ posixTimeToHoursAgo(scenario.created) }}</p>
+          <p class="content is-small">
+            Last Modified {{ posixTimeToHoursAgo(scenario.modified) }}<br/>
+            Created {{ posixTimeToHoursAgo(scenario.created) }}
+          </p>
         </ItemCard>
       </template>
     </template>

@@ -52,9 +52,18 @@ module.exports = function (options) {
                     
                     if (!scenes[sceneID].props)
                         continue;
+                    
+                    // Check for bound scenes.
+                    if (typeof scenes[sceneID].props === 'string') {
+                        sceneID = scenes[sceneID].props;
+                        if (!scenes[sceneID])
+                            throw Error('SceneID does not exist.');
+                        
+                        if (!scenes[sceneID].props)
+                            continue;
+                    }
 
-
-                    let scene = scenes[frame.scenes[i]].props;
+                    const scene = scenes[sceneID].props;
 
                     switch (scene.type) {
                     case 'dialogue':
@@ -143,9 +152,6 @@ module.exports = function (options) {
                     'name': `Experimental Condition ${i+1}/${conditions.length}`,
                     'scenes': scene_list
                 })),
-                // Actor and clip names needed by simulation to lookup filenames.
-                'actors': Array.from(requested['actors']),
-                'clips': Array.from(requested['clips']),
                 'survey': scenario.survey || '/no-url-set.html'
             };
 
