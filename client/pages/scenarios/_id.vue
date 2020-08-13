@@ -510,7 +510,6 @@ export default {
   beforeRouteLeave(to, from, next) {
     this.snackbar && this.closeSnackbar();
 
-    //FIXME: validate needs to be updated, doesn't work
     if (!this.logout && this.scenarioStoreHasChanged) {
       this.$buefy.modal.open({
         parent: this,
