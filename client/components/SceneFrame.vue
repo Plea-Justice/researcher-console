@@ -2,10 +2,7 @@
   <div class="frame-wrapper">
     <div class="frame box">
       <!-- Sidebar -->
-      <aside
-        v-show="!(isFirst && isLast && !frame.size)"
-        class="sidebar buttons"
-      >
+      <aside v-show="!(isFirst && isLast && !frame.size)" class="sidebar buttons">
         <!-- Collapse Button -->
         <b-button
           v-show="frame.size"

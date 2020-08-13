@@ -1,4 +1,4 @@
-/* eslint no-shadow: ["error", { "allow": ["state"] }] */
+/* eslint no-shadow: ["error", { "allow": ["state", "getters"] }] */
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Vue from 'vue';
 
@@ -19,6 +19,7 @@ const initialState = () => ({
   frames: {},
   frameList: [],
   scenes: {},
+  // FIXME: fix parent valid prop (it doesn't get updated)
   status: {
     valid: false,
     errors: [],
@@ -59,19 +60,25 @@ export const actions = {
     commit('updateMeta', { meta });
   },
 
-  // **** Condition Actions
+  // **** Condition Actions ****
   addCondition({ commit }) {
     commit('newCondition');
   },
   removeCondition({ commit }, index) {
     commit('deleteCondition', { index });
   },
-  copyCondition({ commit }, indexList) {
-    // Vue indexes start at 1 (off by 1) so subtract 1
-    commit('copyCondition', { fromIndex: indexList[0], toIndex: indexList[1] });
+  async copyConditions({ dispatch, getters }, indexList) {
+    // FIXME: async this
+    getters.frameSet.forEach(({ scenes }) => {
+      const idList = indexList.map(index => scenes[index]);
+      dispatch('copyScenes', idList);
+    });
   },
-  swapCondition({ commit }, indexList) {
-    commit('swapCondition', { indexList });
+  async swapCondition({ dispatch, getters }, [index1, index2]) {
+    // FIXME: async this
+    getters.frameSet.forEach(({ scenes }) => {
+      dispatch('swapScene', [scenes[index1], scenes[index2]]);
+    });
   },
 
   // **** Frame Actions ****
@@ -98,16 +105,22 @@ export const actions = {
     commit('deleteScene', { sceneId });
   },
   updateScene({ commit }, { id, props, valid }) {
-    commit('setScene', { id, props: { ...props }, valid });
+    commit('setSceneProps', { id, props: { ...props }, valid });
   },
-  bindScene({ commit }, idList) {
+  copyScenes({ commit, state }, [parentId, ...childIds]) {
+    childIds.forEach(id => commit('setScene', { id, scene: { ...state.scenes[parentId], id } }));
+  },
+  bindScenes({ commit }, idList) {
     commit('bindScene', { fromId: idList[0], toId: idList[1] });
   },
   unbindScene({ commit }, { id, props }) {
     commit('unbindScene', { fromId: id, toId: props });
   },
-  swapScene({ commit }, idList) {
-    commit('swapScene', { idList });
+  swapScene({ commit, state }, [id1, id2]) {
+    // Splice frame instead?
+    const scene1 = { ...state.scenes[id1], id: id2 };
+    commit('setScene', { id: id1, scene: { ...state.scenes[id2], id: id1 } });
+    commit('setScene', { id: id2, scene: scene1 });
   }
 };
 
@@ -180,30 +193,6 @@ export const mutations = {
       });
     }
   },
-  copyCondition(state, payload) {
-    // Copy last condition into new condition
-    const numFrames = state.frameList.length;
-    for (let i = 0; i < numFrames; i++) {
-      const currFrame = state.frames[state.frameList[i]];
-      const targetScene = state.scenes[currFrame.scenes[payload.fromIndex]];
-      const toId = state.scenes[currFrame.scenes[payload.toIndex]].id;
-
-      Vue.set(state.scenes, toId, { ...targetScene, ...{ id: toId } });
-    }
-  },
-  swapCondition(state, payload) {
-    const numFrames = state.frameList.length;
-    for (let i = 0; i < numFrames; i++) {
-      const currFrame = state.frames[state.frameList[i]];
-
-      currFrame.scenes.splice(
-        payload.indexList[0],
-        1,
-        currFrame.scenes.splice(payload.indexList[1], 1, currFrame.scenes[payload.indexList[0]])[0]
-      );
-    }
-  },
-
   // **** Frame Mutations ****
   newFrame(state, payload) {
     const framesLength = state.frameList.length ? state.frames[state.frameList[0]].scenes.length : 1;
@@ -283,17 +272,16 @@ export const mutations = {
     Vue.set(state.frames, currFrame.id, { ...currFrame, size: currFrame.size - 1 });
     state.numScenes -= 1;
   },
-  copyScene(state, payload) {
-    Vue.set(state.scenes, payload.toId, { ...state.scenes[payload.fromId], id: payload.toId });
-  },
   setScene(state, payload) {
+    const { id, scene } = payload;
+    Vue.set(state.scenes, id, scene);
+  },
+  setSceneProps(state, payload) {
     const { id, props } = payload;
     // Mark dirty and start working
     Vue.set(state.status, 'dirty', state.status.dirty + 1);
-    // If invalid scene add to scenario errors
-    // FIXME:
-    // if (payload.valid) state.status.errors.push(id);
 
+    // If invalid scene add to scenario errors, otherwise update errors if scene was previously invalid
     if (!payload.valid && !state.status.errors.includes(id)) {
       Vue.set(state.status, 'errors', [...state.status.errors, id]);
     } else {
@@ -310,6 +298,7 @@ export const mutations = {
     const child = state.scenes[payload.toId];
     // Setup the parent being bound to, set parents reference counter
     const bound = parent.bound ? parent.bound + 1 : 0;
+    // FIXME: either fix reference or use setScene
     Vue.set(state.scenes, payload.fromId, { ...state.scenes[payload.fromId], bound });
     // Set the child binding
     Vue.set(state.scenes, payload.toId, { id: child.id, props: parent.id });
@@ -318,10 +307,5 @@ export const mutations = {
     // FIXME: move logic to actions make one addScene func
     const parentProps = { ...state.scenes[payload.toId].props };
     Vue.set(state.scenes, payload.fromId, { id: payload.fromId, props: parentProps });
-  },
-  swapScene(state, payload) {
-    const swappedScene = { ...state.scenes[payload.idList[1]], ...{ id: payload.idList[0] } };
-    Vue.set(state.scenes, payload.idList[1], { ...state.scenes[payload.idList[0]], id: payload.idList[1] });
-    Vue.set(state.scenes, payload.idList[0], swappedScene);
   }
 };

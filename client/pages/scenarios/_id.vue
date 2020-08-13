@@ -10,15 +10,9 @@
               :loading="saving"
               type="is-primary"
               icon-left="save"
-              >Save</ToolBarButton
-            >
+            >Save</ToolBarButton>
 
-            <ToolBarButton
-              @click="openScenarioProps()"
-              :value="mode"
-              icon-left="cog"
-              >Options</ToolBarButton
-            >
+            <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="cog">Options</ToolBarButton>
 
             <b-button
               @click="collapseAll()"
@@ -32,8 +26,7 @@
               @click="addCondition()"
               :value="mode"
               :disabled="!numScenes"
-              >Add Condition</ToolBarButton
-            >
+            >Add Condition</ToolBarButton>
 
             <span style="width: 30px;" />
 
@@ -42,31 +35,26 @@
               @click="toggleHandler($event, 'swap')"
               :mode="Modes.SWAP"
               :disabled="numScenes < 2"
-              >Swap</ToolBarButton
-            >
+            >Swap</ToolBarButton>
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'copy')"
               :mode="Modes.COPY"
               :disabled="numScenes < 2"
-              >Copy</ToolBarButton
-            >
+            >Copy</ToolBarButton>
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'bind')"
               :mode="Modes.BIND"
               :disabled="numScenes < 2"
-              >Bind</ToolBarButton
-            >
+            >Bind</ToolBarButton>
           </div>
         </template>
 
         <div class="level-item">
-          <b-tag v-if="scenarioStoreHasChanged" type="is-warning"
-            >Warning: Unsaved changes.</b-tag
-          >
+          <b-tag v-if="scenarioStoreHasChanged" type="is-warning">Warning: Unsaved changes.</b-tag>
         </div>
 
         <template v-slot:end>
@@ -77,33 +65,23 @@
                 :value="mode"
                 type="is-primary"
                 icon-left="eye"
-                >Preview</ToolBarButton
-              >
+              >Preview</ToolBarButton>
 
               <ToolBarButton
                 @click="downloadZip()"
                 :value="mode"
                 type="is-primary"
                 icon-left="file-download"
-                >Download</ToolBarButton
-              >
+              >Download</ToolBarButton>
             </div>
           </div>
         </template>
       </ToolBar>
 
       <!-- Titles -->
-      <div
-        ref="titlebar"
-        :style="titleBarStyle"
-        class="padded-responsive-container title-bar"
-      >
+      <div ref="titlebar" :style="titleBarStyle" class="padded-responsive-container title-bar">
         <div :style="frameSideBarActive" class="title-wrapper">
-          <div
-            v-for="index in numConditions"
-            :key="index"
-            class="condition-title"
-          >
+          <div v-for="index in numConditions" :key="index" class="condition-title">
             <div
               v-if="isSelectable(Select.CONDITION)"
               @click="addToSelection(index - 1, Select.CONDITION)"
@@ -193,8 +171,8 @@ export default {
       [Modes.COPY]: {
         type: Select.ANY,
         actions: {
-          [Select.SCENE]: this.copyScene,
-          [Select.CONDITION]: this.copyCondition
+          [Select.SCENE]: this.copyScenes,
+          [Select.CONDITION]: this.copyConditions
         }
       },
       [Modes.BIND]: {
@@ -293,7 +271,7 @@ export default {
               this.$buefy.toast.open({
                 message: `${numErrors} ${
                   numErrors > 1 ? "errors exists, starting" : "error exists"
-                } at scene ${index}`,
+                } at scene ${index + 1} of current row`,
                 type: "is-danger"
               });
               this.scrollToFrame({ frameIndex: i });
@@ -372,41 +350,46 @@ export default {
       this.selectionList = [];
       this.select = this.Select.NONE;
     },
-    addToSelection(eSceneId, selectedType) {
+    nextSelectionSnackbar(actionType, actionMessage) {
       this.closeSnackbar();
+      const selectionName = this.selectNames[this.select];
+      const modeName = this.modeNames[this.mode];
+
+      this.snackbar = this.$buefy.snackbar.open({
+        message: `Select ${selectionName} to ${modeName} to`,
+        position: "is-top",
+        indefinite: true,
+        type: actionType,
+        actionText: actionMessage,
+        onAction: () => {
+          if (this.selectionList.length > 1)
+            this.modeOptions[this.mode].actions[this.select](
+              this.selectionList
+            );
+          this.selectionReset();
+          this.mode = this.Modes.DEFAULT;
+        }
+      });
+    },
+    addToSelection(eSceneId, selectedType) {
       this.selectionList.push(eSceneId);
 
       // If first item
       if (this.selectionList.length === 1) {
         // Update selection
         this.select = selectedType;
-
-        const selectionName = this.selectNames[selectedType];
-        const modeName = this.modeNames[this.mode];
-
-        this.snackbar = this.$buefy.snackbar.open({
-          message: `Select ${selectionName} to ${modeName} to`,
-          type: "is-danger",
-          position: "is-top",
-          indefinite: true,
-          actionText: "Cancel",
-          onAction: () => {
-            this.selectionReset();
-            this.mode = this.Modes.DEFAULT;
-          }
-        });
-      } else {
-        // Call appropriate action from modeOptions actions based on current selection
-        this.modeOptions[this.mode].actions[this.select](this.selectionList);
+        this.nextSelectionSnackbar("is-danger", "Cancel");
+      } else if (this.selectionList.length === 2) {
+        this.nextSelectionSnackbar("is-info", "Done");
       }
     },
     toggleHandler(toggledOn, modeName) {
       if (toggledOn) {
         this.snackbar = this.$buefy.snackbar.open({
           message: `Select element to ${this.modeNames[this.mode]} from`,
-          type: "is-danger",
           position: "is-top",
           indefinite: true,
+          type: "is-danger",
           actionText: "Cancel",
           onAction: () => {
             this.selectionReset();
@@ -519,8 +502,8 @@ export default {
       saveScenario: "scenario/saveScenario",
       swapScene: "scenario/swapScene",
       swapCondition: "scenario/swapCondition",
-      copyScene: "scenario/copyScene",
-      copyCondition: "scenario/copyCondition",
+      copyScenes: "scenario/copyScenes",
+      copyConditions: "scenario/copyConditions",
       bindScene: "scenario/bindScene"
     })
   },

@@ -42,6 +42,8 @@ $link: $primary;
 $link-invert: $primary-invert;
 $link-focus-border: $primary;
 
+$snackbar-background-color: $dark;
+
 // Import Bulma and Buefy styles
 @import "~bulma";
 @import "~buefy/src/scss/buefy";

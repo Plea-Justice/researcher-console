@@ -30,8 +30,8 @@
       v-if="mode === Modes.DEFAULT && !scenarioSet.length"
       class="empty-text has-text-weight-medium is-size-5"
     >
-      No scenarios exists!
-      <br />Add a scenario from the toolbar to get started.
+      No scenarios exists!<br />
+      Add a scenario from the toolbar to get started.
     </p>
     <template v-else>
       <template v-for="scenario in scenarioSet">

@@ -9,7 +9,7 @@
     <GenericCard
       @remove="removeScene(scene.id)"
       @selected="$emit('selected', scene.id)"
-      :selectable="selectable && !failed"
+      :selectable="selectable && !$v.form.$invalid"
       :collapsed="collapsed"
       :blank="isBlank"
       :invalid="$v.form.$invalid"
@@ -30,9 +30,6 @@
       </template>
 
       <template v-slot:default>
-        <!-- <p>Dirty: {{ $v.form.$anyDirty }}</p>
-        <p>Invalid: {{ $v.form.$invalid }}</p>-->
-
         <!-- Scene Type Toggle -->
         <b-field class="is-capitalized toggle-button">
           <b-radio-button
@@ -201,28 +198,38 @@ export default {
       }
     };
   },
-  mounted() {
-    this.$v.form.$touch();
-  },
   watch: {
+    // Update form for inbound changes
+    "scene.props": async function() {
+      Object.assign(this.form, this.scene.props);
+      this.$v.form.$reset();
+    },
+    // Update props with outbound changes
     form: {
       deep: true,
       handler: debounce(async function() {
-        await this.$v.form.$touch();
         this.updateScene({
           id: this.scene.id,
           props: this.form,
           valid: !this.$v.form.$invalid
         });
+        await this.$v.form.$reset();
       }, 350)
     }
     //FIXME: get $anyDirty working so we don't have to deep watch
     /* "$v.form.$anyDirty": function() {
-      console.log("caught");
-      // Object.keys(this.form).forEach(key => console.log(key));
-      this.$v.$touch();
-      // console.log(JSON.stringify(this.$v.form.$dirty));
-      console.log("updated");
+      if (this.$v.form.$anyDirty) {
+        debounce(async function() {
+          console.log("Running");
+          await this.$v.form.$touch();
+          this.updateScene({
+            id: this.scene.id,
+            props: this.form,
+            valid: !this.$v.form.$invalid
+          });
+          await this.$v.form.$reset();
+        }, 350)();
+      }
     } */
   },
   computed: {
