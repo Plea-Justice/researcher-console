@@ -17,7 +17,7 @@ module.exports = function (options) {
 
     const ScenarioModel = require('../../models/ScenarioModel');
 
-    const assetTypes = ['clips', 'actors', 'foregrounds', 'backgrounds'];
+    const assetTypes = ['clip', 'actor', 'foreground', 'background'];
 
     /**
      * Generate simulation.
@@ -77,9 +77,9 @@ module.exports = function (options) {
                                 'fg': scene.foreground
                             }
                         );
-                        if (scene.actor) requested['actors'].add(scene.actor);
-                        if (scene.foreground) requested['foregrounds'].add(scene.foreground);
-                        if (scene.background) requested['backgrounds'].add(scene.background);
+                        if (scene.actor) requested['actor'].add(scene.actor);
+                        if (scene.foreground) requested['foreground'].add(scene.foreground);
+                        if (scene.background) requested['background'].add(scene.background);
                         break;
                     case 'question':
                         conditions[i].push(
@@ -93,9 +93,9 @@ module.exports = function (options) {
                                 'buttons': scene.buttons
                             }
                         );
-                        if (scene.actor) requested['actors'].add(scene.actor);
-                        if (scene.foreground) requested['foregrounds'].add(scene.foreground);
-                        if (scene.background) requested['backgrounds'].add(scene.background);
+                        if (scene.actor) requested['actor'].add(scene.actor);
+                        if (scene.foreground) requested['foreground'].add(scene.foreground);
+                        if (scene.background) requested['background'].add(scene.background);
                         break;
                     case 'clip':
                         conditions[i].push(
@@ -105,7 +105,7 @@ module.exports = function (options) {
                                 'clip': scene.clip
                             }
                         );
-                        if (scene.clip) requested['clips'].add(scene.clip);
+                        if (scene.clip) requested['clip'].add(scene.clip);
                         break;
                     default:
                         throw Error(`Improper scene type: ${scene.id}.`);
@@ -141,7 +141,7 @@ module.exports = function (options) {
 
             // Create the manifest.
             let manifest = {
-                'name': scenario.title,
+                'name': scenario.name,
                 'description': scenario.description,
                 // Simulation preload.js requires 'path' and 'manifest'.
                 'path': 'assets/',
@@ -156,6 +156,17 @@ module.exports = function (options) {
             };
 
             fs.writeJSONSync(path.join(tmpdir, 'manifest.json'), manifest);
+
+            // Generate condition summary table.
+            let summary = conditions.reduce((acc, curr, i)=>
+                acc + `<tr><td>${i+1}</td><td>Condition ${1} description here.</td></tr>`
+            , ''); 
+
+            util.fileMultipleReplace(path.join(tmpdir, 'index.html'), [
+                [/{{\s*?n_conditions\s*?}}/g, conditions.length],
+                [/{{\s*?study_name\s*?}}/g, `${scenario.name} (Preview)`],
+                [/{{\s*?condition_descriptions\s*?}}/g, summary]
+            ]);
 
             res.status(200).json(util.success('Simulation generated successfully.'));
         } catch (err) {

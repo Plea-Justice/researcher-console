@@ -22,6 +22,14 @@ function failure(message, result) {
     };
 }
 
+/**** Text Operations ****/
+
+function multipleReplace(string, replacements) {
+    for (const [regex, newstr] of replacements)
+        string = string.replace(regex, newstr);
+    return string;
+}
+
 /**** Database Related Functions ****/
 
 async function userIsAdmin(user_id) {
@@ -49,4 +57,24 @@ function simTmpZipPath(options, sim_id) {
     return path.join(os.tmpdir(), 'sim-serve' , `sim-${sim_id}.zip`);
 }
 
-module.exports = {success, failure, userIsAdmin, userDir, simTmpDir, simTmpZipPath};
+function fileMultipleReplace(file, replacements) {
+    try {
+        let string = fs.readFileSync(file, 'utf-8');
+        console.log(string);
+        string = multipleReplace(string, replacements);
+        fs.writeFileSync(file, string);
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+module.exports = {
+    success,
+    failure,
+    multipleReplace,
+    userIsAdmin,
+    userDir,
+    simTmpDir,
+    simTmpZipPath,
+    fileMultipleReplace
+};
