@@ -56,9 +56,8 @@
           loading="lazy"
           onerror="this.src = '/defaultThumbnail.png'; this.onerror = false;"
         />
-        <p class="content is-small">
-          Uploaded {{ posixTimeToHoursAgo(asset.created) }}
-        </p>
+        <span class="content is-small">Uploaded {{ posixTimeToHoursAgo(asset.created) }}</span>
+        <span style="float: right;"><b-tag type="is-primary">{{ asset.type | capitalize }}</b-tag></span>
       </ItemCard>
     </template>
   </ItemLayout>

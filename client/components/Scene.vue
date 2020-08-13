@@ -54,7 +54,7 @@
             <FileSelector
               :validator="$v.form[field]"
               v-model="$v.form[field].$model"
-              :options="AssetNamesByType[field + 's']"
+              :options="AssetNamesByType[field]"
               :label="field"
               :icon="getIcon(field)"
               :disabled="isBound"
@@ -175,7 +175,7 @@ export default {
           return [
             key,
             {
-              included: included(this.AssetNamesByType[key + "s"])
+              included: included(this.AssetNamesByType[key])
             }
           ];
         } else {

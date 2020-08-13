@@ -20,7 +20,7 @@ module.exports = function (options) {
     const atob = (src) => Buffer.from(src, 'base64').toString('binary');
     const btoa = (src) => Buffer.from(src, 'binary').toString('base64');
 
-    const assetTypes = ['clips', 'actors', 'foregrounds', 'backgrounds'];
+    const assetTypes = ['clip', 'actor', 'foreground', 'background'];
     
     // express-fileupload middleware to handle asset uploads.
     router.use(fileupload({
@@ -90,10 +90,10 @@ module.exports = function (options) {
                 `Asset type does not match one of ${assetTypes}.`,
                 req.body.type
             ));
-        else if ((req.body.type === 'clips' || req.body.type === 'actors') && 
+        else if ((req.body.type === 'clip' || req.body.type === 'actor') && 
             path.extname(req.files.file.name) !== '.js')
             res.status(400).json(util.failure('Clips and assets must have a JavaScript file extension.'));
-        else if ((req.body.type === 'foregrounds' || req.body.type === 'backgrounds') && 
+        else if ((req.body.type === 'foreground' || req.body.type === 'background') && 
             (path.extname(req.files.file.name) !== '.png' && path.extname(req.files.file.name) !== '.jpg'))
             res.status(400).json(util.failure(
                 'Foreground and background images must have a PNG or JPEG file extension.', 
