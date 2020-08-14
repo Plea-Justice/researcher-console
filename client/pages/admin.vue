@@ -6,8 +6,10 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton type="is-danger" disabled>Delete</ToolBarButton>
-        <ToolBarButton type="is-warning" disabled>Reset Password</ToolBarButton>
+        <ToolBarButton type="" disabled>Reset Password</ToolBarButton>
+        <ToolBarButton type="" @click="toggleHostingPermission">Toggle Study Permission</ToolBarButton>
+        <ToolBarButton type="" @click="toggleAdmin">Toggle Admin</ToolBarButton>
+        <ToolBarButton type="is-danger" @click="deleteUser">Delete</ToolBarButton>
       </div>
     </template>
     
@@ -18,28 +20,37 @@
     </template>
 
     <b-table
+      ref="userTable"
       :data="users"
       class="is-size-7"
       narrowed
       striped
       hoverable
+      :selected.sync="selected"
       sticky-header
-      :loading="!users"
+      :loading="loading"
       height="100%"
       default-sort="username"
     >
       <template slot-scope="props">
         <b-table-column field="username" label="Username" sortable>{{ props.row.username }}</b-table-column>
         <b-table-column field="email" label="Email Address" sortable>{{ props.row.email }}</b-table-column>
-        <b-table-column field="lastActive" label="Last Activity" sortable>{{ props.row.lastActive }}</b-table-column>
-        <b-table-column field="created" label="Account Created" sortable>{{ props.row.created }}</b-table-column>
+        <b-table-column field="lastActive" label="Last Activity" sortable>{{ posixTimeToHoursAgo(props.row.lastActive) }}</b-table-column>
+        <b-table-column field="created" label="Account Created" sortable>{{ posixTimeToHoursAgo(props.row.created) }}</b-table-column>
         <b-table-column field="profession" label="Profession" sortable>{{ props.row.profession }}</b-table-column>
         <b-table-column field="affiliation" label="Institutional Affiliation" sortable>{{ props.row.affiliation }}</b-table-column>
-        <b-table-column field="address" label="Last IP Address" sortable>{{ props.row.address }}</b-table-column>
-        <b-table-column field="administrator" label="Admin" sortable>
+        <b-table-column field="addresses" label="Last IP Address" sortable>{{ props.row.addresses[0] || 'None' }}</b-table-column>
+        <b-table-column field="permitAdmin" label="Admin" sortable>
           <span>
-            <b-tag :type="props.row.administrator ? 'is-success' : 'is-danger'">
-              {{ props.row.administrator ? 'Yes' : 'No' }}
+            <b-tag :type="props.row.permitAdmin ? 'is-success' : 'is-danger'">
+              {{ props.row.permitAdmin ? 'Yes' : 'No' }}
+            </b-tag>
+          </span>
+        </b-table-column>
+        <b-table-column field="permitAdmin" label="Study Permission" sortable>
+          <span>
+            <b-tag :type="props.row.permitHosting ? 'is-success' : 'is-danger'">
+              {{ props.row.permitHosting ? 'Yes' : 'No' }}
             </b-tag>
           </span>
         </b-table-column>
@@ -64,34 +75,80 @@ export default {
   components: { GenericLayout, ToolBarButton },
   data() {
     return {
-      adminHelp: adminHelp
+      adminHelp: adminHelp,
+      selected: null,
+      users: [],
+      loading: true
     };
+  },
+  computed: {
+    activeCount: function () { return this.users.reduce((acc, curr)=>
+        (Date.now() - new Date(curr.lastActive) < 1000 * 60 * 60 * 24 * 7) ? ++acc : acc, 0)
+    }
   },
   async asyncData({ params, $axios }) {
     let ret = {};
 
     try {
       const { data } = await $axios.get("/api/v1/admin/users");
+      ret["users"] = data.result;
 
-      ret["activeCount"] = data.result.reduce((acc, curr)=>
-        (Date.now() - new Date(curr.lastActive) < 1000 * 60 * 60 * 24 * 7) ? ++acc : acc, 0);
-
-      ret["users"] = data.result.map(user => ({
-        ...user,
-        address: user.addresses[0] || "None",
-        lastActive: posixTimeToHoursAgo(user.lastActive),
-        created: posixTimeToHoursAgo(user.created)
-      }));
     } catch (err) {
       ret["users"] = null;
-      ret["activeCount"] = 0;
     }
 
+    ret["loading"] = false;
     return ret;
   },
-  computed: {},
   methods: {
-    posixTimeToHoursAgo: posixTimeToHoursAgo
+    posixTimeToHoursAgo: posixTimeToHoursAgo,
+    async refresh() {
+      this.loading = true;
+      this.users = (await this.$axios.get("/api/v1/admin/users")).data.result;
+      this.loading = false;
+    },
+    deleteUser() {
+      if (this.selected)
+        this.$buefy.dialog.prompt({
+          title: 'Delete User',
+          message: `Confirm deletion of user "${this.selected.username}" by typing your password.`,
+          type: 'is-warning',
+          inputAttrs: {
+            type: 'password', 
+            placeholder: 'Administrator Password',
+            maxlength: 100
+          },
+          trapFocus: true,
+          onConfirm: (pass) => this.$axios.post(`/api/v1/admin/delete/${this.selected.user_id}`,
+            {password: pass}).then(this.refresh)
+        })
+    },
+    changePermissions(permissions) {
+      if (this.selected)
+        this.$buefy.dialog.prompt({
+          title: 'Modify User Permissions',
+          message: `Confirm modification of user "${this.selected.username}" by typing your password.`,
+          type: 'is-warning',
+          inputAttrs: {
+            type: 'password', 
+            placeholder: 'Administrator Password',
+            maxlength: 100
+          },
+          trapFocus: true,
+          onConfirm: (pass) => this.$axios.put(`/api/v1/admin/permissions/${this.selected.user_id}`,
+            {password: pass, ...permissions}).then(this.refresh)
+        })
+    },
+    toggleAdmin(){
+      const user = this.users.find(x => x.user_id === this.selected.user_id);
+      const permissions = {permitAdmin: user.permitAdmin ? false : true};
+      this.changePermissions(permissions);
+    },
+    toggleHostingPermission(){
+      const user = this.users.find(x => x.user_id === this.selected.user_id);
+      const permissions = {permitHosting: user.permitHosting ? false : true};
+      this.changePermissions(permissions);
+    }
   },
   head() {
     return {

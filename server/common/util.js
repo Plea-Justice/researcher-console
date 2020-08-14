@@ -1,8 +1,10 @@
 const path = require('path');
 const fs = require('fs-extra');
 const os = require('os');
+const bcrypt = require('bcrypt');
 
 const UserModel = require('../models/UserModel');
+const saltRounds = 10;
 
 /**** Request/Response Objects ****/
 
@@ -35,7 +37,7 @@ function multipleReplace(string, replacements) {
 async function userIsAdmin(user_id) {
     try {
         let obj = await UserModel.findById(user_id);
-        return obj.administrator;
+        return obj.permitAdmin;
 
     } catch (err) {
         console.log(err);
@@ -43,6 +45,24 @@ async function userIsAdmin(user_id) {
     }
 }
 
+async function verifyPassword(user, byName, password) {
+    try {
+        let obj =  byName
+            ? await UserModel.findOne({username: user}) 
+            : await UserModel.findById(user);
+
+        if (!obj)
+            return false;
+
+        if (!bcrypt.compareSync(password, obj.password))
+            return false;
+
+        return obj;
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+}
 /**** Filesystem Functions ****/
 
 function userDir(options, user_id) {
@@ -76,5 +96,7 @@ module.exports = {
     userDir,
     simTmpDir,
     simTmpZipPath,
-    fileMultipleReplace
+    fileMultipleReplace,
+    saltRounds,
+    verifyPassword
 };

@@ -31,7 +31,6 @@ module.exports = function (options) {
 
     // Use bcrypt to hash passwords with cost factor 10.
     const bcrypt = require('bcrypt');
-    var saltRounds = 10;
 
     const UserModel = require('../../models/UserModel');
 
@@ -68,34 +67,26 @@ module.exports = function (options) {
      * Log in with the specified credentials.
      * @param {username: String, password: String}
      */
-    router.post('/login', AuthReqLimit, (req, res) => {
+    router.post('/login', AuthReqLimit, async (req, res) => {
         console.log('User login.');
 
         const user = req.body.username;
         const pass = req.body.password;
 
-        UserModel.findOne({ username: user }, (err, obj)=>{
-
-            if (err)
-                res.status(500).json(util.failure('There was an error logging in.', err));
-            else if (!obj)
+        try {
+            const verified = await util.verifyPassword(user, true, pass);
+            if (verified) {
+                req.session.user_id = verified._id;
+                req.session.username = verified.username;
+                req.session.is_logged_in = true;
+                
+                res.status(200).json(util.success('Logged in.'));
+            } else {
                 res.status(401).json(util.failure('Incorrect username or password.'));
-            else
-                bcrypt.compare(pass, obj.password, (err, same)=>{
-
-                    if (err)
-                        res.status(500).json(util.failure('There was an error logging in.', err));
-                    else if (!same)
-                        res.status(401).json(util.failure('Incorrect username or password.'));
-                    else {
-                        req.session.user_id = obj._id;
-                        req.session.username = obj.username;
-                        req.session.is_logged_in = true;
-                        
-                        res.status(200).json(util.success('Logged in.'));
-                    }
-                });
-        });
+            }   
+        } catch (err) {
+            res.status(500).json(util.failure('There was an error logging in.', err));
+        }
     });
 
     /**
@@ -124,7 +115,7 @@ module.exports = function (options) {
             profession: req.body.profession,
             affiliation: req.body.affiliation,
             email: req.body.email,
-            password: bcrypt.hashSync(req.body.password, saltRounds)
+            password: bcrypt.hashSync(req.body.password, util.saltRounds)
         });
         user.save((err) => {
             if (err)
