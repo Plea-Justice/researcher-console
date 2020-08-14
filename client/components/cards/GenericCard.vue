@@ -1,6 +1,4 @@
 <template>
-  <!-- FIXME: remove id from events -->
-
   <div :class="{ invalid: invalid }" class="card">
     <!-- Wrapper for highlighting a card -->
     <div v-if="selectable" @click="$emit('selected')" class="selection-mask" />
@@ -81,11 +79,11 @@ export default {
 
 <style lang="scss" scoped>
 .invalid {
-  border: 1px solid red;
+  border: 1px solid $selectedRedDark;
 }
 
 .selection-mask {
-  @include selectable();
+  @include selectionMask();
   border-radius: $radius-large;
 }
 

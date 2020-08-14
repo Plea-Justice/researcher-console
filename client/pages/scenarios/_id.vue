@@ -19,17 +19,17 @@
               :icon-left="`${collapsed ? 'expand' : 'compress'}-alt`"
               :disabled="numScenes < 1"
             />
+          </div>
 
-            <span style="width: 30px;" />
-
+          <div class="level-item buttons">
             <ToolBarButton
               @click="addCondition()"
               :value="mode"
               :disabled="!numScenes"
             >Add Condition</ToolBarButton>
+          </div>
 
-            <span style="width: 30px;" />
-
+          <div class="level-item buttons">
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'swap')"
@@ -53,11 +53,11 @@
           </div>
         </template>
 
-        <div class="level-item">
-          <b-tag v-if="scenarioStoreHasChanged" type="is-warning">Warning: Unsaved changes.</b-tag>
-        </div>
-
         <template v-slot:end>
+          <div v-if="scenarioStoreHasChanged" class="level-item">
+            <b-tag type="is-warning">Unsaved changes</b-tag>
+          </div>
+
           <div class="level-item">
             <div class="buttons">
               <ToolBarButton
@@ -83,7 +83,7 @@
         <div :style="frameSideBarActive" class="title-wrapper">
           <div v-for="index in numConditions" :key="index" class="condition-title">
             <div
-              v-if="isSelectable(Select.CONDITION)"
+              v-if="isSelectable(Select.CONDITION, index)"
               @click="addToSelection(index - 1, Select.CONDITION)"
               class="select-title"
             />
@@ -110,7 +110,7 @@
         :frameIndex="index"
         :isFirst="index === 0"
         :isLast="index === frameSet.length - 1"
-        :selectable="isSelectable(Select.SCENE)"
+        :selectable="isSelectable(Select.SCENE, index)"
       />
     </section>
   </ScenarioLayout>
@@ -177,12 +177,15 @@ export default {
       },
       [Modes.BIND]: {
         type: Select.SCENE,
+        filter: ["frame"],
         actions: {
-          [Select.SCENE]: this.bindScene
+          [Select.SCENE]: this.bindScenes
         }
       },
       [Modes.SWAP]: {
         type: Select.ANY,
+        max: 2,
+        filter: ["condition"],
         actions: {
           [Select.SCENE]: this.swapScene,
           [Select.CONDITION]: this.swapCondition
@@ -212,6 +215,7 @@ export default {
       selectNames,
       // Set to initial
       select: Select.ANY,
+      selectParent: null,
       modeOptions,
 
       selectionCounter: 0,
@@ -260,23 +264,31 @@ export default {
     }
   },
   methods: {
+    findScene(sceneId) {
+      let indexPair = null;
+      for (const [frameIndex, { scenes }] of this.frameSet.entries()) {
+        const sceneIndex = scenes.indexOf(sceneId);
+        if (sceneIndex !== -1) {
+          indexPair = [frameIndex, sceneIndex];
+          break;
+        }
+      }
+      return indexPair;
+    },
     async saveHelper() {
       if (this.scenarioStoreHasChanged) {
         this.saving = true;
         const numErrors = this.sceneErrors.length;
         if (numErrors > 0) {
-          for (const [i, { scenes }] of this.frameSet.entries()) {
-            const index = scenes.indexOf(this.sceneErrors[0]);
-            if (index !== -1) {
-              this.$buefy.toast.open({
-                message: `${numErrors} ${
-                  numErrors > 1 ? "errors exists, starting" : "error exists"
-                } at scene ${index + 1} of current row`,
-                type: "is-danger"
-              });
-              this.scrollToFrame({ frameIndex: i });
-              break;
-            }
+          const errorIndex = this.findScene(this.sceneErrors[0]);
+          if (errorIndex) {
+            this.$buefy.toast.open({
+              message: `${numErrors} ${
+                numErrors > 1 ? "errors exists, starting" : "error exists"
+              } at scene ${errorIndex[1] + 1} of current row`,
+              type: "is-danger"
+            });
+            this.scrollToFrame({ frameIndex: errorIndex[0] });
           }
         } else {
           await this.saveScenario();
@@ -340,49 +352,6 @@ export default {
         }
       }
     },
-    isSelectable(selectionType) {
-      return (
-        this.mode !== this.Modes.DEFAULT &&
-        (this.select === this.Select.ANY || this.select === selectionType)
-      );
-    },
-    selectionReset() {
-      this.selectionList = [];
-      this.select = this.Select.NONE;
-    },
-    nextSelectionSnackbar(actionType, actionMessage) {
-      this.closeSnackbar();
-      const selectionName = this.selectNames[this.select];
-      const modeName = this.modeNames[this.mode];
-
-      this.snackbar = this.$buefy.snackbar.open({
-        message: `Select ${selectionName} to ${modeName} to`,
-        position: "is-top",
-        indefinite: true,
-        type: actionType,
-        actionText: actionMessage,
-        onAction: () => {
-          if (this.selectionList.length > 1)
-            this.modeOptions[this.mode].actions[this.select](
-              this.selectionList
-            );
-          this.selectionReset();
-          this.mode = this.Modes.DEFAULT;
-        }
-      });
-    },
-    addToSelection(eSceneId, selectedType) {
-      this.selectionList.push(eSceneId);
-
-      // If first item
-      if (this.selectionList.length === 1) {
-        // Update selection
-        this.select = selectedType;
-        this.nextSelectionSnackbar("is-danger", "Cancel");
-      } else if (this.selectionList.length === 2) {
-        this.nextSelectionSnackbar("is-info", "Done");
-      }
-    },
     toggleHandler(toggledOn, modeName) {
       if (toggledOn) {
         this.snackbar = this.$buefy.snackbar.open({
@@ -392,6 +361,10 @@ export default {
           type: "is-danger",
           actionText: "Cancel",
           onAction: () => {
+            if (this.selectionList.length >= 2)
+              this.modeOptions[this.mode].actions[this.select](
+                this.selectionList
+              );
             this.selectionReset();
             this.mode = this.Modes.DEFAULT;
           }
@@ -401,6 +374,69 @@ export default {
       } else {
         this.closeSnackbar();
         this.selectionReset();
+      }
+    },
+    isSelectable(selectionType, index) {
+      const test =
+        this.mode !== this.Modes.DEFAULT &&
+        (this.select === this.Select.ANY || this.select === selectionType);
+
+      let result = false;
+      if (test) {
+        if (!this.selectParent || !this.modeOptions[this.mode].filter)
+          result = true;
+        else {
+          // If there is a filter
+          const filter = this.modeOptions[this.mode].filter;
+          const frameFilter = { parent: this.selectParent, filter };
+
+          // If there is a frame filter it & pass filter down
+          result =
+            selectionType === this.Select.SCENE &&
+            this.modeOptions[this.mode].filter.includes("frame")
+              ? this.selectParent[0] === index && frameFilter
+              : frameFilter;
+        }
+      }
+
+      return result;
+    },
+    selectionReset() {
+      this.selectParent = null;
+      this.selectionList = [];
+      this.select = this.Select.NONE;
+    },
+    addToSelection(eSceneId, selectedType) {
+      this.selectionList.push(eSceneId);
+      const options = this.modeOptions[this.mode];
+      const selectionLen = this.selectionList.length;
+
+      // If first item
+      if (selectionLen === 1) {
+        // Update selection
+        this.select = selectedType;
+        this.selectParent = this.findScene(this.selectionList[0]);
+
+        console.log(this.selectParent);
+
+        this.snackbar.message = `Select ${this.selectNames[selectedType]} to ${
+          this.modeNames[this.mode]
+        } to`;
+      } else if (
+        (options.max && selectionLen >= options.max) ||
+        (options.filter &&
+          options.filter.includes("frame") &&
+          selectionLen >= this.frameSet[this.selectParent[0]].scenes.length)
+      ) {
+        // If exceeds max selection property or has frame filter and selected all scenes in frame
+        // then auto-end the selection process
+        this.modeOptions[this.mode].actions[this.select](this.selectionList);
+        this.closeSnackbar();
+        this.mode = this.Modes.DEFAULT;
+        this.selectionReset();
+      } else if (this.selectionList.length === 2) {
+        this.snackbar.actionText = "Done";
+        this.snackbar.type = "is-info";
       }
     },
     scrollToFrame({ frameIndex, smooth = true }) {
@@ -504,7 +540,7 @@ export default {
       swapCondition: "scenario/swapCondition",
       copyScenes: "scenario/copyScenes",
       copyConditions: "scenario/copyConditions",
-      bindScene: "scenario/bindScene"
+      bindScenes: "scenario/bindScenes"
     })
   },
   beforeRouteLeave(to, from, next) {
@@ -531,6 +567,15 @@ export default {
 .horizontal-sticky {
   @include sticky();
   left: 0;
+}
+
+.level-item.buttons {
+  margin-bottom: 0;
+  margin-right: 2rem;
+
+  & > .button {
+    margin-bottom: 0;
+  }
 }
 
 .title-bar {
@@ -575,7 +620,7 @@ export default {
 }
 
 .select-title {
-  @include selectable();
+  @include selectionMask();
   border-radius: $radius-large;
 }
 

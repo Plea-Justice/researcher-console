@@ -62,7 +62,7 @@
           @selected="$emit('selected', $event)"
           :scene="scene"
           :collapsed="collapsed"
-          :selectable="selectable"
+          :selectable="isSelectable(index)"
         />
       </div>
     </div>
@@ -113,7 +113,7 @@ export default {
       default: false
     },
     selectable: {
-      type: Boolean,
+      type: [Boolean, Object],
       required: false,
       default: false
     }
@@ -139,6 +139,13 @@ export default {
   methods: {
     collapseFrame() {
       this.collapsed = !this.collapsed;
+    },
+    isSelectable(index) {
+      return typeof this.selectable === "boolean"
+        ? this.selectable
+        : this.selectable.filter.includes("condition")
+        ? index === this.selectable.parent[1]
+        : true;
     },
     ...mapActions({
       moveFrameUp: "scenario/moveFrameUp",

@@ -1,11 +1,6 @@
 <template>
   <form ref="form" class="flex-wrap">
-    <div
-      v-if="selectable && $v.form.$invalid"
-      @click="invalidSelectionToast"
-      class="invalid-selection-mask"
-    />
-
+    <div v-if="selectable && $v.form.$invalid" class="invalid-selection-mask" />
     <GenericCard
       @remove="removeScene(scene.id)"
       @selected="$emit('selected', scene.id)"
@@ -31,7 +26,7 @@
 
       <template v-slot:default>
         <!-- Scene Type Toggle -->
-        <b-field class="is-capitalized toggle-button">
+        <b-field style="justify-content: center" class="is-capitalized">
           <b-radio-button
             v-for="type in validSceneTypes"
             :key="type"
@@ -93,9 +88,7 @@
 
       <template v-slot:footer v-if="isBound">
         <b-button @click="unbindScene({ id: bound, props: scene.id })" icon-left="unlink" />
-        <b-tag type="is-warning">Bound to: {{ scene.props.name }}</b-tag>
-
-        <b-button @click="unbindScene({ id: bound, props: scene.id })" icon-left="unlink" />
+        <b-tag type="is-warning" style="margin-left: auto">Bound to: "{{ scene.props.name }}"</b-tag>
       </template>
     </GenericCard>
   </form>
@@ -233,6 +226,9 @@ export default {
     } */
   },
   computed: {
+    isSelectable() {
+      return this.selectable && this.$v.form.$invalid;
+    },
     isBound() {
       return this.bound ? true : false;
     },
@@ -258,13 +254,6 @@ export default {
     }
   },
   methods: {
-    //FIXME: this does nothing atm (I believe), maybe do to snackbars so fix or remove
-    invalidSelectionToast() {
-      this.$buefy.toast.open({
-        message: "Can't select an invalid scene, correct scene first.",
-        type: "is-danger"
-      });
-    },
     // Method accessible by $refs from Parent for focus event
     focus() {
       this.$refs.focus_target.focus();
@@ -307,7 +296,6 @@ export default {
 
 .invalid-selection-mask {
   @include absoluteMask();
-  cursor: pointer;
   background-color: $selectedRed;
   border-radius: $radius-large;
 }
@@ -318,9 +306,5 @@ export default {
 
 .header-input {
   flex-grow: 1;
-}
-
-.toggle-button {
-  justify-content: center;
 }
 </style>

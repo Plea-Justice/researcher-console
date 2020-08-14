@@ -22,16 +22,17 @@
           class="is-capitalized"
         >{{ route.name }}</b-navbar-item>
       </template>
-      <b-navbar-item v-if="user.n_sessions > 1" tag="div">
-        <b-tag type="is-warning" size="is-small">Warning: Another user may be active.</b-tag>
-      </b-navbar-item>
     </template>
 
     <template slot="end">
+      <b-navbar-item v-if="user.n_sessions > 1" tag="div">
+        <b-tag type="is-warning" size="is-small">Another user may be active</b-tag>
+      </b-navbar-item>
       <b-navbar-item tag="div">
         <div class="buttons">
           <slot name="end" />
-          <b-button v-if="user.admin"
+          <b-button
+            v-if="user.admin"
             type="is-dark"
             outlined
             inverted
