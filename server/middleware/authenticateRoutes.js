@@ -21,7 +21,7 @@ async function administratorRoute (req, res, next) {
  */
 async function mandatoryRoute (req, res, next) {
     if (await util.verifyPassword(req.session.user_id, false, req.body.password)) next();
-    else res.status(401).json(util.failure('Password required.'));
+    else res.status(401).json(util.failure('Password incorrect or not sent.'));
 }
 
 module.exports = { authenticatedRoute, administratorRoute, mandatoryRoute };

@@ -6,7 +6,7 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton type="" disabled>Reset Password</ToolBarButton>
+        <ToolBarButton type="" @click="changePassword">Change Password</ToolBarButton>
         <ToolBarButton type="" @click="toggleHostingPermission">Toggle Study Permission</ToolBarButton>
         <ToolBarButton type="" @click="toggleAdmin">Toggle Admin</ToolBarButton>
         <ToolBarButton type="is-danger" @click="deleteUser">Delete</ToolBarButton>
@@ -109,25 +109,63 @@ export default {
     },
     deleteUser() {
       if (this.selected)
-        this.$buefy.dialog.prompt({
-          title: 'Delete User',
-          message: `Confirm deletion of user "${this.selected.username}" by typing your password.`,
-          type: 'is-warning',
-          inputAttrs: {
-            type: 'password', 
-            placeholder: 'Administrator Password',
-            maxlength: 100
-          },
-          trapFocus: true,
-          onConfirm: (pass) => this.$axios.post(`/api/v1/admin/delete/${this.selected.user_id}`,
-            {password: pass}).then(this.refresh)
-        })
+        this.adminAPICall(
+          'Delete User',
+          `Confirm deletion of user "${this.selected.username}" by typing your password.`,
+          'delete',
+          `/api/v1/admin/delete/${this.selected.user_id}`
+        );
     },
     changePermissions(permissions) {
       if (this.selected)
+        this.adminAPICall(
+          'Modify User Permissions',
+          `Confirm modification of user "${this.selected.username}" by typing your password.`,
+          'put',
+          `/api/v1/admin/permissions/${this.selected.user_id}`,
+          permissions
+        );
+    },
+    toggleAdmin(){
+      if (this.selected) {
+        const user = this.users.find(x => x.user_id === this.selected.user_id);
+        const permissions = {permitAdmin: user.permitAdmin ? false : true};
+        this.changePermissions(permissions);
+      }
+    },
+    toggleHostingPermission(){
+      if (this.selected) {
+        const user = this.users.find(x => x.user_id === this.selected.user_id);
+        const permissions = {permitHosting: user.permitHosting ? false : true};
+        this.changePermissions(permissions);
+      }
+    },
+    changePassword() {
+      if (this.selected)
         this.$buefy.dialog.prompt({
-          title: 'Modify User Permissions',
-          message: `Confirm modification of user "${this.selected.username}" by typing your password.`,
+          title: 'New Password',
+          message: `Enter a new password for user "${this.selected.username}".`,
+          inputAttrs: {
+            type: 'password', 
+            placeholder: 'New Password',
+            'password-reveal': true,
+            maxlength: 100
+          },
+          trapFocus: true,
+          onConfirm: (newPass) => this.adminAPICall(
+            'Confirm Change of Password',
+            `Confirm change of password for user "${this.selected.username}" by typing your password.`,
+            'put',
+            `/api/v1/admin/password/${this.selected.user_id}`,
+            {newPassword: newPass}
+          )
+        })
+    },
+    adminAPICall(title, message, method, url, data) {
+      if (this.selected)
+        this.$buefy.dialog.prompt({
+          title: title,
+          message: message,
           type: 'is-warning',
           inputAttrs: {
             type: 'password', 
@@ -135,19 +173,15 @@ export default {
             maxlength: 100
           },
           trapFocus: true,
-          onConfirm: (pass) => this.$axios.put(`/api/v1/admin/permissions/${this.selected.user_id}`,
-            {password: pass, ...permissions}).then(this.refresh)
+          onConfirm: (pass) => this.$axios({
+            method: method,
+            url: url,
+            data: {
+              password: pass,
+              ...data
+            }
+          }).then(this.refresh)
         })
-    },
-    toggleAdmin(){
-      const user = this.users.find(x => x.user_id === this.selected.user_id);
-      const permissions = {permitAdmin: user.permitAdmin ? false : true};
-      this.changePermissions(permissions);
-    },
-    toggleHostingPermission(){
-      const user = this.users.find(x => x.user_id === this.selected.user_id);
-      const permissions = {permitHosting: user.permitHosting ? false : true};
-      this.changePermissions(permissions);
     }
   },
   head() {

@@ -7,6 +7,7 @@ module.exports = function (options) {
     var router = express.Router();
 
     const fs = require('fs-extra');
+    const bcrypt = require('bcrypt');
 
     const util = require('../../common/util');
     const { mandatoryRoute } = require('../../middleware/authenticateRoutes');
@@ -58,7 +59,7 @@ module.exports = function (options) {
         }
     });
 
-    router.post('/delete/:user_id', async (req, res) => {
+    router.delete('/delete/:user_id', async (req, res) => {
         let subject_id = req.params.user_id;
         
         if (req.session.user_id === subject_id) {
@@ -73,6 +74,20 @@ module.exports = function (options) {
             res.status(200).json(util.success('User deleted.', info));
         } catch (err) {
             res.status(500).json(util.failure('There was an error deleting the user.', err));
+        }
+    });
+
+    router.put('/password/:user_id', async (req, res) => {
+        let subject_id = req.params.user_id;
+
+        try {
+            const info = await UserModel.updateOne({_id: subject_id}, {$set: {
+                password: bcrypt.hashSync(req.body.newPassword, util.saltRounds)
+            }}, {omitUndefined: true});
+
+            res.status(200).json(util.success('User permissions updated.', info));
+        } catch (err) {
+            res.status(500).json(util.failure('There was an error updating the user\'s password.', err));
         }
     });
 

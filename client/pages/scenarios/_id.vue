@@ -59,21 +59,7 @@
           </div>
 
           <div class="level-item">
-            <div class="buttons">
-              <ToolBarButton
-                @click="previewSimulation()"
-                :value="mode"
-                type="is-primary"
-                icon-left="eye"
-              >Preview</ToolBarButton>
-
-              <ToolBarButton
-                @click="downloadZip()"
-                :value="mode"
-                type="is-primary"
-                icon-left="file-download"
-              >Download</ToolBarButton>
-            </div>
+            <PreviewDropdown :scenarioMeta="scenarioMeta" @openScenarioProps="openScenarioProps" />
           </div>
         </template>
       </ToolBar>
@@ -128,6 +114,7 @@ import NavBar from "~/components/NavBar";
 import ToolBar from "~/components/ToolBar";
 import ToolBarButton from "~/components/ToolBarButton";
 import SceneFrame from "~/components/SceneFrame";
+import PreviewDropdown from "~/components/PreviewDropdown";
 import ScenarioOptions from "~/components/modals/ScenarioOptions";
 import LeaveScenario from "~/components/modals/LeaveScenario";
 
@@ -142,7 +129,8 @@ export default {
     ToolBar,
     ToolBarButton,
     SceneFrame,
-    ScenarioOptions
+    ScenarioOptions,
+    PreviewDropdown
   },
   data() {
     const Modes = {
@@ -461,76 +449,6 @@ export default {
         hasModalCard: true,
         trapFocus: true
       });
-    },
-    async generateSimulation() {
-      // TODO: Ask on unsaved, invalid, etc.
-      // Create an array of warnings & display the messages accordingly
-      let status = false;
-      if (!this.scenarioMeta.survey) {
-        this.$buefy.dialog.alert({
-          title: "Survey Redirect Not Set",
-          message:
-            'Please set the survey URL. This can be found under the "Options" Toolbar Button',
-          type: "is-warning",
-          hasIcon: true,
-          icon: "exclamation-triangle",
-          onConfirm: () => setTimeout(this.openScenarioProps, 150)
-        });
-      } else {
-        this.snackbar = this.$buefy.snackbar.open({
-          message: "Please wait, generating simulation...",
-          position: "is-top",
-          indefinite: true,
-          actionText: null
-        });
-
-        try {
-          const res = await this.$axios.post(
-            `/api/v1/scenarios/${this.scenarioMeta.id}/generate`
-          );
-          status = res.status === 200;
-        } catch (err) {
-          status = false;
-        }
-
-        this.closeSnackbar();
-      }
-
-      return status;
-    },
-    async downloadZip() {
-      if (!(await this.generateSimulation())) return;
-      this.snackbar = this.$buefy.snackbar.open({
-        message: "Preparing simulation ZIP...",
-        position: "is-top",
-        indefinite: true,
-        actionText: null
-      });
-
-      try {
-        const res = await this.$axios.post(
-          `/api/v1/scenarios/${this.scenarioMeta.id}/zip`
-        );
-        if (res.status === 200)
-          window.open(
-            `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}.zip`
-          );
-      } catch (err) {
-        console.log(err);
-      }
-
-      this.closeSnackbar();
-    },
-    async previewSimulation() {
-      if (!(await this.generateSimulation())) return;
-      this.$buefy.toast.open({
-        message: "Preview ready.",
-        type: "is-success"
-      });
-
-      window.open(
-        `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}/`
-      );
     },
     ...mapActions({
       addCondition: "scenario/addCondition",
