@@ -88,7 +88,7 @@
               class="select-title"
             />
             <b-button
-              @click="removeCondition(index - 1)"
+              @click="removeConditionHelper(index - 1)"
               type="is-text"
               icon-left="times"
               class="close-button"
@@ -453,6 +453,15 @@ export default {
           ...(smooth && { behavior: "smooth" })
         });
       });
+    },
+    removeConditionHelper(index) {
+      const scrollElement = this.$refs.layout.$refs.scroll;
+      scrollElement.scrollTo({
+        // FIXME: have scene sizes reference a variable
+        left: scrollElement.scrollLeft - (350 + 20)
+      });
+      console.log(scrollElement.scrollLeft);
+      this.removeCondition(index);
     },
     openScenarioProps() {
       this.$buefy.modal.open({

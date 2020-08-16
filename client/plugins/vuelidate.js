@@ -15,6 +15,7 @@ Vue.use(vuelidateErrorExtractor, {
   // error messages to use
   messages: {
     required: 'The {attribute} field is required',
+    alphaNum: 'Only letters and numbers allowed',
     maxLength: 'Exceeds the max length'
   }
 });

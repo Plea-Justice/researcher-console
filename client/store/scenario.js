@@ -40,7 +40,7 @@ export const getters = {
 
 export const actions = {
   // **** Axios Actions ****
-  async getScenario({ commit, state }, id) {
+  async getScenario({ commit, dispatch, state }, id) {
     const response = await this.$axios.$get(`/api/v1/scenarios/${id}`);
     if (response.success) {
       // Reset state representation write in data from server request
@@ -48,7 +48,7 @@ export const actions = {
       commit('setScenario', response.result);
 
       // If new new Scenario (no frames exists) create an initial frame
-      if (!state.frameList.length) commit('newFrame');
+      if (!state.frameList.length) dispatch('addFrame');
     }
   },
   async saveScenario({ state }) {
@@ -82,10 +82,22 @@ export const actions = {
   },
 
   // **** Frame Actions ****
-  addFrame({ commit }, frameId) {
-    commit('newFrame', { frameId });
+  addFrame({ commit, state }, frameId = null) {
+    const framesLength = state.frameList.length ? state.frames[state.frameList[0]].scenes.length : 1;
+    const scenes = Array.from(Array(framesLength), () => nanoid());
+    scenes.forEach(id => commit('setScene', { id, scene: { id, props: null } }));
+
+    const id = nanoid();
+    commit('newFrame', {
+      index: frameId ? state.frameList.indexOf(frameId) + 1 : 0,
+      id,
+      frame: { id, size: 0, label: '', scenes }
+    });
   },
   removeFrame({ commit }, frameId) {
+    // If last frame reset all scenes
+    // if (state.frameList.length === 1) state.frames[frameId].scenes.forEach(id => commit('setScene'));
+
     commit('deleteFrame', { frameId });
   },
   moveFrameDown({ commit }, frameId) {
@@ -95,6 +107,9 @@ export const actions = {
   moveFrameUp({ commit }, frameId) {
     // Frame stack goes from 0 down incrementally, so add -1 to move up
     commit('moveFrame', { frameId, modifier: -1 });
+  },
+  setFrameLabel({ commit }, { id, value }) {
+    commit('updateFrame', { id, key: 'label', value });
   },
 
   // **** Scene Actions ****
@@ -193,23 +208,12 @@ export const mutations = {
       });
     }
   },
+
   // **** Frame Mutations ****
-  newFrame(state, payload) {
-    const framesLength = state.frameList.length ? state.frames[state.frameList[0]].scenes.length : 1;
-
-    // Create scenes for new frame
-    const frameScenes = [];
-    for (let i = 0; i < framesLength; i++) {
-      const id = nanoid();
-      Vue.set(state.scenes, id, { id, props: null });
-      frameScenes.push(id);
-    }
-
+  newFrame(state, { index, id, frame }) {
     // Create frame
-    const id = nanoid();
-    Vue.set(state.frames, id, { id, size: 0, scenes: frameScenes });
-    if (payload && state.frameList.length) state.frameList.splice(state.frameList.indexOf(payload.frameId) + 1, 0, id);
-    else state.frameList.push(id);
+    Vue.set(state.frames, id, frame);
+    state.frameList.splice(index, 0, id);
   },
   deleteFrame(state, payload) {
     const frame = state.frames[payload.frameId];
@@ -232,6 +236,9 @@ export const mutations = {
 
     // Update scene count
     state.numScenes -= sceneLength;
+  },
+  updateFrame(state, { id, key, value }) {
+    Vue.set(state.frames[id], key, value);
   },
   moveFrame(state, payload) {
     const fromIndex = state.frameList.indexOf(payload.frameId);
@@ -265,15 +272,13 @@ export const mutations = {
     Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: null });
 
     // Update frame if necessary
-    // TODO: improve this to use a counter instead
     const currFrame =
       state.frames[state.frameList[state.frameList.findIndex(id => state.frames[id].scenes.includes(payload.sceneId))]];
 
     Vue.set(state.frames, currFrame.id, { ...currFrame, size: currFrame.size - 1 });
     state.numScenes -= 1;
   },
-  setScene(state, payload) {
-    const { id, scene } = payload;
+  setScene(state, { id, scene }) {
     Vue.set(state.scenes, id, scene);
   },
   setSceneProps(state, payload) {

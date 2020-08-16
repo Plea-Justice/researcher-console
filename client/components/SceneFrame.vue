@@ -37,33 +37,46 @@
         />
       </aside>
 
-      <div v-for="(scene, index) in sceneSet" :key="scene.id" class="scene">
-        <GenericCard v-if="scene.props === null" blank>
-          <b-button
-            @click="addSceneHelper(index, scene.id)"
-            type="is-light"
-            size="is-medium"
-            icon-left="plus"
-          />
-        </GenericCard>
+      <div class="frame-content">
+        <div class="frame-header">
+          <form-group :validator="$v.label">
+            <b-input
+              ref="focus_target"
+              :value="label"
+              @input="setLabel($event)"
+              placeholder="Frame Label (Optional)"
+            />
+          </form-group>
+        </div>
+        <div class="frame-scenes">
+          <div v-for="(scene, index) in sceneSet" :key="scene.id" class="scene">
+            <GenericCard v-if="scene.props === null" blank>
+              <b-button
+                @click="addScene(scene.id)"
+                type="is-light"
+                size="is-medium"
+                icon-left="plus"
+              />
+            </GenericCard>
 
-        <!-- FIXME: make sure the string check is rigorous -->
-        <!-- FIXME: no ref might break this? -->
-        <Scene
-          v-else-if="typeof scene.props === 'string'"
-          :bound="scene.id"
-          :scene="getSiblingScene(scene.props)"
-          :collapsed="collapsed"
-        />
+            <!-- FIXME: make sure the string check is rigorous -->
+            <Scene
+              v-else-if="typeof scene.props === 'string'"
+              :bound="scene.id"
+              :scene="getSiblingScene(scene.props)"
+              :collapsed="collapsed"
+            />
 
-        <Scene
-          :ref="`scene_${scene.id}`"
-          v-else
-          @selected="$emit('selected', $event)"
-          :scene="scene"
-          :collapsed="collapsed"
-          :selectable="isSelectable(index)"
-        />
+            <Scene
+              :ref="`scene_${scene.id}`"
+              v-else
+              @selected="$emit('selected', $event)"
+              :scene="scene"
+              :collapsed="collapsed"
+              :selectable="isSelectable(index)"
+            />
+          </div>
+        </div>
       </div>
     </div>
 
@@ -86,9 +99,15 @@ import { mapGetters, mapActions } from "vuex";
 // Import Bus
 import { EventBus, EventListener } from "~/bus/eventbus";
 
+// Import Vuelidate Rules
+import { alphaNum, maxLength } from "vuelidate/lib/validators";
+
 // Import Components
 import GenericCard from "~/components/cards/GenericCard";
 import Scene from "~/components/Scene";
+
+// Import Helper Functions
+import { debounce } from "~/assets/util";
 
 export default {
   name: "SceneFrame",
@@ -125,8 +144,16 @@ export default {
   },
   data() {
     return {
-      collapsed: false
+      collapsed: false,
+      // frame validated props
+      label: ""
     };
+  },
+  validations: {
+    label: {
+      alphaNum,
+      maxLength: maxLength(20)
+    }
   },
   computed: {
     ...mapGetters({
@@ -148,12 +175,18 @@ export default {
         : true;
     },
     ...mapActions({
+      setFrameLabel: "scenario/setFrameLabel",
       moveFrameUp: "scenario/moveFrameUp",
       moveFrameDown: "scenario/moveFrameDown",
       addFrame: "scenario/addFrame",
       removeFrame: "scenario/removeFrame",
       addScene: "scenario/addScene"
     }),
+    setLabel: debounce(function(newValue) {
+      this.label = newValue;
+      this.$v.label.$touch();
+      this.setFrameLabel({ id: this.frame.id, value: newValue });
+    }, 250),
     moveUp() {
       this.moveFrameUp(this.frame.id);
       // emit the frameIndex that must be traveled to
@@ -171,13 +204,9 @@ export default {
       this.removeFrame(frameId);
       // Make this a not smooth scroll, just want to re-allign frame
       this.$emit("scroll-to", {
-        frameIndex: this.frameIndex - 1,
+        frameIndex: this.frameIndex ? this.frameIndex - 1 : 0,
         smooth: false
       });
-    },
-    addSceneHelper(sceneIndex, sceneId) {
-      this.addScene(sceneId);
-      this.$nextTick(() => this.$refs[`scene_${sceneId}`][0].focus());
     },
     getSiblingScene(sceneId) {
       for (const scene of this.sceneSet) if (scene.id === sceneId) return scene;
@@ -208,6 +237,16 @@ export default {
   margin-top: 1px;
   // Remove bottom margin from box (leave 1px for box model)
   margin-bottom: 1px;
+}
+
+.frame-header {
+  margin-bottom: 1.25rem;
+  width: $sceneWidth;
+}
+
+.frame-scenes {
+  display: flex;
+  flex-direction: row;
 
   // Everything except last child & > :not(:last-child)
   & > div:nth-last-of-type(n + 2) {
@@ -216,6 +255,10 @@ export default {
 }
 
 .frame-footer {
+  position: sticky;
+  left: 0;
+  max-width: calc(100vw - #{$responsiveContainerSpacing} * 2);
+  padding-left: $frameSideBarWidth;
   display: flex;
   justify-content: center;
   margin-top: $framePadding;
@@ -232,8 +275,8 @@ export default {
 
   // IMPORTANT: Margins need !important to properly overwrite Buefy button margins
   & > :first-child {
-    // scene-header-input-font-size-difference (1.25 - 1) + ...
-    margin: ((0.25rem + $cardHeadFootPadding) / 2) 0 10px !important;
+    // reset unwanted button margins
+    margin: 0 0 10px !important;
   }
 
   // Everything except first & last child

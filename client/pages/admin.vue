@@ -10,7 +10,7 @@
         <ToolBarButton type="is-warning" disabled>Reset Password</ToolBarButton>
       </div>
     </template>
-    
+
     <template v-slot:toolbar-end>
       <div class="level-item has-text-centered">
         <span>{{ users.length }} users, {{ activeCount }} active this week.</span>
@@ -34,13 +34,17 @@
         <b-table-column field="lastActive" label="Last Activity" sortable>{{ props.row.lastActive }}</b-table-column>
         <b-table-column field="created" label="Account Created" sortable>{{ props.row.created }}</b-table-column>
         <b-table-column field="profession" label="Profession" sortable>{{ props.row.profession }}</b-table-column>
-        <b-table-column field="affiliation" label="Institutional Affiliation" sortable>{{ props.row.affiliation }}</b-table-column>
+        <b-table-column
+          field="affiliation"
+          label="Institutional Affiliation"
+          sortable
+        >{{ props.row.affiliation }}</b-table-column>
         <b-table-column field="address" label="Last IP Address" sortable>{{ props.row.address }}</b-table-column>
         <b-table-column field="administrator" label="Admin" sortable>
           <span>
-            <b-tag :type="props.row.administrator ? 'is-success' : 'is-danger'">
-              {{ props.row.administrator ? 'Yes' : 'No' }}
-            </b-tag>
+            <b-tag
+              :type="props.row.administrator ? 'is-success' : 'is-danger'"
+            >{{ props.row.administrator ? 'Yes' : 'No' }}</b-tag>
           </span>
         </b-table-column>
       </template>
@@ -60,7 +64,7 @@ import { adminHelp } from "~/assets/helpText";
 import { posixTimeToHoursAgo } from "~/assets/util";
 
 export default {
-  name: "Scenarios",
+  name: "Admin",
   components: { GenericLayout, ToolBarButton },
   data() {
     return {
@@ -73,8 +77,13 @@ export default {
     try {
       const { data } = await $axios.get("/api/v1/admin/users");
 
-      ret["activeCount"] = data.result.reduce((acc, curr)=>
-        (Date.now() - new Date(curr.lastActive) < 1000 * 60 * 60 * 24 * 7) ? ++acc : acc, 0);
+      ret["activeCount"] = data.result.reduce(
+        (acc, curr) =>
+          Date.now() - new Date(curr.lastActive) < 1000 * 60 * 60 * 24 * 7
+            ? ++acc
+            : acc,
+        0
+      );
 
       ret["users"] = data.result.map(user => ({
         ...user,

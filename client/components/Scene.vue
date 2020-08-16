@@ -1,4 +1,5 @@
 <template>
+  <!-- FIXME: fix how form interaction works either make form top level again or use more effectively here -->
   <form ref="form" class="flex-wrap">
     <div v-if="selectable && $v.form.$invalid" class="invalid-selection-mask" />
     <GenericCard
@@ -10,20 +11,6 @@
       :invalid="$v.form.$invalid"
       close
     >
-      <!-- Card Header -->
-      <template v-slot:header>
-        <!-- Scene Name -->
-        <form-group :validator="$v.form.name" class="header-input">
-          <b-input
-            ref="focus_target"
-            v-model="$v.form.name.$model"
-            :disabled="isBound"
-            placeholder="Scene Label (Optional)"
-            expanded
-          />
-        </form-group>
-      </template>
-
       <template v-slot:default>
         <!-- Scene Type Toggle -->
         <b-field style="justify-content: center" class="is-capitalized">
@@ -88,7 +75,6 @@
 
       <template v-slot:footer v-if="isBound">
         <b-button @click="unbindScene({ id: bound, props: scene.id })" icon-left="unlink" />
-        <b-tag type="is-warning" style="margin-left: auto">Bound to: "{{ scene.props.name }}"</b-tag>
       </template>
     </GenericCard>
   </form>
@@ -99,7 +85,7 @@
 import { mapGetters, mapActions } from "vuex";
 
 // Import Vuelidate Rules
-import { required, alphaNum, maxLength } from "vuelidate/lib/validators";
+import { required, maxLength } from "vuelidate/lib/validators";
 import { helpers } from "vuelidate/lib/validators";
 
 // Import Components
@@ -162,12 +148,7 @@ export default {
     const dynamicEntries = Object.fromEntries(
       Object.entries(spec.scene).map(([key, val]) => {
         if (val === "image" || val === "video") {
-          return [
-            key,
-            {
-              included: included(this.AssetNamesByType[key])
-            }
-          ];
+          return [key, { included: included(this.AssetNamesByType[key]) }];
         } else {
           return [key, {}];
         }
@@ -177,10 +158,6 @@ export default {
     return {
       form: {
         ...dynamicEntries,
-        name: {
-          alphaNum,
-          maxLength: maxLength(20)
-        },
         type: {
           required
         },
@@ -195,7 +172,7 @@ export default {
     // Update form for inbound changes
     "scene.props": async function() {
       Object.assign(this.form, this.scene.props);
-      this.$v.form.$reset();
+      // this.$v.form.$reset();
     },
     // Update props with outbound changes
     form: {
@@ -206,7 +183,7 @@ export default {
           props: this.form,
           valid: !this.$v.form.$invalid
         });
-        await this.$v.form.$reset();
+        // await this.$v.form.$reset();
       }, 350)
     }
     //FIXME: get $anyDirty working so we don't have to deep watch
@@ -226,9 +203,6 @@ export default {
     } */
   },
   computed: {
-    isSelectable() {
-      return this.selectable && this.$v.form.$invalid;
-    },
     isBound() {
       return this.bound ? true : false;
     },
@@ -254,10 +228,6 @@ export default {
     }
   },
   methods: {
-    // Method accessible by $refs from Parent for focus event
-    focus() {
-      this.$refs.focus_target.focus();
-    },
     isType(field, validTypes) {
       const targetType = spec.scene[field];
       return Array.isArray(validTypes)
