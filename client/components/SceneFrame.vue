@@ -1,91 +1,101 @@
 <template>
-  <div class="frame-wrapper">
-    <div class="frame box">
-      <!-- Sidebar -->
-      <aside v-show="!(isFirst && isLast && !frame.size)" class="sidebar buttons">
-        <!-- Collapse Button -->
-        <b-button
-          v-show="frame.size"
-          @click="collapseFrame()"
-          :icon-left="`chevron-${collapsed ? 'down' : 'up'}`"
-          type="is-text"
-          size="is-medium"
-        />
+  <div class="frame-wrapper-column">
+    <div class="frame-wrapper-row">
+      <p class="frame-index">{{ frameIndex }}</p>
 
-        <!-- Move Up/Down Buttons -->
-        <b-button
-          v-show="!isFirst"
-          @click="moveUp()"
-          type="is-light"
-          size="is-medium"
-          icon-left="arrow-up"
-        />
-        <b-button
-          v-show="!isLast"
-          @click="moveDown()"
-          type="is-light"
-          size="is-medium"
-          icon-left="arrow-down"
-        />
+      <div class="frame box">
+        <!-- Sidebar -->
+        <aside v-show="!(isFirst && isLast && !frame.size)" class="sidebar buttons">
+          <!-- Collapse Button -->
+          <b-button
+            v-show="frame.size"
+            @click="collapseFrame()"
+            :icon-left="`chevron-${collapsed ? 'down' : 'up'}`"
+            type="is-text"
+            size="is-medium"
+          />
 
-        <b-tooltip :label="uniqueScenes > 1 ? `${uniqueScenes} Unique Scenes` : 'Same Across Conditions'"
-            position="is-bottom" animated>
-            <button :class="`button ${uniqueScenes > 1 ? 'is-info':''}`" disabled>{{uniqueScenes}}</button>
-        </b-tooltip>
+          <!-- Move Up/Down Buttons -->
+          <b-button
+            v-show="!isFirst"
+            @click="moveUp()"
+            type="is-light"
+            size="is-medium"
+            icon-left="arrow-up"
+          />
+          <b-button
+            v-show="!isLast"
+            @click="moveDown()"
+            type="is-light"
+            size="is-medium"
+            icon-left="arrow-down"
+          />
 
-        <!-- Remove Frame Button -->
-        <b-button
-          @click="removeFrameHelper(frame.id)"
-          type="is-danger"
-          icon-left="times"
-          size="is-medium"
-        />
-      </aside>
+          <!-- Remove Frame Button -->
+          <b-button
+            @click="removeFrameHelper(frame.id)"
+            type="is-danger"
+            icon-left="times"
+            size="is-medium"
+          />
+        </aside>
 
-      <div class="frame-content">
-        <div class="frame-header">
-          <form-group :validator="$v.label">
-            <b-input
-              ref="focus_target"
-              :value="label"
-              @input="setLabel($event)"
-              placeholder="Frame Label (Optional)"
-            />
-          </form-group>
-        </div>
-        <div class="frame-scenes">
-          <div v-for="(scene, index) in sceneSet" :key="scene.id" class="scene">
-            <GenericCard v-if="scene.props === null" blank>
-              <b-button
-                @click="addScene(scene.id)"
-                type="is-light"
-                size="is-medium"
-                icon-left="plus"
+        <div class="frame-content">
+          <div class="frame-header">
+            <form-group :validator="$v.label" grouped>
+              <p class="control">
+                <b-tooltip
+                  :label="uniqueScenes > 1 ? `${uniqueScenes} Unique Scenes` : 'Same Across Conditions'"
+                  position="is-bottom"
+                  animated
+                >
+                  <b-button :class="{ 'is-info': uniqueScenes > 1 }" disabled>{{uniqueScenes}}</b-button>
+                </b-tooltip>
+              </p>
+
+              <b-input
+                ref="focus_target"
+                :value="label"
+                @input="setLabel($event)"
+                placeholder="Frame Label (Optional)"
+                expanded
               />
-            </GenericCard>
+            </form-group>
+          </div>
+          <div class="frame-scenes">
+            <div v-for="(scene, index) in sceneSet" :key="scene.id" class="scene">
+              <GenericCard v-if="scene.props === null" blank>
+                <b-button
+                  @click="addScene(scene.id)"
+                  type="is-light"
+                  size="is-medium"
+                  icon-left="plus"
+                />
+              </GenericCard>
 
-            <!-- FIXME: make sure the string check is rigorous -->
-            <Scene
-              v-else-if="typeof scene.props === 'string'"
-              :bound="scene.id"
-              :scene="getSiblingScene(scene.props)"
-              :collapsed="collapsed"
-            />
+              <!-- FIXME: make the string check is rigorous -->
+              <Scene
+                v-else-if="typeof scene.props === 'string'"
+                :bound="scene.id"
+                :scene="getSiblingScene(scene.props)"
+                :collapsed="collapsed"
+              />
 
-            <Scene
-              :ref="`scene_${scene.id}`"
-              v-else
-              @selected="$emit('selected', $event)"
-              :scene="scene"
-              :collapsed="collapsed"
-              :selectable="isSelectable(index)"
-            />
+              <Scene
+                :ref="`scene_${scene.id}`"
+                v-else
+                @selected="$emit('selected', $event)"
+                :scene="scene"
+                :collapsed="collapsed"
+                :selectable="isSelectable(index)"
+              />
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="frame-footer">
+    <div class="wrap-footer">
       <b-button
         v-show="!(isLast && !frame.size)"
         @click="addFrameHelper(frame.id)"
@@ -168,10 +178,10 @@ export default {
       return this.getSceneSet(this.frame.id);
     },
     uniqueScenes() {
-      return this.sceneSet.reduce((acc, curr, i)=>{
-        if (typeof curr.props != 'string') return acc + 1;
-        return acc;
-      }, 0)
+      return this.sceneSet.reduce(
+        (acc, curr) => (typeof curr.props != "string" ? acc + 1 : acc),
+        0
+      );
     }
   },
   methods: {
@@ -229,15 +239,24 @@ export default {
 <style lang="scss" scoped>
 // This is the default Bulma .box padding
 
-.frame-wrapper {
+.frame-wrapper-column {
   display: flex;
   flex-direction: column;
   width: max-content;
+}
+
+.frame-wrapper-row {
+  display: flex;
+  flex-direction: row;
   position: relative;
 }
 
-.box {
-  padding: $framePadding;
+.frame-index {
+  position: absolute;
+  align-self: center;
+  left: -3vw;
+  font-size: 2rem;
+  color: $grey;
 }
 
 .frame {
@@ -248,6 +267,10 @@ export default {
   margin-top: 1px;
   // Remove bottom margin from box (leave 1px for box model)
   margin-bottom: 1px;
+}
+
+.box {
+  padding: $framePadding;
 }
 
 .frame-header {
@@ -265,7 +288,7 @@ export default {
   }
 }
 
-.frame-footer {
+.wrap-footer {
   position: sticky;
   left: 0;
   max-width: calc(100vw - #{$responsiveContainerSpacing} * 2);
