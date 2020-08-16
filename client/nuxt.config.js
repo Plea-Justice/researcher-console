@@ -116,7 +116,8 @@ export default {
         'faGraduationCap',
         'faUniversity',
         'faAngleLeft',
-        'faAngleRight'
+        'faAngleRight',
+        'faAngleDown'
       ]
     }
   },

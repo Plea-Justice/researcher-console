@@ -28,6 +28,11 @@
           icon-left="arrow-down"
         />
 
+        <b-tooltip :label="uniqueScenes > 1 ? `${uniqueScenes} Unique Scenes` : 'Same Across Conditions'"
+            position="is-bottom" animated>
+            <button :class="`button ${uniqueScenes > 1 ? 'is-info':''}`" disabled>{{uniqueScenes}}</button>
+        </b-tooltip>
+
         <!-- Remove Frame Button -->
         <b-button
           @click="removeFrameHelper(frame.id)"
@@ -161,6 +166,12 @@ export default {
     }),
     sceneSet() {
       return this.getSceneSet(this.frame.id);
+    },
+    uniqueScenes() {
+      return this.sceneSet.reduce((acc, curr, i)=>{
+        if (typeof curr.props != 'string') return acc + 1;
+        return acc;
+      }, 0)
     }
   },
   methods: {

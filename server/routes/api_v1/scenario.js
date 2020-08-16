@@ -123,7 +123,7 @@ module.exports = function (options) {
             frames: req.body.frames,
             frameList: req.body.frameList,
             modified: Date.now()
-        }}, (err, result)=>{
+        }}, {omitUndefined: true}, (err, result)=>{
             if (err)
                 res.status(500).json(util.failure('There was an error updating the scenario.', err));
             else if (result.n !== 1)
