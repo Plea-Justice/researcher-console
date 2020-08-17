@@ -32,45 +32,43 @@
       height="100%"
       default-sort="username"
     >
-      <template slot-scope="props">
-        <b-table-column field="username" label="Username" sortable>{{ props.row.username }}</b-table-column>
-        <b-table-column field="email" label="Email Address" sortable>{{ props.row.email }}</b-table-column>
-        <b-table-column
+        <b-table-column v-slot="props" field="username" label="Username" sortable>{{ props.row.username }}</b-table-column>
+        <b-table-column v-slot="props" field="email" label="Email Address" sortable>{{ props.row.email }}</b-table-column>
+        <b-table-column v-slot="props"
           field="lastActive"
           label="Last Activity"
           sortable
         >{{ posixTimeToHoursAgo(props.row.lastActive) }}</b-table-column>
-        <b-table-column
+        <b-table-column v-slot="props"
           field="created"
           label="Account Created"
           sortable
         >{{ posixTimeToHoursAgo(props.row.created) }}</b-table-column>
-        <b-table-column field="profession" label="Profession" sortable>{{ props.row.profession }}</b-table-column>
-        <b-table-column
+        <b-table-column v-slot="props" field="profession" label="Profession" sortable>{{ props.row.profession }}</b-table-column>
+        <b-table-column v-slot="props"
           field="affiliation"
           label="Institutional Affiliation"
           sortable
         >{{ props.row.affiliation }}</b-table-column>
-        <b-table-column
+        <b-table-column v-slot="props"
           field="addresses"
           label="Last IP Address"
           sortable
         >{{ props.row.addresses[0] || 'None' }}</b-table-column>
-        <b-table-column field="permitAdmin" label="Admin" sortable>
+        <b-table-column v-slot="props" field="permitAdmin" label="Admin" sortable>
           <span>
             <b-tag
               :type="props.row.permitAdmin ? 'is-success' : 'is-danger'"
             >{{ props.row.permitAdmin ? 'Yes' : 'No' }}</b-tag>
           </span>
         </b-table-column>
-        <b-table-column field="permitAdmin" label="Study Permission" sortable>
+        <b-table-column v-slot="props" field="permitAdmin" label="Study Permission" sortable>
           <span>
             <b-tag
               :type="props.row.permitHosting ? 'is-success' : 'is-danger'"
             >{{ props.row.permitHosting ? 'Yes' : 'No' }}</b-tag>
           </span>
         </b-table-column>
-      </template>
     </b-table>
   </GenericLayout>
 </template>
