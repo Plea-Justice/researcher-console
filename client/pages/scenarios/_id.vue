@@ -10,9 +10,15 @@
               :value="mode"
               :loading="saving"
               type="is-primary"
-            >Save</ToolBarButton>
+              >Save</ToolBarButton
+            >
 
-            <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="cog">Options</ToolBarButton>
+            <ToolBarButton
+              @click="openScenarioProps()"
+              :value="mode"
+              icon-left="cog"
+              >Options</ToolBarButton
+            >
 
             <b-button
               @click="collapseAll()"
@@ -26,7 +32,8 @@
               @click="addCondition()"
               :value="mode"
               :disabled="!numScenes"
-            >Add Condition</ToolBarButton>
+              >Add Condition</ToolBarButton
+            >
           </div>
 
           <div class="level-item buttons">
@@ -35,21 +42,24 @@
               @click="toggleHandler($event, 'swap')"
               :mode="Modes.SWAP"
               :disabled="numScenes < 2"
-            >Swap</ToolBarButton>
+              >Swap</ToolBarButton
+            >
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'copy')"
               :mode="Modes.COPY"
               :disabled="numScenes < 2"
-            >Copy</ToolBarButton>
+              >Copy</ToolBarButton
+            >
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'bind')"
               :mode="Modes.BIND"
               :disabled="numScenes < 2"
-            >Bind</ToolBarButton>
+              >Bind</ToolBarButton
+            >
           </div>
         </template>
 
@@ -59,15 +69,26 @@
           </div>
 
           <div class="level-item">
-            <PreviewDropdown :scenarioMeta="scenarioMeta" @openScenarioProps="openScenarioProps" />
+            <PreviewDropdown
+              :scenarioMeta="scenarioMeta"
+              @openScenarioProps="openScenarioProps"
+            />
           </div>
         </template>
       </ToolBar>
 
       <!-- Titles -->
-      <div ref="titlebar" :style="titleBarStyle" class="padded-responsive-container title-bar">
+      <div
+        ref="titlebar"
+        :style="titleBarStyle"
+        class="padded-responsive-container title-bar"
+      >
         <div :style="frameSideBarActive" class="title-wrapper">
-          <div v-for="index in numConditions" :key="index" class="condition-title">
+          <div
+            v-for="index in numConditions"
+            :key="index"
+            class="condition-title"
+          >
             <div
               v-if="isSelectable(Select.CONDITION, index)"
               @click="addToSelection(index - 1, Select.CONDITION)"
@@ -496,7 +517,6 @@ export default {
 
 <style lang="scss" scoped>
 .horizontal-sticky {
-  @include sticky();
   left: 0;
 }
 

@@ -185,6 +185,11 @@ export default {
     /*
      ** You can extend webpack config here
      */
-    extend(config, ctx) {}
+    extend(config, ctx) {
+      /*
+       * FIXME: THIS IS A TEMPORARY FIX TO USE BUEFY UNTIL PATCHED
+       */
+      config.resolve.alias.vue = 'vue/dist/vue.common';
+    }
   }
 };

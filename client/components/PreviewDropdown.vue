@@ -1,8 +1,18 @@
 <template>
   <div class="buttons">
-    <ToolBarButton @click="previewSimulation()" type="is-primary" icon-left="eye">Preview</ToolBarButton>
+    <ToolBarButton
+      @click="previewSimulation()"
+      type="is-primary"
+      icon-left="eye"
+      >Preview</ToolBarButton
+    >
     <b-dropdown position="is-bottom-left">
-      <ToolBarButton class="button is-primary" slot="trigger" icon-left="angle-down">Publish</ToolBarButton>
+      <ToolBarButton
+        class="button is-primary"
+        slot="trigger"
+        icon-left="angle-down"
+        >Publish</ToolBarButton
+      >
 
       <b-dropdown-item @click="downloadZip">Download</b-dropdown-item>
       <b-dropdown-item :disabled="!user.permitHosting">Publish</b-dropdown-item>

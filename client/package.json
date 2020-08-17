@@ -16,10 +16,10 @@
   "dependencies": {
     "@nuxtjs/auth": "^4.9.1",
     "@nuxtjs/axios": "^5.12.1",
-    "@nuxtjs/pwa": "^3.0.0-0",
+    "@nuxtjs/pwa": "^3.0.0",
     "nanoid": "^3.1.12",
-    "nuxt": "^2.14.1",
-    "nuxt-buefy": "^0.3.31",
+    "nuxt": "^2.14.3",
+    "nuxt-buefy": "^0.4.0",
     "vuelidate": "^0.7.5",
     "vuelidate-error-extractor": "^2.4.1"
   },
@@ -36,7 +36,7 @@
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-jsx-a11y": "^6.3.1",
     "eslint-plugin-prettier": "^3.1.4",
-    "eslint-plugin-react": "^7.20.5",
+    "eslint-plugin-react": "^7.20.6",
     "eslint-plugin-react-hooks": "^1.7.0",
     "node-sass": "^4.14.1",
     "nuxt-purgecss": "^1.0.0",
