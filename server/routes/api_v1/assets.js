@@ -20,7 +20,7 @@ module.exports = function (options) {
     const atob = (src) => Buffer.from(src, 'base64').toString('binary');
     const btoa = (src) => Buffer.from(src, 'binary').toString('base64');
 
-    const assetTypes = ['clip', 'actor', 'foreground', 'background'];
+    const assetTypes = util.assetTypes;
     
     // express-fileupload middleware to handle asset uploads.
     router.use(fileupload({

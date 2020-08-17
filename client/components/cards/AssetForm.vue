@@ -16,7 +16,8 @@
       <div class="input-wrapper">
         <b-field label="File Upload">
           <b-field>
-            <b-upload v-model="assetForm.file" accept=".js, .jpg, .png" required native>
+            <!-- FIXME: Required upload is problematic. -->
+            <b-upload v-model="assetForm.file" accept=".js, .jpg, .png" native>
               <a class="button is-light">
                 <b-icon size="is-small" icon="cloud-upload-alt" />
                 <span>{{ assetForm.file.name || "Click to upload" }}</span>

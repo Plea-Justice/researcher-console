@@ -4,6 +4,9 @@ const os = require('os');
 const bcrypt = require('bcrypt');
 
 const UserModel = require('../models/UserModel');
+
+/**** Global Constants ****/
+const assetTypes = ['clip', 'actor', 'foreground', 'background', 'cache'];
 const saltRounds = 10;
 
 /**** Request/Response Objects ****/
@@ -89,6 +92,8 @@ function fileMultipleReplace(file, replacements) {
 }
 
 module.exports = {
+    assetTypes,
+    saltRounds,
     success,
     failure,
     multipleReplace,
@@ -97,6 +102,5 @@ module.exports = {
     simTmpDir,
     simTmpZipPath,
     fileMultipleReplace,
-    saltRounds,
     verifyPassword
 };
