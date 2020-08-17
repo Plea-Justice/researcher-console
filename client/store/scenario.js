@@ -101,11 +101,16 @@ export const actions = {
       frame: { id, size: 0, label: '', scenes }
     });
   },
-  removeFrame({ commit }, frameId) {
-    // If last frame reset all scenes
-    // if (state.frameList.length === 1) state.frames[frameId].scenes.forEach(id => commit('setScene'));
-
-    commit('deleteFrame', { frameId });
+  removeFrame({ commit, state }, id) {
+    if (state.frameList.length <= 1) {
+      // If last frame simply replace scenes with empty scenes
+      const frame = state.frames[id];
+      frame.scenes.forEach(sceneId => commit('setScene', { id: sceneId, scene: { id: sceneId, props: null } }));
+      commit('updateSceneCount', { modifier: -frame.size, frameId: id });
+    } else {
+      // Otherwise delete frame & it's scenes
+      commit('deleteFrame', id);
+    }
   },
   moveFrameDown({ commit }, frameId) {
     // Frame stack goes from 0 down incrementally, so add 1 to move down
@@ -120,11 +125,26 @@ export const actions = {
   },
 
   // **** Scene Actions ****
-  addScene({ commit }, sceneId) {
-    commit('newScene', { sceneId });
+  addScene({ commit, state, getters }, id) {
+    const frameId = state.frameList[getters.frameSet.findIndex(({ scenes }) => scenes.includes(id))];
+    const frame = state.frames[frameId];
+    const prevSceneIdx = frame.scenes.indexOf(id) - 1;
+    const prevSceneProps = prevSceneIdx >= 0 ? { ...state.scenes[frame.scenes[prevSceneIdx]].props } : null;
+
+    // FIXME: make this static?
+    // If prev scene has props use those, otherwise create default props list
+    const newSceneProps = prevSceneProps || {
+      ...Object.fromEntries(Object.keys(spec.scene).map(key => [key, ''])),
+      type: Object.keys(spec.sceneTypes)[1]
+    };
+
+    commit('setScene', { id, scene: { id, props: newSceneProps } });
+    commit('updateSceneCount', { modifier: 1, frameId });
   },
-  removeScene({ commit }, sceneId) {
-    commit('deleteScene', { sceneId });
+  removeScene({ commit, state, getters }, id) {
+    commit('setScene', { id, scene: { id, props: null } });
+    const frameId = state.frameList[getters.frameSet.findIndex(({ scenes }) => scenes.includes(id))];
+    commit('updateSceneCount', { modifier: -1, frameId });
   },
   updateScene({ commit }, { id, props, valid }) {
     commit('setSceneProps', { id, props: { ...props }, valid });
@@ -132,11 +152,26 @@ export const actions = {
   copyScenes({ commit, state }, [parentId, ...childIds]) {
     childIds.forEach(id => commit('setScene', { id, scene: { ...state.scenes[parentId], id } }));
   },
-  bindScenes({ commit }, idList) {
-    commit('bindScene', { fromId: idList[0], toId: idList[1] });
+  bindScenes({ commit, state }, [parentId, ...childIds]) {
+    const parent = state.scenes[parentId];
+    // TODO: Update key directly?
+    // Update parent's bound reference counter
+    commit('setScene', { id: parent.id, scene: { ...parent, bound: parent.bound ? parent.bound + 1 : 0 } });
+
+    // Update children to reference parentId
+    childIds.forEach(id => commit('setScene', { id, scene: { id, props: parent.id } }));
   },
-  unbindScene({ commit }, { id, props }) {
-    commit('unbindScene', { fromId: id, toId: props });
+  unbindScene({ commit, state }, { id, props }) {
+    const childId = id;
+    const parentId = props;
+    const parent = state.scenes[parentId];
+
+    // FIXME: be careful with validity, since goal is to update props might be better to use updateSceneProps?
+    // Update children with parent's props
+    commit('setScene', { id: childId, scene: { id: childId, props: { ...parent.props } } });
+
+    // Update parent's bound reference counter
+    commit('setScene', { id: parentId, scene: { ...parent, bound: parent.bound - 1 } });
   },
   swapScene({ commit, state }, [id1, id2]) {
     // Splice frame instead?
@@ -162,6 +197,11 @@ export const mutations = {
     Object.keys(state.meta).forEach(key => {
       if (payload.meta[key]) Vue.set(state.meta, key, payload.meta[key]);
     });
+  },
+  updateSceneCount(state, { modifier, frameId }) {
+    state.numScenes += modifier;
+    const frame = state.frames[frameId];
+    Vue.set(state.frames, frameId, { ...frame, size: (frame.size += modifier) });
   },
 
   // **** Condition Mutations ****
@@ -202,7 +242,7 @@ export const mutations = {
         if (state.scenes[removedSceneId].props !== null) {
           const currFrame = state.frames[frameId];
           Vue.set(state.frames, frameId, { ...currFrame, size: currFrame.size - 1 });
-          state.numScene -= 1;
+          state.numScenes -= 1;
         }
         // Remove scene from scenes
         Vue.delete(state.scenes, removedSceneId);
@@ -219,69 +259,31 @@ export const mutations = {
     Vue.set(state.frames, id, frame);
     state.frameList.splice(index, 0, id);
   },
-  deleteFrame(state, payload) {
-    const frame = state.frames[payload.frameId];
-    const sceneLength = frame.scenes.length;
+  deleteFrame(state, { id }) {
+    const frame = state.frames[id];
 
-    // If last frame just replace scenes with empty scenes
-    if (state.frameList.length <= 1) {
-      frame.scenes.forEach(sceneId => Vue.set(state.scenes, sceneId, { id: sceneId, props: null }));
+    // Remove scenes in frame
+    state.frames[id].scenes.forEach(sceneId => Vue.delete(state.scenes, sceneId));
 
-      // Update Frame data
-      Vue.set(state.frames, payload.frameId, { ...frame, size: 0 });
-    } else {
-      // Remove scenes in frame
-      state.frames[payload.frameId].scenes.forEach(sceneId => Vue.delete(state.scenes, sceneId));
-
-      // Remove frame
-      state.frameList.splice(state.frameList.indexOf(payload.frameId), 1);
-      Vue.delete(state.frames, payload.frameId);
-    }
+    // Remove frame
+    state.frameList.splice(state.frameList.indexOf(id), 1);
+    Vue.delete(state.frames, id);
 
     // Update scene count
-    state.numScenes -= sceneLength;
+    state.numScenes -= frame.size;
   },
   updateFrame(state, { id, key, value }) {
     Vue.set(state.frames[id], key, value);
   },
-  moveFrame(state, payload) {
-    const fromIndex = state.frameList.indexOf(payload.frameId);
-    const toIndex = fromIndex + payload.modifier;
+  moveFrame(state, { id, modifier }) {
+    const fromIndex = state.frameList.indexOf(id);
+    const toIndex = fromIndex + modifier;
 
     // Swap 2 frames using splice
-    state.frameList.splice(fromIndex, 1, state.frameList.splice(toIndex, 1, payload.frameId)[0]);
+    state.frameList.splice(fromIndex, 1, state.frameList.splice(toIndex, 1, id)[0]);
   },
 
   // **** Scene Mutations ****
-  newScene(state, payload) {
-    const currFrame =
-      state.frames[state.frameList[state.frameList.findIndex(id => state.frames[id].scenes.includes(payload.sceneId))]];
-    const prevSceneIdx = currFrame.scenes.indexOf(payload.sceneId) - 1;
-    const prevSceneProps =
-      prevSceneIdx >= 0 ? Object.assign({}, state.scenes[currFrame.scenes[prevSceneIdx]].props) : null;
-
-    // FIXME: make this static or something?
-    // If prev scene has props use those, otherwise create default props list
-    const newSceneProps = prevSceneProps || {
-      ...Object.fromEntries(Object.keys(spec.scene).map(key => [key, ''])),
-      type: Object.keys(spec.sceneTypes)[1]
-    };
-
-    Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: newSceneProps });
-    // TODO: Can you reactively update a key instead of replacing everything else?
-    Vue.set(state.frames, currFrame.id, { ...currFrame, size: currFrame.size + 1 });
-    state.numScenes += 1;
-  },
-  deleteScene(state, payload) {
-    Vue.set(state.scenes, payload.sceneId, { id: payload.sceneId, props: null });
-
-    // Update frame if necessary
-    const currFrame =
-      state.frames[state.frameList[state.frameList.findIndex(id => state.frames[id].scenes.includes(payload.sceneId))]];
-
-    Vue.set(state.frames, currFrame.id, { ...currFrame, size: currFrame.size - 1 });
-    state.numScenes -= 1;
-  },
   setScene(state, { id, scene }) {
     Vue.set(state.scenes, id, scene);
   },
@@ -301,20 +303,5 @@ export const mutations = {
     // Update scene
     Vue.set(state.scenes, id, { ...state.scenes[id], props });
     Vue.set(state.status, 'dirty', state.status.dirty - 1);
-  },
-  bindScene(state, payload) {
-    const parent = state.scenes[payload.fromId];
-    const child = state.scenes[payload.toId];
-    // Setup the parent being bound to, set parents reference counter
-    const bound = parent.bound ? parent.bound + 1 : 0;
-    // FIXME: either fix reference or use setScene
-    Vue.set(state.scenes, payload.fromId, { ...state.scenes[payload.fromId], bound });
-    // Set the child binding
-    Vue.set(state.scenes, payload.toId, { id: child.id, props: parent.id });
-  },
-  unbindScene(state, payload) {
-    // FIXME: move logic to actions make one addScene func
-    const parentProps = { ...state.scenes[payload.toId].props };
-    Vue.set(state.scenes, payload.fromId, { id: payload.fromId, props: parentProps });
   }
 };

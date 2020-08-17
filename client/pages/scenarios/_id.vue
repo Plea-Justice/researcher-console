@@ -3,14 +3,13 @@
     <template ref="header">
       <ToolBar ref="toolbar" class="horizontal-sticky">
         <template v-slot:start>
-          <p>{{ numScenes }}</p>
+          <p class="level-item">Scenes: {{ numScenes }}</p>
           <div class="level-item buttons">
             <ToolBarButton
               @click="saveHelper()"
               :value="mode"
               :loading="saving"
               type="is-primary"
-              icon-left="save"
             >Save</ToolBarButton>
 
             <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="cog">Options</ToolBarButton>

@@ -1,7 +1,7 @@
 <template>
   <div class="frame-wrapper-column">
     <div class="frame-wrapper-row">
-      <p class="frame-index">{{ frameIndex }}</p>
+      <p class="frame-index">{{ frameIndex + 1 }}</p>
 
       <div class="frame box">
         <!-- Sidebar -->
@@ -50,6 +50,8 @@
                 placeholder="Scenes Label (Optional)"
                 expanded
               />
+
+              <p>{{ frame.size }}</p>
             </form-group>
             <div v-if="frame.size > 1" class="frame-header-item">
               <b-tooltip
