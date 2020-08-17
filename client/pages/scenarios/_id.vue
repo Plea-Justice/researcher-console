@@ -3,6 +3,7 @@
     <template ref="header">
       <ToolBar ref="toolbar" class="horizontal-sticky">
         <template v-slot:start>
+          <p>{{ numScenes }}</p>
           <div class="level-item buttons">
             <ToolBarButton
               @click="saveHelper()"
@@ -85,6 +86,8 @@
       </div>
     </template>
 
+    <p>{{ conditionSet }}</p>
+
     <section ref="frames" class="padded-responsive-container responsive-center">
       <!-- Frames -->
       <SceneFrame
@@ -109,6 +112,7 @@ import { mapGetters, mapActions } from "vuex";
 // Import Bus
 import { EventBus, Event } from "~/bus/eventbus";
 
+// Import Components
 import ScenarioLayout from "~/components/layouts/ScenarioLayout";
 import NavBar from "~/components/NavBar";
 import ToolBar from "~/components/ToolBar";
@@ -242,6 +246,7 @@ export default {
       sceneErrors: "scenario/errors",
       numConditions: "scenario/numConditions",
       numScenes: "scenario/numScenes",
+      conditionSet: "scenario/conditionSet",
       frameSet: "scenario/frameSet"
     }),
     titleBarStyle() {

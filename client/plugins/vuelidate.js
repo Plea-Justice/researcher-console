@@ -3,7 +3,7 @@ import Vue from 'vue';
 import vuelidate from 'vuelidate';
 import vuelidateErrorExtractor, { templates } from 'vuelidate-error-extractor';
 
-import customFormGroup from '~/components/form/formGroup';
+import customFormGroup from '~/components/form/FormGroup';
 
 Vue.use(vuelidate);
 Vue.use(vuelidateErrorExtractor, {

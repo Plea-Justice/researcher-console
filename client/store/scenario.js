@@ -16,6 +16,8 @@ const initialState = () => ({
     description: '',
     survey: ''
   },
+  conditions: {},
+  conditionList: [],
   frames: {},
   frameList: [],
   scenes: {},
@@ -31,6 +33,7 @@ export const state = () => initialState();
 
 export const getters = {
   scenarioMeta: state => ({ id: state.id, ...state.meta }),
+  conditionSet: state => state.conditionList.map(id => state.conditions[id]),
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
   numConditions: state => (state.frameList.length ? state.frames[state.frameList[0]].scenes.length : 0),
@@ -64,8 +67,12 @@ export const actions = {
   addCondition({ commit }) {
     commit('newCondition');
   },
-  removeCondition({ commit }, index) {
-    commit('deleteCondition', { index });
+  removeCondition({ commit, dispatch, state }, id) {
+    const isLast = state.frames[state.frameList[0]].scenes.length <= 1;
+    const index = state.conditionList.indexOf(id);
+    commit('deleteCondition', { index, isLast });
+
+    if (state.frameList.length === 0) dispatch('addFrame');
   },
   async copyConditions({ dispatch, getters }, indexList) {
     // FIXME: async this
@@ -159,44 +166,38 @@ export const mutations = {
 
   // **** Condition Mutations ****
   newCondition(state) {
+    const id = nanoid();
+    Vue.set(state.conditions, id, { tags: ['new'] });
+    state.conditionList.push(id);
+
     // Copy last condition into new condition
-    const numFrames = state.frameList.length;
-    for (let i = 0; i < numFrames; i++) {
-      const id = nanoid();
-      const currFrame = state.frames[state.frameList[i]];
+    state.frameList.forEach(frameId => {
+      const currFrame = state.frames[frameId];
       const lastScene = state.scenes[currFrame.scenes[currFrame.scenes.length - 1]];
 
-      Vue.set(state.scenes, id, { ...lastScene, ...{ id } });
+      const sceneId = nanoid();
+      Vue.set(state.scenes, sceneId, { ...lastScene, id: sceneId });
       // FIXME: fix these being direct mutations?
-      currFrame.scenes.push(id);
+      currFrame.scenes.push(sceneId);
+
       if (lastScene.props !== null) {
         Vue.set(currFrame, 'size', currFrame.size + 1);
         state.numScenes += 1;
       }
-    }
+    });
   },
-  deleteCondition(state, payload) {
-    const numConditions = state.frames[state.frameList[0]].scenes.length;
-
-    if (numConditions <= 1) {
-      // If last Condition replace everything with a blank scene
-
-      // Reset all frames and scenes
+  deleteCondition(state, { index, id, isLast }) {
+    if (isLast) {
+      // If last Condition reset all frames and scenes
       state.frameList = [];
       state.frames = {};
       state.scenes = {};
-      // Add blank scene
-      const sceneId = nanoid();
-      Vue.set(state.scenes, sceneId, { id: sceneId, props: null });
-      // Create new frame holding only new blank scene
-      const frameId = nanoid();
-      Vue.set(state.frames, frameId, { id: frameId, size: 0, scenes: [sceneId] });
-      state.frameList.push(frameId);
+      state.numScenes = 0;
     } else {
       state.frameList.forEach(frameId => {
         // Remove that conditions scene's from each frame
         // FIXME: fix this being a direct mutation?
-        const removedSceneId = state.frames[frameId].scenes.splice(payload.index, 1);
+        const removedSceneId = state.frames[frameId].scenes.splice(index, 1);
         // Adjust frame size
         if (state.scenes[removedSceneId].props !== null) {
           const currFrame = state.frames[frameId];
@@ -207,6 +208,9 @@ export const mutations = {
         Vue.delete(state.scenes, removedSceneId);
       });
     }
+
+    state.conditionList.splice(index, 1);
+    Vue.delete(state.conditions, id);
   },
 
   // **** Frame Mutations ****

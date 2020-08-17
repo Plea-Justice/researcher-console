@@ -42,25 +42,24 @@
 
         <div class="frame-content">
           <div class="frame-header">
-            <form-group :validator="$v.label" grouped>
-              <p class="control">
-                <b-tooltip
-                  :label="uniqueScenes > 1 ? `${uniqueScenes} Unique Scenes` : 'Same Across Conditions'"
-                  position="is-bottom"
-                  animated
-                >
-                  <b-button :class="{ 'is-info': uniqueScenes > 1 }" disabled>{{uniqueScenes}}</b-button>
-                </b-tooltip>
-              </p>
-
+            <form-group class="frame-header-item" :validator="$v.label" grouped>
               <b-input
                 ref="focus_target"
                 :value="label"
                 @input="setLabel($event)"
-                placeholder="Frame Label (Optional)"
+                placeholder="Scenes Label (Optional)"
                 expanded
               />
             </form-group>
+            <div v-if="frame.size > 1" class="frame-header-item">
+              <b-tooltip
+                :label="uniqueScenes > 1 ? `${uniqueScenes} Unique Scenes` : 'Same Across Conditions'"
+                position="is-bottom"
+                animated
+              >
+                <b-button :class="{ 'is-info': uniqueScenes > 1 }" disabled>{{uniqueScenes}}</b-button>
+              </b-tooltip>
+            </div>
           </div>
           <div class="frame-scenes">
             <div v-for="(scene, index) in sceneSet" :key="scene.id" class="scene">
@@ -274,7 +273,17 @@ export default {
 }
 
 .frame-header {
+  display: flex;
+  flex-direction: row;
   margin-bottom: 1.25rem;
+
+  // Everything except last child & > :not(:last-child)
+  & > :nth-last-child(n + 2) {
+    margin-right: $frameSceneGap;
+  }
+}
+
+.frame-header-item {
   width: $sceneWidth;
 }
 
