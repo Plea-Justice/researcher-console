@@ -17,7 +17,7 @@ module.exports = function (options) {
 
     const ScenarioModel = require('../../models/ScenarioModel');
 
-    const assetTypes = ['clip', 'actor', 'foreground', 'background'];
+    const assetTypes = util.assetTypes;
 
     /**
      * Generate simulation.
@@ -41,6 +41,7 @@ module.exports = function (options) {
 
             // TODO: Send error on no frames or scenes.
             let conditions = new Array(frames[frameList[0]].scenes.length).fill(0).map(() => new Array());
+            let conditionDescr = new Array(frames[frameList[0]].scenes.length).fill(0).map(() => new Array());
 
             for (const frameID of frameList) {
                 let frame = frames[frameID];
@@ -70,7 +71,7 @@ module.exports = function (options) {
                         conditions[i].push(
                             {
                                 'type': 'dialogue',
-                                'name': scene.name,
+                                'name': frame.label,
                                 'script': scene.script,
                                 'actor': scene.actor,
                                 'bg': scene.background,
@@ -85,7 +86,7 @@ module.exports = function (options) {
                         conditions[i].push(
                             {
                                 'type': 'dialogue',
-                                'name': scene.name,
+                                'name': frame.label,
                                 'script': scene.script,
                                 'actor': scene.actor,
                                 'bg': scene.background,
@@ -101,7 +102,7 @@ module.exports = function (options) {
                         conditions[i].push(
                             {
                                 'type': 'clip',
-                                'name': scene.name,
+                                'name': frame.label,
                                 'clip': scene.clip
                             }
                         );

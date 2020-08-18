@@ -5,9 +5,11 @@
 module.exports = function (options) {
     const express = require('express');
     var router = express.Router();
-
+    
+    const fs = require('fs-extra');
+    const path = require('path');
+    const bcrypt = require('bcrypt');
     const util = require('../../common/util');
-    const { getUserSessionCount } = require('../../middleware/userSessionCount');
 
     // Limit authentication request rate.
     const rateLimit = require('express-rate-limit');
@@ -28,11 +30,10 @@ module.exports = function (options) {
     // Login, logout, and register should not require prior authentication.
     // Fetch user should require authentication.
     const { authenticatedRoute } = require('../../middleware/authenticateRoutes');
-
-    // Use bcrypt to hash passwords with cost factor 10.
-    const bcrypt = require('bcrypt');
+    const { getUserSessionCount } = require('../../middleware/userSessionCount');
 
     const UserModel = require('../../models/UserModel');
+    const assetTypes = util.assetTypes;
 
     /**
      * Authentication route index. Displays help message referring to docs.
@@ -107,7 +108,7 @@ module.exports = function (options) {
      * Register a new user with the specified credentials.
      * @param {username: String, password: String}
      */
-    router.post('/register', CreateAccountReqLimit, (req, res) => {
+    router.post('/register', CreateAccountReqLimit, async (req, res) => {
         console.log('Registering new user.');
 
         let user = new UserModel({
@@ -117,12 +118,19 @@ module.exports = function (options) {
             email: req.body.email,
             password: bcrypt.hashSync(req.body.password, util.saltRounds)
         });
-        user.save((err) => {
-            if (err)
-                res.status(500).json(util.failure('There was an error registering the requested user.', err));
-            else
-                res.status(201).json(util.success('User account created. You may now login.'));
-        });
+        try {
+            const obj = await user.save();
+            const user_data_dir = util.userDir(options, obj._id.toString());
+            assetTypes.forEach(type => fs.mkdirpSync(path.join(user_data_dir, type)));
+
+            if (options.config.assets_template) {
+                fs.copySync(path.join(options.config.assets_dir), user_data_dir);
+            }
+
+            res.status(201).json(util.success('User account created. You may now login.'));
+        } catch (err) {
+            res.status(500).json(util.failure('There was an error registering the requested user.', err));
+        }
     });
 
     return router;
