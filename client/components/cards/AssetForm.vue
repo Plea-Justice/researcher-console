@@ -32,21 +32,34 @@
                 <span v-if="!assetForm.file">Click to upload</span>
               </b-button>
             </b-upload>
-            <span class="file-name" v-if="assetForm.file">{{ assetForm.file.name }}</span>
-            <HelpSidebar :text="assetsHelp.upload" title="Asset Uploads" class="control" />
+            <span class="file-name" v-if="assetForm.file">
+              {{ assetForm.file.name }}
+            </span>
+            <HelpSidebar
+              :text="assetsHelp.upload"
+              title="Asset Uploads"
+              class="control"
+            />
           </b-field>
         </b-field>
 
         <b-field label="Asset Type">
           <b-field>
-            <b-select placeholder="Select a type" v-model="assetForm.type" expanded required>
+            <b-select
+              placeholder="Select a type"
+              v-model="assetForm.type"
+              expanded
+              required
+            >
               <option v-for="type in types" :key="type" :value="type">
-                {{
-                type | capitalize
-                }}
+                {{ type | capitalize }}
               </option>
             </b-select>
-            <HelpSidebar :text="assetsHelp.type" title="Asset Types" class="control" />
+            <HelpSidebar
+              :text="assetsHelp.type"
+              title="Asset Types"
+              class="control"
+            />
           </b-field>
         </b-field>
       </div>
