@@ -109,16 +109,16 @@ export const actions = {
       commit('updateSceneCount', { modifier: -frame.size, frameId: id });
     } else {
       // Otherwise delete frame & it's scenes
-      commit('deleteFrame', id);
+      commit('deleteFrame', { id });
     }
   },
-  moveFrameDown({ commit }, frameId) {
+  moveFrameDown({ commit }, id) {
     // Frame stack goes from 0 down incrementally, so add 1 to move down
-    commit('moveFrame', { frameId, modifier: 1 });
+    commit('moveFrame', { id, modifier: 1 });
   },
-  moveFrameUp({ commit }, frameId) {
+  moveFrameUp({ commit }, id) {
     // Frame stack goes from 0 down incrementally, so add -1 to move up
-    commit('moveFrame', { frameId, modifier: -1 });
+    commit('moveFrame', { id, modifier: -1 });
   },
   setFrameLabel({ commit }, { id, value }) {
     commit('updateFrame', { id, key: 'label', value });
@@ -129,7 +129,13 @@ export const actions = {
     const frameId = state.frameList[getters.frameSet.findIndex(({ scenes }) => scenes.includes(id))];
     const frame = state.frames[frameId];
     const prevSceneIdx = frame.scenes.indexOf(id) - 1;
-    const prevSceneProps = prevSceneIdx >= 0 ? { ...state.scenes[frame.scenes[prevSceneIdx]].props } : null;
+    const prevScene = prevSceneIdx >= 0 ? state.scenes[frame.scenes[prevSceneIdx]] : null;
+    const prevSceneProps =
+      prevScene.props !== null
+        ? (typeof prevScene.props === 'string' && prevScene.props) || {
+            ...state.scenes[frame.scenes[prevSceneIdx]].props
+          }
+        : null;
 
     // FIXME: make this static?
     // If prev scene has props use those, otherwise create default props list
@@ -265,12 +271,12 @@ export const mutations = {
     // Remove scenes in frame
     state.frames[id].scenes.forEach(sceneId => Vue.delete(state.scenes, sceneId));
 
+    // Update scene count
+    state.numScenes -= frame.size;
+
     // Remove frame
     state.frameList.splice(state.frameList.indexOf(id), 1);
     Vue.delete(state.frames, id);
-
-    // Update scene count
-    state.numScenes -= frame.size;
   },
   updateFrame(state, { id, key, value }) {
     Vue.set(state.frames[id], key, value);
@@ -281,6 +287,7 @@ export const mutations = {
 
     // Swap 2 frames using splice
     state.frameList.splice(fromIndex, 1, state.frameList.splice(toIndex, 1, id)[0]);
+    console.log(state.frameList.map(frameId => state.frames[frameId]));
   },
 
   // **** Scene Mutations ****

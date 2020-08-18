@@ -11,7 +11,9 @@
       <template v-if="item">
         <!-- If header is in default mode print name w or w/o link -->
         <h1 class="subtitle">
-          <n-link v-if="link" :to="item.id" class="link-animate" append>{{ item.name }}</n-link>
+          <n-link v-if="link" :to="item.id" class="link-animate" append>{{
+            item.name
+          }}</n-link>
           <template v-else>{{ item.name }}</template>
         </h1>
       </template>
@@ -24,11 +26,12 @@
     <template v-slot:footer>
       <b-button
         v-if="save"
-        class="is-fullwidth clear-button-margin"
+        class="clear-button-margin"
         type="is-primary"
         tag="input"
         native-type="submit"
         value="Save"
+        expanded
       />
       <b-button v-else @click="$emit('edit', item.id)" icon-left="pencil-alt" />
     </template>

@@ -3,7 +3,7 @@
   <form ref="form" class="flex-wrap">
     <div v-if="selectable && $v.form.$invalid" class="invalid-selection-mask" />
     <GenericCard
-      @remove="removeScene(scene.id)"
+      @remove="removeScene(isBound ? bound : scene.id)"
       @selected="$emit('selected', scene.id)"
       :selectable="selectable && !$v.form.$invalid"
       :collapsed="collapsed"
@@ -13,7 +13,7 @@
     >
       <template v-slot:default>
         <!-- Scene Type Toggle -->
-        <b-field style="justify-content: center" class="is-capitalized">
+        <b-field class="is-capitalized field-centered">
           <b-radio-button
             v-for="type in validSceneTypes"
             :key="type"
@@ -256,6 +256,15 @@ export default {
   }
 };
 </script>
+
+<!-- Global Style -->
+<style lang="scss">
+.field-centered {
+  & > .field-body > .field {
+    justify-content: center;
+  }
+}
+</style>
 
 <style lang="scss" scoped>
 .flex-wrap {
