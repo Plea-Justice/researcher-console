@@ -36,6 +36,10 @@ module.exports = {
 
     // Data directory for uploaded assets and user files.
     data_dir: './data/',
+    
+    // Whether to copy a template to each user's data directory.
+    assets_template: true,
+    assets_dir: './data/template/',
 
     // Maximum upload size in MiB.
     max_upload_mb: 20,
