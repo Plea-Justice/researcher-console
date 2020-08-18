@@ -31,7 +31,7 @@ export const actions = {
     if (response.success) commit('deleteScenario', { id });
   },
   async editScenario({ commit }, scenario) {
-    const response = await this.$axios.$put(`/api/v1/scenarios/${scenario.id}`, scenario);
+    const response = await this.$axios.$put(`/api/v1/scenarios/${scenario.id}`, { meta: scenario });
     if (response.success) commit('updateScenario', scenario);
   },
   async duplicateScenario({ commit, state, getters }, id) {

@@ -10,10 +10,12 @@ module.exports = function (options) {
     var router = express.Router();
 
     const util = require('../../common/util');
+    const { publish }  = require('../../common/publish');
     const { fork } = require('child_process');
 
     const fs = require('fs-extra');
     const path = require('path');
+    const os = require('os');
     const fileupload = require('express-fileupload');
     const sanitize = require('sanitize-filename');
 
@@ -34,8 +36,8 @@ module.exports = function (options) {
             ));
         },
         createParentPath: true,
-        // useTempFiles: true,
-        // tempFileDir: '/tmp'
+        useTempFiles: true,
+        tempFileDir: os.tmpdir()
     }));
 
     /**
@@ -75,8 +77,8 @@ module.exports = function (options) {
      * @param upload FormData object.
      * @return Filename
      */
-    router.post('/', (req, res) => {
-        let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
+    router.post('/', async (req, res) => {
+        let user_data_dir = util.userDir(options, req.session.user_id);
 
         if (options.config.noclobber) {
             res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
@@ -90,11 +92,11 @@ module.exports = function (options) {
                 `Asset type does not match one of ${assetTypes}.`,
                 req.body.type
             ));
-        else if ((req.body.type === 'clip' || req.body.type === 'actor') && 
+        else if (req.body.type.match(/clip|actor/) && 
             path.extname(req.files.file.name) !== '.js')
             res.status(400).json(util.failure('Clips and assets must have a JavaScript file extension.'));
-        else if ((req.body.type === 'foreground' || req.body.type === 'background') && 
-            (path.extname(req.files.file.name) !== '.png' && path.extname(req.files.file.name) !== '.jpg'))
+        else if (req.body.type.match(/foreground|background|cache/) && 
+            (!path.extname(req.files.file.name).match(/.*\.(png|bmp|jpg|jpeg)$/)))
             res.status(400).json(util.failure(
                 'Foreground and background images must have a PNG or JPEG file extension.', 
                 null
@@ -105,24 +107,31 @@ module.exports = function (options) {
                 ? req.body.name + path.extname(req.files.file.name)
                 : req.files.file.name;
             */
-            let name = req.files.file.name;
- 
-            let filepath = path.join(req.body.type, sanitize(name).replace(/[\s,;]+/g, '_'));
-            if (fs.pathExistsSync(path.join(user_data_dir, filepath))) {
+            let name = sanitize(req.files.file.name).replace(/[\s,;]+/g, '_');
+            let filepath = path.join(user_data_dir, req.body.type, name);
+
+            if (fs.pathExistsSync(filepath)) {
                 res.status(400).json(util.failure('An asset with the specified name already exists.'));
                 return;
             }
-            req.files.file.mv(path.join(user_data_dir, filepath), (err)=>{
-                if (err)
-                    res.status(500).json(util.failure('Error adding file to user data directory.', err));
-                else res.status(200).json(util.success('Asset uploaded.', btoa(filepath)));
-            });
 
-            // Generate a thumbnail for the asset in the background.
-            fork('common/thumbnail', [
-                path.resolve(path.join(user_data_dir, filepath)),
-                path.resolve(path.join(user_data_dir, 'thumbnails', `${btoa(filepath)}.jpg`))
-            ]);
+            try {
+                await req.files.file.mv(filepath);
+                publish(filepath);
+
+                // Generate a thumbnail for the asset in the background.
+                fork('common/thumbnail', [
+                    path.resolve(path.join(user_data_dir, filepath)),
+                    path.resolve(path.join(user_data_dir, 'thumbnails', `${btoa(filepath)}.jpg`))
+                ]);
+
+                res.status(200).json(util.success('Asset uploaded.', btoa(filepath)));
+            } catch (err) {
+                if (fs.pathExistsSync(filepath))
+                    fs.removeSync(filepath);
+
+                res.status(500).json(util.failure('Error uploading the asset. Delete the asset and try again.', err));
+            }
         }
     });
 
