@@ -430,8 +430,6 @@ export default {
         this.select = selectedType;
         this.selectParent = this.findScene(this.selectionList[0]);
 
-        console.log(this.selectParent);
-
         this.snackbar.message = `Select ${this.selectNames[selectedType]} to ${
           this.modeNames[this.mode]
         } to`;
@@ -473,7 +471,6 @@ export default {
         // FIXME: have scene sizes reference a variable
         left: scrollElement.scrollLeft - (350 + 20)
       });
-      console.log(scrollElement.scrollLeft);
       this.removeCondition(index);
     },
     openScenarioProps() {

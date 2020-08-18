@@ -167,7 +167,6 @@ export default {
         // Reset inputs
         this.loginForm = Object.assign({}, this.LoginForm);
 
-        console.log(response.data.message);
         this.$buefy.toast.open({
           message: response.data.message,
           type: "is-success"
