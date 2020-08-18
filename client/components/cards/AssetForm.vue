@@ -16,7 +16,6 @@
       <!-- FIXME: required doesn't work currently -->
       <div class="input-wrapper">
         <b-field label="File Upload">
-<<<<<<< HEAD
           <b-field class="file fix-field-max-width">
             <b-upload
               v-model="assetForm.file"
@@ -32,15 +31,6 @@
               >
                 <span v-if="!assetForm.file">Click to upload</span>
               </b-button>
-=======
-          <b-field>
-            <!-- FIXME: Required upload is problematic. -->
-            <b-upload v-model="assetForm.file" accept=".js, .jpg, .png" native>
-              <a class="button is-light">
-                <b-icon size="is-small" icon="cloud-upload-alt" />
-                <span>{{ assetForm.file.name || "Click to upload" }}</span>
-              </a>
->>>>>>> 941d4e6328b4b5034274564d6810867e2ca1806f
             </b-upload>
             <span class="file-name" v-if="assetForm.file">
               {{ assetForm.file.name }}
