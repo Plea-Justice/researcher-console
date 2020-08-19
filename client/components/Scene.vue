@@ -20,7 +20,8 @@
             v-model="$v.form.type.$model"
             :native-value="type"
             :disabled="isBound"
-          >{{ type }}</b-radio-button>
+            >{{ type }}</b-radio-button
+          >
         </b-field>
 
         <!-- options props needs a preloaded value because .includes in AssetNamesByType will return false positive while loading -->
@@ -75,7 +76,10 @@
       </template>
 
       <template v-slot:footer v-if="isBound">
-        <b-button @click="unbindScene({ id: bound, props: scene.id })" icon-left="unlink" />
+        <b-button
+          @click="unbindScene({ id: bound, props: scene.id })"
+          icon-left="unlink"
+        />
       </template>
     </GenericCard>
   </form>

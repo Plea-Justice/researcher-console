@@ -23,25 +23,26 @@ module.exports = function (options) {
      * Generate simulation.
      */
     router.post('/generate', async (req, res)=>{
-        let id = req.params.scenario_id;
-        let uid = req.session.user_id;
-        let tmpdir = util.simTmpDir(options, id);
-        let user_data_dir = util.userDir(options, uid);
+        const id = req.params.scenario_id;
+        const uid = req.session.user_id;
+        const tmpdir = util.simTmpDir(options, id);
+        const user_data_dir = util.userDir(options, uid);
 
         try {
-            let scenario = await ScenarioModel.findOne({_id: id, user_id: uid});
+            const scenario = await ScenarioModel.findOne({_id: id, user_id: uid});
 
-            let scenes = scenario.scenes;
-            let frames = scenario.frames;
-            let frameList = scenario.frameList;
+            const scenes = scenario.scenes;
+            const frames = scenario.frames;
+            const frameList = scenario.frameList;
+            const conditions = scenario.conditions;
+            const conditionList = scenario.conditionList;
 
             // Requested assets by type.
             const requested = new Map();
             assetTypes.forEach(type => requested[type] = new Set());
 
             // TODO: Send error on no frames or scenes.
-            let conditions = new Array(frames[frameList[0]].scenes.length).fill(0).map(() => new Array());
-            let conditionDescr = new Array(frames[frameList[0]].scenes.length).fill(0).map(() => new Array());
+            let timelines = new Array(frames[frameList[0]].scenes.length).fill(0).map(() => new Array());
 
             for (const frameID of frameList) {
                 let frame = frames[frameID];
@@ -68,7 +69,7 @@ module.exports = function (options) {
 
                     switch (scene.type) {
                     case 'dialogue':
-                        conditions[i].push(
+                        timelines[i].push(
                             {
                                 'type': 'dialogue',
                                 'name': frame.label,
@@ -83,7 +84,7 @@ module.exports = function (options) {
                         if (scene.background) requested['background'].add(scene.background);
                         break;
                     case 'question':
-                        conditions[i].push(
+                        timelines[i].push(
                             {
                                 'type': 'dialogue',
                                 'name': frame.label,
@@ -99,7 +100,7 @@ module.exports = function (options) {
                         if (scene.background) requested['background'].add(scene.background);
                         break;
                     case 'clip':
-                        conditions[i].push(
+                        timelines[i].push(
                             {
                                 'type': 'clip',
                                 'name': frame.label,
@@ -148,9 +149,9 @@ module.exports = function (options) {
                 'path': 'assets/',
                 // FIXME: Generate list of files.
                 'manifest': Array.from(files),
-                // 'conditions' array used by simulation to render each in order.
-                'conditions': conditions.map((scene_list, i) => ({
-                    'name': `Experimental Condition ${i+1}/${conditions.length}`,
+                // 'timelines' array used by simulation to render each in order.
+                'timelines': timelines.map((scene_list, i) => ({
+                    'name': `Experimental Condition ${i+1}/${timelines.length}`,
                     'scenes': scene_list
                 })),
                 'survey': scenario.survey || '/no-url-set.html'
@@ -159,12 +160,12 @@ module.exports = function (options) {
             fs.writeJSONSync(path.join(tmpdir, 'manifest.json'), manifest);
 
             // Generate condition summary table.
-            let summary = conditions.reduce((acc, curr, i)=>
-                acc + `<tr><td>${i+1}</td><td>Condition ${1} description here.</td></tr>`
+            let summary = conditionList.reduce((acc, curr, i)=>
+                acc + `<tr><td>${i+1}</td><td>${conditions[curr].name}</td></tr>`
             , ''); 
 
             util.fileMultipleReplace(path.join(tmpdir, 'index.html'), [
-                [/{{\s*?n_conditions\s*?}}/g, conditions.length],
+                [/{{\s*?n_conditions\s*?}}/g, timelines.length],
                 [/{{\s*?study_name\s*?}}/g, `${scenario.name} (Preview)`],
                 [/{{\s*?condition_descriptions\s*?}}/g, summary]
             ]);
