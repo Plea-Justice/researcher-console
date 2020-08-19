@@ -55,7 +55,9 @@ module.exports = function (options) {
             numScenes: req.body.numScenes,
             scenes: req.body.scenes,
             frames: req.body.frames,
-            frameList: req.body.frameList
+            frameList: req.body.frameList,
+            conditions: req.body.conditions,
+            conditionList: req.body.conditionList
         });
 
         scenario.save((err, obj) => {
@@ -96,6 +98,8 @@ module.exports = function (options) {
                         scenes: obj.scenes,
                         frames: obj.frames,
                         frameList: obj.frameList,
+                        conditions: obj.conditions,
+                        conditionList: obj.conditionList
                     }
                 ));
         });
@@ -122,6 +126,8 @@ module.exports = function (options) {
             scenes: req.body.scenes,
             frames: req.body.frames,
             frameList: req.body.frameList,
+            conditions: req.body.conditions,
+            conditionList: req.body.conditionList,
             modified: Date.now()
         }}, {omitUndefined: true}, (err, result)=>{
             if (err)
