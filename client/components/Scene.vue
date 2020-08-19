@@ -25,6 +25,7 @@
 
         <!-- options props needs a preloaded value because .includes in AssetNamesByType will return false positive while loading -->
         <template v-for="field in validFieldNames">
+          <!-- FIXME: has 2 validators -->
           <form-group
             :key="field"
             v-if="isType(field, ['image', 'video'])"
@@ -180,7 +181,12 @@ export default {
       handler: debounce(async function() {
         this.updateScene({
           id: this.scene.id,
-          props: this.form,
+          props: Object.fromEntries(
+            [...this.validFieldNames, "type"].map(field => [
+              field,
+              this.form[field]
+            ])
+          ),
           valid: !this.$v.form.$invalid
         });
         // await this.$v.form.$reset();
@@ -190,7 +196,6 @@ export default {
     /* "$v.form.$anyDirty": function() {
       if (this.$v.form.$anyDirty) {
         debounce(async function() {
-          console.log("Running");
           await this.$v.form.$touch();
           this.updateScene({
             id: this.scene.id,
@@ -210,7 +215,7 @@ export default {
       return this.scene.props == null;
     },
     validFieldNames() {
-      return spec.sceneTypes[this.scene.props.type];
+      return spec.sceneTypes[this.form.type];
     },
     ...mapGetters({
       assetSet: "assets/assetSet"
@@ -248,10 +253,7 @@ export default {
     ...mapActions({
       removeScene: "scenario/removeScene",
       updateScene: "scenario/updateScene",
-      unbindScene: "scenario/unbindScene",
-      setSceneInvalid: "scenario/setSceneInvalid",
-      setSceneValid: "scenario/setSceneValid",
-      updateSceneForm: "scenario/updateSceneForm"
+      unbindScene: "scenario/unbindScene"
     })
   }
 };
@@ -281,9 +283,5 @@ export default {
 
 .card {
   height: 100%;
-}
-
-.header-input {
-  flex-grow: 1;
 }
 </style>

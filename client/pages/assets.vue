@@ -6,18 +6,14 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton v-model="addMode" @click="toggleAddMode()"
-          >Add</ToolBarButton
-        >
+        <ToolBarButton v-model="addMode" @click="toggleAddMode()">Add</ToolBarButton>
       </div>
     </template>
     <template v-slot:toolbar-end>
       <b-field v-if="validAssetTypes.length > 1">
         <b-select placeholder="Asset Type" v-model="selectedAssetType">
           <option value="all">All</option>
-          <option v-for="type in validAssetTypes" :key="type" :value="type">{{
-            type | capitalize
-          }}</option>
+          <option v-for="type in validAssetTypes" :key="type" :value="type">{{ type | capitalize }}</option>
         </b-select>
       </b-field>
     </template>
@@ -31,10 +27,7 @@
       :types="allAssetTypes"
     />
 
-    <p
-      v-if="!addMode && !assetSet.length"
-      class="empty-text has-text-weight-medium is-size-5"
-    >
+    <p v-if="!addMode && !assetSet.length" class="empty-text has-text-weight-medium is-size-5">
       No assets exists!
       <br />Add an asset from the toolbar to get started.
     </p>
@@ -48,20 +41,16 @@
         close
       >
         <!-- FIXME: use lazyloading for this, loading indicator -->
-        <img
-          :src="
-            `${$axios.defaults.baseURL}/api/v1/assets/${asset.id}/thumbnail`
-          "
-          width="100%"
-          loading="lazy"
-          onerror="this.src = '/defaultThumbnail.png'; this.onerror = false;"
+        <b-image
+          :src="`${$axios.defaults.baseURL}/api/v1/assets/${asset.id}/thumbnail`"
+          placeholder="/defaultThumbnail.png"
+          lazy
         />
-        <span class="content is-small"
-          >Uploaded {{ posixTimeToHoursAgo(asset.created) }}</span
-        >
-        <span style="float: right;"
-          ><b-tag type="is-primary">{{ asset.type | capitalize }}</b-tag></span
-        >
+
+        <span class="content is-small">Uploaded {{ posixTimeToHoursAgo(asset.created) }}</span>
+        <span style="float: right;">
+          <b-tag type="is-primary">{{ asset.type | capitalize }}</b-tag>
+        </span>
       </ItemCard>
     </template>
   </ItemLayout>
@@ -136,13 +125,8 @@ export default {
     }
   },
   methods: {
-    formFocus() {
-      this.$refs.form.focus();
-    },
     toggleAddMode() {
-      this.addMode
-        ? this.formFocus()
-        : (this.assetForm = Object.assign({}, this.AssetForm));
+      if (!this.addMode) this.assetForm = Object.assign({}, this.AssetForm);
     },
     closeForm() {
       this.addMode = false;

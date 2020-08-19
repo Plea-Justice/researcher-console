@@ -2,39 +2,34 @@
   <form @submit.prevent="$emit('submit')">
     <ItemCard save>
       <template v-slot:header>
-        <b-input
-          ref="focus_target"
-          v-model="assetForm.name"
-          placeholder="Name"
-          class="flex-grow"
-          required
-        />
-
         <b-button @click="$emit('close')" icon-left="times" type="is-text" />
       </template>
 
-      <!-- FIXME: required doesn't work currently -->
       <div class="input-wrapper">
         <b-field label="File Upload">
-          <b-field class="file fix-field-max-width">
+          <b-field
+            class="file is-primary fix-field-max-width"
+            :class="{ 'has-name': assetForm.file }"
+          >
             <b-upload
               v-model="assetForm.file"
-              accept=".js, .jpg, .png"
-              native
-              :expanded="!assetForm.file"
+              class="file-label"
+              required
+              expanded
             >
-              <b-button
-                tag="a"
-                icon-left="cloud-upload-alt"
-                type="is-primary"
-                :expanded="!assetForm.file"
+              <span
+                class="button file-cta"
+                :class="{ 'is-fullwidth': !assetForm.file }"
               >
-                <span v-if="!assetForm.file">Click to upload</span>
-              </b-button>
+                <b-icon class="file-icon" icon="cloud-upload-alt" />
+                <span v-if="!assetForm.file" class="file-label">
+                  Click to upload
+                </span>
+              </span>
+              <span class="file-name control" v-if="assetForm.file">
+                {{ assetForm.file.name }}
+              </span>
             </b-upload>
-            <span class="file-name" v-if="assetForm.file">
-              {{ assetForm.file.name }}
-            </span>
             <HelpSidebar
               :text="assetsHelp.upload"
               title="Asset Uploads"
@@ -91,11 +86,6 @@ export default {
     return {
       assetsHelp
     };
-  },
-  methods: {
-    focus() {
-      this.$refs.focus_target.focus();
-    }
   }
 };
 </script>
@@ -110,10 +100,13 @@ export default {
     }
   }
 }
-</style>
 
-<style lang="scss" scoped>
-.flex-grow {
-  flex-grow: 1;
+/* .file.has-name .upload {
+  z-index: 1;
+} */
+
+.file-name.control {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 </style>

@@ -6,15 +6,12 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD"
-          >Add</ToolBarButton
-        >
+        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD">Add</ToolBarButton>
         <ToolBarButton
           v-model="mode"
           :mode="Modes.DUPLICATE"
           :disabled="!scenarioSet.length"
-          >Duplicate</ToolBarButton
-        >
+        >Duplicate</ToolBarButton>
       </div>
     </template>
 
@@ -30,8 +27,8 @@
       v-if="mode === Modes.DEFAULT && !scenarioSet.length"
       class="empty-text has-text-weight-medium is-size-5"
     >
-      No scenarios exists!<br />
-      Add a scenario from the toolbar to get started.
+      No scenarios exists!
+      <br />Add a scenario from the toolbar to get started.
     </p>
     <template v-else>
       <template v-for="scenario in scenarioSet">
@@ -52,12 +49,14 @@
           @edit="setEditMode($event)"
           :selectable="mode === Modes.DUPLICATE"
           :item="scenario"
+          edit
           close
           link
         >
           <p class="content">{{ scenario.description }}</p>
           <p class="content is-small">
-            Last Modified {{ posixTimeToHoursAgo(scenario.modified) }}<br />
+            Last Modified {{ posixTimeToHoursAgo(scenario.modified) }}
+            <br />
             Created {{ posixTimeToHoursAgo(scenario.created) }}
           </p>
         </ItemCard>

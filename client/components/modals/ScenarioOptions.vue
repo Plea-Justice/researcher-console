@@ -5,38 +5,39 @@
         <p class="modal-card-title">Scenario Options</p>
       </header>
       <section class="modal-card-body">
-        <b-field label="Name">
-          <b-input v-model="scenarioForm.name" />
-        </b-field>
+        <form-group label="Name" :validator="$v.scenarioForm.name">
+          <b-input v-model="$v.scenarioForm.name.$model" maxlength="30" />
+        </form-group>
 
-        <b-field label="Description">
+        <form-group label="Description" :validator="$v.scenarioForm.description">
           <b-input
-            v-model="scenarioForm.description"
+            v-model="$v.scenarioForm.description.$model"
             type="textarea"
             customClass="has-fixed-size"
             placeholder="Description"
             maxlength="100"
           />
-        </b-field>
-        <b-field label="Survey URL" type="is-danger" message="Valid URL required">
-          <!-- FIXME: need's external validator, message will always show -->
-          <div class="field-body no-help">
-            <b-field>
-              <b-input
-                v-model="scenarioForm.survey"
-                :has-counter="false"
-                type="text"
-                placeholder="https://"
-                pattern="^(https?:\/\/|\/).*"
-                maxlength="500"
-                expanded
-              />
+        </form-group>
 
-              <HelpSidebar :text="OptionsHelp.url" title="Survey URL" class="control" />
-            </b-field>
-          </div>
-        </b-field>
+        <form-group
+          label="Survey URL"
+          :validator="$v.scenarioForm.survey"
+          :type="surveyWarn.type"
+          :message="surveyWarn.message"
+          v-slot="{ type }"
+        >
+          <b-field :type="type">
+            <b-input
+              v-model="$v.scenarioForm.survey.$model"
+              @focus="setFocus(true)"
+              @blur="setFocus(false)"
+              expanded
+            />
+            <HelpSidebar :text="optionsHelp.url" title="Survey URL" class="control" />
+          </b-field>
+        </form-group>
       </section>
+
       <footer class="modal-card-foot">
         <b-button type="is-primary" native-type="submit" value="Save" expanded>Save</b-button>
       </footer>
@@ -51,6 +52,10 @@ import { mapGetters, mapActions } from "vuex";
 // Import Components
 import HelpSidebar from "~/components/HelpSidebar";
 
+// Import Vuelidate Rules
+import { required, maxLength } from "vuelidate/lib/validators";
+import { helpers } from "vuelidate/lib/validators";
+
 // Content for help fields
 import { scenarioOptionsHelp } from "~/assets/helpText";
 
@@ -59,15 +64,53 @@ export default {
   components: { HelpSidebar },
   data() {
     return {
-      OptionsHelp: scenarioOptionsHelp,
-      scenarioForm: Object.assign({}, this.$store.state.scenario.meta)
+      optionsHelp: scenarioOptionsHelp,
+      scenarioForm: Object.assign({}, this.$store.state.scenario.meta),
+      surveyFocused: false
     };
   },
+  validations() {
+    const url = helpers.regex(
+      "url",
+      /^(https?:\/\/|\/|[a-zA-Z0-9].+?\.html).*$/
+    );
+
+    return {
+      scenarioForm: {
+        name: {
+          required,
+          maxLength: maxLength(30)
+        },
+        description: {
+          maxLength: maxLength(200)
+        },
+        survey: {
+          url
+        }
+      }
+    };
+  },
+  computed: {
+    surveyWarn() {
+      let status = false;
+      if (this.scenarioForm.survey === "") {
+        status = {
+          type: "is-warning",
+          message: "Remember to add a survery url"
+        };
+      } else if (this.$v.scenarioForm.survey.$invalid && this.surveyFocused) {
+        status = { type: "is-warning" };
+      }
+      return status;
+    }
+  },
   methods: {
+    setFocus(focus) {
+      this.surveyFocused = focus;
+    },
     ...mapActions({
       updateMeta: "scenario/updateMeta"
     }),
-    //FIXME: use one VueX call?
     onSubmit() {
       this.updateMeta(this.scenarioForm);
 
@@ -77,9 +120,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.no-help .help {
-  display: none;
-}
-</style>

@@ -51,7 +51,7 @@ export const actions = {
         0
       );
 
-      if (duplicateCount > 0) copyName += ` ${duplicateCount}`;
+      if (duplicateCount > 0) copyName += ` ${duplicateCount + 1}`;
 
       const newResponse = await this.$axios.$post('/api/v1/scenarios', {
         ...response.result,

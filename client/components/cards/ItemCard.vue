@@ -10,10 +10,12 @@
 
       <template v-if="item">
         <!-- If header is in default mode print name w or w/o link -->
-        <h1 class="subtitle">
-          <n-link v-if="link" :to="item.id" class="link-animate" append>{{
+        <h1 class="subtitle center-header">
+          <n-link v-if="link" :to="item.id" class="link-animate" append>
+            {{
             item.name
-          }}</n-link>
+            }}
+          </n-link>
           <template v-else>{{ item.name }}</template>
         </h1>
       </template>
@@ -33,7 +35,7 @@
         value="Save"
         expanded
       />
-      <b-button v-else @click="$emit('edit', item.id)" icon-left="pencil-alt" />
+      <b-button v-if="edit" @click="$emit('edit', item.id)" icon-left="pencil-alt" />
     </template>
   </GenericCard>
 </template>
@@ -67,8 +69,11 @@ export default {
     // **** GenericCard Props ****
     close: {
       type: Boolean,
-      required: false,
-      default: false
+      required: false
+    },
+    edit: {
+      type: Boolean,
+      required: false
     },
     selectable: {
       type: Boolean,
@@ -78,3 +83,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.center-header {
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>

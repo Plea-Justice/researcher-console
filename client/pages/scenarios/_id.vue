@@ -10,15 +10,9 @@
               :value="mode"
               :loading="saving"
               type="is-primary"
-              >Save</ToolBarButton
-            >
+            >Save</ToolBarButton>
 
-            <ToolBarButton
-              @click="openScenarioProps()"
-              :value="mode"
-              icon-left="cog"
-              >Options</ToolBarButton
-            >
+            <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="cog">Options</ToolBarButton>
 
             <b-button
               @click="collapseAll()"
@@ -32,8 +26,7 @@
               @click="addCondition()"
               :value="mode"
               :disabled="!numScenes"
-              >Add Condition</ToolBarButton
-            >
+            >Add Condition</ToolBarButton>
           </div>
 
           <div class="level-item buttons">
@@ -42,24 +35,21 @@
               @click="toggleHandler($event, 'swap')"
               :mode="Modes.SWAP"
               :disabled="numScenes < 2"
-              >Swap</ToolBarButton
-            >
+            >Swap</ToolBarButton>
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'copy')"
               :mode="Modes.COPY"
               :disabled="numScenes < 2"
-              >Copy</ToolBarButton
-            >
+            >Copy</ToolBarButton>
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'bind')"
               :mode="Modes.BIND"
               :disabled="numScenes < 2"
-              >Bind</ToolBarButton
-            >
+            >Bind</ToolBarButton>
           </div>
         </template>
 
@@ -69,26 +59,15 @@
           </div>
 
           <div class="level-item">
-            <PreviewDropdown
-              :scenarioMeta="scenarioMeta"
-              @openScenarioProps="openScenarioProps"
-            />
+            <PreviewDropdown :scenarioMeta="scenarioMeta" @openScenarioProps="openScenarioProps" />
           </div>
         </template>
       </ToolBar>
 
       <!-- Titles -->
-      <div
-        ref="titlebar"
-        :style="titleBarStyle"
-        class="padded-responsive-container title-bar"
-      >
+      <div ref="titlebar" :style="titleBarStyle" class="padded-responsive-container title-bar">
         <div :style="frameSideBarActive" class="title-wrapper">
-          <div
-            v-for="index in numConditions"
-            :key="index"
-            class="condition-title"
-          >
+          <div v-for="index in numConditions" :key="index" class="condition-title">
             <div
               v-if="isSelectable(Select.CONDITION, index)"
               @click="addToSelection(index - 1, Select.CONDITION)"
@@ -182,6 +161,7 @@ export default {
     const modeOptions = {
       [Modes.COPY]: {
         type: Select.ANY,
+        filters: [],
         actions: {
           [Select.SCENE]: this.copyScenes,
           [Select.CONDITION]: this.copyConditions
@@ -189,7 +169,7 @@ export default {
       },
       [Modes.BIND]: {
         type: Select.SCENE,
-        filter: ["frame"],
+        filters: ["frame"],
         actions: {
           [Select.SCENE]: this.bindScenes
         }
@@ -197,7 +177,7 @@ export default {
       [Modes.SWAP]: {
         type: Select.ANY,
         max: 2,
-        filter: ["condition"],
+        filters: ["condition"],
         actions: {
           [Select.SCENE]: this.swapScene,
           [Select.CONDITION]: this.swapCondition
@@ -396,17 +376,20 @@ export default {
 
       let result = false;
       if (test) {
-        if (!this.selectParent || !this.modeOptions[this.mode].filter)
-          result = true;
+        if (!this.selectParent) result = true;
         else {
           // If there is a filter
-          const filter = this.modeOptions[this.mode].filter;
-          const frameFilter = { parent: this.selectParent, filter };
+          const filters = this.modeOptions[this.mode].filters;
+          const frameFilter = {
+            parent: this.selectParent,
+            selectionList: this.selectionList,
+            filters
+          };
 
           // If there is a frame filter it & pass filter down
           result =
             selectionType === this.Select.SCENE &&
-            this.modeOptions[this.mode].filter.includes("frame")
+            this.modeOptions[this.mode].filters.includes("frame")
               ? this.selectParent[0] === index && frameFilter
               : frameFilter;
         }
@@ -430,15 +413,13 @@ export default {
         this.select = selectedType;
         this.selectParent = this.findScene(this.selectionList[0]);
 
-        console.log(this.selectParent);
-
         this.snackbar.message = `Select ${this.selectNames[selectedType]} to ${
           this.modeNames[this.mode]
         } to`;
       } else if (
         (options.max && selectionLen >= options.max) ||
-        (options.filter &&
-          options.filter.includes("frame") &&
+        (options.filters &&
+          options.filters.includes("frame") &&
           selectionLen >= this.frameSet[this.selectParent[0]].scenes.length)
       ) {
         // If exceeds max selection property or has frame filter and selected all scenes in frame
@@ -470,10 +451,9 @@ export default {
     removeConditionHelper(index) {
       const scrollElement = this.$refs.layout.$refs.scroll;
       scrollElement.scrollTo({
-        // FIXME: have scene sizes reference a variable
+        // FIXME: have scene sizes reference the Buefy variables somehow
         left: scrollElement.scrollLeft - (350 + 20)
       });
-      console.log(scrollElement.scrollLeft);
       this.removeCondition(index);
     },
     openScenarioProps() {

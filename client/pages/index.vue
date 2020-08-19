@@ -5,10 +5,7 @@
         <h1 class="title login-title">Plea Simulation Researcher Console</h1>
 
         <!-- Login Card -->
-        <form
-          class="box has-text-centered"
-          @submit.prevent="isRegistration ? register() : login()"
-        >
+        <form class="box has-text-centered" @submit.prevent="isRegistration ? register() : login()">
           <div class="block">
             <b-icon icon="user-circle" size="is-large" />
           </div>
@@ -104,11 +101,10 @@
 
           <hr />
 
-          <b-button @click="setFormMode()" type="is-text">
-            {{
-              isRegistration ? "Login to existing account" : "Create an account"
-            }}
-          </b-button>
+          <b-button
+            @click="toggleFormMode()"
+            type="is-text"
+          >{{ isRegistration ? "Login to existing account" : "Create an account" }}</b-button>
         </form>
       </section>
     </div>
@@ -136,7 +132,7 @@ export default {
     };
   },
   methods: {
-    setFormMode() {
+    toggleFormMode() {
       this.isRegistration = !this.isRegistration;
     },
     async login() {
@@ -167,7 +163,6 @@ export default {
         // Reset inputs
         this.loginForm = Object.assign({}, this.LoginForm);
 
-        console.log(response.data.message);
         this.$buefy.toast.open({
           message: response.data.message,
           type: "is-success"

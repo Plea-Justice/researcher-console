@@ -64,6 +64,8 @@
             </div>
           </div>
           <div class="frame-scenes">
+            <p>{{ selectable }}</p>
+
             <div v-for="(scene, index) in sceneSet" :key="scene.id" class="scene">
               <GenericCard v-if="scene.props === null" blank>
                 <b-button
@@ -88,7 +90,7 @@
                 @selected="$emit('selected', $event)"
                 :scene="scene"
                 :collapsed="collapsed"
-                :selectable="isSelectable(index)"
+                :selectable="isSelectable(index, scene.id)"
               />
             </div>
           </div>
@@ -189,12 +191,20 @@ export default {
     collapseFrame() {
       this.collapsed = !this.collapsed;
     },
-    isSelectable(index) {
-      return typeof this.selectable === "boolean"
-        ? this.selectable
-        : this.selectable.filter.includes("condition")
-        ? index === this.selectable.parent[1]
-        : true;
+    isSelectable(index, id) {
+      let result = true;
+      if (typeof this.selectable === "boolean") result = this.selectable;
+      else {
+        if (
+          this.selectable.filters.includes("condition") &&
+          index !== this.selectable.parent[1]
+        )
+          result = false;
+
+        if (this.selectable.selectionList.includes(id)) result = false;
+      }
+
+      return result;
     },
     ...mapActions({
       setFrameLabel: "scenario/setFrameLabel",

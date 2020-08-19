@@ -131,7 +131,7 @@ export const actions = {
     const prevSceneIdx = frame.scenes.indexOf(id) - 1;
     const prevScene = prevSceneIdx >= 0 ? state.scenes[frame.scenes[prevSceneIdx]] : null;
     const prevSceneProps =
-      prevScene.props !== null
+      prevScene && prevScene.props !== null
         ? (typeof prevScene.props === 'string' && prevScene.props) || {
             ...state.scenes[frame.scenes[prevSceneIdx]].props
           }
@@ -152,8 +152,8 @@ export const actions = {
     const frameId = state.frameList[getters.frameSet.findIndex(({ scenes }) => scenes.includes(id))];
     commit('updateSceneCount', { modifier: -1, frameId });
   },
-  updateScene({ commit }, { id, props, valid }) {
-    commit('setSceneProps', { id, props: { ...props }, valid });
+  updateScene({ commit }, { valid, id, props }) {
+    commit('setSceneProps', { valid, id, props: { ...props } });
   },
   copyScenes({ commit, state }, [parentId, ...childIds]) {
     childIds.forEach(id => commit('setScene', { id, scene: { ...state.scenes[parentId], id } }));
@@ -287,7 +287,6 @@ export const mutations = {
 
     // Swap 2 frames using splice
     state.frameList.splice(fromIndex, 1, state.frameList.splice(toIndex, 1, id)[0]);
-    console.log(state.frameList.map(frameId => state.frames[frameId]));
   },
 
   // **** Scene Mutations ****

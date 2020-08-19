@@ -14,7 +14,7 @@ Vue.use(vuelidateErrorExtractor, {
   template: customFormGroup, // you can also pass your own custom template
   // error messages to use
   messages: {
-    required: 'The {attribute} field is required',
+    required: '"{attribute}" is a required field',
     alphaNum: 'Only letters and numbers allowed',
     maxLength: 'Exceeds the max length'
   }

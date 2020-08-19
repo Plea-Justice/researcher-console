@@ -2,6 +2,8 @@
   <form @submit.prevent="$emit('submit')">
     <ItemCard save>
       <template v-slot:header>
+        <b-button @click="$emit('close')" icon-left="times" type="is-text" />
+
         <b-input
           ref="focus_target"
           v-model="scenarioForm.name"
@@ -9,8 +11,6 @@
           class="flex-grow"
           required
         />
-
-        <b-button @click="$emit('close')" icon-left="times" type="is-text" />
       </template>
 
       <b-input
