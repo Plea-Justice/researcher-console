@@ -164,7 +164,7 @@ export default {
     return {
       collapsed: false,
       // frame validated props
-      label: ""
+      label: this.frame.label
     };
   },
   validations: {

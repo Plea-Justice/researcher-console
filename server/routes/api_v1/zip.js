@@ -134,7 +134,7 @@ module.exports = function (options) {
             fs.emptyDirSync(tmpdir);
             assetTypes.map(type => fs.mkdirpSync(path.join(tmpdir, 'assets', type)));
             fs.copySync(path.normalize(options.config.sim_dir), tmpdir, {filter: src => !src.includes('.git')});
-
+            fs.copySync(path.join(user_data_dir, 'cache'), path.join(tmpdir, 'assets', 'cache'));
             // Copy user's assets.
             files.forEach(file => fs.copyFileSync(
                 path.join(user_data_dir, file),
@@ -150,7 +150,7 @@ module.exports = function (options) {
                 // FIXME: Generate list of files.
                 'manifest': Array.from(files),
                 // 'timelines' array used by simulation to render each in order.
-                'timelines': timelines.map((scene_list, i) => ({
+                'conditions': timelines.map((scene_list, i) => ({
                     'name': `Experimental Condition ${i+1}/${timelines.length}`,
                     'scenes': scene_list
                 })),

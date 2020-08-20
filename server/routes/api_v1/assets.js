@@ -117,11 +117,14 @@ module.exports = function (options) {
 
             try {
                 await req.files.file.mv(filepath);
-                publish(filepath);
+
+                // Insert avatar customization variables into CreateJS assets.
+                if (path.extname(filepath) === '.js')
+                    publish(filepath);
 
                 // Generate a thumbnail for the asset in the background.
                 fork('common/thumbnail', [
-                    path.resolve(path.join(user_data_dir, filepath)),
+                    path.resolve(path.join(filepath)),
                     path.resolve(path.join(user_data_dir, 'thumbnails', `${btoa(filepath)}.jpg`))
                 ]);
 

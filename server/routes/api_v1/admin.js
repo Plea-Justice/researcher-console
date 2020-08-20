@@ -39,7 +39,7 @@ module.exports = function (options) {
     * All methods below this line will require a password.
     */ router.use(mandatoryRoute);
 
-    router.put('/permissions/:user_id', async (req, res) => {
+    router.put('/users/:user_id/permissions', async (req, res) => {
         let subject_id = req.params.user_id;
         
         if (req.body.permitAdmin !== undefined && req.session.user_id === subject_id) {
@@ -59,7 +59,23 @@ module.exports = function (options) {
         }
     });
 
-    router.delete('/delete/:user_id', async (req, res) => {
+    router.put('/users/:user_id/attributes', async (req, res) => {
+        let subject_id = req.params.user_id;
+
+        try {
+            const info = await UserModel.updateOne({_id: subject_id}, {$set: {
+                username: req.body.username,
+                profession: req.body.profession,
+                affiliation: req.body.affiliation
+            }}, {omitUndefined: true});
+
+            res.status(200).json(util.success('User permissions updated.', info));
+        } catch (err) {
+            res.status(500).json(util.failure('There was an error updating the user attributes.', err));
+        }
+    });
+
+    router.delete('/users/:user_id', async (req, res) => {
         let subject_id = req.params.user_id;
         
         if (req.session.user_id === subject_id) {
@@ -77,7 +93,7 @@ module.exports = function (options) {
         }
     });
 
-    router.put('/password/:user_id', async (req, res) => {
+    router.put('/users/:user_id/password', async (req, res) => {
         let subject_id = req.params.user_id;
 
         try {
