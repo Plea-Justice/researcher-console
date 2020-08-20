@@ -126,9 +126,6 @@ module.exports = function (options) {
             assetTypes.forEach(type => assets[type].forEach(([file, name])=>{
                 if (requested[type].has(name)) files.add(file);
             }));
-
-            console.log('Requested files:');
-            console.log(files);
             
             // Copy in a clean simulation from the template directory.
             fs.emptyDirSync(tmpdir);
@@ -161,7 +158,7 @@ module.exports = function (options) {
 
             // Generate condition summary table.
             let summary = conditionList.reduce((acc, curr, i)=>
-                acc + `<tr><td>${i+1}</td><td>${conditions[curr].name}</td></tr>`
+                acc + `<tr><td>${i+1}</td><td>/*${conditions[curr].name}*/</td></tr>`
             , ''); 
 
             util.fileMultipleReplace(path.join(tmpdir, 'index.html'), [

@@ -43,9 +43,13 @@
         <!-- FIXME: use lazyloading for this, loading indicator -->
         <b-image
           :src="`${$axios.defaults.baseURL}/api/v1/assets/${asset.id}/thumbnail`"
-          placeholder="/defaultThumbnail.png"
+          ratio="16by9"
           lazy
-        />
+        >
+          <template v-slot:placeholder>
+            <b-loading :active="true" :is-full-page="false" />
+          </template>
+        </b-image>
 
         <span class="content is-small">Uploaded {{ posixTimeToHoursAgo(asset.created) }}</span>
         <span style="float: right;">

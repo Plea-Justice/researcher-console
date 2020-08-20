@@ -124,7 +124,7 @@ module.exports = function (options) {
 
                 // Generate a thumbnail for the asset in the background.
                 fork('common/thumbnail', [
-                    path.resolve(path.join(filepath)),
+                    path.resolve(filepath),
                     path.resolve(path.join(user_data_dir, 'thumbnails', `${btoa(filepath)}.jpg`))
                 ]);
 
