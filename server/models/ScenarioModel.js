@@ -14,7 +14,7 @@ var ScenarioSchema = new mongoose.Schema({
     scenes: { type: Object, default: {} },
     frames: { type: Object, default: {} },
     frameList: { type: Array, default: [] },
-    conditions: { type: Array, default: {} },
+    conditions: { type: Object, default: {} },
     conditionList: { type: Array, default: [] },
     created: { type: Date, default: Date.now },
     modified: { type: Date, default: Date.now }
