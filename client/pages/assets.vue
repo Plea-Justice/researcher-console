@@ -47,7 +47,10 @@
           lazy
         >
           <template v-slot:placeholder>
-            <b-loading :active="true" :is-full-page="false" />
+           <div class="image-placeholder">
+              <span class="content has-text-grey-light is-size-1">?</span>
+              <span class="content has-text-grey-light is-size-7">No thumbnail available.</span>
+            </div>
           </template>
         </b-image>
 
@@ -211,5 +214,21 @@ export default {
 
 .empty-text {
   position: absolute;
+}
+
+.image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  height: 100%;
+  width: 100%;
+
+  position: absolute;
+  top: 0;
+  z-index: 1;
+
+  background-color: #ffffff;
 }
 </style>

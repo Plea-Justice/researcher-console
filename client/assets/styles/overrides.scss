@@ -44,6 +44,8 @@ $link-focus-border: $primary;
 
 $snackbar-background-color: $dark;
 
+$image-placeholder-blur-enabled: false;
+
 // Import Bulma and Buefy styles
 @import "~bulma";
 @import "~buefy/src/scss/buefy";

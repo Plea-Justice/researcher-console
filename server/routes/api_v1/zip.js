@@ -158,7 +158,7 @@ module.exports = function (options) {
 
             // Generate condition summary table.
             let summary = conditionList.reduce((acc, curr, i)=>
-                acc + `<tr><td>${i+1}</td><td>/*${conditions[curr].name}*/</td></tr>`
+                acc //+ `<tr><td>${i+1}</td><td>${conditions[curr].name}</td></tr>`
             , ''); 
 
             util.fileMultipleReplace(path.join(tmpdir, 'index.html'), [

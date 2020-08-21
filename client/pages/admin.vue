@@ -221,7 +221,7 @@ export default {
   },
   // Do not allow unauthorized users.
   middleware({ redirect, $auth }) {
-    if (!$auth.user.admin) return redirect("/");
+    if (!$auth.user.permitAdmin) return redirect("/");
   }
 };
 </script>

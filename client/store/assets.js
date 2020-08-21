@@ -26,7 +26,8 @@ export const actions = {
     if (response.success) {
       asset.id = response.result;
       asset.created = Date.now();
-      // FIXME: Throw away file at this point? Frontend doesn't need to hold all files
+      asset.name = asset.file.name.replace(/\..*?$/, '');
+      delete asset.file;
       commit('newAsset', { asset });
     }
   },
