@@ -25,7 +25,7 @@ export default {
   /*
    ** Global CSS
    */
-  css: ['~/assets/styles/common.scss', '~/assets/styles/overrides.scss'],
+  css: ['~/assets/styles/common.scss', '~/assets/styles/_overrides.scss'],
   /*
    ** Plugins to load before mounting the App
    */
@@ -101,7 +101,6 @@ export default {
         'faUserCircle',
         'faEnvelope',
         'faLock',
-        'faSave',
         'faPencilAlt',
         'faFileDownload',
         'faCloudUploadAlt',

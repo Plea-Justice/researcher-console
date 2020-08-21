@@ -4,10 +4,6 @@ import Vue from 'vue';
 
 import { nanoid } from 'nanoid/non-secure';
 
-// FIXME: make this a build time asset based on spec.json instead of using all of spec directly
-// Lazy load/code-split this?
-import spec from '../assets/spec.json';
-
 const initialState = () => ({
   id: '',
   numScenes: 0,
@@ -50,8 +46,11 @@ export const actions = {
       commit('resetState');
       commit('setScenario', response.result);
 
-      // If new new Scenario (no frames exists) create an initial frame
-      if (!state.frameList.length) dispatch('addFrame');
+      // If new Scenario (completely empty) create an initial condition & frame
+      if (!state.frameList.length) {
+        dispatch('addCondition');
+        dispatch('addFrame');
+      }
     }
   },
   async saveScenario({ state }) {
@@ -137,14 +136,7 @@ export const actions = {
           }
         : null;
 
-    // FIXME: make this static?
-    // If prev scene has props use those, otherwise create default props list
-    const newSceneProps = prevSceneProps || {
-      ...Object.fromEntries(Object.keys(spec.scene).map(key => [key, ''])),
-      type: Object.keys(spec.sceneTypes)[1]
-    };
-
-    commit('setScene', { id, scene: { id, props: newSceneProps } });
+    commit('setScene', { id, scene: { id, props: {} } });
     commit('updateSceneCount', { modifier: 1, frameId });
   },
   removeScene({ commit, state, getters }, id) {
@@ -213,7 +205,7 @@ export const mutations = {
   // **** Condition Mutations ****
   newCondition(state) {
     const id = nanoid();
-    Vue.set(state.conditions, id, { tags: ['new'] });
+    Vue.set(state.conditions, id, { id, tags: ['new'] });
     state.conditionList.push(id);
 
     // Copy last condition into new condition

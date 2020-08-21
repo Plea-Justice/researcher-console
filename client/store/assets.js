@@ -26,7 +26,7 @@ export const actions = {
     if (response.success) {
       asset.id = response.result;
       asset.created = Date.now();
-      // FIXME: Throw away file at this point? Frontend doesn't need to hold all files
+
       commit('newAsset', { asset });
     }
   },
@@ -44,7 +44,8 @@ export const mutations = {
   },
   newAsset(state, payload) {
     // Add new asset to state
-    // FIXME: add asset
+
+    // TODO: Order assets?
     Vue.set(state.assets, payload.asset.id, payload.asset);
     state.assetList.unshift(payload.asset.id);
   },

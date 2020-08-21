@@ -1,27 +1,28 @@
 <template>
   <!-- FIXME: fix how form interaction works either make form top level again or use more effectively here -->
-  <form ref="form" class="flex-wrap">
+  <!-- If scene is not blank -->
+  <form v-if="scene.props !== null" ref="form" class="flex-wrap">
     <div v-if="selectable && $v.form.$invalid" class="invalid-selection-mask" />
     <GenericCard
       @remove="removeScene(isBound ? bound : scene.id)"
       @selected="$emit('selected', scene.id)"
       :selectable="selectable && !$v.form.$invalid"
       :collapsed="collapsed"
-      :blank="isBlank"
       :invalid="$v.form.$invalid"
-      close
     >
       <template v-slot:default>
         <!-- Scene Type Toggle -->
         <b-field class="is-capitalized field-centered">
+          <p class="control">
+            <b-button type="is-danger is-light" icon-left="times" />
+          </p>
           <b-radio-button
             v-for="type in validSceneTypes"
             :key="type"
             v-model="$v.form.type.$model"
             :native-value="type"
             :disabled="isBound"
-            >{{ type }}</b-radio-button
-          >
+          >{{ type }}</b-radio-button>
         </b-field>
 
         <!-- options props needs a preloaded value because .includes in AssetNamesByType will return false positive while loading -->
@@ -76,13 +77,17 @@
       </template>
 
       <template v-slot:footer v-if="isBound">
-        <b-button
-          @click="unbindScene({ id: bound, props: scene.id })"
-          icon-left="unlink"
-        />
+        <b-button @click="unbindScene({ id: bound, props: scene.id })" icon-left="unlink" />
       </template>
     </GenericCard>
   </form>
+
+  <!-- Otherwise show blank scene -->
+  <GenericCard v-else>
+    <div class="center-card-content">
+      <b-button @click="addScene(scene.id)" type="is-light" size="is-medium" icon-left="plus" />
+    </div>
+  </GenericCard>
 </template>
 
 <script>
@@ -119,13 +124,11 @@ export default {
     },
     collapsed: {
       type: Boolean,
-      required: false,
-      default: false
+      required: false
     },
     selectable: {
       type: Boolean,
-      required: false,
-      default: false
+      required: false
     },
     bound: {
       type: [String, Boolean],
@@ -134,8 +137,10 @@ export default {
     }
   },
   data() {
+    const defaultType = Object.keys(spec.sceneTypes)[1];
     const form = {
       ...Object.fromEntries(Object.keys(spec.scene).map(key => [key, null])),
+      type: defaultType,
       ...this.scene.props
     };
 
@@ -215,9 +220,6 @@ export default {
     isBound() {
       return this.bound ? true : false;
     },
-    isBlank() {
-      return this.scene.props == null;
-    },
     validFieldNames() {
       return spec.sceneTypes[this.form.type];
     },
@@ -255,6 +257,7 @@ export default {
       return icon;
     },
     ...mapActions({
+      addScene: "scenario/addScene",
       removeScene: "scenario/removeScene",
       updateScene: "scenario/updateScene",
       unbindScene: "scenario/unbindScene"
@@ -286,6 +289,11 @@ export default {
 }
 
 .card {
+  height: 100%;
+}
+
+.center-card-content {
+  @include flexCenter();
   height: 100%;
 }
 </style>

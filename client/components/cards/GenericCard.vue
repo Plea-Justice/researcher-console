@@ -5,11 +5,7 @@
 
     <!-- Card Header -->
     <!-- when collapsed style header as body -->
-    <header
-      v-if="!blank"
-      class="card-header flex-header"
-      :class="headerModeStyle"
-    >
+    <header v-if="!emptyHeader" class="card-header flex-header" :class="headerModeStyle">
       <!-- When collapsed show remove button in header -->
       <b-button
         v-if="collapsed && close"
@@ -21,24 +17,15 @@
     </header>
 
     <!-- Card Body -->
-    <div
-      v-show="!collapsed"
-      :class="{ 'flex-center': blank }"
-      class="card-content"
-    >
+    <div v-show="!collapsed" class="card-content">
       <slot name="default" />
     </div>
 
     <!-- Card Footer -->
-    <footer v-if="!collapsed && !blank" class="card-footer">
+    <footer v-if="close || (!emptyFooter && !collapsed)" class="card-footer">
       <div class="card-footer-item buttons footer-buttons">
         <!-- TODO: Check if remove listener exists instead of using remove? -->
-        <b-button
-          v-if="close"
-          @click="$emit('remove')"
-          type="is-danger"
-          icon-left="times"
-        />
+        <b-button v-if="close" @click="$emit('remove')" type="is-danger" icon-left="times" />
         <slot name="footer" />
       </div>
     </footer>
@@ -54,37 +41,45 @@ export default {
   props: {
     close: {
       type: Boolean,
-      required: false,
-      default: false
+      required: false
     },
     // Sets if component is selectable
     selectable: {
       type: Boolean,
-      required: false,
-      default: false
-    },
-    // Sets wether to only show body
-    blank: {
-      type: Boolean,
-      required: false,
-      default: false
+      required: false
     },
     invalid: {
       type: Boolean,
-      required: false,
-      default: false
+      required: false
     },
     // Sets if component is in a collapsed state (only header, with flex styling properties)
     collapsed: {
       type: Boolean,
-      required: false,
-      default: false
+      required: false
     }
+  },
+  created() {
+    this.$nextTick(() => this.setShowSlots());
+  },
+  beforeUpdate() {
+    this.$nextTick(() => this.setShowSlots());
+  },
+  data() {
+    return {
+      emptyHeader: false,
+      emptyFooter: false
+    };
   },
   computed: {
     headerModeStyle() {
       // When collapsed style header as body
       return this.collapsed ? "card-content" : "card-header";
+    }
+  },
+  methods: {
+    setShowSlots() {
+      this.emptyHeader = !this.$slots.header?.[0];
+      this.emptyFooter = !this.$slots.footer?.[0];
     }
   }
 };
@@ -143,10 +138,6 @@ export default {
   & > :nth-last-child(n + 2) {
     margin-right: $cardHeadFootPadding;
   }
-}
-
-.flex-center {
-  @include flexCenter();
 }
 
 .footer-buttons {

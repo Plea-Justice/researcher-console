@@ -2,13 +2,7 @@
 // https://buefy.org/documentation/customization/
 @import "~bulma/sass/utilities/_all";
 
-// FIXME: temp override
-$primary: #7957d5;
-$snackbar-background-color: #007aff50;
-
 // ******** Color ********
-$smokeywhite: whitesmoke;
-
 $selectedHoverBlue: #007aff50;
 $selectedActiveBlue: #0a84ff64;
 $selectedRed: #ff443a99;
@@ -19,4 +13,4 @@ $selectedRedDark: #ff443a;
 $responsiveContainerSpacing: 4%;
 
 // This is the z-index I found where you overlap all buefy items (button icons, etc.)
-$buefyOverlapIndex: 4;
+$buefyOverlapIndex: 5;

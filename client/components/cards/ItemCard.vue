@@ -58,13 +58,11 @@ export default {
     },
     link: {
       type: Boolean,
-      required: false,
-      default: false
+      required: false
     },
     save: {
       type: Boolean,
-      required: false,
-      default: false
+      required: false
     },
     // **** GenericCard Props ****
     close: {
@@ -77,8 +75,7 @@ export default {
     },
     selectable: {
       type: Boolean,
-      required: false,
-      default: false
+      required: false
     }
   }
 };

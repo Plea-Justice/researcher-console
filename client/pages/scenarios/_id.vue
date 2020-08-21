@@ -9,7 +9,7 @@
               @click="saveHelper()"
               :value="mode"
               :loading="saving"
-              type="is-primary"
+              type="is-primary is-dark"
             >Save</ToolBarButton>
 
             <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="cog">Options</ToolBarButton>
@@ -64,28 +64,8 @@
         </template>
       </ToolBar>
 
-      <!-- Titles -->
-      <div ref="titlebar" :style="titleBarStyle" class="padded-responsive-container title-bar">
-        <div :style="frameSideBarActive" class="title-wrapper">
-          <div v-for="index in numConditions" :key="index" class="condition-title">
-            <div
-              v-if="isSelectable(Select.CONDITION, index)"
-              @click="addToSelection(index - 1, Select.CONDITION)"
-              class="select-title"
-            />
-            <b-button
-              @click="removeConditionHelper(index - 1)"
-              type="is-text"
-              icon-left="times"
-              class="close-button"
-            />
-            <h1 class="subtitle">{{ "Condition " + index }}</h1>
-          </div>
-        </div>
-      </div>
+      <ConditionBar ref="conditionbar" :selectable="isSelectableTemp(Select.CONDITION)" />
     </template>
-
-    <p>{{ conditionSet }}</p>
 
     <section ref="frames" class="padded-responsive-container responsive-center">
       <!-- Frames -->
@@ -113,9 +93,9 @@ import { EventBus, Event } from "~/bus/eventbus";
 
 // Import Components
 import ScenarioLayout from "~/components/layouts/ScenarioLayout";
-import NavBar from "~/components/NavBar";
 import ToolBar from "~/components/ToolBar";
 import ToolBarButton from "~/components/ToolBarButton";
+import ConditionBar from "~/components/scenario/ConditionBar";
 import SceneFrame from "~/components/SceneFrame";
 import PreviewDropdown from "~/components/PreviewDropdown";
 import ScenarioOptions from "~/components/modals/ScenarioOptions";
@@ -128,9 +108,9 @@ export default {
   name: "Scenario",
   components: {
     ScenarioLayout,
-    NavBar,
     ToolBar,
     ToolBarButton,
+    ConditionBar,
     SceneFrame,
     ScenarioOptions,
     PreviewDropdown
@@ -221,6 +201,7 @@ export default {
     ]);
   },
   created() {
+    // FIXME: keep better track of dirty state instead
     this.$store.subscribe((mutation, state) => {
       if (this.scenarioStoreHasChanged) {
         // If state has changed set to false if saving
@@ -238,23 +219,16 @@ export default {
   mounted() {
     // Define header height
     this.headerHeight =
-      this.$refs.toolbar.$el.clientHeight + this.$refs.titlebar.clientHeight;
+      this.$refs.toolbar.$el.clientHeight +
+      this.$refs.conditionbar.$el.clientHeight;
   },
   computed: {
     ...mapGetters({
       scenarioMeta: "scenario/scenarioMeta",
       sceneErrors: "scenario/errors",
-      numConditions: "scenario/numConditions",
       numScenes: "scenario/numScenes",
-      conditionSet: "scenario/conditionSet",
       frameSet: "scenario/frameSet"
-    }),
-    titleBarStyle() {
-      return { "--num-conditions": this.numConditions };
-    },
-    frameSideBarActive() {
-      return { "--frame-sidebar-active": this.numScenes ? 1 : 0 };
-    }
+    })
   },
   methods: {
     findScene(sceneId) {
@@ -295,7 +269,7 @@ export default {
       } else {
         this.$buefy.toast.open({
           message: "Scenario is already up to date",
-          type: "is-success"
+          type: "is-info"
         });
       }
     },
@@ -368,6 +342,12 @@ export default {
         this.closeSnackbar();
         this.selectionReset();
       }
+    },
+    isSelectableTemp(selectionType) {
+      return (
+        this.mode !== this.Modes.DEFAULT &&
+        (this.select === this.Select.ANY || this.select === selectionType)
+      );
     },
     isSelectable(selectionType, index) {
       const test =
@@ -500,70 +480,13 @@ export default {
   left: 0;
 }
 
+// Toolbar button group spacing
 .level-item.buttons {
   margin-bottom: 0;
   margin-right: 2rem;
 
   & > .button {
     margin-bottom: 0;
-  }
-}
-
-.title-bar {
-  // Sticky below toolbar
-  @include sticky();
-  top: 4rem;
-
-  // Width & sizing
-  height: 3rem;
-  width: max-content;
-  margin: 2rem auto 0.25rem;
-
-  background-color: #fffe;
-}
-
-.title-wrapper {
-  height: 100%;
-  display: flex;
-  align-items: center;
-
-  $scene: $frameSceneGap + $sceneWidth;
-  width: calc(
-    #{$scene} * var(--num-conditions) - #{$frameSceneGap} +
-      var(--frame-sidebar-active) * #{$frameSideBarWidth} + #{$framePadding} * 2
-  );
-  padding-left: calc(
-    #{$framePadding} + var(--frame-sidebar-active) * #{$frameSideBarWidth}
-  );
-
-  // This is effectively flex-gap .condition-title
-  // For every .condition-title except the last one
-  & > :nth-last-child(n + 2) {
-    margin-right: $frameSceneGap;
-  }
-}
-
-.condition-title {
-  @include flexCenter();
-  flex: 0 0 $sceneWidth;
-  // For .select-title placement
-  position: relative;
-}
-
-.select-title {
-  @include selectionMask();
-  border-radius: $radius-large;
-}
-
-.close-button {
-  color: $danger;
-  /* Shift left so title is centerd */
-  width: 1rem;
-  margin-left: -1rem;
-
-  &:hover,
-  &:active {
-    color: $danger;
   }
 }
 

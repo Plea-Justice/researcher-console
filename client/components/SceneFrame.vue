@@ -5,10 +5,10 @@
 
       <div class="frame box">
         <!-- Sidebar -->
-        <aside v-show="!(isFirst && isLast && !frame.size)" class="sidebar buttons">
+        <aside v-show="frame.size || !isOnly" class="sidebar buttons">
           <!-- Collapse Button -->
           <b-button
-            v-show="frame.size"
+            v-show="!isOnly"
             @click="collapseFrame()"
             :icon-left="`chevron-${collapsed ? 'down' : 'up'}`"
             type="is-text"
@@ -33,59 +33,51 @@
 
           <!-- Remove Frame Button -->
           <b-button
+            v-show="!collapsed"
             @click="removeFrameHelper(frame.id)"
-            type="is-danger"
+            type="is-danger is-light"
             icon-left="times"
             size="is-medium"
           />
         </aside>
 
-        <div class="frame-content">
+        <div
+          :class="{ 'frame-content-collapsed': collapsed }"
+          :style="{ '--num-scenes': this.frame.scenes.length }"
+        >
           <div class="frame-header">
             <form-group class="frame-header-item" :validator="$v.label" grouped>
               <b-input
                 ref="focus_target"
-                :value="label"
+                :value="frame.label"
                 @input="setLabel($event)"
                 placeholder="Scenes Label (Optional)"
                 expanded
               />
-
-              <p>{{ frame.size }}</p>
             </form-group>
-            <div v-if="frame.size > 1" class="frame-header-item">
+            <div v-if="frame.size > 1 || collapsed" class="frame-header-item">
               <b-tooltip
-                :label="uniqueScenes > 1 ? `${uniqueScenes} Unique Scenes` : 'Same Across Conditions'"
+                :label="!frame.size ? 'No Scenes' : uniqueScenes > 1 ? `${uniqueScenes} Unique Scenes` : 'Same Across Conditions'"
                 position="is-bottom"
                 animated
               >
-                <b-button :class="{ 'is-info': uniqueScenes > 1 }" disabled>{{uniqueScenes}}</b-button>
+                <b-button
+                  :class="{ 'is-info': uniqueScenes > 1, 'is-dark': !frame.size }"
+                  disabled
+                >{{uniqueScenes}}</b-button>
               </b-tooltip>
             </div>
           </div>
-          <div class="frame-scenes">
-            <p>{{ selectable }}</p>
-
+          <div v-show="!collapsed" class="frame-scenes">
             <div v-for="(scene, index) in sceneSet" :key="scene.id" class="scene">
-              <GenericCard v-if="scene.props === null" blank>
-                <b-button
-                  @click="addScene(scene.id)"
-                  type="is-light"
-                  size="is-medium"
-                  icon-left="plus"
-                />
-              </GenericCard>
-
-              <!-- FIXME: make the string check is rigorous -->
               <Scene
-                v-else-if="typeof scene.props === 'string'"
+                v-if="typeof scene.props === 'string'"
                 :bound="scene.id"
                 :scene="getSiblingScene(scene.props)"
                 :collapsed="collapsed"
               />
 
               <Scene
-                :ref="`scene_${scene.id}`"
                 v-else
                 @selected="$emit('selected', $event)"
                 :scene="scene"
@@ -141,13 +133,11 @@ export default {
     },
     isFirst: {
       type: Boolean,
-      required: false,
-      default: false
+      required: false
     },
     isLast: {
       type: Boolean,
-      required: false,
-      default: false
+      required: false
     },
     selectable: {
       type: [Boolean, Object],
@@ -174,6 +164,9 @@ export default {
     }
   },
   computed: {
+    isOnly() {
+      return this.isFirst && this.isLast;
+    },
     ...mapGetters({
       getSceneSet: "scenario/sceneSet"
     }),
@@ -181,10 +174,12 @@ export default {
       return this.getSceneSet(this.frame.id);
     },
     uniqueScenes() {
-      return this.sceneSet.reduce(
-        (acc, curr) => (typeof curr.props != "string" ? acc + 1 : acc),
-        0
-      );
+      return !this.frame.size
+        ? 0
+        : this.sceneSet.reduce(
+            (acc, curr) => (typeof curr.props !== "string" ? acc + 1 : acc),
+            0
+          );
     }
   },
   methods: {
@@ -211,8 +206,7 @@ export default {
       moveFrameUp: "scenario/moveFrameUp",
       moveFrameDown: "scenario/moveFrameDown",
       addFrame: "scenario/addFrame",
-      removeFrame: "scenario/removeFrame",
-      addScene: "scenario/addScene"
+      removeFrame: "scenario/removeFrame"
     }),
     setLabel: debounce(function(newValue) {
       this.label = newValue;
@@ -284,10 +278,22 @@ export default {
   padding: $framePadding;
 }
 
+.frame-content-collapsed {
+  display: flex;
+  align-items: center;
+
+  $scene: $frameSceneGap + $sceneWidth;
+  width: calc(#{$scene} * var(--num-scenes) - #{$frameSceneGap});
+}
+
 .frame-header {
   display: flex;
   flex-direction: row;
-  margin-bottom: 1.25rem;
+  width: max-content;
+
+  position: sticky;
+  z-index: $buefyOverlapIndex - 1;
+  left: $framePadding;
 
   // Everything except last child & > :not(:last-child)
   & > :nth-last-child(n + 2) {
@@ -299,10 +305,15 @@ export default {
   width: $sceneWidth;
 }
 
+// If .frame-header-item is a .field clear the fields margin as it can interfere
+.frame-header-item.field {
+  margin-bottom: 0;
+}
+
 .frame-scenes {
   display: flex;
   flex-direction: row;
-
+  margin-top: 1.25rem;
   // Everything except last child & > :not(:last-child)
   & > div:nth-last-of-type(n + 2) {
     margin-right: $frameSceneGap;
@@ -341,7 +352,10 @@ export default {
 
   & > :last-child {
     // scene-close-button-font-size-difference (1.25 - 1) + ...
-    margin: auto 0 ((0.25rem + $cardHeadFootPadding) / 2) !important;
+    // ((0.25rem + $cardHeadFootPadding) / 2)
+    // adjusts for making last button look like it's on the same plane
+    // due to scene's box-shadow
+    margin: auto 0 2px !important;
   }
 }
 

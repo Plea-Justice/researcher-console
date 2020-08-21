@@ -1,6 +1,6 @@
 <template>
   <!-- Level Toolbar -->
-  <nav class="level padded-responsive-container toolbar">
+  <div class="level padded-responsive-container toolbar">
     <!-- Left Side Toolbar -->
     <div class="level-left">
       <slot name="start" />
@@ -12,7 +12,7 @@
     <div class="level-right">
       <slot name="end" />
     </div>
-  </nav>
+  </div>
 </template>
 
 <script>
@@ -29,6 +29,6 @@ export default {
 
   height: 4rem;
   margin-bottom: 0;
-  background-color: $smokeywhite;
+  background-color: $light;
 }
 </style>

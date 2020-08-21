@@ -2,7 +2,7 @@
   <form-group :label="label" :validator="validator">
     <!-- :rules="invalidOldFile ? `excluded:${value}` : null" -->
     <b-select v-bind="$attrs" v-model="innerValue" :icon="icon">
-      <option value>None</option>
+      <option :value="null">None</option>
       <!-- If value does not exists insert dummy value -->
       <option v-if="invalidOldFile" :value="value">{{ value }}</option>
       <option v-for="file in options" :key="file" :value="file">{{ file }}</option>

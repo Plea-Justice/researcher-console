@@ -40,7 +40,7 @@
         :item="asset"
         close
       >
-        <!-- FIXME: use lazyloading for this, loading indicator -->
+        <!-- TODO:: add loading indicator, fix when error-fallback is added next release? -->
         <b-image
           :src="`${$axios.defaults.baseURL}/api/v1/assets/${asset.id}/thumbnail`"
           placeholder="/defaultThumbnail.png"

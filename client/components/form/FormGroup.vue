@@ -33,10 +33,11 @@ export default {
         };
       } else if (this.isValid) {
         status = {
-          type: "is-danger",
+          type: "is-success",
           label: "has-text-success"
         };
       }
+
       return status;
     },
     type() {
