@@ -48,9 +48,26 @@ async function userIsAdmin(user_id) {
     }
 }
 
+async function userPermissions(user_id) {
+    try {
+        const obj = await UserModel.findById(user_id);
+        return {
+            permitAdmin: obj.permitAdmin,
+            permitHosting: obj.permitHosting
+        };
+
+    } catch (err) {
+        console.log(err);
+        return {
+            permitAdmin: false,
+            permitHosting: false
+        };
+    }
+}
+
 async function verifyPassword(user, byName, password) {
     try {
-        let obj =  byName
+        const obj =  byName
             ? await UserModel.findOne({username: user}) 
             : await UserModel.findById(user);
 
@@ -98,6 +115,7 @@ module.exports = {
     failure,
     multipleReplace,
     userIsAdmin,
+    userPermissions,
     userDir,
     simTmpDir,
     simTmpZipPath,

@@ -12,7 +12,7 @@
         </div>
 
         <h3 class="title has-text-light">{{ title }}</h3>
-        <p>{{ text }}</p>
+        <div class="content" style="font-size: 0.95rem" v-html="text"></div>
       </div>
     </b-sidebar>
 

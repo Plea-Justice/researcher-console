@@ -58,7 +58,7 @@ module.exports = function (options) {
                 {user: {
                     name: req.session.username,
                     user_id: req.session.user_id,
-                    admin: await util.userIsAdmin(req.session.user_id),
+                    ...await util.userPermissions(req.session.user_id),
                     n_sessions: await getUserSessionCount(req.session.user_id)
                 }}
             ));

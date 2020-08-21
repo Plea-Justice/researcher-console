@@ -43,9 +43,16 @@
         <!-- TODO:: add loading indicator, fix when error-fallback is added next release? -->
         <b-image
           :src="`${$axios.defaults.baseURL}/api/v1/assets/${asset.id}/thumbnail`"
-          placeholder="/defaultThumbnail.png"
+          ratio="16by9"
           lazy
-        />
+        >
+          <template v-slot:placeholder>
+           <div class="image-placeholder">
+              <span class="content has-text-grey-light is-size-1">?</span>
+              <span class="content has-text-grey-light is-size-7">No thumbnail available.</span>
+            </div>
+          </template>
+        </b-image>
 
         <span class="content is-small">Uploaded {{ posixTimeToHoursAgo(asset.created) }}</span>
         <span style="float: right;">
@@ -207,5 +214,21 @@ export default {
 
 .empty-text {
   position: absolute;
+}
+
+.image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  height: 100%;
+  width: 100%;
+
+  position: absolute;
+  top: 0;
+  z-index: 1;
+
+  background-color: #ffffff;
 }
 </style>

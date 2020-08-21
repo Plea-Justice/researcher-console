@@ -132,7 +132,7 @@ export default {
           "Delete User",
           `Confirm deletion of user "${this.selected.username}" by typing your password.`,
           "delete",
-          `/api/v1/admin/delete/${this.selected.user_id}`
+          `/api/v1/admin/users/${this.selected.user_id}`
         );
     },
     changePermissions(permissions) {
@@ -141,7 +141,7 @@ export default {
           "Modify User Permissions",
           `Confirm modification of user "${this.selected.username}" by typing your password.`,
           "put",
-          `/api/v1/admin/permissions/${this.selected.user_id}`,
+          `/api/v1/admin/users/${this.selected.user_id}/permissions`,
           permissions
         );
     },
@@ -178,7 +178,7 @@ export default {
               "Confirm Change of Password",
               `Confirm change of password for user "${this.selected.username}" by typing your password.`,
               "put",
-              `/api/v1/admin/password/${this.selected.user_id}`,
+              `/api/v1/admin/users/${this.selected.user_id}/password`,
               { newPassword: newPass }
             )
         });
@@ -221,7 +221,7 @@ export default {
   },
   // Do not allow unauthorized users.
   middleware({ redirect, $auth }) {
-    if (!$auth.user.admin) return redirect("/");
+    if (!$auth.user.permitAdmin) return redirect("/");
   }
 };
 </script>

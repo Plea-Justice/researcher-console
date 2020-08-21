@@ -14,8 +14,8 @@
         >Publish</ToolBarButton
       >
 
-      <b-dropdown-item @click="downloadZip">Download</b-dropdown-item>
-      <b-dropdown-item :disabled="!user.permitHosting">Publish</b-dropdown-item>
+      <b-dropdown-item @click="downloadZip">Manual Download</b-dropdown-item>
+      <b-dropdown-item @click="publishSimulation" :disabled="!user.permitHosting" >Publish Live</b-dropdown-item>
     </b-dropdown>
   </div>
 </template>
@@ -62,13 +62,7 @@ export default {
           onConfirm: () => setTimeout(this.$emit("openScenarioProps"), 150)
         });
       } else {
-        this.snackbar = this.$buefy.snackbar.open({
-          message: "Please wait, generating simulation...",
-          position: "is-top",
-          indefinite: true,
-          actionText: null
-        });
-
+        this.wrapSnackbar(async () => {
         try {
           const res = await this.$axios.post(
             `/api/v1/scenarios/${this.scenarioMeta.id}/generate`
@@ -77,21 +71,14 @@ export default {
         } catch (err) {
           status = false;
         }
-
-        this.closeSnackbar();
+        }, "Please wait, generating simulation...");
       }
 
       return status;
     },
     async downloadZip() {
       if (!(await this.generateSimulation())) return;
-      this.snackbar = this.$buefy.snackbar.open({
-        message: "Preparing simulation ZIP...",
-        position: "is-top",
-        indefinite: true,
-        actionText: null
-      });
-
+      this.wrapSnackbar(async () => {
       try {
         const res = await this.$axios.post(
           `/api/v1/scenarios/${this.scenarioMeta.id}/zip`
@@ -103,13 +90,12 @@ export default {
       } catch (err) {
         console.log(err);
       }
-
-      this.closeSnackbar();
+      }, "Compressing simulation for download...");
     },
     async previewSimulation() {
       if (!(await this.generateSimulation())) return;
       this.$buefy.toast.open({
-        message: "Preview ready.",
+        message: "Preview ready. Check that pop-ups are enabled.",
         type: "is-success"
       });
 
@@ -117,9 +103,23 @@ export default {
         `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}/`
       );
     },
-    closeSnackbar() {
+    async publishSimulation() {
+      await this.$axios.post(`/api/v1/scenarios/${this.scenarioMeta.id}/publish`)
+    },
+    wrapSnackbar(callback, message) {
+      this.snackbar = this.$buefy.snackbar.open({
+        message: message,
+        position: "is-top",
+        indefinite: true,
+        actionText: null
+      });
+
+      callback().then(()=>{
       this.snackbar.close();
       this.snackbar = null;
+      });
+
+      
     }
   }
 };

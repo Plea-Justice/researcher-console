@@ -108,6 +108,7 @@ module.exports = function (options) {
                 : req.files.file.name;
             */
             let name = sanitize(req.files.file.name).replace(/[\s,;]+/g, '_');
+            let id = btoa(path.join(req.body.type, name));
             let filepath = path.join(user_data_dir, req.body.type, name);
 
             if (fs.pathExistsSync(filepath)) {
@@ -117,15 +118,18 @@ module.exports = function (options) {
 
             try {
                 await req.files.file.mv(filepath);
-                publish(filepath);
+
+                // Insert avatar customization variables into CreateJS assets.
+                if (path.extname(filepath) === '.js')
+                    publish(filepath);
 
                 // Generate a thumbnail for the asset in the background.
                 fork('common/thumbnail', [
-                    path.resolve(path.join(user_data_dir, filepath)),
-                    path.resolve(path.join(user_data_dir, 'thumbnails', `${btoa(filepath)}.jpg`))
+                    path.resolve(filepath),
+                    path.resolve(path.join(user_data_dir, 'thumbnails', `${id}.jpg`))
                 ]);
 
-                res.status(200).json(util.success('Asset uploaded.', btoa(filepath)));
+                res.status(200).json(util.success('Asset uploaded.', id));
             } catch (err) {
                 if (fs.pathExistsSync(filepath))
                     fs.removeSync(filepath);

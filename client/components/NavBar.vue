@@ -32,7 +32,7 @@
         <div class="buttons">
           <slot name="end" />
           <b-button
-            v-if="user.admin"
+            v-if="user.permitAdmin"
             type="is-dark"
             outlined
             inverted
