@@ -6,6 +6,7 @@
         <div class="conditions">
           <div v-for="(condition, index) in conditionSet" :key="condition.id" class="condition">
             <div class="condition-title">
+              <!-- FIXME: not selectable atm -->
               <div
                 v-if="selectable"
                 @click="addToSelection(index, selectionType)"
@@ -13,7 +14,7 @@
               />
 
               <b-button
-                @click="$emit('remove', index)"
+                @click="$emit('remove', condition.id)"
                 type="is-danger is-light"
                 icon-left="times"
                 class="condition-remove"

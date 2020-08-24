@@ -8,6 +8,7 @@
       v-model="innerValue"
       @blur="onBlur()"
       :before-adding="validateTagInput"
+      :disabled="$attrs.disabled"
       placeholder="Name Buttons"
       attached
       allow-duplicates

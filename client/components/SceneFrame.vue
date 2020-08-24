@@ -70,17 +70,21 @@
           </div>
           <div v-show="!collapsed" class="frame-scenes">
             <div v-for="(scene, index) in sceneSet" :key="scene.id" class="scene">
+              <!-- Bound Scene -->
               <Scene
                 v-if="typeof scene.props === 'string'"
                 :bound="scene.id"
                 :scene="getSiblingScene(scene.props)"
+                :index="index"
                 :collapsed="collapsed"
               />
 
+              <!-- Regular (or Blank) Scene -->
               <Scene
                 v-else
                 @selected="$emit('selected', $event)"
                 :scene="scene"
+                :index="index"
                 :collapsed="collapsed"
                 :selectable="isSelectable(index, scene.id)"
               />
@@ -113,7 +117,6 @@ import { EventBus, EventListener } from "~/bus/eventbus";
 import { alphaNum, maxLength } from "vuelidate/lib/validators";
 
 // Import Components
-import GenericCard from "~/components/cards/GenericCard";
 import Scene from "~/components/Scene";
 
 // Import Helper Functions
@@ -121,7 +124,7 @@ import { debounce } from "~/assets/util";
 
 export default {
   name: "SceneFrame",
-  components: { Scene, GenericCard },
+  components: { Scene },
   props: {
     frame: {
       type: Object,
@@ -187,16 +190,14 @@ export default {
       this.collapsed = !this.collapsed;
     },
     isSelectable(index, id) {
-      let result = true;
-      if (typeof this.selectable === "boolean") result = this.selectable;
-      else {
+      // Filter out selections in wrong frame
+      let result = this.selectable;
+      if (typeof this.selectable !== "boolean") {
         if (
-          this.selectable.filters.includes("condition") &&
-          index !== this.selectable.parent[1]
+          this.selectable.filters.includes("frame") &&
+          this.selectable.parent.frame !== this.frameIndex
         )
           result = false;
-
-        if (this.selectable.selectionList.includes(id)) result = false;
       }
 
       return result;

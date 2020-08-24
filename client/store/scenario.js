@@ -66,11 +66,14 @@ export const actions = {
     commit('newCondition');
   },
   removeCondition({ commit, dispatch, state }, id) {
-    const isLast = state.frames[state.frameList[0]].scenes.length <= 1;
+    const isLast = state.conditionList.length <= 1;
     const index = state.conditionList.indexOf(id);
     commit('deleteCondition', { index, isLast });
 
-    if (state.frameList.length === 0) dispatch('addFrame');
+    if (isLast) {
+      dispatch('addCondition');
+      dispatch('addFrame');
+    }
   },
   async copyConditions({ dispatch, getters }, indexList) {
     // FIXME: async this
@@ -127,15 +130,11 @@ export const actions = {
     const frameId = state.frameList[getters.frameSet.findIndex(({ scenes }) => scenes.includes(id))];
     const frame = state.frames[frameId];
     const prevSceneIdx = frame.scenes.indexOf(id) - 1;
-    const prevScene = prevSceneIdx >= 0 ? state.scenes[frame.scenes[prevSceneIdx]] : null;
-    const prevSceneProps =
-      prevScene && prevScene.props !== null
-        ? (typeof prevScene.props === 'string' && prevScene.props) || {
-            ...state.scenes[frame.scenes[prevSceneIdx]].props
-          }
-        : null;
+    const prevScene = prevSceneIdx >= 0 ? state.scenes[frame.scenes[prevSceneIdx]] : undefined;
 
-    commit('setScene', { id, scene: { id, props: {} } });
+    const newProps = prevScene && prevScene.props !== null ? { ...prevScene.props } : {};
+
+    commit('setScene', { id, scene: { id, props: newProps } });
     commit('updateSceneCount', { modifier: 1, frameId });
   },
   removeScene({ commit, state, getters }, id) {
@@ -210,14 +209,15 @@ export const mutations = {
     // Copy last condition into new condition
     state.frameList.forEach(frameId => {
       const currFrame = state.frames[frameId];
-      const lastScene = state.scenes[currFrame.scenes[currFrame.scenes.length - 1]];
+      const prevScene = state.scenes[currFrame.scenes[currFrame.scenes.length - 1]];
 
       const sceneId = nanoid();
-      Vue.set(state.scenes, sceneId, { ...lastScene, id: sceneId });
-      // FIXME: fix these being direct mutations?
+      Vue.set(state.scenes, sceneId, { ...prevScene, id: sceneId });
+      // TODO: fix these being direct mutations?
       currFrame.scenes.push(sceneId);
 
-      if (lastScene.props !== null) {
+      // TODO: use updateCount?
+      if (prevScene.props !== null) {
         Vue.set(currFrame, 'size', currFrame.size + 1);
         state.numScenes += 1;
       }
@@ -225,20 +225,20 @@ export const mutations = {
   },
   deleteCondition(state, { index, id, isLast }) {
     if (isLast) {
-      // If last Condition reset all frames and scenes
+      // If last Condition reset all conditions, frames, and scenes
       state.frameList = [];
       state.frames = {};
       state.scenes = {};
       state.numScenes = 0;
     } else {
       state.frameList.forEach(frameId => {
+        const currFrame = state.frames[frameId];
         // Remove that conditions scene's from each frame
-        // FIXME: fix this being a direct mutation?
-        const removedSceneId = state.frames[frameId].scenes.splice(index, 1);
-        // Adjust frame size
+        // TODO: fix this being a direct mutation?
+        const removedSceneId = currFrame.scenes.splice(index, 1);
+        // Update frame size
         if (state.scenes[removedSceneId].props !== null) {
-          const currFrame = state.frames[frameId];
-          Vue.set(state.frames, frameId, { ...currFrame, size: currFrame.size - 1 });
+          Vue.set(currFrame, 'size', currFrame.size - 1);
           state.numScenes -= 1;
         }
         // Remove scene from scenes

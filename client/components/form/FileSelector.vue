@@ -1,37 +1,21 @@
 <template>
-  <form-group :label="label" :validator="validator">
-    <!-- :rules="invalidOldFile ? `excluded:${value}` : null" -->
-    <b-select v-bind="$attrs" v-model="innerValue" :icon="icon">
-      <option :value="null">None</option>
-      <!-- If value does not exists insert dummy value -->
-      <option v-if="invalidOldFile" :value="value">{{ value }}</option>
-      <option v-for="file in options" :key="file" :value="file">{{ file }}</option>
-    </b-select>
-  </form-group>
+  <b-select v-bind="$attrs" v-model="innerValue" :icon="icon">
+    <option :value="null">None</option>
+    <!-- If value does not exists insert dummy value -->
+    <option v-if="invalidOldFile" :value="value">{{ value }}</option>
+    <option v-for="file in options" :key="file" :value="file">{{ file }}</option>
+  </b-select>
 </template>
 
 <script>
 export default {
   props: {
-    label: {
-      type: String,
-      required: false
-    },
-    // This is false to allow data to load
-    options: {
-      type: Array,
-      required: false
-    },
-    validator: {
-      required: true
-    },
     value: {
       required: true
     },
-    icon: {
-      type: String,
-      required: false
-    }
+    // options is false to allow data to load
+    options: Array,
+    icon: String
   },
   computed: {
     innerValue: {

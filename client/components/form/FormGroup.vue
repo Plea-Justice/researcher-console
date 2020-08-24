@@ -1,15 +1,13 @@
 <template>
-  <div>
-    <b-field
-      v-bind="$attrs"
-      :label="`${label}`"
-      :custom-class="status.label"
-      :type="status.type"
-      :message="$attrs.message || firstErrorMessage"
-    >
-      <slot :type="type" :maxlength="maxLength" />
-    </b-field>
-  </div>
+  <b-field
+    v-bind="$attrs"
+    :label="`${label}`"
+    :custom-class="status.label"
+    :type="status.type"
+    :message="$attrs.message || firstErrorMessage"
+  >
+    <slot :type="type" :maxlength="maxLength" />
+  </b-field>
 </template>
 <script>
 import { singleErrorExtractorMixin } from "vuelidate-error-extractor";

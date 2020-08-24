@@ -64,7 +64,11 @@
         </template>
       </ToolBar>
 
-      <ConditionBar ref="conditionbar" :selectable="isSelectableTemp(Select.CONDITION)" @remove="removeConditionHelper($event)" />
+      <ConditionBar
+        ref="conditionbar"
+        :selectable="isSelectableTemp(Select.CONDITION)"
+        @remove="removeConditionHelper($event)"
+      />
     </template>
 
     <section ref="frames" class="padded-responsive-container responsive-center">
@@ -78,7 +82,7 @@
         :frameIndex="index"
         :isFirst="index === 0"
         :isLast="index === frameSet.length - 1"
-        :selectable="isSelectable(Select.SCENE, index)"
+        :selectable="isSelectableTemp(Select.SCENE)"
       />
     </section>
   </ScenarioLayout>
@@ -233,10 +237,10 @@ export default {
   methods: {
     findScene(sceneId) {
       let indexPair = null;
-      for (const [frameIndex, { scenes }] of this.frameSet.entries()) {
+      for (const [index, { scenes }] of this.frameSet.entries()) {
         const sceneIndex = scenes.indexOf(sceneId);
         if (sceneIndex !== -1) {
-          indexPair = [frameIndex, sceneIndex];
+          indexPair = { frame: index, scene: sceneIndex };
           break;
         }
       }
@@ -252,10 +256,10 @@ export default {
             this.$buefy.toast.open({
               message: `${numErrors} ${
                 numErrors > 1 ? "errors exists, starting" : "error exists"
-              } at scene ${errorIndex[1] + 1} of current row`,
+              } at scene ${errorIndex.scene + 1} of current row`,
               type: "is-danger"
             });
-            this.scrollToFrame({ frameIndex: errorIndex[0] });
+            this.scrollToFrame({ frameIndex: errorIndex.frame });
           }
         } else {
           await this.saveScenario();
@@ -344,10 +348,21 @@ export default {
       }
     },
     isSelectableTemp(selectionType) {
-      return (
+      let result = false;
+      if (
         this.mode !== this.Modes.DEFAULT &&
         (this.select === this.Select.ANY || this.select === selectionType)
-      );
+      ) {
+        // If parent is defined create filter
+        result = this.selectParent
+          ? {
+              parent: this.selectParent,
+              selectionList: this.selectionList,
+              filters: this.modeOptions[this.mode].filters
+            }
+          : true;
+      }
+      return result;
     },
     isSelectable(selectionType, index) {
       const test =
@@ -400,7 +415,7 @@ export default {
         (options.max && selectionLen >= options.max) ||
         (options.filters &&
           options.filters.includes("frame") &&
-          selectionLen >= this.frameSet[this.selectParent[0]].scenes.length)
+          selectionLen >= this.frameSet[this.selectParent.frame].scenes.length)
       ) {
         // If exceeds max selection property or has frame filter and selected all scenes in frame
         // then auto-end the selection process
@@ -428,13 +443,13 @@ export default {
         });
       });
     },
-    removeConditionHelper(index) {
+    removeConditionHelper(id) {
       const scrollElement = this.$refs.layout.$refs.scroll;
       scrollElement.scrollTo({
         // FIXME: have scene sizes reference the Buefy variables somehow
         left: scrollElement.scrollLeft - (350 + 20)
       });
-      this.removeCondition(index);
+      this.removeCondition(id);
     },
     openScenarioProps() {
       this.$buefy.modal.open({

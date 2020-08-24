@@ -1,17 +1,27 @@
 {
-  "condition": {
-    "name": "string",
-    "description": "string",
-    "scenes": "array"
-  },
-
   "scene": {
-    "actor": "image",
-    "foreground": "image",
-    "background": "image",
-    "script": "text",
-    "clip": "video",
-    "buttons": "buttons"
+    "actor": {
+      "type": "selector",
+      "icon": "file-image"
+    },
+    "foreground": {
+      "type": "selector",
+      "icon": "file-image"
+    },
+    "background": {
+      "type": "selector",
+      "icon": "file-image"
+    },
+    "clip": {
+      "type": "selector",
+      "icon": "file-image"
+    },
+    "script": {
+      "type": "input"
+    },
+    "buttons": {
+      "type": "tag-input"
+    }
   },
 
   "sceneTypes": {

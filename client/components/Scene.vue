@@ -2,88 +2,93 @@
   <!-- FIXME: fix how form interaction works either make form top level again or use more effectively here -->
   <!-- If scene is not blank -->
   <form v-if="scene.props !== null" ref="form" class="flex-wrap">
-    <div v-if="selectable && $v.form.$invalid" class="invalid-selection-mask" />
+    <div v-if="isSelectable && $v.form.$invalid" class="invalid-selection-mask" />
     <GenericCard
       @selected="$emit('selected', scene.id)"
-      :selectable="selectable && !$v.form.$invalid"
+      :selectable="isSelectable && !$v.form.$invalid"
       :collapsed="collapsed"
       :invalid="$v.form.$invalid"
     >
-      <template v-slot:default>
-        <!-- Scene Type Toggle -->
-        <b-field class="is-capitalized field-centered">
+      <!-- Scene Type Toggle -->
+      <b-field class="is-capitalized field-centered">
+        <p class="control">
+          <b-button
+            @click="removeScene(isBound ? bound : scene.id)"
+            type="is-danger is-light"
+            icon-left="times"
+          />
+        </p>
+        <template v-if="isBound">
+          <p class="control bound-label">
+            <b-button type="is-light" disabled expanded>Bound: Scene {{ index }}</b-button>
+          </p>
           <p class="control">
             <b-button
-              @click="removeScene(isBound ? bound : scene.id)"
-              type="is-danger is-light"
-              icon-left="times"
+              @click="unbindScene({ id: bound, props: scene.id })"
+              icon-left="unlink"
+              type="is-primary is-light"
             />
           </p>
-          <b-radio-button
-            v-for="type in validSceneTypes"
-            :key="type"
-            v-model="$v.form.type.$model"
-            :native-value="type"
-            :disabled="isBound"
-          >{{ type }}</b-radio-button>
-        </b-field>
-
-        <!-- options props needs a preloaded value because .includes in AssetNamesByType will return false positive while loading -->
-        <template v-for="field in validFieldNames">
-          <!-- FIXME: has 2 validators -->
-          <form-group
-            :key="field"
-            v-if="isType(field, ['image', 'video'])"
-            :validator="$v.form[field]"
-          >
-            <FileSelector
-              :validator="$v.form[field]"
-              v-model="$v.form[field].$model"
-              :options="AssetNamesByType[field]"
-              :label="field"
-              :icon="getIcon(field)"
-              :disabled="isBound"
-              class="is-capitalized"
-              expanded
-            />
-          </form-group>
-
-          <form-group
-            :key="field"
-            v-if="isType(field, 'text')"
-            :validator="$v.form[field]"
-            :label="field"
-            class="is-capitalized"
-            v-slot="{ maxlength }"
-          >
-            <b-input
-              v-model="$v.form[field].$model"
-              :disabled="isBound"
-              :placeholder="`${field}...` | capitalize"
-              :maxlength="maxlength"
-              type="textarea"
-              custom-class="has-fixed-size"
-              expanded
-            />
-          </form-group>
-
-          <BTagInput
-            :key="field"
-            v-if="isType(field, 'buttons')"
-            :label="field"
-            v-model="form[field]"
-            :disabled="isBound"
-            class="is-capitalized"
-            expanded
-          />
-
-          <!-- TODO: Display error for incorrect types/types that don't match anything ?-->
         </template>
-      </template>
 
-      <template v-slot:footer v-if="isBound">
-        <b-button @click="unbindScene({ id: bound, props: scene.id })" icon-left="unlink" />
-      </template>
+        <b-radio-button
+          v-else
+          v-for="type in validSceneTypes"
+          :key="type"
+          v-model="$v.form.type.$model"
+          :native-value="type"
+          :disabled="isBound"
+          type="is-light is-primary"
+        >{{ type }}</b-radio-button>
+      </b-field>
+
+      <form-group
+        v-for="field in validFieldNames"
+        :key="field"
+        :validator="$v.form[field]"
+        :label="field"
+        label-position="inside"
+        class="is-capitalized"
+        v-slot="{ maxlength }"
+      >
+        <!--
+          `options` prop needs a preloaded value because .includes in
+          AssetNamesByType will return false positive while loading
+        -->
+        <FileSelector
+          v-if="isType(field, 'selector')"
+          :validator="$v.form[field]"
+          v-model="$v.form[field].$model"
+          :options="AssetNamesByType[field]"
+          :icon="getIcon(field)"
+          :disabled="isBound"
+          expanded
+        />
+
+        <b-input
+          v-else-if="isType(field, 'input')"
+          v-model="$v.form[field].$model"
+          :placeholder="`${field}...` | capitalize"
+          :icon="getIcon(field)"
+          :maxlength="maxlength"
+          :disabled="isBound"
+          type="textarea"
+          custom-class="has-fixed-size"
+          expanded
+        />
+
+        <!-- FIXME: make sure tag input updates $dirty correctly -->
+        <BTagInput
+          v-else-if="isType(field, 'tag-input')"
+          v-model="form[field]"
+          :icon="getIcon(field)"
+          :disabled="isBound"
+          class="is-capitalized"
+          expanded
+        />
+
+        <!-- TODO: Display error for incorrect types/types that don't match anything ? -->
+      </form-group>
     </GenericCard>
   </form>
 
@@ -127,14 +132,9 @@ export default {
       type: Object,
       required: true
     },
-    collapsed: {
-      type: Boolean,
-      required: false
-    },
-    selectable: {
-      type: Boolean,
-      required: false
-    },
+    index: Number,
+    collapsed: Boolean,
+    selectable: [Object, Boolean],
     bound: {
       type: [String, Boolean],
       required: false,
@@ -178,8 +178,7 @@ export default {
         },
         script: {
           maxLength: maxLength(220)
-        },
-        buttons: {}
+        }
       }
     };
   },
@@ -225,6 +224,23 @@ export default {
     isBound() {
       return this.bound ? true : false;
     },
+    isSelectable() {
+      let result = this.selectable;
+      if (typeof this.selectable !== "boolean") {
+        result = true;
+
+        if (
+          this.selectable.filters.includes("condition") &&
+          this.selectable.parent.scene !== this.index
+        )
+          result = false;
+
+        if (this.selectable.selectionList.includes(this.scene.id))
+          result = false;
+      }
+
+      return result;
+    },
     validFieldNames() {
       return spec.sceneTypes[this.form.type];
     },
@@ -244,22 +260,11 @@ export default {
     }
   },
   methods: {
-    isType(field, validTypes) {
-      const targetType = spec.scene[field];
-      return Array.isArray(validTypes)
-        ? validTypes.some(type => targetType === type)
-        : targetType === validTypes;
+    isType(field, type) {
+      return spec.scene[field].type === type;
     },
-    // TODO: make this a enum in data?
     getIcon(field) {
-      const type = spec.scene[field];
-      let icon = "";
-      if (type === "image") {
-        icon = "file-image";
-      } else if (type === "video") {
-        icon = "file-video";
-      }
-      return icon;
+      return spec.scene[field].icon || null;
     },
     ...mapActions({
       addScene: "scenario/addScene",
@@ -300,5 +305,9 @@ export default {
 .center-card-content {
   @include flexCenter();
   height: 100%;
+}
+
+.bound-label {
+  flex-grow: 1;
 }
 </style>
