@@ -13,7 +13,7 @@
               />
 
               <b-button
-                @click="removeConditionHelper(index)"
+                @click="$emit('remove', index)"
                 type="is-danger is-light"
                 icon-left="times"
                 class="condition-remove"

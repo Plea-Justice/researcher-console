@@ -64,7 +64,7 @@
         </template>
       </ToolBar>
 
-      <ConditionBar ref="conditionbar" :selectable="isSelectableTemp(Select.CONDITION)" />
+      <ConditionBar ref="conditionbar" :selectable="isSelectableTemp(Select.CONDITION)" @remove="removeConditionHelper($event)" />
     </template>
 
     <section ref="frames" class="padded-responsive-container responsive-center">

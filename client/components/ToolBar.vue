@@ -24,7 +24,7 @@ export default {
 <style lang="scss" scoped>
 .toolbar {
   @include sticky();
-  z-index: $buefyOverlapIndex + 2;
+  z-index: $buefyOverlapIndex + 3;
   top: 0;
 
   height: 4rem;
