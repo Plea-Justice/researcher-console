@@ -47,9 +47,9 @@
           lazy
         >
           <template v-slot:placeholder>
-           <div class="image-placeholder">
+            <div class="image-placeholder">
               <span class="content has-text-grey-light is-size-1">?</span>
-              <span class="content has-text-grey-light is-size-7">No thumbnail available.</span>
+              <span class="content has-text-grey-light is-size-7">No thumbnail available</span>
             </div>
           </template>
         </b-image>

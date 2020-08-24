@@ -5,8 +5,8 @@ export const EventBus = new Vue();
 
 export class Event {
   // Simple event
-  static collapseAll() {
-    EventBus.$emit('collapseAll');
+  static collapseAll(collapse) {
+    EventBus.$emit('collapseAll', collapse);
   }
 }
 

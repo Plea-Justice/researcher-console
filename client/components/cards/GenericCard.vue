@@ -96,6 +96,8 @@ export default {
 }
 
 .card {
+  height: 100%;
+
   // Fix for card footer when using tiles
   display: flex;
   flex-direction: column;

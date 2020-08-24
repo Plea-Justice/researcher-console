@@ -275,7 +275,7 @@ export default {
     },
     collapseAll() {
       this.collapsed = !this.collapsed;
-      Event.collapseAll();
+      Event.collapseAll(this.collapsed);
     },
     closeSnackbar() {
       this.snackbar.close();

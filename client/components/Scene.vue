@@ -4,7 +4,6 @@
   <form v-if="scene.props !== null" ref="form" class="flex-wrap">
     <div v-if="selectable && $v.form.$invalid" class="invalid-selection-mask" />
     <GenericCard
-      @remove="removeScene(isBound ? bound : scene.id)"
       @selected="$emit('selected', scene.id)"
       :selectable="selectable && !$v.form.$invalid"
       :collapsed="collapsed"
@@ -14,7 +13,11 @@
         <!-- Scene Type Toggle -->
         <b-field class="is-capitalized field-centered">
           <p class="control">
-            <b-button type="is-danger is-light" icon-left="times" />
+            <b-button
+              @click="removeScene(isBound ? bound : scene.id)"
+              type="is-danger is-light"
+              icon-left="times"
+            />
           </p>
           <b-radio-button
             v-for="type in validSceneTypes"
@@ -51,11 +54,13 @@
             :validator="$v.form[field]"
             :label="field"
             class="is-capitalized"
+            v-slot="{ maxlength }"
           >
             <b-input
               v-model="$v.form[field].$model"
               :disabled="isBound"
               :placeholder="`${field}...` | capitalize"
+              :maxlength="maxlength"
               type="textarea"
               custom-class="has-fixed-size"
               expanded

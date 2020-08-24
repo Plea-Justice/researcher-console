@@ -1,13 +1,15 @@
 <template>
-  <b-field
-    v-bind="$attrs"
-    :label="`${label}`"
-    :custom-class="status.label"
-    :type="status.type"
-    :message="$attrs.message || firstErrorMessage"
-  >
-    <slot :type="type" />
-  </b-field>
+  <div>
+    <b-field
+      v-bind="$attrs"
+      :label="`${label}`"
+      :custom-class="status.label"
+      :type="status.type"
+      :message="$attrs.message || firstErrorMessage"
+    >
+      <slot :type="type" :maxlength="maxLength" />
+    </b-field>
+  </div>
 </template>
 <script>
 import { singleErrorExtractorMixin } from "vuelidate-error-extractor";
@@ -52,6 +54,9 @@ export default {
         : this.isValid
         ? "has-text-success"
         : null;
+    },
+    maxLength() {
+      return this.validator.$params.maxLength?.max;
     }
   }
 };

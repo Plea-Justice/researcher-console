@@ -32,7 +32,6 @@ export const getters = {
   conditionSet: state => state.conditionList.map(id => state.conditions[id]),
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
-  numConditions: state => (state.frameList.length ? state.frames[state.frameList[0]].scenes.length : 0),
   numScenes: state => state.numScenes,
   errors: state => state.status.errors
 };

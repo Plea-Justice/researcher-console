@@ -146,8 +146,8 @@ export default {
     }
   },
   mounted() {
-    EventListener.collapseAll(() => {
-      this.collapseFrame();
+    EventListener.collapseAll(collapse => {
+      if (collapse != this.collapsed) this.collapseFrame();
     });
   },
   data() {
