@@ -36,6 +36,9 @@ module.exports = {
 
     // Data directory for uploaded assets and user files.
     data_dir: './data/',
+
+    // Directory from which to serve live studies.
+    sim_serve_dir: './sim-serve/',
     
     // Whether to copy a template to each user's data directory.
     assets_template: true,

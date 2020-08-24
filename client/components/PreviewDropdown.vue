@@ -1,21 +1,11 @@
 <template>
   <div class="buttons">
-    <ToolBarButton
-      @click="previewSimulation()"
-      type="is-primary"
-      icon-left="eye"
-      >Preview</ToolBarButton
-    >
+    <ToolBarButton @click="preview" type="is-primary" icon-left="eye">Preview</ToolBarButton>
     <b-dropdown position="is-bottom-left">
-      <ToolBarButton
-        class="button is-primary"
-        slot="trigger"
-        icon-left="angle-down"
-        >Publish</ToolBarButton
-      >
+      <ToolBarButton class="button is-primary" slot="trigger" icon-left="angle-down">Publish</ToolBarButton>
 
-      <b-dropdown-item @click="downloadZip">Manual Download</b-dropdown-item>
-      <b-dropdown-item @click="publishSimulation" :disabled="!user.permitHosting" >Publish Live</b-dropdown-item>
+      <b-dropdown-item @click="download">Manual Download</b-dropdown-item>
+      <b-dropdown-item @click="publish" :disabled="!user.permitHosting">Publish Live</b-dropdown-item>
     </b-dropdown>
   </div>
 </template>
@@ -47,10 +37,9 @@ export default {
     }
   },
   methods: {
-    async generateSimulation() {
+    async preview() {
       // TODO: Ask on unsaved, invalid, etc.
       // Create an array of warnings & display the messages accordingly
-      let status = false;
       if (!this.scenarioMeta.survey) {
         this.$buefy.dialog.alert({
           title: "Survey Redirect Not Set",
@@ -63,48 +52,73 @@ export default {
         });
       } else {
         await this.wrapSnackbar(async () => {
-        try {
-          const res = await this.$axios.post(
-            `/api/v1/scenarios/${this.scenarioMeta.id}/generate`
-          );
-          status = res.status === 200;
-        } catch (err) {
-          status = false;
-        }
-        }, "Please wait, generating simulation...");
-      }
 
-      return status;
+          const res = await this.$axios.post(`/api/v1/scenarios/${this.scenarioMeta.id}/preview`);
+
+          this.$buefy.toast.open({
+            message: "Preview ready. Check that pop-ups are enabled.",
+            type: "is-success"
+          });
+
+          window.open(
+            `${this.$axios.defaults.baseURL}/sim-prev/sim-${this.scenarioMeta.id}/`
+          );
+          
+        }, "Please wait, generating preview...");
+      }
     },
-    async downloadZip() {
-      if (!(await this.generateSimulation())) return;
+    async download() {
       await this.wrapSnackbar(async () => {
       try {
-        const res = await this.$axios.post(
-          `/api/v1/scenarios/${this.scenarioMeta.id}/zip`
-        );
-        if (res.status === 200)
+          await this.$axios.post(
+            `/api/v1/scenarios/${this.scenarioMeta.id}/download`
+          );
+
+          this.$buefy.toast.open({
+            message: "Download ready. Check that pop-ups are enabled.",
+            type: "is-success"
+          });
+
           window.open(
-            `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}.zip`
+            `${this.$axios.defaults.baseURL}/sim-prev/sim-${this.scenarioMeta.id}.zip`
           );
       } catch (err) {
         console.log(err);
       }
       }, "Compressing simulation for download...");
     },
-    async previewSimulation() {
-      if (!(await this.generateSimulation())) return;
-      this.$buefy.toast.open({
-        message: "Preview ready. Check that pop-ups are enabled.",
-        type: "is-success"
-      });
+    async publish(title, message, method, url, data) {
+      this.$buefy.dialog.prompt({
+        title: "Publish Simulation",
+        message: "This action will overwrite any previously published simulations. Enter your password to confirm.",
+        type: "is-warning",
+        inputAttrs: {
+          type: "password",
+          placeholder: "Password",
+          maxlength: 100
+        },
+        trapFocus: true,
+        onConfirm: async (pass) => {
+          this.wrapSnackbar(async ()=>{
+            try {
+              await this.$axios.post(`/api/v1/scenarios/${this.scenarioMeta.id}/publish`, {
+                password: pass
+              });
 
-      window.open(
-        `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}/`
-      );
-    },
-    async publishSimulation() {
-      await this.$axios.post(`/api/v1/scenarios/${this.scenarioMeta.id}/publish`)
+              this.$buefy.toast.open({
+                message: "Live simulation ready. Check that pop-ups are enabled.",
+                type: "is-success"
+              });
+
+              window.open(
+                `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}/`
+              );
+            } catch (err) {
+              console.log(err);
+            }
+          }, "Preparing live simulation...");
+        }
+      });
     },
     async wrapSnackbar(callback, message) {
       this.snackbar = this.$buefy.snackbar.open({

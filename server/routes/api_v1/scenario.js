@@ -168,7 +168,7 @@ module.exports = function (options) {
     });
 
     // Simulation generation sub-route.
-    router.use('/:scenario_id', require('./zip')(options));
+    router.use('/:scenario_id', require('./sim-generate')(options));
 
     return router;
 };

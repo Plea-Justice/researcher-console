@@ -90,11 +90,11 @@ function userDir(options, user_id) {
 }
 
 function simTmpDir(options, sim_id) {
-    return path.join(os.tmpdir(), 'sim-serve' , `sim-${sim_id}`);
+    return path.join(os.tmpdir(), 'sim-prev' , `sim-${sim_id}`);
 }
 
 function simTmpZipPath(options, sim_id) {
-    return path.join(os.tmpdir(), 'sim-serve' , `sim-${sim_id}.zip`);
+    return path.join(os.tmpdir(), 'sim-prev' , `sim-${sim_id}.zip`);
 }
 
 function fileMultipleReplace(file, replacements) {

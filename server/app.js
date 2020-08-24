@@ -56,6 +56,9 @@ app.use(session({
     store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 
+// Options for passing to required routes.
+const options = {db: database, config: config};
+
 // Count the user's IP connections.
 app.use(require('./middleware/userSessionCount').countUserSessions);
 
@@ -73,13 +76,15 @@ const cors = require('cors');
 if (config.cors_enabled) {
     app.use(cors({credentials: true, origin: config.cors_origin}));
 }
-fs.ensureDir(path.join(os.tmpdir(), 'sim-serve'));
-app.use('/sim-serve', express.static(path.join(os.tmpdir(), 'sim-serve')));
+
+// Serve preview and live published simulations.
+app.use(require('./routes/sim-serve_v1')(options));
+
 // Serve static files in public.
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Serve the api from the selected route at the selected mount point.
-app.use(config.api_mount_point, require(config.api_definition)({db: database, config: config}));
+app.use(config.api_mount_point, require(config.api_definition)(options));
 
 // Serve the client.
 if (config.serve_client) {
