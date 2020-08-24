@@ -62,7 +62,7 @@ export default {
           onConfirm: () => setTimeout(this.$emit("openScenarioProps"), 150)
         });
       } else {
-        this.wrapSnackbar(async () => {
+        await this.wrapSnackbar(async () => {
         try {
           const res = await this.$axios.post(
             `/api/v1/scenarios/${this.scenarioMeta.id}/generate`
@@ -78,7 +78,7 @@ export default {
     },
     async downloadZip() {
       if (!(await this.generateSimulation())) return;
-      this.wrapSnackbar(async () => {
+      await this.wrapSnackbar(async () => {
       try {
         const res = await this.$axios.post(
           `/api/v1/scenarios/${this.scenarioMeta.id}/zip`
@@ -106,7 +106,7 @@ export default {
     async publishSimulation() {
       await this.$axios.post(`/api/v1/scenarios/${this.scenarioMeta.id}/publish`)
     },
-    wrapSnackbar(callback, message) {
+    async wrapSnackbar(callback, message) {
       this.snackbar = this.$buefy.snackbar.open({
         message: message,
         position: "is-top",
@@ -114,12 +114,9 @@ export default {
         actionText: null
       });
 
-      callback().then(()=>{
+      await callback();
       this.snackbar.close();
       this.snackbar = null;
-      });
-
-      
     }
   }
 };
