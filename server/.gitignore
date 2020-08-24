@@ -4,6 +4,7 @@
 /logs
 # data
 /data/*
+/sim-serve/*
 .vscode
 
 # Logs
