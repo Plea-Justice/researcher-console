@@ -6,14 +6,18 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton v-model="addMode" @click="toggleAddMode()">Add</ToolBarButton>
+        <ToolBarButton v-model="addMode" @click="toggleAddMode()"
+          >Add</ToolBarButton
+        >
       </div>
     </template>
     <template v-slot:toolbar-end>
       <b-field v-if="validAssetTypes.length > 1">
         <b-select placeholder="Asset Type" v-model="selectedAssetType">
           <option value="all">All</option>
-          <option v-for="type in validAssetTypes" :key="type" :value="type">{{ type | capitalize }}</option>
+          <option v-for="type in validAssetTypes" :key="type" :value="type">{{
+            type | capitalize
+          }}</option>
         </b-select>
       </b-field>
     </template>
@@ -27,7 +31,10 @@
       :types="allAssetTypes"
     />
 
-    <p v-if="!addMode && !assetSet.length" class="empty-text has-text-weight-medium is-size-5">
+    <p
+      v-if="!addMode && !assetSet.length"
+      class="empty-text has-text-weight-medium is-size-5"
+    >
       No assets exists!
       <br />Add an asset from the toolbar to get started.
     </p>
@@ -40,21 +47,19 @@
         :item="asset"
         close
       >
-        <!-- TODO:: add loading indicator, fix when error-fallback is added next release? -->
         <b-image
-          :src="`${$axios.defaults.baseURL}/api/v1/assets/${asset.id}/thumbnail`"
+          :src="
+            `${$axios.defaults.baseURL}/api/v1/assets/${asset.id}/thumbnail`
+          "
+          src-fallback="/defaultThumbnail.png"
+          responsive
           ratio="16by9"
           lazy
-        >
-          <template v-slot:placeholder>
-            <div class="image-placeholder">
-              <span class="content has-text-grey-light is-size-1">?</span>
-              <span class="content has-text-grey-light is-size-7">No thumbnail available</span>
-            </div>
-          </template>
-        </b-image>
+        />
 
-        <span class="content is-small">Uploaded {{ posixTimeToHoursAgo(asset.created) }}</span>
+        <span class="content is-small"
+          >Uploaded {{ posixTimeToHoursAgo(asset.created) }}</span
+        >
         <span style="float: right;">
           <b-tag type="is-primary">{{ asset.type | capitalize }}</b-tag>
         </span>
@@ -90,7 +95,6 @@ export default {
   data() {
     // Template for Form
     const AssetForm = {
-      name: "",
       type: null,
       file: null
     };

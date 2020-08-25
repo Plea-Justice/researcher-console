@@ -2,7 +2,9 @@
   <b-navbar type="is-dark">
     <template slot="brand">
       <b-navbar-item :tag="path ? 'n-link' : 'div'" :to="path || null">
-        <h1 class="subtitle has-text-light">{{ title || $siteConfig.title }}</h1>
+        <h1 class="subtitle has-text-light">
+          {{ title || $siteConfig.title }}
+        </h1>
       </b-navbar-item>
     </template>
 
@@ -20,13 +22,16 @@
           :to="route.path"
           tag="n-link"
           class="is-capitalized"
-        >{{ route.name }}</b-navbar-item>
+          >{{ route.name }}</b-navbar-item
+        >
       </template>
     </template>
 
     <template slot="end">
       <b-navbar-item v-if="user.n_sessions > 1" tag="div">
-        <b-tag type="is-warning" size="is-small">Another user may be active</b-tag>
+        <b-tag type="is-warning" size="is-small"
+          >Another user may be active</b-tag
+        >
       </b-navbar-item>
       <b-navbar-item tag="div">
         <div class="buttons">
@@ -38,13 +43,15 @@
             inverted
             tag="n-link"
             to="/admin"
-          >Admin</b-button>
+            >Admin</b-button
+          >
           <!-- Logout Button -->
           <b-button
             @click="logoutHandler()"
             type="is-danger"
             icon-left="sign-out-alt"
-          >Log Out, {{ user.name }}</b-button>
+            >Log Out, {{ user.name }}</b-button
+          >
 
           <!-- Help Menu -->
           <HelpSidebar v-if="helpText" :title="helpTitle" :text="helpText" />
@@ -75,19 +82,9 @@ export default {
       required: false,
       default: ""
     },
-    helpText: {
-      type: String,
-      required: false,
-      default: false
-    },
-    helpTitle: {
-      type: String,
-      required: false
-    },
-    logout: {
-      type: Function,
-      required: false
-    }
+    helpText: String,
+    helpTitle: String,
+    logout: Function
   },
   data() {
     return {

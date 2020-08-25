@@ -1,24 +1,36 @@
 <template>
   <div class="buttons">
-    <ToolBarButton @click="preview" type="is-primary" icon-left="eye">Preview</ToolBarButton>
+    <ToolBarButton @click="preview" type="is-primary" icon-left="eye"
+      >Preview</ToolBarButton
+    >
     <b-dropdown position="is-bottom-left">
-      <ToolBarButton class="button is-primary" slot="trigger" icon-left="angle-down">Publish</ToolBarButton>
+      <ToolBarButton
+        class="button is-primary"
+        slot="trigger"
+        icon-left="angle-down"
+        >Publish</ToolBarButton
+      >
 
       <b-dropdown-item @click="download">Manual Download</b-dropdown-item>
-      <b-dropdown-item @click="publish" :disabled="!user.permitHosting">Publish Live</b-dropdown-item>
-      <b-dropdown-item v-if="scenarioMeta.live" @click="liveURLPopup"><b-tag type="is-success">Active Live Link</b-tag></b-dropdown-item>
+      <b-dropdown-item @click="publish" :disabled="!user.permitHosting"
+        >Publish Live</b-dropdown-item
+      >
+      <b-dropdown-item v-if="scenarioMeta.live" @click="liveURLPopup"
+        ><b-tag type="is-success">Active Live Link</b-tag></b-dropdown-item
+      >
     </b-dropdown>
   </div>
 </template>
 
 <script>
+// Import VueX
 import { mapActions } from "vuex";
+
+// Import Components
 import ToolBarButton from "~/components/ToolBarButton";
 
 export default {
-  components: {
-    ToolBarButton
-  },
+  components: { ToolBarButton },
   props: {
     scenarioMeta: {
       type: Object,
@@ -54,12 +66,14 @@ export default {
           type: "is-warning",
           hasIcon: true,
           icon: "exclamation-triangle",
-          onConfirm: () => setTimeout(this.$emit("openScenarioProps"), 150)
+          onConfirm: () => setTimeout(this.$emit("openScenarioOptions"), 150)
         });
       } else {
         await this.wrapSnackbar(async () => {
           try {
-            const res = await this.$axios.post(`/api/v1/scenarios/${this.scenarioMeta.id}/preview`);
+            const res = await this.$axios.post(
+              `/api/v1/scenarios/${this.scenarioMeta.id}/preview`
+            );
 
             this.$buefy.toast.open({
               message: "Preview ready. Check that pop-ups are enabled.",
@@ -71,13 +85,13 @@ export default {
             );
           } catch (err) {
             console.log(err);
-          } 
+          }
         }, "Please wait, generating preview...");
       }
     },
     async download() {
       await this.wrapSnackbar(async () => {
-      try {
+        try {
           await this.$axios.post(
             `/api/v1/scenarios/${this.scenarioMeta.id}/download`
           );
@@ -90,15 +104,16 @@ export default {
           window.open(
             `${this.$axios.defaults.baseURL}/sim-prev/sim-${this.scenarioMeta.id}.zip`
           );
-      } catch (err) {
-        console.log(err);
-      }
+        } catch (err) {
+          console.log(err);
+        }
       }, "Compressing simulation for download...");
     },
     async publish(title, message, method, url, data) {
       this.$buefy.dialog.prompt({
         title: "Publish Simulation",
-        message: "This action will overwrite any previously published simulations. Enter your password to confirm.",
+        message:
+          "This action will overwrite any previously published simulations. Enter your password to confirm.",
         type: "is-warning",
         inputAttrs: {
           type: "password",
@@ -106,12 +121,15 @@ export default {
           maxlength: 100
         },
         trapFocus: true,
-        onConfirm: async (pass) => {
-          this.wrapSnackbar(async ()=>{
+        onConfirm: async pass => {
+          this.wrapSnackbar(async () => {
             try {
-              await this.$axios.post(`/api/v1/scenarios/${this.scenarioMeta.id}/publish`, {
-                password: pass
-              });
+              await this.$axios.post(
+                `/api/v1/scenarios/${this.scenarioMeta.id}/publish`,
+                {
+                  password: pass
+                }
+              );
 
               this.$buefy.toast.open({
                 message: "Live simulation ready.",
@@ -124,7 +142,6 @@ export default {
               this.saveMeta();
 
               this.liveURLPopup();
-
             } catch (err) {
               console.log(err);
             }
@@ -135,14 +152,14 @@ export default {
     liveURLPopup() {
       if (this.scenarioMeta.live) {
         this.$buefy.dialog.alert({
-          title: 'Live Simulation Link',
+          title: "Live Simulation Link",
           message: `This scenario has been published at: <br /><br />
             <a class="is-size-7" href="${this.scenarioMeta.live}">${this.scenarioMeta.live}</a><br /><br />
             Opening this link directly will result in an error.
-            Follow <a href="https://pleajustice.org/simulation/working-with-qualtrics">this article</a> to 
+            Follow <a href="https://pleajustice.org/simulation/working-with-qualtrics">this article</a> to
             connect to Qualtrics.`,
-          type: 'is-success'
-        })
+          type: "is-success"
+        });
       }
     },
     async wrapSnackbar(callback, message) {

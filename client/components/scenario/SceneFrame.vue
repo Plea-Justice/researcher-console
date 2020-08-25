@@ -46,11 +46,17 @@
           :style="{ '--num-scenes': this.frame.scenes.length }"
         >
           <div class="frame-header">
-            <form-group class="frame-header-item" :validator="$v.label" grouped>
+            <form-group
+              class="frame-header-item"
+              :validator="$v.label"
+              grouped
+              v-slot="{ maxlength }"
+            >
               <b-input
                 ref="focus_target"
                 :value="frame.label"
                 @input="setLabel($event)"
+                :maxlength="maxlength"
                 placeholder="Scenes Label (Optional)"
                 expanded
               />
@@ -176,8 +182,9 @@ export default {
   },
   validations: {
     label: {
+      // This should be updated to whatever character set we want to allow for Qualtrics stuff
       alphaNum,
-      maxLength: maxLength(20)
+      maxLength: maxLength(25)
     }
   },
   computed: {

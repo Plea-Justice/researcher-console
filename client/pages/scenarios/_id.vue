@@ -14,7 +14,7 @@
             >
 
             <ToolBarButton
-              @click="openScenarioProps()"
+              @click="openScenarioOptions()"
               :value="mode"
               icon-left="cog"
               >Options</ToolBarButton
@@ -71,7 +71,7 @@
           <div class="level-item">
             <PreviewDropdown
               :scenarioMeta="scenarioMeta"
-              @openScenarioProps="openScenarioProps"
+              @openScenarioOptions="openScenarioOptions"
             />
           </div>
         </template>
@@ -239,25 +239,6 @@ export default {
       this.snackbar.close();
       this.snackbar = null;
     },
-    logoutHelper() {
-      this.logout = true;
-      this.$auth.logout();
-    },
-    onLogout() {
-      if (this.scenarioStoreHasChanged) {
-        this.$buefy.modal.open({
-          parent: this,
-          component: LeaveScenario,
-          props: { validate: this.$refs.form.validate },
-          events: { exit: this.logoutHelper },
-          hasModalCard: true,
-          customClass: "dialog",
-          trapFocus: true
-        });
-      } else {
-        this.logoutHelper();
-      }
-    },
     toggleHandler(toggledOn, modeName) {
       if (toggledOn) {
         this.snackbar = this.$buefy.snackbar.open({
@@ -297,21 +278,17 @@ export default {
         });
       });
     },
-    removeConditionHelper(id) {
-      const scrollElement = this.$refs.layout.$refs.scroll;
-      scrollElement.scrollTo({
-        // FIXME: have scene sizes reference the Buefy variables somehow
-        left: scrollElement.scrollLeft - (350 + 20)
-      });
-      this.removeCondition(id);
-    },
-    openScenarioProps() {
+    openScenarioOptions() {
       this.$buefy.modal.open({
         parent: this,
         component: ScenarioOptions,
         hasModalCard: true,
         trapFocus: true
       });
+    },
+    logoutHelper() {
+      this.logout = true;
+      this.$auth.logout();
     },
     ...mapActions({
       addCondition: "scenario/addCondition",
@@ -322,21 +299,40 @@ export default {
       copyScenes: "scenario/copyScenes",
       copyConditions: "scenario/copyConditions",
       bindScenes: "scenario/bindScenes"
-    })
+    }),
+    removeConditionHelper(id) {
+      const scrollElement = this.$refs.layout.$refs.scroll;
+      scrollElement.scrollTo({
+        // FIXME: have scene sizes reference the Buefy variables somehow
+        left: scrollElement.scrollLeft - (350 + 20)
+      });
+      this.removeCondition(id);
+    },
+    LeaveScenarioHelper(exitAction) {
+      this.$buefy.modal.open({
+        parent: this,
+        component: LeaveScenario,
+        // FIXME: have this use VueX `status.valid`
+        props: { valid: !this.sceneErrors.length },
+        events: { exit: exitAction },
+        hasModalCard: true,
+        customClass: "dialog",
+        trapFocus: true
+      });
+    },
+    onLogout() {
+      if (this.scenarioStoreHasChanged) {
+        this.LeaveScenarioHelper(this.logoutHelper);
+      } else {
+        this.logoutHelper();
+      }
+    }
   },
   beforeRouteLeave(to, from, next) {
     this.snackbar && this.closeSnackbar();
 
     if (!this.logout && this.scenarioStoreHasChanged) {
-      this.$buefy.modal.open({
-        parent: this,
-        component: LeaveScenario,
-        props: { valid: !this.sceneErrors.length },
-        events: { exit: next },
-        hasModalCard: true,
-        customClass: "dialog",
-        trapFocus: true
-      });
+      this.LeaveScenarioHelper(next);
     } else {
       next();
     }
