@@ -1,0 +1,32 @@
+{
+  "scene": {
+    "actor": {
+      "type": "selector",
+      "icon": "file-image"
+    },
+    "foreground": {
+      "type": "selector",
+      "icon": "file-image"
+    },
+    "background": {
+      "type": "selector",
+      "icon": "file-image"
+    },
+    "clip": {
+      "type": "selector",
+      "icon": "file-image"
+    },
+    "script": {
+      "type": "input"
+    },
+    "buttons": {
+      "type": "tag-input"
+    }
+  },
+
+  "sceneTypes": {
+    "dialogue": ["actor", "foreground", "background", "script"],
+    "clip": ["clip"],
+    "question": ["background", "script", "buttons"]
+  }
+}

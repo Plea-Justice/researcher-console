@@ -1,0 +1,35 @@
+@import "./vars/general";
+
+@mixin flexCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin sticky {
+  position: sticky;
+  z-index: $buefyOverlapIndex + 1;
+}
+
+@mixin absoluteMask {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: $buefyOverlapIndex;
+}
+
+@mixin selectionMask {
+  @include absoluteMask();
+  cursor: pointer;
+  background-color: $selectedHoverBlue;
+
+  &:hover {
+    background-color: $selectedHoverBlue;
+    box-shadow: 0 2px 3px 1px $selectedActiveBlue;
+    // 0 2px 3px rgba(10,10,10,.1), 0 0 0 1px rgba(10,10,10,.1)
+  }
+
+  &:active {
+    background-color: $selectedActiveBlue;
+  }
+}

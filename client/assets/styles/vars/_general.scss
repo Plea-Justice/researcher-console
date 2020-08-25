@@ -1,0 +1,16 @@
+// Include Bulma/Buefy utilities (vars, mixins, etc.)
+// https://buefy.org/documentation/customization/
+@import "~bulma/sass/utilities/_all";
+
+// ******** Color ********
+$selectedHoverBlue: #007aff50;
+$selectedActiveBlue: #0a84ff64;
+$selectedRed: #ff443a99;
+$selectedRedDark: #ff443a;
+
+// ******** Utility & common.scss vars ********
+// Container side space
+$responsiveContainerSpacing: 4%;
+
+// This is the z-index I found where you overlap all buefy items (button icons, etc.)
+$buefyOverlapIndex: 5;
