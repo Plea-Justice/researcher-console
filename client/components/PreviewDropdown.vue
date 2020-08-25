@@ -6,11 +6,13 @@
 
       <b-dropdown-item @click="download">Manual Download</b-dropdown-item>
       <b-dropdown-item @click="publish" :disabled="!user.permitHosting">Publish Live</b-dropdown-item>
+      <b-dropdown-item v-if="scenarioMeta.live" @click="liveURLPopup"><b-tag type="is-success">Active Live Link</b-tag></b-dropdown-item>
     </b-dropdown>
   </div>
 </template>
 
 <script>
+import { mapActions } from "vuex";
 import ToolBarButton from "~/components/ToolBarButton";
 
 export default {
@@ -37,6 +39,10 @@ export default {
     }
   },
   methods: {
+    ...mapActions({
+      updateMeta: "scenario/updateMeta",
+      saveMeta: "scenario/saveMeta"
+    }),
     async preview() {
       // TODO: Ask on unsaved, invalid, etc.
       // Create an array of warnings & display the messages accordingly
@@ -52,18 +58,20 @@ export default {
         });
       } else {
         await this.wrapSnackbar(async () => {
+          try {
+            const res = await this.$axios.post(`/api/v1/scenarios/${this.scenarioMeta.id}/preview`);
 
-          const res = await this.$axios.post(`/api/v1/scenarios/${this.scenarioMeta.id}/preview`);
+            this.$buefy.toast.open({
+              message: "Preview ready. Check that pop-ups are enabled.",
+              type: "is-success"
+            });
 
-          this.$buefy.toast.open({
-            message: "Preview ready. Check that pop-ups are enabled.",
-            type: "is-success"
-          });
-
-          window.open(
-            `${this.$axios.defaults.baseURL}/sim-prev/sim-${this.scenarioMeta.id}/`
-          );
-          
+            window.open(
+              `${this.$axios.defaults.baseURL}/sim-prev/sim-${this.scenarioMeta.id}/`
+            );
+          } catch (err) {
+            console.log(err);
+          } 
         }, "Please wait, generating preview...");
       }
     },
@@ -106,19 +114,36 @@ export default {
               });
 
               this.$buefy.toast.open({
-                message: "Live simulation ready. Check that pop-ups are enabled.",
+                message: "Live simulation ready.",
                 type: "is-success"
               });
 
-              window.open(
-                `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}/`
-              );
+              this.updateMeta({
+                live: `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}/simulation.html`
+              });
+              this.saveMeta();
+
+              this.liveURLPopup();
+
             } catch (err) {
               console.log(err);
             }
           }, "Preparing live simulation...");
         }
       });
+    },
+    liveURLPopup() {
+      if (this.scenarioMeta.live) {
+        this.$buefy.dialog.alert({
+          title: 'Live Simulation Link',
+          message: `This scenario has been published at: <br /><br />
+            <a class="is-size-7" href="${this.scenarioMeta.live}">${this.scenarioMeta.live}</a><br /><br />
+            Opening this link directly will result in an error.
+            Follow <a href="https://pleajustice.org/simulation/working-with-qualtrics">this article</a> to 
+            connect to Qualtrics.`,
+          type: 'is-success'
+        })
+      }
     },
     async wrapSnackbar(callback, message) {
       this.snackbar = this.$buefy.snackbar.open({

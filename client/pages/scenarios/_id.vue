@@ -131,6 +131,15 @@ export default {
       ([key, val]) => (modeNames[val] = key.toLowerCase())
     );
 
+    const modeSelectMessages = [
+      { [Modes.COPY]: 'Select an element to copy from.',
+        [Modes.BIND]: 'Select an element to bind to.',
+        [Modes.SWAP]: 'Select a first element to swap.' },
+      { [Modes.COPY]: 'Select elements to copy to.',
+        [Modes.BIND]: 'Select elements to bind.',
+        [Modes.SWAP]: 'Select a second element to swap with.' }
+    ];
+
     const Select = {
       NONE: 0,
       ANY: 1,
@@ -186,6 +195,7 @@ export default {
       modeNames,
       // Set to initial
       mode: Modes.DEFAULT,
+      modeSelectMessages,
 
       Select,
       selectNames,
@@ -326,7 +336,7 @@ export default {
     toggleHandler(toggledOn, modeName) {
       if (toggledOn) {
         this.snackbar = this.$buefy.snackbar.open({
-          message: `Select element to ${this.modeNames[this.mode]} from`,
+          message: this.modeSelectMessages[0][this.mode],
           position: "is-top",
           indefinite: true,
           type: "is-danger",
@@ -408,9 +418,7 @@ export default {
         this.select = selectedType;
         this.selectParent = this.findScene(this.selectionList[0]);
 
-        this.snackbar.message = `Select ${this.selectNames[selectedType]} to ${
-          this.modeNames[this.mode]
-        } to`;
+        this.snackbar.message = this.modeSelectMessages[1][this.mode];
       } else if (
         (options.max && selectionLen >= options.max) ||
         (options.filters &&

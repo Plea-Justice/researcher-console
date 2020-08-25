@@ -39,8 +39,8 @@ module.exports = function (options) {
     router.post('/publish', mandatoryRoute, async (req, res)=>{
         const id = req.params.scenario_id;
         const uid = req.session.user_id;
-        const tmpdir = path.join(os.tmpdir(), 'sim-prev' , `sim-${id}`);
-        const servdir = (path.join(options.config.sim_serve_dir, `sim-${id}`));
+        const tmpdir = util.simTmpDir(options, id);
+        const servdir = util.simServDir(options, id);
 
         const permissions = await util.userPermissions(uid);
         if (!permissions.permitHosting) {
@@ -50,6 +50,8 @@ module.exports = function (options) {
 
         try {
             await generateSimulation(options, req);
+            
+            fs.emptyDirSync(servdir);
             fs.copySync(tmpdir, servdir);
 
             res.status(200).json(util.success('Live simulation ready.'));
@@ -63,16 +65,13 @@ module.exports = function (options) {
      */
     router.post('/download', async (req, res)=>{
         const id = req.params.scenario_id;
+        const tmpdir = util.simTmpDir(options, id);
+        const zippath = util.simTmpZipPath(options, id);
 
         try {
-            const tmpdir = path.join(os.tmpdir(), 'sim-prev' , `sim-${id}`);
-            const zippath = path.join(os.tmpdir(), 'sim-prev', `sim-${id}.zip`);
+            await generateSimulation(options, req);
 
-            const generated = await fs.pathExists(path.join(tmpdir, 'manifest.json'));
-            if (!generated)
-                throw Error('A simulation must be generated before it can be zipped.');
-
-            await fs.remove(zippath);
+            fs.removeSync(zippath);
             zip.zipSync(tmpdir, zippath);
 
             res.status(200).json(util.success('Simulation download ready.'));

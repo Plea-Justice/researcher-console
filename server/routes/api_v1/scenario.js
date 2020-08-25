@@ -29,8 +29,12 @@ module.exports = function (options) {
                                 name: obj.name,
                                 description: obj.description,
                                 survey: obj.survey,
+                                live: obj.live,
+                                public: obj.public,
+                                readOnly: obj.readOnly,
                                 created: obj.created,
-                                modified: obj.modified
+                                modified: obj.modified,
+                                version: obj.version
                             };
                             return o;
                         }, {}),
@@ -52,6 +56,9 @@ module.exports = function (options) {
             name: req.body.meta.name,
             description: req.body.meta.description,
             survey: req.body.meta.survey,
+            live: req.body.meta.live,
+            public: req.body.meta.public,
+            readOnly: req.body.meta.readOnly,
             numScenes: req.body.numScenes,
             scenes: req.body.scenes,
             frames: req.body.frames,
@@ -92,8 +99,12 @@ module.exports = function (options) {
                             name: obj.name,
                             description: obj.description,
                             survey: obj.survey,
+                            live: obj.live,
+                            public: obj.public,
+                            readOnly: obj.readOnly,
                             created: obj.created, 
-                            modified: obj.modified
+                            modified: obj.modified,
+                            version: obj.version
                         },
                         scenes: obj.scenes,
                         frames: obj.frames,
@@ -122,6 +133,9 @@ module.exports = function (options) {
             name: req.body.meta.name,
             description: req.body.meta.description,
             survey: req.body.meta.survey,
+            live: req.body.meta.live,
+            public: req.body.meta.public,
+            readOnly: req.body.meta.readOnly,
             numScenes: req.body.numScenes,
             scenes: req.body.scenes,
             frames: req.body.frames,

@@ -10,7 +10,11 @@ const initialState = () => ({
   meta: {
     name: '',
     description: '',
-    survey: ''
+    survey: '',
+    live: '',
+    public: false,
+    readOnly: false,
+    version: ''
   },
   conditions: {},
   conditionList: [],
@@ -54,6 +58,9 @@ export const actions = {
   },
   async saveScenario({ state }) {
     await this.$axios.$put(`/api/v1/scenarios/${state.id}`, state);
+  },
+  async saveMeta({ state }) {
+    await this.$axios.$put(`/api/v1/scenarios/${state.id}`, { meta: state.meta });
   },
 
   // **** Scenario Actions ****
