@@ -11,6 +11,7 @@ var ScenarioSchema = new mongoose.Schema({
     name: { type: String, default: 'New Scenario' },
     description: { type: String, default: '' },
     survey: { type: String, default: '/no-url-set.html' },
+    live: { type: String, default: '' },
     scenes: { type: Object, default: {} },
     frames: { type: Object, default: {} },
     frameList: { type: Array, default: [] },
@@ -19,7 +20,8 @@ var ScenarioSchema = new mongoose.Schema({
     public: { type: Boolean, default: false },
     readOnly: { type: Boolean, default: false },
     created: { type: Date, default: Date.now },
-    modified: { type: Date, default: Date.now }
+    modified: { type: Date, default: Date.now },
+    version: { type: String, default: '1.0.0' }
 }, { strict: 'throw', strictQuery: true, minimize: false });
 
 var ScenarioModel = mongoose.model('Scenario', ScenarioSchema);

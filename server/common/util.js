@@ -97,6 +97,10 @@ function simTmpZipPath(options, sim_id) {
     return path.join(os.tmpdir(), 'sim-prev' , `sim-${sim_id}.zip`);
 }
 
+function simServDir(options, sim_id) {
+    return path.join(options.config.sim_serve_dir, `sim-${sim_id}`);
+}
+
 function fileMultipleReplace(file, replacements) {
     try {
         let string = fs.readFileSync(file, 'utf-8');
@@ -119,6 +123,7 @@ module.exports = {
     userDir,
     simTmpDir,
     simTmpZipPath,
+    simServDir,
     fileMultipleReplace,
     verifyPassword
 };

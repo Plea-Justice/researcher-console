@@ -109,12 +109,13 @@ export default {
       this.surveyFocused = focus;
     },
     ...mapActions({
-      updateMeta: "scenario/updateMeta"
+      updateMeta: "scenario/updateMeta",
+      saveMeta: "scenario/saveMeta"
     }),
     onSubmit() {
       this.updateMeta(this.scenarioForm);
 
-      // TODO: This should saveScenario too. However this may interfere with validation. saveMeta?
+      this.saveMeta();
       this.$parent.close();
     }
   }

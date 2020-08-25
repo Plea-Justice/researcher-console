@@ -43,6 +43,20 @@ export default {
         }
       }
     };
+
+    const modeSelectMessages = [
+      {
+        [Modes.COPY]: 'Select an element to copy from.',
+        [Modes.BIND]: 'Select an element to bind to.',
+        [Modes.SWAP]: 'Select a first element to swap.'
+      },
+      {
+        [Modes.COPY]: 'Select elements to copy to.',
+        [Modes.BIND]: 'Select elements to bind.',
+        [Modes.SWAP]: 'Select a second element to swap with.'
+      }
+    ];
+
     return {
       // fallback for snackbar saving if removed from _id.vue
       snackbar: null,
@@ -58,6 +72,7 @@ export default {
       select: Select.ANY,
       selectParent: null,
       modeOptions,
+      modeSelectMessages,
 
       selectionCounter: 0,
       selectionList: []
@@ -97,7 +112,7 @@ export default {
             ? eventId // condition id
             : this.findScene(this.selectionList[0]); // otherwise {frame, scene} index pair
 
-        this.snackbar.message = `Select ${this.selectNames[selectedType]} to ${this.modeNames[this.mode]} to`;
+        this.snackbar.message = this.modeSelectMessages[1][this.mode];
       } else if (
         (options.max && selectionLen >= options.max) ||
         (options.filters &&

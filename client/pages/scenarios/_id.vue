@@ -280,7 +280,7 @@ export default {
     toggleHandler(toggledOn, modeName) {
       if (toggledOn) {
         this.snackbar = this.$buefy.snackbar.open({
-          message: `Select element to ${this.modeNames[this.mode]} from`,
+          message: this.modeSelectMessages[0][this.mode],
           position: "is-top",
           indefinite: true,
           type: "is-danger",
