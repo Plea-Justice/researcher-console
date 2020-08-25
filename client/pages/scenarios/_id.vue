@@ -258,29 +258,10 @@ export default {
         this.logoutHelper();
       }
     },
-    async onSubmit() {
-      const valid = await this.$refs.form.validate();
-      if (valid) {
-        this.saving = true;
-        const status = this.saveScenario();
-        if (status) {
-          this.saving = false;
-          this.$buefy.toast.open({
-            message: "Scenario Saved",
-            type: "is-success"
-          });
-        } else {
-          this.$buefy.toast.open({
-            message: "An invalid scene exists",
-            type: "is-danger"
-          });
-        }
-      }
-    },
     toggleHandler(toggledOn, modeName) {
       if (toggledOn) {
         this.snackbar = this.$buefy.snackbar.open({
-          message: this.modeSelectMessages[0][this.mode],
+          message: this.modeOptions[this.mode].messages[0],
           position: "is-top",
           indefinite: true,
           type: "is-danger",

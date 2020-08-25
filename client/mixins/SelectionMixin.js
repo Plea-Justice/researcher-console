@@ -25,14 +25,16 @@ export default {
         actions: {
           [Select.SCENE]: this.copyScenes,
           [Select.CONDITION]: this.copyConditions
-        }
+        },
+        messages: ['Select an element to copy from', 'Select element(s) to paste to']
       },
       [Modes.BIND]: {
         type: Select.SCENE,
         filters: ['frame'],
         actions: {
           [Select.SCENE]: this.bindScenes
-        }
+        },
+        messages: ['Select an scene to bind to', 'Select scene(s) to bind']
       },
       [Modes.SWAP]: {
         type: Select.SCENE,
@@ -40,22 +42,10 @@ export default {
         filters: ['condition'],
         actions: {
           [Select.SCENE]: this.swapScene
-        }
+        },
+        messages: ['Select first scene to swap', 'Select second scene to swap with']
       }
     };
-
-    const modeSelectMessages = [
-      {
-        [Modes.COPY]: 'Select an element to copy from.',
-        [Modes.BIND]: 'Select an element to bind to.',
-        [Modes.SWAP]: 'Select a first element to swap.'
-      },
-      {
-        [Modes.COPY]: 'Select elements to copy to.',
-        [Modes.BIND]: 'Select elements to bind.',
-        [Modes.SWAP]: 'Select a second element to swap with.'
-      }
-    ];
 
     return {
       // fallback for snackbar saving if removed from _id.vue
@@ -72,7 +62,6 @@ export default {
       select: Select.ANY,
       selectParent: null,
       modeOptions,
-      modeSelectMessages,
 
       selectionCounter: 0,
       selectionList: []
@@ -112,7 +101,7 @@ export default {
             ? eventId // condition id
             : this.findScene(this.selectionList[0]); // otherwise {frame, scene} index pair
 
-        this.snackbar.message = this.modeSelectMessages[1][this.mode];
+        this.snackbar.message = this.modeOptions[this.mode].messages[1];
       } else if (
         (options.max && selectionLen >= options.max) ||
         (options.filters &&
