@@ -57,19 +57,33 @@
             </form-group>
             <div v-if="frame.size > 1 || collapsed" class="frame-header-item">
               <b-tooltip
-                :label="!frame.size ? 'No Scenes' : uniqueScenes > 1 ? `${uniqueScenes} Unique Scenes` : 'Same Across Conditions'"
+                :label="
+                  !frame.size
+                    ? 'No Scenes'
+                    : uniqueScenes > 1
+                    ? `${uniqueScenes} Unique Scenes`
+                    : 'Same Across Conditions'
+                "
                 position="is-bottom"
                 animated
               >
                 <b-button
-                  :class="{ 'is-info': uniqueScenes > 1, 'is-dark': !frame.size }"
+                  :class="{
+                    'is-info': uniqueScenes > 1,
+                    'is-dark': !frame.size
+                  }"
                   disabled
-                >{{uniqueScenes}}</b-button>
+                  >{{ uniqueScenes }}</b-button
+                >
               </b-tooltip>
             </div>
           </div>
           <div v-show="!collapsed" class="frame-scenes">
-            <div v-for="(scene, index) in sceneSet" :key="scene.id" class="scene">
+            <div
+              v-for="(scene, index) in sceneSet"
+              :key="scene.id"
+              class="scene"
+            >
               <!-- Bound Scene -->
               <Scene
                 v-if="typeof scene.props === 'string'"
@@ -86,7 +100,7 @@
                 :scene="scene"
                 :index="index"
                 :collapsed="collapsed"
-                :selectable="isSelectable(index, scene.id)"
+                :selectable="isSelectable()"
               />
             </div>
           </div>
@@ -111,13 +125,13 @@
 import { mapGetters, mapActions } from "vuex";
 
 // Import Bus
-import { EventBus, EventListener } from "~/bus/eventbus";
+import { EventListener } from "~/bus/eventbus";
 
 // Import Vuelidate Rules
 import { alphaNum, maxLength } from "vuelidate/lib/validators";
 
 // Import Components
-import Scene from "~/components/Scene";
+import Scene from "~/components/scenario/Scene";
 
 // Import Helper Functions
 import { debounce } from "~/assets/util";
@@ -189,7 +203,7 @@ export default {
     collapseFrame() {
       this.collapsed = !this.collapsed;
     },
-    isSelectable(index, id) {
+    isSelectable() {
       // Filter out selections in wrong frame
       let result = this.selectable;
       if (typeof this.selectable !== "boolean") {

@@ -75,18 +75,17 @@ export const actions = {
       dispatch('addFrame');
     }
   },
-  async copyConditions({ dispatch, getters }, indexList) {
+  async copyConditions({ dispatch, state, getters }, idList) {
+    const indexList = idList.map(id => state.conditionList.indexOf(id));
+
     // FIXME: async this
     getters.frameSet.forEach(({ scenes }) => {
-      const idList = indexList.map(index => scenes[index]);
-      dispatch('copyScenes', idList);
+      const sceneIdList = indexList.map(index => scenes[index]);
+      dispatch('copyScenes', sceneIdList);
     });
   },
-  async swapCondition({ dispatch, getters }, [index1, index2]) {
-    // FIXME: async this
-    getters.frameSet.forEach(({ scenes }) => {
-      dispatch('swapScene', [scenes[index1], scenes[index2]]);
-    });
+  updateTags({ commit }, { id, tags }) {
+    commit('setTags', { id, tags });
   },
 
   // **** Frame Actions ****
@@ -203,7 +202,7 @@ export const mutations = {
   // **** Condition Mutations ****
   newCondition(state) {
     const id = nanoid();
-    Vue.set(state.conditions, id, { id, tags: ['new'] });
+    Vue.set(state.conditions, id, { id, tags: [] });
     state.conditionList.push(id);
 
     // Copy last condition into new condition
@@ -248,6 +247,9 @@ export const mutations = {
 
     state.conditionList.splice(index, 1);
     Vue.delete(state.conditions, id);
+  },
+  setTags(state, { id, tags }) {
+    Vue.set(state.conditions[id], 'tags', tags);
   },
 
   // **** Frame Mutations ****

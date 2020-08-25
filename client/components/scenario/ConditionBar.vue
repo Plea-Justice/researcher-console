@@ -4,12 +4,15 @@
     <div class="titlebar padded-responsive-container">
       <div :style="titleBarCssVars" class="title-wrapper">
         <div class="conditions">
-          <div v-for="(condition, index) in conditionSet" :key="condition.id" class="condition">
+          <div
+            v-for="(condition, index) in conditionSet"
+            :key="condition.id"
+            class="condition"
+          >
             <div class="condition-title">
-              <!-- FIXME: not selectable atm -->
               <div
-                v-if="selectable"
-                @click="addToSelection(index, selectionType)"
+                v-if="isSelectable(condition.id)"
+                @click="$emit('selected', condition.id)"
                 class="condition-select"
               />
 
@@ -29,27 +32,35 @@
                   closable
                   close-type="is-danger is-light"
                   :aria-close-label="`Remove ${tag} tag`"
-                >{{ tag }}</b-tag>
+                  @close="removeTag(condition, tag)"
+                  >{{ tag }}</b-tag
+                >
               </div>
 
               <div class="control">
                 <b-tag
-                  @close="showTagbar = true"
+                  @close="toggleTagInput(index)"
                   attached
                   closable
                   close-type="is-light"
                   close-icon="plus"
                   aria-close-label="Add condition tag"
-                >add</b-tag>
+                  >add</b-tag
+                >
               </div>
             </b-field>
           </div>
         </div>
 
-        <div v-if="showTagbar" class="tagbar">
-          <b-button @click="showTagbar = false" type="is-text" icon-left="times" />
-          <b-field>
-            <b-taginput placeholder="Add Tag(s)" class="tag-input" />
+        <div v-if="showTagInput" class="tagbar">
+          <b-button @click="closeTagInput()" type="is-text" icon-left="times" />
+          <b-field class="tag-input">
+            <b-input
+              v-model="tag"
+              @keyup.native.enter="AddTag()"
+              placeholder="Add Tag"
+              expanded
+            />
           </b-field>
         </div>
       </div>
@@ -59,15 +70,17 @@
 
 <script>
 // Import VueX
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   props: {
-    selectable: Boolean
+    selectable: [Object, Boolean]
   },
   data() {
     return {
-      showTagbar: false
+      showTagInput: false,
+      bindInputToCondition: null,
+      tag: ""
     };
   },
   computed: {
@@ -80,6 +93,44 @@ export default {
         "--frame-sidebar-active": this.numScenes ? 1 : 0,
         "--num-conditions": this.conditionSet.length
       };
+    }
+  },
+  methods: {
+    isSelectable(id) {
+      // Filter out selections in wrong condition
+      let result = this.selectable;
+      if (typeof this.selectable !== "boolean") {
+        if (this.selectable.selectionList.includes(id)) result = false;
+      }
+
+      return result;
+    },
+    toggleTagInput(index) {
+      this.showTagInput = !this.showTagInput;
+      this.bindInputToCondition = this.showTagInput
+        ? this.conditionSet[index]
+        : null;
+    },
+    closeTagInput() {
+      this.showTagInput = false;
+      this.bindInputToCondition = null;
+    },
+    ...mapActions({
+      updateTags: "scenario/updateTags"
+    }),
+    AddTag() {
+      const condition = this.bindInputToCondition;
+      this.updateTags({
+        id: condition.id,
+        tags: [...condition.tags, this.tag]
+      });
+      this.tag = "";
+    },
+    removeTag(condition, targetTag) {
+      this.updateTags({
+        id: condition.id,
+        tags: condition.tags.filter(tag => tag != targetTag)
+      });
     }
   }
 };

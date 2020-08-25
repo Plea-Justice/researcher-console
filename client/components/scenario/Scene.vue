@@ -2,7 +2,10 @@
   <!-- FIXME: fix how form interaction works either make form top level again or use more effectively here -->
   <!-- If scene is not blank -->
   <form v-if="scene.props !== null" ref="form" class="flex-wrap">
-    <div v-if="isSelectable && $v.form.$invalid" class="invalid-selection-mask" />
+    <div
+      v-if="isSelectable && $v.form.$invalid"
+      class="invalid-selection-mask"
+    />
     <GenericCard
       @selected="$emit('selected', scene.id)"
       :selectable="isSelectable && !$v.form.$invalid"
@@ -20,7 +23,9 @@
         </p>
         <template v-if="isBound">
           <p class="control bound-label">
-            <b-button type="is-light" disabled expanded>Bound: Scene {{ index }}</b-button>
+            <b-button type="is-light" disabled expanded
+              >Bound: Scene {{ index }}</b-button
+            >
           </p>
           <p class="control">
             <b-button
@@ -39,7 +44,8 @@
           :native-value="type"
           :disabled="isBound"
           type="is-light is-primary"
-        >{{ type }}</b-radio-button>
+          >{{ type }}</b-radio-button
+        >
       </b-field>
 
       <form-group
@@ -95,7 +101,12 @@
   <!-- Otherwise show blank scene -->
   <GenericCard v-else>
     <div class="center-card-content">
-      <b-button @click="addScene(scene.id)" type="is-light" size="is-medium" icon-left="plus" />
+      <b-button
+        @click="addScene(scene.id)"
+        type="is-light"
+        size="is-medium"
+        icon-left="plus"
+      />
     </div>
   </GenericCard>
 </template>
@@ -116,7 +127,6 @@ import BTagInput from "~/components/form/BTagInput";
 // Import Helper Functions
 import { debounce } from "~/assets/util";
 
-// FIXME: formalize spec
 // FIXME: code-split import this
 import spec from "~/assets/spec.json";
 
@@ -142,7 +152,7 @@ export default {
     }
   },
   data() {
-    const defaultType = Object.keys(spec.sceneTypes)[1];
+    const defaultType = Object.keys(spec.sceneTypes)[0];
     const form = {
       ...Object.fromEntries(Object.keys(spec.scene).map(key => [key, null])),
       type: defaultType,

@@ -25,7 +25,7 @@ export default {
   /*
    ** Global CSS
    */
-  css: ['~/assets/styles/common.scss', '~/assets/styles/_overrides.scss'],
+  css: ['~/assets/styles/common.scss', '~/assets/styles/buefy.scss'],
   /*
    ** Plugins to load before mounting the App
    */

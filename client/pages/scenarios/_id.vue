@@ -10,9 +10,15 @@
               :value="mode"
               :loading="saving"
               type="is-primary is-dark"
-            >Save</ToolBarButton>
+              >Save</ToolBarButton
+            >
 
-            <ToolBarButton @click="openScenarioProps()" :value="mode" icon-left="cog">Options</ToolBarButton>
+            <ToolBarButton
+              @click="openScenarioProps()"
+              :value="mode"
+              icon-left="cog"
+              >Options</ToolBarButton
+            >
 
             <b-button
               @click="collapseAll()"
@@ -26,7 +32,8 @@
               @click="addCondition()"
               :value="mode"
               :disabled="!numScenes"
-            >Add Condition</ToolBarButton>
+              >Add Condition</ToolBarButton
+            >
           </div>
 
           <div class="level-item buttons">
@@ -35,21 +42,24 @@
               @click="toggleHandler($event, 'swap')"
               :mode="Modes.SWAP"
               :disabled="numScenes < 2"
-            >Swap</ToolBarButton>
+              >Swap</ToolBarButton
+            >
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'copy')"
               :mode="Modes.COPY"
               :disabled="numScenes < 2"
-            >Copy</ToolBarButton>
+              >Copy</ToolBarButton
+            >
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'bind')"
               :mode="Modes.BIND"
               :disabled="numScenes < 2"
-            >Bind</ToolBarButton>
+              >Bind</ToolBarButton
+            >
           </div>
         </template>
 
@@ -59,15 +69,19 @@
           </div>
 
           <div class="level-item">
-            <PreviewDropdown :scenarioMeta="scenarioMeta" @openScenarioProps="openScenarioProps" />
+            <PreviewDropdown
+              :scenarioMeta="scenarioMeta"
+              @openScenarioProps="openScenarioProps"
+            />
           </div>
         </template>
       </ToolBar>
 
       <ConditionBar
         ref="conditionbar"
-        :selectable="isSelectableTemp(Select.CONDITION)"
         @remove="removeConditionHelper($event)"
+        @selected="addToSelection($event, Select.CONDITION)"
+        :selectable="isSelectable(Select.CONDITION)"
       />
     </template>
 
@@ -78,11 +92,11 @@
         :key="`${frame.id}`"
         @scroll-to="scrollToFrame($event)"
         @selected="addToSelection($event, Select.SCENE)"
+        :selectable="isSelectable(Select.SCENE)"
         :frame="frame"
         :frameIndex="index"
         :isFirst="index === 0"
         :isLast="index === frameSet.length - 1"
-        :selectable="isSelectableTemp(Select.SCENE)"
       />
     </section>
   </ScenarioLayout>
@@ -93,17 +107,19 @@
 import { mapGetters, mapActions } from "vuex";
 
 // Import Bus
-import { EventBus, Event } from "~/bus/eventbus";
+import { Event } from "~/bus/eventbus";
 
 // Import Components
 import ScenarioLayout from "~/components/layouts/ScenarioLayout";
 import ToolBar from "~/components/ToolBar";
 import ToolBarButton from "~/components/ToolBarButton";
 import ConditionBar from "~/components/scenario/ConditionBar";
-import SceneFrame from "~/components/SceneFrame";
-import PreviewDropdown from "~/components/PreviewDropdown";
+import SceneFrame from "~/components/scenario/SceneFrame";
+import PreviewDropdown from "~/components/scenario/PreviewDropdown";
 import ScenarioOptions from "~/components/modals/ScenarioOptions";
 import LeaveScenario from "~/components/modals/LeaveScenario";
+
+import SelectionMixin from "~/mixins/SelectionMixin";
 
 // Content for help fields
 import { scenarioHelp } from "~/assets/helpText";
@@ -119,55 +135,8 @@ export default {
     ScenarioOptions,
     PreviewDropdown
   },
+  mixins: [SelectionMixin],
   data() {
-    const Modes = {
-      DEFAULT: 0,
-      COPY: 1,
-      BIND: 2,
-      SWAP: 3
-    };
-    const modeNames = [];
-    Object.entries(Modes).forEach(
-      ([key, val]) => (modeNames[val] = key.toLowerCase())
-    );
-
-    const Select = {
-      NONE: 0,
-      ANY: 1,
-      SCENE: 2,
-      CONDITION: 3
-    };
-    const selectNames = [];
-    Object.entries(Select).forEach(
-      ([key, val]) => (selectNames[val] = key.toLowerCase())
-    );
-
-    const modeOptions = {
-      [Modes.COPY]: {
-        type: Select.ANY,
-        filters: [],
-        actions: {
-          [Select.SCENE]: this.copyScenes,
-          [Select.CONDITION]: this.copyConditions
-        }
-      },
-      [Modes.BIND]: {
-        type: Select.SCENE,
-        filters: ["frame"],
-        actions: {
-          [Select.SCENE]: this.bindScenes
-        }
-      },
-      [Modes.SWAP]: {
-        type: Select.ANY,
-        max: 2,
-        filters: ["condition"],
-        actions: {
-          [Select.SCENE]: this.swapScene,
-          [Select.CONDITION]: this.swapCondition
-        }
-      }
-    };
     return {
       // import from JS file
       scenarioHelp: scenarioHelp,
@@ -180,22 +149,7 @@ export default {
       saving: false,
       collapsed: false,
       logout: false,
-      snackbar: null,
-
-      Modes,
-      modeNames,
-      // Set to initial
-      mode: Modes.DEFAULT,
-
-      Select,
-      selectNames,
-      // Set to initial
-      select: Select.ANY,
-      selectParent: null,
-      modeOptions,
-
-      selectionCounter: 0,
-      selectionList: []
+      snackbar: null
     };
   },
   async fetch({ store, params }) {
@@ -345,87 +299,6 @@ export default {
       } else {
         this.closeSnackbar();
         this.selectionReset();
-      }
-    },
-    isSelectableTemp(selectionType) {
-      let result = false;
-      if (
-        this.mode !== this.Modes.DEFAULT &&
-        (this.select === this.Select.ANY || this.select === selectionType)
-      ) {
-        // If parent is defined create filter
-        result = this.selectParent
-          ? {
-              parent: this.selectParent,
-              selectionList: this.selectionList,
-              filters: this.modeOptions[this.mode].filters
-            }
-          : true;
-      }
-      return result;
-    },
-    isSelectable(selectionType, index) {
-      const test =
-        this.mode !== this.Modes.DEFAULT &&
-        (this.select === this.Select.ANY || this.select === selectionType);
-
-      let result = false;
-      if (test) {
-        if (!this.selectParent) result = true;
-        else {
-          // If there is a filter
-          const filters = this.modeOptions[this.mode].filters;
-          const frameFilter = {
-            parent: this.selectParent,
-            selectionList: this.selectionList,
-            filters
-          };
-
-          // If there is a frame filter it & pass filter down
-          result =
-            selectionType === this.Select.SCENE &&
-            this.modeOptions[this.mode].filters.includes("frame")
-              ? this.selectParent[0] === index && frameFilter
-              : frameFilter;
-        }
-      }
-
-      return result;
-    },
-    selectionReset() {
-      this.selectParent = null;
-      this.selectionList = [];
-      this.select = this.Select.NONE;
-    },
-    addToSelection(eSceneId, selectedType) {
-      this.selectionList.push(eSceneId);
-      const options = this.modeOptions[this.mode];
-      const selectionLen = this.selectionList.length;
-
-      // If first item
-      if (selectionLen === 1) {
-        // Update selection
-        this.select = selectedType;
-        this.selectParent = this.findScene(this.selectionList[0]);
-
-        this.snackbar.message = `Select ${this.selectNames[selectedType]} to ${
-          this.modeNames[this.mode]
-        } to`;
-      } else if (
-        (options.max && selectionLen >= options.max) ||
-        (options.filters &&
-          options.filters.includes("frame") &&
-          selectionLen >= this.frameSet[this.selectParent.frame].scenes.length)
-      ) {
-        // If exceeds max selection property or has frame filter and selected all scenes in frame
-        // then auto-end the selection process
-        this.modeOptions[this.mode].actions[this.select](this.selectionList);
-        this.closeSnackbar();
-        this.mode = this.Modes.DEFAULT;
-        this.selectionReset();
-      } else if (this.selectionList.length === 2) {
-        this.snackbar.actionText = "Done";
-        this.snackbar.type = "is-info";
       }
     },
     scrollToFrame({ frameIndex, smooth = true }) {
