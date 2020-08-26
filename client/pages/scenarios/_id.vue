@@ -71,6 +71,7 @@
           <div class="level-item">
             <PreviewDropdown
               :scenarioMeta="scenarioMeta"
+              @gotoErrors="gotoErrors"
               @openScenarioOptions="openScenarioOptions"
             />
           </div>
@@ -200,22 +201,25 @@ export default {
       }
       return indexPair;
     },
+    gotoErrors() {
+      const numErrors = this.sceneErrors.length;
+      if (numErrors < 1) return false;
+      const errorIndex = this.findScene(this.sceneErrors[0]);
+      if (errorIndex) {
+        this.$buefy.toast.open({
+          message: `${numErrors} ${
+            numErrors > 1 ? "errors exists, starting" : "error exists"
+          } at scene ${errorIndex.scene + 1} of current row`,
+          type: "is-danger"
+        });
+        this.scrollToFrame({ frameIndex: errorIndex.frame });
+      }
+      return true;
+    },
     async saveHelper() {
       if (this.scenarioStoreHasChanged) {
         this.saving = true;
-        const numErrors = this.sceneErrors.length;
-        if (numErrors > 0) {
-          const errorIndex = this.findScene(this.sceneErrors[0]);
-          if (errorIndex) {
-            this.$buefy.toast.open({
-              message: `${numErrors} ${
-                numErrors > 1 ? "errors exists, starting" : "error exists"
-              } at scene ${errorIndex.scene + 1} of current row`,
-              type: "is-danger"
-            });
-            this.scrollToFrame({ frameIndex: errorIndex.frame });
-          }
-        } else {
+        if(!this.gotoErrors()) {
           await this.saveScenario();
           this.scenarioStoreHasChanged = false;
           this.$buefy.toast.open({
