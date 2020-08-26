@@ -10,7 +10,7 @@ var ScenarioSchema = new mongoose.Schema({
     numScenes: { type: Number, default: 0 },
     name: { type: String, default: 'New Scenario' },
     description: { type: String, default: '' },
-    survey: { type: String, default: '/no-url-set.html' },
+    survey: { type: String, default: 'no-url-set.html' },
     live: { type: String, default: '' },
     scenes: { type: Object, default: {} },
     frames: { type: Object, default: {} },

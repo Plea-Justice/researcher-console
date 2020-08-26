@@ -35,14 +35,17 @@ module.exports = {
     mongoose_debug: false,
 
     // Data directory for uploaded assets and user files.
-    data_dir: './data/',
+    user_dir: './data/user/',
 
     // Directory from which to serve live studies.
-    sim_serve_dir: './sim-serve/',
+    sim_serve_dir: './data/simulations/',
     
     // Whether to copy a template to each user's data directory.
     assets_template: true,
-    assets_dir: './data/template/',
+    assets_dir: './data/default-assets/',
+
+    // Location of the simulation template with simulation as toplevel index.html.
+    sim_dir: './data/default-simulation/',
 
     // Maximum upload size in MiB.
     max_upload_mb: 20,
@@ -56,9 +59,6 @@ module.exports = {
 
     // Location of static client files.
     client_dir: '../client/dist/',
-
-    // Location of the simulation template with simulation as toplevel index.html.
-    sim_dir: '../../simulation/',
 
     // Disable resource deletion or overwriting.
     noclobber: false,
