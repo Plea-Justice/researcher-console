@@ -15,7 +15,7 @@
 
 <script>
 // Import VueX
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 // Import Components
 import ToolBarButton from "~/components/ToolBarButton";
@@ -37,6 +37,9 @@ export default {
     };
   },
   computed: {
+     ...mapGetters({
+      errorList: "scenario/errors"
+    }),
     user() {
       return this.$auth.user ? this.$auth.user : { name: "dev", n_sessions: 1 };
     }
@@ -154,6 +157,11 @@ export default {
       }
     },
     async wrapSnackbar(callback, message) {
+      if (this.errorList.length > 0) {
+        this.$emit('gotoErrors');
+        return;
+      }
+
       this.snackbar = this.$buefy.snackbar.open({
         message: message,
         position: "is-top",

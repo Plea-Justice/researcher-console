@@ -86,7 +86,7 @@ async function verifyPassword(user, byName, password) {
 /**** Filesystem Functions ****/
 
 function userDir(options, user_id) {
-    return path.join(options.config.data_dir, user_id);
+    return path.join(options.config.user_dir, user_id);
 }
 
 function simTmpDir(options, sim_id) {

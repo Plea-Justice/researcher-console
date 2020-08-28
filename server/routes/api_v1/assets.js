@@ -47,7 +47,7 @@ module.exports = function (options) {
     router.get('/', async (req, res) => {
         try {
             let assets = {};
-            let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
+            let user_data_dir = path.join(options.config.user_dir, req.session.user_id);
 
             await Promise.all(assetTypes.map(type => fs.mkdirp(path.join(user_data_dir, type))));
 
@@ -143,7 +143,7 @@ module.exports = function (options) {
      * Fetch an asset's thumbnail, if it exists.
      */
     router.get('/:asset_id/thumbnail', (req, res) => {
-        let user_data_dir = path.join(options.config.data_dir, req.session.user_id);
+        let user_data_dir = path.join(options.config.user_dir, req.session.user_id);
         let thumbnail = path.resolve(path.join(user_data_dir, 'thumbnails', `${req.params.asset_id}.jpg`));
         if (fs.pathExistsSync(thumbnail))
             res.sendFile(thumbnail);
@@ -186,7 +186,7 @@ module.exports = function (options) {
      * Delete a file. Asset ID is base64 encoded path.
      */
     router.delete('/:asset_id', async (req, res) => {
-        let user_data_dir = path.join(options.config.data_dir, req.session.user_id);        
+        let user_data_dir = path.join(options.config.user_dir, req.session.user_id);        
         let asset = path.parse(atob(req.params.asset_id));
         let thumbnail = path.join(user_data_dir, 'thumbnails', `${req.params.asset_id}.jpg`);
 

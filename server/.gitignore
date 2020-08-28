@@ -1,15 +1,18 @@
 # Created by .ignore support plugin (hsz.mobi)
 ### Node template
-# Logs
-/logs
+
 # data
-/data/*
-/sim-serve/*
+data/*/*
+!data/README.md
+!data/default-assets/README.md
+!data/default-simulation/README.md
+!data/simulations/README.md
+!data/user/README.md
 .vscode
 
 # Logs
-logs
 log
+logs
 *.log
 npm-debug.log*
 yarn-debug.log*

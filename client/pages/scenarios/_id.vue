@@ -61,6 +61,7 @@
           <div class="level-item">
             <PreviewDropdown
               :scenarioMeta="scenarioMeta"
+              @gotoErrors="goToErrors()"
               @openScenarioOptions="openScenarioOptions"
             />
           </div>
@@ -192,41 +193,47 @@ export default {
       }
       return indexPair;
     },
+    goToErrors() {
+      const { frameErrors, sceneErrors } = this.scenarioStatus;
+      const numErrors = frameErrors.length + sceneErrors.length;
+
+      if (numErrors) {
+        let message = "";
+        let frameScrollIndex = null;
+
+        if (frameErrors.length) {
+          const errorIndex = this.frameSet.findIndex(
+            frame => frame.id === frameErrors[0]
+          );
+          message = `row ${errorIndex} scenes label`;
+          frameScrollIndex = errorIndex;
+        } else {
+          const errorIndex = this.findScene(sceneErrors[0]);
+          message = `scene ${errorIndex.scene + 1} of current row`;
+          frameScrollIndex = errorIndex.frame;
+        }
+
+        this.$buefy.toast.open({
+          message: `${numErrors} ${
+            numErrors > 1 ? "errors exists, starting" : "error exists"
+          } at ${message}`,
+          type: "is-danger"
+        });
+        this.scrollToFrame({ frameIndex: frameScrollIndex });
+      }
+    },
     async saveHelper() {
       if (this.scenarioStoreHasChanged) {
         this.saving = true;
-
-        const { frameErrors, sceneErrors } = this.scenarioStatus;
-        const numErrors = frameErrors.length + sceneErrors.length;
-        if (numErrors > 0) {
-          if (frameErrors.length) {
-            const errorIndex = this.frameSet.findIndex(
-              frame => frame.id === frameErrors[0]
-            );
-            this.$buefy.toast.open({
-              message: `${numErrors} ${
-                numErrors > 1 ? "errors exists, starting" : "error exists"
-              } at row ${errorIndex}`,
-              type: "is-danger"
-            });
-            this.scrollToFrame({ frameIndex: errorIndex });
-          } else {
-            const errorIndex = this.findScene(sceneErrors[0]);
-            this.$buefy.toast.open({
-              message: `${numErrors} ${
-                numErrors > 1 ? "errors exists, starting" : "error exists"
-              } at scene ${errorIndex.scene + 1} of current row`,
-              type: "is-danger"
-            });
-            this.scrollToFrame({ frameIndex: errorIndex.frame });
-          }
-        } else {
+        if (this.scenarioStatus.valid) {
           await this.saveScenario();
           this.scenarioStoreHasChanged = false;
           this.$buefy.toast.open({
             message: "Scenario Saved",
             type: "is-success"
           });
+        } else {
+          this.goToErrors();
         }
         this.saving = false;
       } else {
