@@ -53,7 +53,7 @@
           close
           link
         >
-          <p class="content">{{ scenario.description }}</p>
+          <p class="content" v-if="scenario.description">{{ scenario.description }}</p>
           <p class="content is-small">
             Last Modified {{ posixTimeToHoursAgo(scenario.modified) }}
             <br />

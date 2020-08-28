@@ -1,3 +1,7 @@
+// Import VueX
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { mapActions } from 'vuex';
+
 export default {
   data() {
     const Modes = {
@@ -68,6 +72,12 @@ export default {
     };
   },
   methods: {
+    ...mapActions({
+      copyConditions: 'scenario/copyConditions',
+      swapScene: 'scenario/swapScene',
+      copyScenes: 'scenario/copyScenes',
+      bindScenes: 'scenario/bindScenes'
+    }),
     isSelectable(selectionType) {
       let result = false;
       if (this.mode !== this.Modes.DEFAULT && (this.select === this.Select.ANY || this.select === selectionType)) {

@@ -1,23 +1,14 @@
 <template>
   <div class="buttons">
-    <ToolBarButton @click="preview" type="is-primary" icon-left="eye"
-      >Preview</ToolBarButton
-    >
+    <ToolBarButton @click="preview" type="is-primary" icon-left="eye">Preview</ToolBarButton>
     <b-dropdown position="is-bottom-left">
-      <ToolBarButton
-        class="button is-primary"
-        slot="trigger"
-        icon-left="angle-down"
-        >Publish</ToolBarButton
-      >
+      <ToolBarButton class="button is-primary" slot="trigger" icon-left="angle-down">Publish</ToolBarButton>
 
       <b-dropdown-item @click="download">Manual Download</b-dropdown-item>
-      <b-dropdown-item @click="publish" :disabled="!user.permitHosting"
-        >Publish Live</b-dropdown-item
-      >
-      <b-dropdown-item v-if="scenarioMeta.live" @click="liveURLPopup"
-        ><b-tag type="is-success">Active Live Link</b-tag></b-dropdown-item
-      >
+      <b-dropdown-item @click="publish" :disabled="!user.permitHosting">Publish Live</b-dropdown-item>
+      <b-dropdown-item v-if="scenarioMeta.live" @click="liveURLPopup">
+        <b-tag type="is-success">Active Live Link</b-tag>
+      </b-dropdown-item>
     </b-dropdown>
   </div>
 </template>

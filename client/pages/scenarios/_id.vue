@@ -10,15 +10,9 @@
               :value="mode"
               :loading="saving"
               type="is-primary is-dark"
-              >Save</ToolBarButton
-            >
+            >Save</ToolBarButton>
 
-            <ToolBarButton
-              @click="openScenarioOptions()"
-              :value="mode"
-              icon-left="cog"
-              >Options</ToolBarButton
-            >
+            <ToolBarButton @click="openScenarioOptions()" :value="mode" icon-left="cog">Options</ToolBarButton>
 
             <b-button
               @click="collapseAll()"
@@ -32,8 +26,7 @@
               @click="addCondition()"
               :value="mode"
               :disabled="!numScenes"
-              >Add Condition</ToolBarButton
-            >
+            >Add Condition</ToolBarButton>
           </div>
 
           <div class="level-item buttons">
@@ -42,24 +35,21 @@
               @click="toggleHandler($event, 'swap')"
               :mode="Modes.SWAP"
               :disabled="numScenes < 2"
-              >Swap</ToolBarButton
-            >
+            >Swap</ToolBarButton>
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'copy')"
               :mode="Modes.COPY"
               :disabled="numScenes < 2"
-              >Copy</ToolBarButton
-            >
+            >Copy</ToolBarButton>
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'bind')"
               :mode="Modes.BIND"
               :disabled="numScenes < 2"
-              >Bind</ToolBarButton
-            >
+            >Bind</ToolBarButton>
           </div>
         </template>
 
@@ -84,6 +74,8 @@
         :selectable="isSelectable(Select.CONDITION)"
       />
     </template>
+
+    <p>{{ scenarioStatus }}</p>
 
     <section ref="frames" class="padded-responsive-container responsive-center">
       <!-- Frames -->
@@ -183,7 +175,7 @@ export default {
   computed: {
     ...mapGetters({
       scenarioMeta: "scenario/scenarioMeta",
-      sceneErrors: "scenario/errors",
+      scenarioStatus: "scenario/status",
       numScenes: "scenario/numScenes",
       frameSet: "scenario/frameSet"
     })
@@ -203,10 +195,23 @@ export default {
     async saveHelper() {
       if (this.scenarioStoreHasChanged) {
         this.saving = true;
-        const numErrors = this.sceneErrors.length;
+
+        const { frameErrors, sceneErrors } = this.scenarioStatus;
+        const numErrors = frameErrors.length + sceneErrors.length;
         if (numErrors > 0) {
-          const errorIndex = this.findScene(this.sceneErrors[0]);
-          if (errorIndex) {
+          if (frameErrors.length) {
+            const errorIndex = this.frameSet.findIndex(
+              frame => frame.id === frameErrors[0]
+            );
+            this.$buefy.toast.open({
+              message: `${numErrors} ${
+                numErrors > 1 ? "errors exists, starting" : "error exists"
+              } at row ${errorIndex}`,
+              type: "is-danger"
+            });
+            this.scrollToFrame({ frameIndex: errorIndex });
+          } else {
+            const errorIndex = this.findScene(sceneErrors[0]);
             this.$buefy.toast.open({
               message: `${numErrors} ${
                 numErrors > 1 ? "errors exists, starting" : "error exists"
@@ -293,12 +298,7 @@ export default {
     ...mapActions({
       addCondition: "scenario/addCondition",
       removeCondition: "scenario/removeCondition",
-      saveScenario: "scenario/saveScenario",
-      swapScene: "scenario/swapScene",
-      swapCondition: "scenario/swapCondition",
-      copyScenes: "scenario/copyScenes",
-      copyConditions: "scenario/copyConditions",
-      bindScenes: "scenario/bindScenes"
+      saveScenario: "scenario/saveScenario"
     }),
     removeConditionHelper(id) {
       const scrollElement = this.$refs.layout.$refs.scroll;
@@ -313,7 +313,7 @@ export default {
         parent: this,
         component: LeaveScenario,
         // FIXME: have this use VueX `status.valid`
-        props: { valid: !this.sceneErrors.length },
+        props: { valid: !this.scenarioStatus.valid },
         events: { exit: exitAction },
         hasModalCard: true,
         customClass: "dialog",

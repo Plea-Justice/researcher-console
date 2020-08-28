@@ -47,8 +47,9 @@
         >
           <div class="frame-header">
             <form-group
-              class="frame-header-item"
               :validator="$v.label"
+              attribute="Scenes Label"
+              class="frame-header-item"
               grouped
               v-slot="{ maxlength }"
             >
@@ -58,10 +59,14 @@
                 @input="setLabel($event)"
                 :maxlength="maxlength"
                 placeholder="Scenes Label (Optional)"
+                class="absolute-counter"
                 expanded
               />
             </form-group>
-            <div v-if="frame.size > 1 || collapsed" class="frame-header-item">
+            <div
+              v-if="(frame.size > 1 || collapsed) && conditionSet.length > 1"
+              class="frame-header-item"
+            >
               <b-tooltip
                 :label="
                   !frame.size
@@ -79,17 +84,12 @@
                     'is-dark': !frame.size
                   }"
                   disabled
-                  >{{ uniqueScenes }}</b-button
-                >
+                >{{ uniqueScenes }}</b-button>
               </b-tooltip>
             </div>
           </div>
           <div v-show="!collapsed" class="frame-scenes">
-            <div
-              v-for="(scene, index) in sceneSet"
-              :key="scene.id"
-              class="scene"
-            >
+            <div v-for="(scene, index) in sceneSet" :key="scene.id" class="scene">
               <!-- Bound Scene -->
               <Scene
                 v-if="typeof scene.props === 'string'"
@@ -134,7 +134,7 @@ import { mapGetters, mapActions } from "vuex";
 import { EventListener } from "~/bus/eventbus";
 
 // Import Vuelidate Rules
-import { alphaNum, maxLength } from "vuelidate/lib/validators";
+import { helpers, required, maxLength } from "vuelidate/lib/validators";
 
 // Import Components
 import Scene from "~/components/scenario/Scene";
@@ -180,11 +180,24 @@ export default {
       label: this.frame.label
     };
   },
-  validations: {
-    label: {
-      // This should be updated to whatever character set we want to allow for Qualtrics stuff
-      alphaNum,
-      maxLength: maxLength(25)
+  validations() {
+    const alphaNumSpace = helpers.regex(
+      "alphaNumSpace",
+      /^ ?([a-zA-Z0-9]+ ?)*$/
+    );
+
+    return {
+      label: {
+        // This should be updated to whatever character set we want to allow for Qualtrics stuff
+        required,
+        alphaNumSpace,
+        maxLength: maxLength(25)
+      }
+    };
+  },
+  watch: {
+    isOnly() {
+      if (this.isOnly && this.collapsed) this.collapsed = false;
     }
   },
   computed: {
@@ -192,10 +205,16 @@ export default {
       return this.isFirst && this.isLast;
     },
     ...mapGetters({
-      getSceneSet: "scenario/sceneSet"
+      getSceneSet: "scenario/sceneSet",
+      conditionSet: "scenario/conditionSet"
     }),
     sceneSet() {
       return this.getSceneSet(this.frame.id);
+    },
+    showSceneCount() {
+      return (
+        (this.frame.size > 1 || this.collapsed) && this.conditionSet.length > 1
+      );
     },
     uniqueScenes() {
       return !this.frame.size
@@ -207,6 +226,9 @@ export default {
     }
   },
   methods: {
+    focus() {
+      this.$refs.focus_target.focus();
+    },
     collapseFrame() {
       this.collapsed = !this.collapsed;
     },
@@ -233,7 +255,11 @@ export default {
     setLabel: debounce(function(newValue) {
       this.label = newValue;
       this.$v.label.$touch();
-      this.setFrameLabel({ id: this.frame.id, value: newValue });
+      this.setFrameLabel({
+        id: this.frame.id,
+        value: newValue,
+        valid: !this.$v.label.$invalid
+      });
     }, 250),
     moveUp() {
       this.moveFrameUp(this.frame.id);
@@ -262,6 +288,30 @@ export default {
   }
 };
 </script>
+
+<!-- Global Styles -->
+<style lang="scss">
+.collapsing-counter .counter.is-invisible {
+  display: none;
+}
+
+.absolute-counter > .input ~ .counter {
+  position: absolute;
+  margin: 0 !important;
+  right: 1em;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.absolute-counter > .input + .icon + .counter {
+  right: 0.5em + 2.5em;
+}
+
+// FIXME: continued fixes for textarea icon
+.control > .textarea + .icon {
+  top: -0.2em;
+}
+</style>
 
 <style lang="scss" scoped>
 // This is the default Bulma .box padding
@@ -305,7 +355,8 @@ export default {
   align-items: center;
 
   $scene: $frameSceneGap + $sceneWidth;
-  width: calc(#{$scene} * var(--num-scenes) - #{$frameSceneGap});
+  min-width: calc(#{$scene} * var(--num-scenes) - #{$frameSceneGap});
+  width: max-content;
 }
 
 .frame-header {

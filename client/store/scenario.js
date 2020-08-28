@@ -24,7 +24,8 @@ const initialState = () => ({
   // FIXME: fix parent valid prop (it doesn't get updated)
   status: {
     valid: false,
-    errors: [],
+    frameErrors: [],
+    sceneErrors: [],
     dirty: 0
   }
 });
@@ -37,7 +38,7 @@ export const getters = {
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
   numScenes: state => state.numScenes,
-  errors: state => state.status.errors
+  status: state => state.status
 };
 
 export const actions = {
@@ -127,8 +128,9 @@ export const actions = {
     // Frame stack goes from 0 down incrementally, so add -1 to move up
     commit('moveFrame', { id, modifier: -1 });
   },
-  setFrameLabel({ commit }, { id, value }) {
-    commit('updateFrame', { id, key: 'label', value });
+  setFrameLabel({ commit }, { id, value, valid }) {
+    commit('updateFrameErrors', { id, valid });
+    commit('setFrameKey', { id, key: 'label', value });
   },
 
   // **** Scene Actions ****
@@ -168,7 +170,7 @@ export const actions = {
     const parentId = props;
     const parent = state.scenes[parentId];
 
-    // FIXME: be careful with validity, since goal is to update props might be better to use updateSceneProps?
+    // FIXME: be careful with validity, since goal is to update props might be better to use setSceneProps?
     // Update children with parent's props
     commit('setScene', { id: childId, scene: { id: childId, props: { ...parent.props } } });
 
@@ -204,6 +206,24 @@ export const mutations = {
     state.numScenes += modifier;
     const frame = state.frames[frameId];
     Vue.set(state.frames, frameId, { ...frame, size: (frame.size += modifier) });
+  },
+  updateFrameErrors(state, { valid, id }) {
+    // If valid and was prev invalid, remove flag
+    const errorIndex = state.status.frameErrors.indexOf(id);
+    if (valid && errorIndex !== -1) {
+      state.status.frameErrors.splice(errorIndex, 1);
+    } else if (!valid && errorIndex === -1) {
+      // If invalid and not flagged, flag
+      state.status.frameErrors.push(id);
+    }
+
+    const hasErrors = state.status.sceneErrors.length || state.status.frameErrors.length;
+    // if no errors, update valid key
+    if (state.status.valid && hasErrors) {
+      Vue.set(state.status, 'valid', false);
+    } else if (!state.status.valid && !hasErrors) {
+      Vue.set(state.status, 'valid', true);
+    }
   },
 
   // **** Condition Mutations ****
@@ -278,7 +298,7 @@ export const mutations = {
     state.frameList.splice(state.frameList.indexOf(id), 1);
     Vue.delete(state.frames, id);
   },
-  updateFrame(state, { id, key, value }) {
+  setFrameKey(state, { id, key, value }) {
     Vue.set(state.frames[id], key, value);
   },
   moveFrame(state, { id, modifier }) {
@@ -299,11 +319,19 @@ export const mutations = {
     Vue.set(state.status, 'dirty', state.status.dirty + 1);
 
     // If invalid scene add to scenario errors, otherwise update errors if scene was previously invalid
-    if (!payload.valid && !state.status.errors.includes(id)) {
-      Vue.set(state.status, 'errors', [...state.status.errors, id]);
+    if (!payload.valid && !state.status.sceneErrors.includes(id)) {
+      Vue.set(state.status, 'errors', [...state.status.sceneErrors, id]);
     } else {
-      const index = state.status.errors.indexOf(id);
-      if (index !== -1) state.status.errors.splice(index, 1);
+      const index = state.status.sceneErrors.indexOf(id);
+      if (index !== -1) state.status.sceneErrors.splice(index, 1);
+    }
+
+    const hasErrors = state.status.sceneErrors.length || state.status.frameErrors.length;
+    // if no errors, update valid key
+    if (state.status.valid && hasErrors) {
+      Vue.set(state.status, 'valid', false);
+    } else if (!state.status.valid && !hasErrors) {
+      Vue.set(state.status, 'valid', true);
     }
 
     // Update scene

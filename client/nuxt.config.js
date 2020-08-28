@@ -58,7 +58,6 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    // baseURL: process.env.BASE_URL || 'https://0253b0f4-3cd3-43d0-848d-d7aacd8a2a71.mock.pstmn.io'
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
     // baseURL: 'https://researcher.pleajustice.org',
     credentials: true

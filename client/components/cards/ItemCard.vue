@@ -11,18 +11,16 @@
       <template v-if="item">
         <!-- If header is in default mode print name w or w/o link -->
         <h1 class="subtitle center-header">
-          <n-link v-if="link" :to="item.id" class="link-animate" append>
-            {{
-            item.name
-            }}
-          </n-link>
+          <n-link v-if="link" :to="item.id" class="link-animate" append>{{ item.name }}</n-link>
           <template v-else>{{ item.name }}</template>
         </h1>
       </template>
     </template>
 
     <template v-slot:default>
-      <slot name="default" />
+      <div class="test">
+        <slot name="default" />
+      </div>
     </template>
 
     <template v-slot:footer>
