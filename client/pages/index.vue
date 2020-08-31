@@ -5,106 +5,105 @@
         <h1 class="title login-title">Plea Simulation Researcher Console</h1>
 
         <!-- Login Card -->
-        <form class="box has-text-centered" @submit.prevent="isRegistration ? register() : login()">
+        <form
+          class="box has-text-centered"
+          @submit.prevent="isRegistration ? register() : login()"
+        >
           <div class="block">
             <b-icon icon="user-circle" size="is-large" />
           </div>
 
-          <!-- FIXME: inputs need to re-validate when switching between form types -->
-          <b-field v-if="isRegistration">
+          <form-group
+            v-if="isRegistration"
+            :validator="$v.loginForm.email"
+            :messages="{
+              required: 'Please add an email',
+              email: 'A valid email address is required'
+            }"
+          >
             <b-input
-              v-model="loginForm.email"
-              type="email"
+              v-model="$v.loginForm.email.$model"
               icon="envelope"
-              validation-message="A valid email address is required."
-              maxlength="100"
-              :has-counter="isRegistration"
               placeholder="Email"
-              required
             />
-          </b-field>
+          </form-group>
 
-          <b-field v-if="isRegistration">
+          <form-group
+            v-if="isRegistration"
+            :validator="$v.loginForm.profession"
+            :messages="{ required: 'Please list your profession' }"
+          >
             <b-input
-              v-model="loginForm.profession"
+              v-model="$v.loginForm.profession.$model"
               icon="graduation-cap"
-              maxlength="100"
-              :has-counter="isRegistration"
-              validation-message="Please list your profession."
               placeholder="Profession"
-              required
             />
-          </b-field>
+          </form-group>
 
-          <b-field v-if="isRegistration">
+          <form-group
+            v-if="isRegistration"
+            :validator="$v.loginForm.affiliation"
+            :messages="{
+              required: 'Please list the institution you are affiliated with'
+            }"
+          >
             <b-input
-              v-model="loginForm.affiliation"
+              v-model="$v.loginForm.affiliation.$model"
               icon="university"
-              maxlength="100"
-              :has-counter="isRegistration"
-              validation-message="Please list the institution you are affiliated with."
               placeholder="Institutional Affiliation"
-              required
             />
-          </b-field>
+          </form-group>
 
-          <!-- FIXME: binding minlength doesn't seem to work -->
-          <b-field>
+          <form-group
+            :validator="$v.loginForm.username"
+            :messages="{
+              required: isRegistration
+                ? 'Please make a username'
+                : 'Please enter your username',
+              minLength: 'Username must be at least 3 characters'
+            }"
+          >
             <b-input
-              v-model="loginForm.username"
+              v-model="$v.loginForm.username.$model"
               icon="user"
-              :minlength="isRegistration ? 3 : 0"
-              maxlength="100"
-              :has-counter="isRegistration"
-              validation-message="Username must be at least 3 characters."
               placeholder="Username"
-              required
             />
-          </b-field>
+          </form-group>
 
-          <b-field>
+          <form-group
+            :validator="$v.loginForm.password"
+            :messages="{
+              required: isRegistration
+                ? 'Please make a password'
+                : 'Please enter your password',
+              minLength: 'Password must be at least 10 characters'
+            }"
+          >
             <b-input
-              v-model="loginForm.password"
+              v-model="$v.loginForm.password.$model"
               type="password"
               icon="lock"
-              v-bind:minlength="isRegistration ? 10 : 0"
-              maxlength="100"
-              :has-counter="isRegistration"
-              validation-message="Password must be at least 10 characters."
               placeholder="Password"
-              required
               password-reveal
             />
-          </b-field>
+          </form-group>
 
-          <div class="buttons is-centered">
-            <b-button
-              v-if="!isRegistration"
-              tag="input"
-              native-type="submit"
-              value="Login"
-              icon-left="sign-in-alt"
-              type="is-primary"
-              expanded
-            />
-
-            <b-button
-              v-else
-              tag="input"
-              native-type="submit"
-              value="Create Account"
-              icon-left="user-plus"
-              type="is-primary"
-              expanded
-            />
-          </div>
+          <b-button
+            native-type="submit"
+            :icon-left="submitIcon"
+            :loading="loading"
+            :type="submitType"
+            expanded
+            >{{ submitText }}</b-button
+          >
 
           <hr />
 
-          <b-button
-            @click="toggleFormMode()"
-            type="is-text"
-          >{{ isRegistration ? "Login to existing account" : "Create an account" }}</b-button>
+          <b-button @click="toggleFormMode()" type="is-text">
+            {{
+              isRegistration ? "Login to existing account" : "Create an account"
+            }}
+          </b-button>
         </form>
       </section>
     </div>
@@ -112,8 +111,16 @@
 </template>
 
 <script>
+// Import Vuelidate Rules
+import {
+  required,
+  minLength,
+  maxLength,
+  email
+} from "vuelidate/lib/validators";
+
 export default {
-  name: "LoginPage",
+  name: "Login",
   data() {
     // Template for Form
     const LoginForm = {
@@ -124,54 +131,166 @@ export default {
       password: ""
     };
 
+    const SubmitState = {
+      NORMAL: 0,
+      ERROR: 1,
+      SUCCESS: 2
+    };
+
     return {
       LoginForm,
       loginForm: Object.assign({}, LoginForm),
 
-      isRegistration: false
+      SubmitState,
+      submitState: SubmitState.NORMAL,
+
+      isRegistration: false,
+      loading: false
     };
+  },
+  validations() {
+    if (this.isRegistration) {
+      return {
+        loginForm: {
+          email: {
+            required,
+            email,
+            maxLength: maxLength(50)
+          },
+          profession: {
+            required,
+            maxLength: maxLength(50)
+          },
+          affiliation: {
+            required,
+            maxLength: maxLength(50)
+          },
+          username: {
+            required,
+            minLength: minLength(3),
+            maxLength: maxLength(50)
+          },
+          password: {
+            required,
+            minLength: minLength(10),
+            maxLength: maxLength(50)
+          }
+        }
+      };
+    } else {
+      return {
+        loginForm: {
+          username: { required },
+          password: { required }
+        }
+      };
+    }
+  },
+  computed: {
+    submitType() {
+      let type = "is-primary";
+      if (this.submitState === this.SubmitState.ERROR) type = "is-danger";
+      else if (this.submitState === this.SubmitState.SUCCESS)
+        type = "is-success";
+      return type;
+    },
+    submitIcon() {
+      let icon = this.isRegistration ? "user-plus" : "sign-in-alt";
+      if (this.submitState === this.SubmitState.ERROR) icon = "times";
+      else if (this.submitState === this.SubmitState.SUCCESS) icon = "check";
+      return icon;
+    },
+    submitText() {
+      let text = "";
+      if (this.submitState === this.SubmitState.NORMAL)
+        text = this.isRegistration ? "Create Account" : "Login";
+      return text;
+    }
   },
   methods: {
     toggleFormMode() {
+      if (this.isRegistration) this.$v.loginForm.$reset();
+      else {
+        Object.keys(this.loginForm).forEach(field => {
+          if (this.loginForm[field] !== "") this.$v.loginForm[field].$touch();
+        });
+      }
       this.isRegistration = !this.isRegistration;
     },
+    setSubmitState(newState) {
+      if (this.loading) this.loading = false;
+      this.submitState = newState;
+      // TODO: Make this a watcher that mounts/unmounts instead
+      setTimeout(() => {
+        this.submitState = this.SubmitState.NORMAL;
+      }, 2000);
+    },
     async login() {
-      const response = this.$auth.loginWith("local", {
-        data: {
-          username: this.loginForm.username,
-          password: this.loginForm.password
-        }
+      // add field errors for login
+      this.loading = true;
+
+      // Only touch invalid fields (we don't want valid fields in login)
+      Object.keys(this.$v.loginForm).forEach(async key => {
+        const validator = this.$v.loginForm[key];
+        if (validator?.$invalid) await validator.$touch();
       });
 
-      if (response.success) {
-        // Reset inputs
-        this.loginForm = Object.assign({}, this.LoginForm);
+      if (this.$v.loginForm.$invalid) {
+        this.$buefy.toast.open({
+          message: "Please fill in empty fields",
+          type: "is-danger"
+        });
+        this.loading = false;
+        this.setSubmitState(this.SubmitState.ERROR);
       } else {
-        this.loginForm.password = "";
+        try {
+          const { username, password } = this.loginForm;
+          const response = await this.$auth.loginWith("local", {
+            data: {
+              username,
+              password
+            }
+          });
+          this.loading = false;
+          this.setSubmitState(this.SubmitState.SUCCESS);
+          this.loginForm = Object.assign({}, this.LoginForm);
+          this.$v.loginForm.$reset();
+        } catch (error) {
+          this.loading = false;
+          this.setSubmitState(this.SubmitState.ERROR);
+          this.loginForm.password = "";
+        }
       }
     },
     async register() {
-      const response = await this.$axios.post(
-        "/api/v1/auth/register",
-        this.loginForm
-      );
-
-      // FIXME: After a 500 on unsuccesful creation nothing happens after this so
-      // this can never be handled (reset password field, etc.)
-
-      if (response.data.success) {
-        // Reset inputs
-        this.loginForm = Object.assign({}, this.LoginForm);
-
+      this.loading = true;
+      await this.$v.loginForm.$touch();
+      if (this.$v.loginForm.$invalid) {
         this.$buefy.toast.open({
-          message: response.data.message,
-          type: "is-success"
+          message: "Errors exists, please fix incorrect fields",
+          type: "is-danger"
         });
+        this.loading = false;
+        this.setSubmitState(this.SubmitState.ERROR);
       } else {
-        this.loginForm.password = "";
-      }
+        try {
+          await this.$axios.$post("/api/v1/auth/register", this.loginForm);
+          this.loading = false;
+          this.setSubmitState(this.SubmitState.SUCCESS);
+          this.$buefy.toast.open({
+            message: "Account created, logging you in",
+            type: "is-success"
+          });
 
-      // TODO: auto login after creating an account
+          setTimeout(() => {
+            this.login();
+          }, 1000);
+        } catch (error) {
+          this.loading = false;
+          this.setSubmitState(this.SubmitState.ERROR);
+          this.loginForm.password = "";
+        }
+      }
     }
   },
   head() {

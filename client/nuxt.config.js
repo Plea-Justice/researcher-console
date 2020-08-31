@@ -15,8 +15,7 @@ export default {
    ** Development configuration for serving only client with nuxt.
    */
   server: {
-    port: 3001,
-    host: 'localhost'
+    port: 3001
   },
   /*
    ** Customize the progress-bar color
@@ -59,7 +58,6 @@ export default {
    */
   axios: {
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
-    // baseURL: 'https://researcher.pleajustice.org',
     credentials: true
   },
   // See https://github.com/buefy/nuxt-buefy
