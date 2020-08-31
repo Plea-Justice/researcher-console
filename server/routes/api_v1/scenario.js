@@ -124,7 +124,7 @@ module.exports = function (options) {
         let id = req.params.scenario_id;
         let uid = req.session.user_id;
 
-        if (options.config.noclobber) {
+        if (options.noclobber) {
             res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
             return;
         }
@@ -164,7 +164,7 @@ module.exports = function (options) {
         let id = req.params.scenario_id;
         let uid = req.session.user_id;
 
-        if (options.config.noclobber) {
+        if (options.noclobber) {
             res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
             return;
         }

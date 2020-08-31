@@ -7,7 +7,7 @@ The researcher console is a web-based interface for configuring the [plea bargai
 * [Node.js](https://nodejs.org/en/)
 * [MongoDB](https://www.mongodb.com/)
 
-A Unix platform is recommended. The live server runs Ubuntu Server 20.04.
+A Unix platform is recommended. The live server and test system run Ubuntu Server 20.04.
 
 Node may be installed with [`nvm`](https://github.com/nvm-sh/nvm). Additional Node based software will be automatically installled by [`npm`](https://www.npmjs.com/).
 
@@ -168,11 +168,9 @@ Mongo uses JavaScript as a scripting language and so common development queries 
 
 ### Managing the Filesystem
 
-The server will store uploaded assets under the directory specified in `config.js`. When an asset is uploaded, the server will create a subdirectory with the user's ID as its name. Subdirectories for each asset type will also be created and the asset will be moved to whichever is applicable. The server returns the base64 encoded path of the asset as the asset's ID.
+The server will store and retrieve data from the directories specified in `config.js`. The server requires a directory containing the default copy of the simulation code as well as a directory containing default assets for new users. New directories may be created to host simulations and store uploaded assets and other user data. Temporary files may also be created in the host's `/tmp` filesystem under `"sim-prev/"` to generate and serve simulation previews and zip files.
 
-Ensure that an empty path exists for the server's data and that the server has write permissions. Any files in this path may be overwritten by the server.
-
-The server will also create directories in the host's `/tmp` filesystem under `"sim-serve"` to generate and serve simulation previews and zip files.
+Ensure that a path exists for the server's data and that the server has write permissions. Any files in this path may be overwritten by the server. See the example structure in `server/data/`.
 
 ### Server API (v1)
 
@@ -205,3 +203,7 @@ The API defines endpoints for managing scenarios, assets, and user authenticatio
 | `POST` | `/api/v1/auth/register` | Register new credentials. |
 | `GET` | `/api/v1/auth/user` | Get the user of the current session. |
 | `GET` | `/api/v1/admin/users` | Get the list of user information. |
+| `PUT` | `/api/v1/admin/users/{user_id}/permissions` | Set the permissions of a user. |
+| `PUT` | `/api/v1/admin/users/{user_id}/password` | Set the permissions of a user. |
+| `PUT` | `/api/v1/admin/users/{user_id}/attributes` | Set other properties of a user. |
+| `DELETE` | `/api/v1/admin/users/{user_id}` | Delete a user. |

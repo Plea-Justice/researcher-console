@@ -4,9 +4,9 @@ const mongoose = require('mongoose');
 var UserSchema = new mongoose.Schema({
     username: {type: String, required: true, unique: true},
     password: {type: String, required: true },
-    email: {type: String, required: true},
-    profession: {type: String, required: false},
-    affiliation: {type: String, required: false},
+    email: {type: String, required: true },
+    profession: {type: String, default: '' },
+    affiliation: {type: String, default: '' },
     addresses: {type: Map, of: String, default: new Map()},
     permitAdmin: {type: Boolean, default: false},
     permitHosting: {type: Boolean, default: false},
