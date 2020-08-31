@@ -193,8 +193,9 @@ async function generateSimulation(options, req) {
         // Copy in a clean simulation from the template directory.
         fs.emptyDirSync(tmpdir);
         assetTypes.map(type => fs.mkdirpSync(path.join(tmpdir, 'assets', type)));
-        fs.copySync(path.normalize(options.config.sim_dir), tmpdir, {filter: src => !src.includes('.git')});
+        fs.copySync(path.normalize(options.sim_dir), tmpdir, {filter: src => !src.includes('.git')});
         fs.copySync(path.join(user_data_dir, 'cache'), path.join(tmpdir, 'assets', 'cache'));
+        
         // Copy user's assets.
         files.forEach(file => fs.copyFileSync(
             path.join(user_data_dir, file),
@@ -221,7 +222,7 @@ async function generateSimulation(options, req) {
 
         // Generate condition summary table.
         let summary = conditionList.reduce((acc, curr, i)=>
-            acc //+ `<tr><td>${i+1}</td><td>${conditions[curr].name}</td></tr>`
+            acc + `<tr><td>${i+1}</td><td>${conditions[curr].tags}</td></tr>`
         , ''); 
 
         util.fileMultipleReplace(path.join(tmpdir, 'index.html'), [

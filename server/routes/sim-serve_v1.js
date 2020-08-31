@@ -20,8 +20,8 @@ module.exports = function (options) {
     fs.ensureDir(preview_dir);
     router.use('/sim-prev', [authenticatedRoute, express.static(preview_dir)]);
 
-    fs.ensureDir(options.config.sim_serve_dir);
-    router.use('/sim-serve', express.static(options.config.sim_serve_dir));
+    fs.ensureDir(options.sim_serve_dir);
+    router.use('/sim-serve', express.static(options.sim_serve_dir));
 
     return router;
 };

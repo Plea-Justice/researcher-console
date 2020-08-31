@@ -4,6 +4,7 @@
  */
 
 const ScenarioModel = require('../../models/ScenarioModel');
+const AssetModel = require('../../models/AssetModel');
 
 module.exports = function (options) {
     const express = require('express');
@@ -19,20 +20,17 @@ module.exports = function (options) {
     const fileupload = require('express-fileupload');
     const sanitize = require('sanitize-filename');
 
-    const atob = (src) => Buffer.from(src, 'base64').toString('binary');
-    const btoa = (src) => Buffer.from(src, 'binary').toString('base64');
-
     const assetTypes = util.assetTypes;
     
     // express-fileupload middleware to handle asset uploads.
     router.use(fileupload({
-        limits: { fileSize: options.config.max_upload_mb * 1024 * 1024},
+        limits: { fileSize: options.max_upload_mb * 1024 * 1024},
         safeFileNames: true,
         preserveExtension: true,
         abortOnLimit: true,
         limitHandler: (req, res)=>{
             res.status(413).json(util.failure(
-                `Uploaded file too large. Assets must be less than ${options.config.max_upload_mb}MiB.`,
+                `Uploaded file too large. Assets must be less than ${options.max_upload_mb}MiB.`,
             ));
         },
         createParentPath: true,
@@ -46,24 +44,22 @@ module.exports = function (options) {
      */
     router.get('/', async (req, res) => {
         try {
-            let assets = {};
-            let user_data_dir = path.join(options.config.user_dir, req.session.user_id);
+            const assets = {};
+            const user_data_dir = path.join(options.user_dir, req.session.user_id);
 
-            await Promise.all(assetTypes.map(type => fs.mkdirp(path.join(user_data_dir, type))));
+            const obj = await AssetModel.find({user_id: req.session.user_id});
+            const list = obj.map(asset => ({
+                id: asset._id,
+                name: asset.name,
+                type: asset.type,
+                filename: asset.path,
+                modified: asset.modified,
+                created: asset.created
+            }));
 
-            let list = 
-                await Promise.all(assetTypes.map(type => fs.readdir(path.join(user_data_dir, type))));
+            const assetList = list.map(asset => asset.id);
 
-            assetTypes.forEach((type, i) => 
-                list[i] = list[i]
-                    .map(name => path.parse(`${type}/${name}`))
-                    .map(p => ({...p, 'id': btoa(path.format(p))})));
-            
-            list = Array.prototype.concat(...list);
-            list.forEach(p => assets[p.id] = {'id': p.id, 'name': p.name, 'type': p.dir, 'filename': p.base,
-                'created': fs.statSync(path.join(user_data_dir, path.format(p))).mtimeMs});
-
-            let assetList = list.map(p => p.id);
+            list.forEach(asset => assets[asset.id] = asset);
 
             res.status(200).json(util.success('Asset listings returned.', {assetList, assets, assetTypes}));
         } catch (err) {
@@ -78,9 +74,9 @@ module.exports = function (options) {
      * @return Filename
      */
     router.post('/', async (req, res) => {
-        let user_data_dir = util.userDir(options, req.session.user_id);
+        const user_data_dir = util.userDir(options, req.session.user_id);
 
-        if (options.config.noclobber) {
+        if (options.noclobber) {
             res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
             return;
         }
@@ -108,7 +104,6 @@ module.exports = function (options) {
                 : req.files.file.name;
             */
             let name = sanitize(req.files.file.name).replace(/[\s,;]+/g, '_');
-            let id = btoa(path.join(req.body.type, name));
             let filepath = path.join(user_data_dir, req.body.type, name);
 
             if (fs.pathExistsSync(filepath)) {
@@ -123,13 +118,24 @@ module.exports = function (options) {
                 if (path.extname(filepath) === '.js')
                     publish(filepath);
 
+                const asset = new AssetModel({
+                    user_id: req.session.user_id,
+                    path: path.join(req.body.type, name),
+                    name: name.replace(/\..*?$/, ''),
+                    type: req.body.type,
+                    description: req.body.description,
+                    public: req.body.public,
+                    readOnly: req.body.readOnly
+                });
+                await asset.save();
+
                 // Generate a thumbnail for the asset in the background.
                 fork('common/thumbnail', [
                     path.resolve(filepath),
-                    path.resolve(path.join(user_data_dir, 'thumbnails', `${id}.jpg`))
+                    path.resolve(path.join(user_data_dir, 'thumbnails', `${asset._id}.jpg`))
                 ]);
 
-                res.status(200).json(util.success('Asset uploaded.', id));
+                res.status(200).json(util.success('Asset uploaded.', asset._id));
             } catch (err) {
                 if (fs.pathExistsSync(filepath))
                     fs.removeSync(filepath);
@@ -143,7 +149,7 @@ module.exports = function (options) {
      * Fetch an asset's thumbnail, if it exists.
      */
     router.get('/:asset_id/thumbnail', (req, res) => {
-        let user_data_dir = path.join(options.config.user_dir, req.session.user_id);
+        const user_data_dir = util.userDir(options, req.session.user_id);
         let thumbnail = path.resolve(path.join(user_data_dir, 'thumbnails', `${req.params.asset_id}.jpg`));
         if (fs.pathExistsSync(thumbnail))
             res.sendFile(thumbnail);
@@ -155,60 +161,67 @@ module.exports = function (options) {
      * Find references to an asset (for safe deletion).
      */
     router.get('/:asset_id/references', async (req, res) => {
-        let matches = await ScenarioModel.find({
-            user_id: req.session.user_id
-        });
-        
-        let asset = path.parse(atob(req.params.asset_id));
-        let type = asset.dir;
-        
-        matches = matches.filter(scenario => 
-            Object.entries((scenario.scenes)).map(([id, scene])=> 
-                scene.props ?
-                    [scene.props.actor, scene.props.clip, 
-                        scene.props.foreground, scene.props.background].includes(asset.name) : false
-            ).some(y=>y)
-        );
-        
-        matches = matches.map(x=>({
-            id: x._id,
-            name: x.name,
-            description: x.description,
-            survey: x.survey,
-            created: x.created,
-            modified: x.modified
-        }));
+        const uid = req.session.user_id;
+        const asset_id = req.params.asset_id;
 
-        res.json(util.success('Returned scenarios that reference the asset.', matches ));
+        try {
+            let matches = await ScenarioModel.find({
+                user_id: req.session.user_id
+            });
+
+            const asset = await AssetModel.findOne({_id: asset_id, user_id: uid});
+            
+            matches = matches.filter(scenario => 
+                Object.entries((scenario.scenes)).map(([id, scene])=> 
+                    scene.props ?
+                        [scene.props.actor, scene.props.clip, 
+                            scene.props.foreground, scene.props.background].includes(asset.name) : false
+                ).some(y=>y)
+            );
+            
+            matches = matches.map(x=>({
+                id: x._id,
+                name: x.name,
+                description: x.description,
+                survey: x.survey,
+                created: x.created,
+                modified: x.modified
+            }));
+
+            res.json(util.success('Returned scenarios that reference the asset.', matches ));
+        } catch (err) {
+            res.status(500).json(util.failure('References to the asset could not be checked.', err));
+        }
     });    
 
     /**
      * Delete a file. Asset ID is base64 encoded path.
      */
     router.delete('/:asset_id', async (req, res) => {
-        let user_data_dir = path.join(options.config.user_dir, req.session.user_id);        
-        let asset = path.parse(atob(req.params.asset_id));
-        let thumbnail = path.join(user_data_dir, 'thumbnails', `${req.params.asset_id}.jpg`);
+        const uid = req.session.user_id;
+        const user_data_dir = util.userDir(options, uid);      
+        const asset_id = req.params.asset_id;
+        const thumbnail = path.join(user_data_dir, 'thumbnails', `${asset_id}.jpg`);
 
-        if (options.config.noclobber) {
+        if (options.noclobber) {
             res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
             return;
         }
 
-        asset.dir = sanitize(asset.dir);
-        asset.base = sanitize(asset.base);
+        try {
+            const asset = await AssetModel.findOne({_id: asset_id, user_id: uid});
 
-        if (!assetTypes.some((el) => el === asset.dir)) 
-            res.status(400).json(util.failure('Illegal asset identifier.'));
-        else {
-            try {
-                await fs.unlink(path.join(user_data_dir, path.format(asset)));
-                if (fs.pathExistsSync(thumbnail))
-                    await fs.unlink(thumbnail);
-                res.status(200).json(util.success('Asset deleted successfully.'));
-            } catch (err) {
-                res.status(500).json(util.failure('The asset could not be deleted.'));
-            }
+            await fs.unlink(path.join(user_data_dir, asset.path));
+
+            if (fs.pathExistsSync(thumbnail))
+                await fs.unlink(thumbnail);
+            
+            await asset.remove();
+
+            res.status(200).json(util.success('Asset deleted successfully.'));
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(util.failure('The asset could not be deleted.', err));
         }
     });
 
