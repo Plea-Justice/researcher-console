@@ -55,6 +55,22 @@
             class="control"
           />
         </b-field>
+
+        <b-field label="Share with Others" v-if="user.permitSharing">
+          <b-switch
+            :disabled="!user.permitSharing"
+            v-model="assetForm.public"
+            type="is-info"
+            style="white-space:nowrap;">
+                Make Public
+          </b-switch>
+          <span style="width:100%;" class="control"/>
+          <HelpSidebar
+            :text="assetsHelp.sharing"
+            title="Asset Types"
+            class="control"
+          />
+        </b-field>
       </div>
     </ItemCard>
   </form>
@@ -84,6 +100,12 @@ export default {
     return {
       assetsHelp
     };
+  },
+  computed: {
+    user() {
+      console.log(this.$auth.user)
+      return this.$auth.user ? this.$auth.user : { name: "dev", n_sessions: 1 };
+    }
   }
 };
 </script>

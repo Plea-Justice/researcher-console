@@ -38,7 +38,7 @@ export default {
   },
   computed: {
      ...mapGetters({
-      errorList: "scenario/errors"
+      scenarioStatus: "scenario/status"
     }),
     user() {
       return this.$auth.user ? this.$auth.user : { name: "dev", n_sessions: 1 };
@@ -157,7 +157,9 @@ export default {
       }
     },
     async wrapSnackbar(callback, message) {
-      if (this.errorList.length > 0) {
+      const { frameErrors, sceneErrors } = this.scenarioStatus;
+      console.log(this.scenarioStatus);
+      if (frameErrors.length + sceneErrors.length > 0) {
         this.$emit('gotoErrors');
         return;
       }

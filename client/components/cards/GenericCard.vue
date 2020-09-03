@@ -11,7 +11,7 @@
         v-if="collapsed && close"
         @click="$emit('remove')"
         type="is-danger"
-        icon-left="times"
+        icon-left="trash-alt"
       />
       <slot name="header" />
     </header>
@@ -25,7 +25,7 @@
     <footer v-if="close || (!emptyFooter && !collapsed)" class="card-footer">
       <div class="card-footer-item buttons footer-buttons">
         <!-- TODO: Check if remove listener exists instead of using remove? -->
-        <b-button v-if="close" @click="$emit('remove')" type="is-danger" icon-left="times" />
+        <b-button v-if="close" @click="$emit('remove')" type="is-danger" icon-left="trash-alt" />
         <slot name="footer" />
       </div>
     </footer>

@@ -1,7 +1,7 @@
 <template>
   <div class="frame-wrapper-column">
     <div class="frame-wrapper-row">
-      <p class="frame-index">{{ frameIndex + 1 }}</p>
+      <p class="frame-index">Part {{ frameIndex + 1 }}</p>
 
       <div class="frame box">
         <!-- Sidebar -->
@@ -35,8 +35,9 @@
           <b-button
             v-show="!collapsed"
             @click="removeFrameHelper(frame.id)"
-            type="is-danger is-light"
-            icon-left="times"
+            class="has-text-danger"
+            type="is-text"
+            icon-left="trash-alt"
             size="is-medium"
           />
         </aside>
@@ -119,9 +120,9 @@
         v-show="!(isLast && !frame.size)"
         @click="addFrameHelper(frame.id)"
         type="is-light"
-        size="is-medium"
+        size="is-small"
         icon-left="plus"
-      />
+      >Insert Part</b-button>
     </div>
   </div>
 </template>
@@ -331,7 +332,7 @@ export default {
 .frame-index {
   position: absolute;
   align-self: center;
-  left: -3vw;
+  left: -120px;
   font-size: 2rem;
   color: $grey;
 }

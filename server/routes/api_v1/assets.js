@@ -45,15 +45,18 @@ module.exports = function (options) {
     router.get('/', async (req, res) => {
         try {
             const assets = {};
-            const user_data_dir = path.join(options.user_dir, req.session.user_id);
 
-            const obj = await AssetModel.find({user_id: req.session.user_id});
+            const obj = await AssetModel.find({$or: [{user_id: req.session.user_id}, {public: true}]});
             const list = obj.map(asset => ({
                 id: asset._id,
                 name: asset.name,
                 type: asset.type,
                 filename: asset.path,
                 modified: asset.modified,
+                public: asset.public,
+                readOnly: asset.readOnly,
+                owner: asset.owner,
+                isMine: asset.user_id.toString() === req.session.user_id,
                 created: asset.created
             }));
 
@@ -80,6 +83,14 @@ module.exports = function (options) {
             res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
             return;
         }
+
+        const permissions = await util.userPermissions(req.session.user_id);
+        if (!permissions.permitUploads) {
+            res.status(400).json(util.failure('User does not have permission to upload.'));
+            return;
+        }
+
+        
 
         if (!req.files || Object.keys(req.files).length === 0)
             res.status(400).json(util.failure('No file was uploaded.'));
@@ -125,7 +136,8 @@ module.exports = function (options) {
                     type: req.body.type,
                     description: req.body.description,
                     public: req.body.public,
-                    readOnly: req.body.readOnly
+                    readOnly: req.body.readOnly,
+                    owner: req.session.username
                 });
                 await asset.save();
 
@@ -140,7 +152,8 @@ module.exports = function (options) {
                 if (fs.pathExistsSync(filepath))
                     fs.removeSync(filepath);
 
-                res.status(500).json(util.failure('Error uploading the asset. Delete the asset and try again.', err));
+                res.status(500).json(
+                    util.failure('Error uploading the asset. If it is still visible, delete it and try again.', err));
             }
         }
     });
@@ -148,13 +161,20 @@ module.exports = function (options) {
     /**
      * Fetch an asset's thumbnail, if it exists.
      */
-    router.get('/:asset_id/thumbnail', (req, res) => {
-        const user_data_dir = util.userDir(options, req.session.user_id);
-        let thumbnail = path.resolve(path.join(user_data_dir, 'thumbnails', `${req.params.asset_id}.jpg`));
-        if (fs.pathExistsSync(thumbnail))
+    router.get('/:asset_id/thumbnail', async (req, res) => {
+        try {
+            const asset_id = req.params.asset_id;
+            const asset = await AssetModel.findOne({_id: asset_id});
+            const user_data_dir = util.userDir(options, asset.user_id.toString());
+            const thumbnail = path.resolve(path.join(user_data_dir, 'thumbnails', `${asset_id}.jpg`));
+
+            if (!fs.pathExistsSync(thumbnail))
+                throw Error('The specified path does not exist.');
+
             res.sendFile(thumbnail);
-        else
-            res.status(404).json(util.failure('The requested thumbnail image could not be found.'));
+        } catch (err) {
+            res.status(404).json(util.failure('The requested thumbnail image could not be found.', err));
+        }
     });
 
     /**
@@ -211,10 +231,11 @@ module.exports = function (options) {
         try {
             const asset = await AssetModel.findOne({_id: asset_id, user_id: uid});
 
-            await fs.unlink(path.join(user_data_dir, asset.path));
+            if (fs.pathExistsSync(path.join(user_data_dir, asset.path)))
+                fs.unlinkSync(path.join(user_data_dir, asset.path));
 
             if (fs.pathExistsSync(thumbnail))
-                await fs.unlink(thumbnail);
+                await fs.unlinkSync(thumbnail);
             
             await asset.remove();
 

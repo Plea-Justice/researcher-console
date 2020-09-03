@@ -113,7 +113,8 @@ export default {
         'faUniversity',
         'faAngleLeft',
         'faAngleRight',
-        'faAngleDown'
+        'faAngleDown',
+        'faTrashAlt'
       ]
     }
   },

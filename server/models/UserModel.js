@@ -10,6 +10,8 @@ var UserSchema = new mongoose.Schema({
     addresses: {type: Map, of: String, default: new Map()},
     permitAdmin: {type: Boolean, default: false},
     permitHosting: {type: Boolean, default: false},
+    permitSharing: {type: Boolean, default: false},
+    permitUploads: {type: Boolean, default: true},
     lastActive: {type: Date, default: Date.now},
     created: {type: Date, default: Date.now}
 }, {strict: 'throw', strictQuery: true, minimize: false });

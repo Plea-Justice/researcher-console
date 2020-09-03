@@ -34,6 +34,7 @@
         expanded
       />
       <b-button v-if="edit" @click="$emit('edit', item.id)" icon-left="pencil-alt" />
+      <slot name="footer" />
     </template>
   </GenericCard>
 </template>

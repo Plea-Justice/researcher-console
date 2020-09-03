@@ -56,14 +56,18 @@ async function userPermissions(user_id) {
         const obj = await UserModel.findById(user_id);
         return {
             permitAdmin: obj.permitAdmin,
-            permitHosting: obj.permitHosting
+            permitHosting: obj.permitHosting,
+            permitSharing: obj.permitSharing,
+            permitUploads: obj.permitUploads
         };
 
     } catch (err) {
         console.log(err);
         return {
             permitAdmin: false,
-            permitHosting: false
+            permitHosting: false,
+            permitSharing: false,
+            permitUploads: false
         };
     }
 }

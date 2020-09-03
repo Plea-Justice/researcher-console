@@ -128,33 +128,6 @@ module.exports = function (options) {
             const user_data_dir = util.userDir(options, obj._id.toString());
             assetTypes.forEach(type => fs.mkdirpSync(path.join(user_data_dir, type)));
 
-            if (options.assets_template) {
-                fs.copySync(path.join(options.assets_dir), user_data_dir);
-                assetTypes.forEach(type => path.join(user_data_dir, type));
-                for (const type of assetTypes) {
-                    const dir = path.join(user_data_dir, type);
-                    const list = fs.readdirSync(dir);
-                    
-                    list.forEach(async (file)=>{
-                        const asset = new AssetModel({
-                            user_id: user._id,
-                            path: path.join(dir, file),
-                            name: file.replace(/.*\/|\..*?$/, ''),
-                            type: type,
-                            description: 'Builtin asset.',
-                            public: false,
-                            readOnly: true
-                        });
-                        await asset.save().catch(err=>console.log(err));
-                        // Generate a thumbnail for the asset in the background.
-                        fork('common/thumbnail', [
-                            path.resolve(path.join(dir, file)),
-                            path.resolve(path.join(user_data_dir, 'thumbnails', `${asset._id}.jpg`))
-                        ]);
-                    });
-                }
-            }
-
             res.status(201).json(util.success('User account created. You may now login.'));
         } catch (err) {
             res.status(500).json(util.failure('There was an error registering the requested user.', err));
