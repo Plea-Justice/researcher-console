@@ -11,49 +11,26 @@
             class="file is-primary fix-field-max-width"
             :class="{ 'has-name': assetForm.file }"
           >
-            <b-upload
-              v-model="assetForm.file"
-              class="file-label"
-              required
-              expanded
-            >
-              <span
-                class="button file-cta"
-                :class="{ 'is-fullwidth': !assetForm.file }"
-              >
+            <b-upload v-model="assetForm.file" class="file-label" required expanded>
+              <span class="button file-cta" :class="{ 'is-fullwidth': !assetForm.file }">
                 <b-icon class="file-icon" icon="cloud-upload-alt" />
-                <span v-if="!assetForm.file" class="file-label"
-                  >Click to upload</span
-                >
+                <span v-if="!assetForm.file" class="file-label">Click to upload</span>
               </span>
-              <span class="file-name control" v-if="assetForm.file">{{
-                assetForm.file.name
-              }}</span>
+              <span class="file-name control" v-if="assetForm.file">{{ assetForm.file.name }}</span>
             </b-upload>
-            <HelpSidebar
-              :text="assetsHelp.upload"
-              title="Asset Uploads"
-              class="control"
-            />
+            <HelpSidebar :text="assetsHelp.upload" title="Asset Uploads" class="control" />
           </b-field>
         </b-field>
 
-        <b-field label="Asset Type">
-          <b-select
-            placeholder="Select a type"
-            v-model="assetForm.type"
-            expanded
-            required
-          >
-            <option v-for="type in types" :key="type" :value="type">{{
+        <b-field label="Asset Type" class="no-help">
+          <b-select placeholder="Select a type" v-model="assetForm.type" expanded required>
+            <option v-for="type in types" :key="type" :value="type">
+              {{
               type | capitalize
-            }}</option>
+              }}
+            </option>
           </b-select>
-          <HelpSidebar
-            :text="assetsHelp.type"
-            title="Asset Types"
-            class="control"
-          />
+          <HelpSidebar :text="assetsHelp.type" title="Asset Types" class="control" />
         </b-field>
       </div>
     </ItemCard>
@@ -98,10 +75,6 @@ export default {
     }
   }
 }
-
-/* .file.has-name .upload {
-  z-index: 1;
-} */
 
 .file-name {
   width: 100%;

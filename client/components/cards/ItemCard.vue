@@ -2,7 +2,7 @@
   <GenericCard
     @remove="$emit('remove', item.id)"
     @selected="$emit('selected', item.id)"
-    :close="close"
+    :remove="remove"
     :selectable="selectable"
   >
     <template v-slot:header>
@@ -24,16 +24,26 @@
     </template>
 
     <template v-slot:footer>
-      <b-button
-        v-if="save"
-        class="clear-button-margin"
-        type="is-primary"
-        tag="input"
-        native-type="submit"
-        value="Save"
-        expanded
-      />
-      <b-button v-if="edit" @click="$emit('edit', item.id)" icon-left="pencil-alt" />
+      <div>
+        <b-button
+          v-if="save"
+          class="clear-button-margin"
+          type="is-primary"
+          tag="input"
+          native-type="submit"
+          value="Save"
+          expanded
+        />
+        <b-tooltip :label="`Delete ${itemType}`" position="is-bottom">
+          <b-button v-if="remove" @click="$emit('remove')" type="is-danger" icon-left="trash" />
+        </b-tooltip>
+        <b-tooltip :label="`Edit ${itemType}`" position="is-bottom">
+          <b-button v-if="edit" @click="$emit('edit', item.id)" icon-left="pencil-alt" />
+        </b-tooltip>
+        <b-tooltip :label="`Duplicate ${itemType}`" position="is-bottom">
+          <b-button v-if="duplicate" @click="$emit('duplicate', item.id)" icon-left="clone" />
+        </b-tooltip>
+      </div>
     </template>
   </GenericCard>
 </template>
@@ -46,35 +56,19 @@ export default {
   name: "ItemCard",
   components: { GenericCard },
   props: {
-    item: {
-      type: Object,
-      required: false
+    item: Object,
+    itemType: {
+      type: String,
+      default: ""
     },
-    value: {
-      type: Object,
-      required: false
-    },
-    link: {
-      type: Boolean,
-      required: false
-    },
-    save: {
-      type: Boolean,
-      required: false
-    },
+    value: Object,
+    link: Boolean,
+    save: Boolean,
+    remove: Boolean,
+    edit: Boolean,
+    duplicate: Boolean,
     // **** GenericCard Props ****
-    close: {
-      type: Boolean,
-      required: false
-    },
-    edit: {
-      type: Boolean,
-      required: false
-    },
-    selectable: {
-      type: Boolean,
-      required: false
-    }
+    selectable: Boolean
   }
 };
 </script>

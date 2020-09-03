@@ -82,6 +82,7 @@ export default {
       solid: [
         'faPlus',
         'faTimes',
+        'faTrash',
         'faQuestion',
         'faExclamationCircle',
         'faExclamationTriangle',
@@ -98,6 +99,7 @@ export default {
         'faUserCircle',
         'faEnvelope',
         'faLock',
+        'faClone',
         'faPencilAlt',
         'faFileDownload',
         'faCloudUploadAlt',

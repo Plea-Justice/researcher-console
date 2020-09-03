@@ -6,13 +6,6 @@
     <!-- Card Header -->
     <!-- when collapsed style header as body -->
     <header v-if="!emptyHeader" class="card-header flex-header" :class="headerModeStyle">
-      <!-- When collapsed show remove button in header -->
-      <b-button
-        v-if="collapsed && close"
-        @click="$emit('remove')"
-        type="is-danger"
-        icon-left="times"
-      />
       <slot name="header" />
     </header>
 
@@ -22,12 +15,8 @@
     </div>
 
     <!-- Card Footer -->
-    <footer v-if="close || (!emptyFooter && !collapsed)" class="card-footer">
-      <div class="card-footer-item buttons footer-buttons">
-        <!-- TODO: Check if remove listener exists instead of using remove? -->
-        <b-button v-if="close" @click="$emit('remove')" type="is-danger" icon-left="times" />
-        <slot name="footer" />
-      </div>
+    <footer v-if="(!emptyFooter && !collapsed)" class="card-footer">
+      <slot name="footer" />
     </footer>
   </div>
 </template>
@@ -39,24 +28,11 @@ import { mapActions } from "vuex";
 export default {
   name: "GenericCard",
   props: {
-    close: {
-      type: Boolean,
-      required: false
-    },
     // Sets if component is selectable
-    selectable: {
-      type: Boolean,
-      required: false
-    },
-    invalid: {
-      type: Boolean,
-      required: false
-    },
+    selectable: Boolean,
+    invalid: Boolean,
     // Sets if component is in a collapsed state (only header, with flex styling properties)
-    collapsed: {
-      type: Boolean,
-      required: false
-    }
+    collapsed: Boolean
   },
   created() {
     this.$nextTick(() => this.setShowSlots());

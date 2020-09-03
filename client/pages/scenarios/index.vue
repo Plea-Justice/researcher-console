@@ -1,17 +1,12 @@
 <template>
   <ItemLayout
-    contentTitle="Scenarios"
+    contentTitle="My Scenarios"
     helpTitle="Scenario Management"
     :helpText="scenariosHelp.navbar"
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD">Add</ToolBarButton>
-        <ToolBarButton
-          v-model="mode"
-          :mode="Modes.DUPLICATE"
-          :disabled="!scenarioSet.length"
-        >Duplicate</ToolBarButton>
+        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD">New Scenario</ToolBarButton>
       </div>
     </template>
 
@@ -47,12 +42,16 @@
           @selected="duplicate($event)"
           @remove="confirmDelete($event)"
           @edit="setEditMode($event)"
+          @duplicate="duplicate($event)"
           :selectable="mode === Modes.DUPLICATE"
           :item="scenario"
-          edit
-          close
+          :itemType="'scenario'"
           link
+          remove
+          edit
+          duplicate
         >
+          <p>{{ scenario.id }}</p>
           <p class="content" v-if="scenario.description">{{ scenario.description }}</p>
           <p class="content is-small">
             Last Modified {{ posixTimeToHoursAgo(scenario.modified) }}
@@ -100,8 +99,7 @@ export default {
       Modes: {
         DEFAULT: 0,
         ADD: 1,
-        DUPLICATE: 2,
-        EDIT: 3
+        EDIT: 2
       },
       // Set to DEFAULT mode
       mode: 0,
