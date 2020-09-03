@@ -15,11 +15,11 @@
   },
   "dependencies": {
     "@nuxtjs/auth": "^4.9.1",
-    "@nuxtjs/axios": "^5.12.1",
-    "@nuxtjs/pwa": "^3.0.1",
+    "@nuxtjs/axios": "^5.12.2",
+    "@nuxtjs/pwa": "^3.0.2",
     "nanoid": "^3.1.12",
-    "nuxt": "^2.14.3",
-    "nuxt-buefy": "^0.4.2",
+    "nuxt": "^2.14.4",
+    "nuxt-buefy": "^0.4.3",
     "vuelidate": "^0.7.5",
     "vuelidate-error-extractor": "^2.4.1"
   },
