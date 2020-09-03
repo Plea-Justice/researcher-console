@@ -15,7 +15,7 @@
           <b-button
             @click="removeScene(isBound ? bound : scene.id)"
             type="is-danger is-light"
-            icon-left="times"
+            icon-left="trash-alt"
           />
         </p>
         <template v-if="isBound">

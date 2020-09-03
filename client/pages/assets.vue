@@ -6,7 +6,11 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton v-model="addMode" @click="toggleAddMode()">Add Asset</ToolBarButton>
+        <ToolBarButton
+          v-model="addMode"
+          :disabled="user.permitUploads"
+          @click="toggleAddMode()"
+        >Upload New File</ToolBarButton>
       </div>
     </template>
     <template v-slot:toolbar-end>
@@ -38,8 +42,7 @@
         :key="asset.id"
         @remove="confirmDelete($event)"
         :item="asset"
-        :itemType="'asset'"
-        remove
+        :remove="asset.isMine"
       >
         <b-image
           :src="
@@ -51,10 +54,17 @@
           lazy
         />
 
-        <span class="content is-small">Uploaded {{ posixTimeToHoursAgo(asset.created) }}</span>
-        <span style="float: right;">
-          <b-tag type="is-primary">{{ asset.type | capitalize }}</b-tag>
-        </span>
+        <div class="pt-1 content is-small">
+          <span class="is-pulled-left">Uploaded {{ posixTimeToHoursAgo(asset.created) }}</span>
+          <span class="is-pulled-right">{{asset.owner}}</span>
+        </div>
+
+        <template v-slot:footer>
+          <b-taglist style="margin-left: auto;">
+            <b-tag v-if="asset.public" type="is-info">Public</b-tag>
+            <b-tag type="is-primary">{{ asset.type | capitalize }}</b-tag>
+          </b-taglist>
+        </template>
       </ItemCard>
     </template>
   </ItemLayout>
@@ -88,7 +98,9 @@ export default {
     // Template for Form
     const AssetForm = {
       type: null,
-      file: null
+      file: null,
+      public: false,
+      readOnly: false
     };
 
     return {
@@ -125,6 +137,10 @@ export default {
       return this.selectedAssetType === "all"
         ? this.assetSet
         : this.assetSetByType[this.selectedAssetType];
+    },
+    user() {
+      console.log(this.$auth.user);
+      return this.$auth.user ? this.$auth.user : { name: "dev", n_sessions: 1 };
     }
   },
   methods: {

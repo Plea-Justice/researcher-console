@@ -44,6 +44,7 @@
           <b-button v-if="duplicate" @click="$emit('duplicate', item.id)" icon-left="clone" />
         </b-tooltip>
       </div>
+      <slot name="footer" />
     </template>
   </GenericCard>
 </template>

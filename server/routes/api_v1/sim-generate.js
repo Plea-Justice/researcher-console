@@ -10,6 +10,7 @@ const os = require('os');
 
 const util = require('../../common/util');
 const ScenarioModel = require('../../models/ScenarioModel');
+const AssetModel = require('../../models/AssetModel');
 const { mandatoryRoute } = require('../../middleware/authenticateRoutes');
 
 const assetTypes = util.assetTypes;
@@ -105,7 +106,7 @@ async function generateSimulation(options, req) {
         assetTypes.forEach(type => requested[type] = new Set());
 
         // TODO: Send error on no frames or scenes.
-        let timelines = new Array(frames[frameList[0]].scenes.length).fill(0).map(() => new Array());
+        const timelines = new Array(frames[frameList[0]].scenes.length).fill(0).map(() => new Array());
 
         for (const frameID of frameList) {
             let frame = frames[frameID];
@@ -179,37 +180,46 @@ async function generateSimulation(options, req) {
         }
 
         // Get the list of file paths and names without extension for each asset type.
-        let assets = new Map();
-        assetTypes.forEach(type => assets[type] = 
-                fs.readdirSync(path.join(user_data_dir, type))
-                    .map(x=>[path.join(type, x), x.replace(/\..*$/, '')]));
+        const assets = new Map();
+        // assetTypes.forEach(type => assets[type] = 
+        //         fs.readdirSync(path.join(user_data_dir, type))
+        //             .map(x=>[path.join(type, x), x.replace(/\..*$/, '')]));
+        const availableAssets = await AssetModel.find({$or: [{user_id: uid}, {public: true}]});
+        availableAssets.forEach(asset => assets[asset.type] = [asset.path, asset.name]);
 
         // Add the requested files to the manifest.
-        let files = new Set();
-        assetTypes.forEach(type => assets[type].forEach(([file, name])=>{
-            if (requested[type].has(name)) files.add(file);
-        }));
+        const usedAssets = availableAssets.filter(
+            asset => requested[asset.type].has(asset.name)
+        );
+
+        //if (requested.size !== usedAssets.size)
+        //    throw Error('One of the requested assets is unavailable.');
             
         // Copy in a clean simulation from the template directory.
         fs.emptyDirSync(tmpdir);
         assetTypes.map(type => fs.mkdirpSync(path.join(tmpdir, 'assets', type)));
         fs.copySync(path.normalize(options.sim_dir), tmpdir, {filter: src => !src.includes('.git')});
+        
+        // FIXME: Remove need for cache type. Do not use bitmap caching.
         fs.copySync(path.join(user_data_dir, 'cache'), path.join(tmpdir, 'assets', 'cache'));
         
-        // Copy user's assets.
-        files.forEach(file => fs.copyFileSync(
-            path.join(user_data_dir, file),
-            path.join(tmpdir, 'assets', file)
+        // Copy requested assets.
+        usedAssets.forEach(asset => fs.copyFileSync(
+            path.join(
+                util.userDir(options, asset.user_id.toString()),
+                asset.path
+            ),
+            path.join(tmpdir, 'assets', asset.path)
         ));
 
         // Create the manifest.
-        let manifest = {
+        const manifest = {
             'name': scenario.name,
             'description': scenario.description,
             // Simulation preload.js requires 'path' and 'manifest'.
             'path': 'assets/',
             // FIXME: Generate list of files.
-            'manifest': Array.from(files),
+            'manifest': usedAssets.map(asset => asset.path),
             // 'timelines' array used by simulation to render each in order.
             'conditions': timelines.map((scene_list, i) => ({
                 'name': `Experimental Condition ${i+1}/${timelines.length}`,
@@ -221,7 +231,7 @@ async function generateSimulation(options, req) {
         fs.writeJSONSync(path.join(tmpdir, 'manifest.json'), manifest);
 
         // Generate condition summary table.
-        let summary = conditionList.reduce((acc, curr, i)=>
+        const summary = conditionList.reduce((acc, curr, i)=>
             acc + `<tr><td>${i+1}</td><td>${conditions[curr].tags}</td></tr>`
         , ''); 
 

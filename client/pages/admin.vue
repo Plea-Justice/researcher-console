@@ -5,17 +5,23 @@
     :helpText="adminHelp.navbar"
   >
     <template v-slot:toolbar-start>
-      <div class="level-item buttons">
-        <ToolBarButton type @click="changePassword">Change Password</ToolBarButton>
-        <ToolBarButton type @click="toggleHostingPermission">Toggle Study Permission</ToolBarButton>
-        <ToolBarButton type @click="toggleAdmin">Toggle Admin</ToolBarButton>
-        <ToolBarButton type="is-danger" @click="deleteUser">Delete</ToolBarButton>
+      <span class="level-item pr-3 is-size-7">Toggle Permissions:</span>
+      <div class="level-item">
+        <ToolBarButton class="is-small mr-2" @click="toggleSharingPermission">Sharing</ToolBarButton>
+        <ToolBarButton class="is-small mr-2" @click="toggleUploadPermission">Uploads</ToolBarButton>
+        <ToolBarButton class="is-small mr-2" @click="toggleHostingPermission">Hosted Studies</ToolBarButton>
       </div>
     </template>
-
+    <template v-slot:toolbar-default>
+      <div class="level-item">
+        <span class="is-size-7">{{ users.length }} users, {{ activeCount }} active this week.</span>
+      </div>
+    </template>
     <template v-slot:toolbar-end>
-      <div class="level-item has-text-centered">
-        <span>{{ users.length }} users, {{ activeCount }} active this week.</span>
+      <div class="level-item">
+        <ToolBarButton class="is-small mr-2" type="is-danger is-light" @click="toggleAdmin">Toggle Admin</ToolBarButton>
+        <ToolBarButton class="is-small mr-2" type="is-danger is-light" @click="changePassword">Change Password</ToolBarButton>
+        <ToolBarButton class="is-small mr-2" type="is-danger is-light" @click="deleteUser">Delete</ToolBarButton>
       </div>
     </template>
 
@@ -62,7 +68,21 @@
             >{{ props.row.permitAdmin ? 'Yes' : 'No' }}</b-tag>
           </span>
         </b-table-column>
-        <b-table-column v-slot="props" field="permitAdmin" label="Study Permission" sortable>
+        <b-table-column v-slot="props" field="permitSharing" label="Sharing" sortable>
+          <span>
+            <b-tag
+              :type="props.row.permitSharing ? 'is-success' : 'is-danger'"
+            >{{ props.row.permitSharing ? 'Yes' : 'No' }}</b-tag>
+          </span>
+        </b-table-column>
+        <b-table-column v-slot="props" field="permitUploads" label="Uploads" sortable meta="Permission">
+          <span>
+            <b-tag
+              :type="props.row.permitUploads ? 'is-success' : 'is-danger'"
+            >{{ props.row.permitUploads ? 'Yes' : 'No' }}</b-tag>
+          </span>
+        </b-table-column>
+        <b-table-column v-slot="props" field="permitHosting" label="Hosted Studies" sortable>
           <span>
             <b-tag
               :type="props.row.permitHosting ? 'is-success' : 'is-danger'"
@@ -149,6 +169,20 @@ export default {
       if (this.selected) {
         const user = this.users.find(x => x.user_id === this.selected.user_id);
         const permissions = { permitAdmin: user.permitAdmin ? false : true };
+        this.changePermissions(permissions);
+      }
+    },
+    toggleSharingPermission() {
+      if (this.selected) {
+        const user = this.users.find(x => x.user_id === this.selected.user_id);
+        const permissions = { permitSharing: user.permitSharing ? false : true };
+        this.changePermissions(permissions);
+      }
+    },
+    toggleUploadPermission() {
+      if (this.selected) {
+        const user = this.users.find(x => x.user_id === this.selected.user_id);
+        const permissions = { permitUploads: user.permitUploads ? false : true };
         this.changePermissions(permissions);
       }
     },

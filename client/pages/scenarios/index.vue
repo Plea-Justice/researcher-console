@@ -6,7 +6,7 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD">New Scenario</ToolBarButton>
+        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD">Create New Scenario</ToolBarButton>
       </div>
     </template>
 
