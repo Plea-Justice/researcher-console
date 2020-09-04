@@ -35,7 +35,7 @@
           expanded
         />
         <b-tooltip :label="`Delete ${itemType}`" position="is-bottom">
-          <b-button v-if="remove" @click="$emit('remove')" type="is-danger" icon-left="trash" />
+          <b-button v-if="remove" @click="$emit('remove', item.id)" type="is-danger" icon-left="trash-alt" />
         </b-tooltip>
         <b-tooltip :label="`Edit ${itemType}`" position="is-bottom">
           <b-button v-if="edit" @click="$emit('edit', item.id)" icon-left="pencil-alt" />

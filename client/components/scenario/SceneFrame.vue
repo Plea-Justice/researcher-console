@@ -1,7 +1,7 @@
 <template>
   <div class="frame-wrapper-column">
     <div class="frame-wrapper-row">
-      <p class="frame-index">Part {{ frameIndex + 1 }}</p>
+      <p class="frame-index">Scene {{ frameIndex + 1 }}</p>
 
       <div class="frame box">
         <!-- Sidebar -->
@@ -59,7 +59,7 @@
                 :value="frame.label"
                 @input="setLabel($event)"
                 :maxlength="maxlength"
-                placeholder="Scenes Label (Optional)"
+                :placeholder="`Scene ${frameIndex + 1 } Label`"
                 class="absolute-counter"
                 expanded
               />
@@ -122,7 +122,7 @@
         type="is-light"
         size="is-small"
         icon-left="plus"
-      >Insert Part</b-button>
+      >Insert Scene</b-button>
     </div>
   </div>
 </template>

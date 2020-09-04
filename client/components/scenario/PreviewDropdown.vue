@@ -158,7 +158,6 @@ export default {
     },
     async wrapSnackbar(callback, message) {
       const { frameErrors, sceneErrors } = this.scenarioStatus;
-      console.log(this.scenarioStatus);
       if (frameErrors.length + sceneErrors.length > 0) {
         this.$emit('gotoErrors');
         return;

@@ -80,7 +80,6 @@ export default {
   },
   computed: {
     user() {
-      console.log(this.$auth.user)
       return this.$auth.user ? this.$auth.user : { name: "dev", n_sessions: 1 };
     }
   }

@@ -8,7 +8,7 @@
       <div class="level-item buttons">
         <ToolBarButton
           v-model="addMode"
-          :disabled="user.permitUploads"
+          :disabled="!user.permitUploads"
           @click="toggleAddMode()"
         >Upload New File</ToolBarButton>
       </div>
@@ -139,7 +139,6 @@ export default {
         : this.assetSetByType[this.selectedAssetType];
     },
     user() {
-      console.log(this.$auth.user);
       return this.$auth.user ? this.$auth.user : { name: "dev", n_sessions: 1 };
     }
   },
