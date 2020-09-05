@@ -53,13 +53,13 @@
       >
         <!--
           `options` prop needs a preloaded value because .includes in
-          AssetNamesByType will return false positive while loading
+          AssetsByType will return false positive while loading
         -->
         <FileSelector
           v-if="isType(field, 'selector')"
           :validator="$v.form[field]"
           v-model="$v.form[field].$model"
-          :options="AssetNamesByType[field]"
+          :options="AssetsByType[field]"
           :icon="getIcon(field)"
           :disabled="isBound"
           expanded
@@ -163,7 +163,7 @@ export default {
     const dynamicEntries = Object.fromEntries(
       Object.entries(spec.scene).map(([key, val]) => {
         if (val === "image" || val === "video") {
-          return [key, { included: included(this.AssetNamesByType[key]) }];
+          return [key, { included: included(this.AssetsByType[key]) }];
         } else {
           return [key, {}];
         }
@@ -247,12 +247,12 @@ export default {
     ...mapGetters({
       assetSet: "assets/assetSet"
     }),
-    AssetNamesByType() {
+    AssetsByType() {
       return this.assetSet.reduce(
-        (obj, item) => (
-          obj[item.type]
-            ? obj[item.type].push(item.name)
-            : (obj[item.type] = [item.name]),
+        (obj, asset) => (
+          obj[asset.type]
+            ? obj[asset.type][asset.id] = asset
+            : (obj[asset.type] = {[asset.id]: asset}),
           obj
         ),
         {}

@@ -3,7 +3,7 @@
     <option :value="null">None</option>
     <!-- If value does not exists insert dummy value -->
     <option v-if="invalidOldFile" :value="value">{{ value }}</option>
-    <option v-for="file in options" :key="file" :value="file">{{ file }}</option>
+    <option v-for="file in options" :key="file.id" :value="file.id">{{ file.name }}</option>
   </b-select>
 </template>
 
@@ -14,7 +14,8 @@ export default {
       required: true
     },
     // options is false to allow data to load
-    options: Array,
+    // Object of form { id: {...asset} }
+    options: Object,
     icon: String
   },
   computed: {
@@ -27,7 +28,7 @@ export default {
       }
     },
     invalidOldFile() {
-      return this.value && this.options && !this.options.includes(this.value);
+      return this.value && this.options && !this.options[this.value];
     },
     status() {
       let flag = true;

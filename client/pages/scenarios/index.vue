@@ -16,8 +16,8 @@
       v-if="!scenarioSet.length"
       class="empty-text has-text-weight-medium is-size-5"
     >
-      No scenarios exists!
-      <br />Add a scenario from the toolbar to get started.
+      No scenarios have been created!
+      <br />To get started, add a new scenario.
     </p>
     <template v-else>
       <template v-for="scenario in scenarioSet">

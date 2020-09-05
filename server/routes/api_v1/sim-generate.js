@@ -105,6 +105,24 @@ async function generateSimulation(options, req) {
         const requested = new Map();
         assetTypes.forEach(type => requested[type] = new Set());
 
+        // Get the list of file paths and names without extension for each asset type.
+        const assets = await AssetModel.find({$or: [{user_id: uid}, {public: true}]});
+
+        const availableAssets = new Map();
+        assets.forEach(
+            (asset) => availableAssets[asset._id] = asset
+        );
+
+        // Add the requested files to the manifest.
+        const requestedAssets = new Set();
+        const addAsset = (id) => {
+            if (id) {
+                requestedAssets.add(availableAssets[id]);
+                return availableAssets[id].name;
+            }
+            return null;
+        };
+
         // TODO: Send error on no frames or scenes.
         const timelines = new Array(frames[frameList[0]].scenes.length).fill(0).map(() => new Array());
 
@@ -138,14 +156,11 @@ async function generateSimulation(options, req) {
                             'type': 'dialogue',
                             'name': frame.label,
                             'script': scene.script,
-                            'actor': scene.actor,
-                            'bg': scene.background,
-                            'fg': scene.foreground
+                            'actor': addAsset(scene.actor),
+                            'bg': addAsset(scene.background),
+                            'fg': addAsset(scene.foreground)
                         }
                     );
-                    if (scene.actor) requested['actor'].add(scene.actor);
-                    if (scene.foreground) requested['foreground'].add(scene.foreground);
-                    if (scene.background) requested['background'].add(scene.background);
                     break;
                 case 'question':
                     timelines[i].push(
@@ -153,44 +168,27 @@ async function generateSimulation(options, req) {
                             'type': 'dialogue',
                             'name': frame.label,
                             'script': scene.script,
-                            'actor': scene.actor,
-                            'bg': scene.background,
-                            'fg': scene.foreground,
+                            'actor': addAsset(scene.actor),
+                            'bg': addAsset(scene.background),
+                            'fg': addAsset(scene.foreground),
                             'buttons': scene.buttons
                         }
                     );
-                    if (scene.actor) requested['actor'].add(scene.actor);
-                    if (scene.foreground) requested['foreground'].add(scene.foreground);
-                    if (scene.background) requested['background'].add(scene.background);
                     break;
                 case 'clip':
                     timelines[i].push(
                         {
                             'type': 'clip',
                             'name': frame.label,
-                            'clip': scene.clip
+                            'clip': addAsset(scene.clip)
                         }
                     );
-                    if (scene.clip) requested['clip'].add(scene.clip);
                     break;
                 default:
                     throw Error(`Improper scene type: ${scene.id}.`);
                 }
             }
         }
-
-        // Get the list of file paths and names without extension for each asset type.
-        const assets = new Map();
-        // assetTypes.forEach(type => assets[type] = 
-        //         fs.readdirSync(path.join(user_data_dir, type))
-        //             .map(x=>[path.join(type, x), x.replace(/\..*$/, '')]));
-        const availableAssets = await AssetModel.find({$or: [{user_id: uid}, {public: true}]});
-        availableAssets.forEach(asset => assets[asset.type] = [asset.path, asset.name]);
-
-        // Add the requested files to the manifest.
-        const usedAssets = availableAssets.filter(
-            asset => requested[asset.type].has(asset.name)
-        );
 
         //if (requested.size !== usedAssets.size)
         //    throw Error('One of the requested assets is unavailable.');
@@ -204,7 +202,7 @@ async function generateSimulation(options, req) {
         fs.copySync(path.join(user_data_dir, 'cache'), path.join(tmpdir, 'assets', 'cache'));
         
         // Copy requested assets.
-        usedAssets.forEach(asset => fs.copyFileSync(
+        requestedAssets.forEach(asset => fs.copyFileSync(
             path.join(
                 util.userDir(options, asset.user_id.toString()),
                 asset.path
@@ -219,7 +217,7 @@ async function generateSimulation(options, req) {
             // Simulation preload.js requires 'path' and 'manifest'.
             'path': 'assets/',
             // FIXME: Generate list of files.
-            'manifest': usedAssets.map(asset => asset.path),
+            'manifest': Array.from(requestedAssets).map(asset => asset.path),
             // 'timelines' array used by simulation to render each in order.
             'conditions': timelines.map((scene_list, i) => ({
                 'name': `Experimental Condition ${i+1}/${timelines.length}`,

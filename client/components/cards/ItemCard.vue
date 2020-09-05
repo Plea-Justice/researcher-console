@@ -40,9 +40,9 @@
           <b-tooltip :label="`Delete ${itemType}`" position="is-bottom">
             <b-button
               v-if="remove"
-              @click="$emit('remove')"
+              @click="$emit('remove', item.id)"
               type="is-danger"
-              icon-left="trash"
+              icon-left="trash-alt"
             />
           </b-tooltip>
           <b-tooltip :label="`Edit ${itemType}`" position="is-bottom">

@@ -12,7 +12,10 @@
           class="is-danger is-light"
           :active="!user.permitUploads"
         >
-          <ToolBarButton @click="openFormModal()" :value="addMode"
+          <ToolBarButton
+            @click="openFormModal()"
+            :value="addMode"
+            :disabled="!user.permitUploads"
             >Upload New Asset</ToolBarButton
           >
         </b-tooltip>
