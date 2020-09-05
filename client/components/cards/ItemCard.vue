@@ -11,7 +11,9 @@
       <template v-if="item">
         <!-- If header is in default mode print name w or w/o link -->
         <h1 class="subtitle center-header">
-          <n-link v-if="link" :to="item.id" class="link-animate" append>{{ item.name }}</n-link>
+          <n-link v-if="link" :to="item.id" class="link-animate" append>
+            {{ item.name }}
+          </n-link>
           <template v-else>{{ item.name }}</template>
         </h1>
       </template>
@@ -34,15 +36,30 @@
           value="Save"
           expanded
         />
-        <b-tooltip :label="`Delete ${itemType}`" position="is-bottom">
-          <b-button v-if="remove" @click="$emit('remove')" type="is-danger" icon-left="trash" />
-        </b-tooltip>
-        <b-tooltip :label="`Edit ${itemType}`" position="is-bottom">
-          <b-button v-if="edit" @click="$emit('edit', item.id)" icon-left="pencil-alt" />
-        </b-tooltip>
-        <b-tooltip :label="`Duplicate ${itemType}`" position="is-bottom">
-          <b-button v-if="duplicate" @click="$emit('duplicate', item.id)" icon-left="clone" />
-        </b-tooltip>
+        <div class="b-tooltips">
+          <b-tooltip :label="`Delete ${itemType}`" position="is-bottom">
+            <b-button
+              v-if="remove"
+              @click="$emit('remove')"
+              type="is-danger"
+              icon-left="trash"
+            />
+          </b-tooltip>
+          <b-tooltip :label="`Edit ${itemType}`" position="is-bottom">
+            <b-button
+              v-if="edit"
+              @click="$emit('edit', item.id)"
+              icon-left="pencil-alt"
+            />
+          </b-tooltip>
+          <b-tooltip :label="`Duplicate ${itemType}`" position="is-bottom">
+            <b-button
+              v-if="duplicate"
+              @click="$emit('duplicate', item.id)"
+              icon-left="clone"
+            />
+          </b-tooltip>
+        </div>
       </div>
       <slot name="footer" />
     </template>

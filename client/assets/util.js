@@ -1,6 +1,13 @@
 // Define empty function
 export function noop() {}
 
+export const toPascalCase = text =>
+  text
+    .toLowerCase()
+    .split(' ')
+    .map(word => word[0].toUpperCase() + word[0].substring(1))
+    .join(' ');
+
 // Stripped down throttle function from underscore.js
 export function throttle(func, wait, options) {
   let context;

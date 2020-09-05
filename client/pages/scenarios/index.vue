@@ -6,20 +6,14 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton v-model="mode" @click="toggleAddMode()" :mode="Modes.ADD">Create New Scenario</ToolBarButton>
+        <ToolBarButton @click="openFormModal()" :mode="Modes.ADD"
+          >Create New Scenario</ToolBarButton
+        >
       </div>
     </template>
 
-    <ScenarioForm
-      ref="save_form"
-      v-show="mode === Modes.ADD"
-      @close="closeForm()"
-      @submit="onSaveSubmit()"
-      :scenarioForm="scenarioForm"
-    />
-
     <p
-      v-if="mode === Modes.DEFAULT && !scenarioSet.length"
+      v-if="!scenarioSet.length"
       class="empty-text has-text-weight-medium is-size-5"
     >
       No scenarios exists!
@@ -27,21 +21,11 @@
     </p>
     <template v-else>
       <template v-for="scenario in scenarioSet">
-        <ScenarioForm
-          ref="edit_form"
-          v-if="mode === Modes.EDIT && scenario.id === editId"
-          :key="scenario.id"
-          @close="closeForm()"
-          @submit="onEditSubmit()"
-          :scenarioForm="scenarioForm"
-        />
-
         <ItemCard
-          v-else
           :key="scenario.id"
           @selected="duplicate($event)"
           @remove="confirmDelete($event)"
-          @edit="setEditMode($event)"
+          @edit="openFormModal($event, scenario)"
           @duplicate="duplicate($event)"
           :selectable="mode === Modes.DUPLICATE"
           :item="scenario"
@@ -51,8 +35,9 @@
           edit
           duplicate
         >
-          <p>{{ scenario.id }}</p>
-          <p class="content" v-if="scenario.description">{{ scenario.description }}</p>
+          <p class="content" v-if="scenario.description">
+            {{ scenario.description }}
+          </p>
           <p class="content is-small">
             Last Modified {{ posixTimeToHoursAgo(scenario.modified) }}
             <br />
@@ -72,7 +57,7 @@ import { mapGetters, mapActions } from "vuex";
 import ItemLayout from "~/components/layouts/ItemLayout";
 import ToolBarButton from "~/components/ToolBarButton";
 import ItemCard from "~/components/cards/ItemCard";
-import ScenarioForm from "~/components/cards/ScenarioForm";
+import ScenarioForm from "~/components/modals/ScenarioForm";
 
 // Content for help fields
 import { scenariosHelp } from "~/assets/helpText";
@@ -87,12 +72,6 @@ export default {
     await store.dispatch("scenarios/getScenarios");
   },
   data() {
-    // Template for Form
-    const ScenarioForm = {
-      name: "",
-      description: ""
-    };
-
     return {
       // import from JS file
       scenariosHelp: scenariosHelp,
@@ -103,10 +82,7 @@ export default {
       },
       // Set to DEFAULT mode
       mode: 0,
-      editId: null,
-
-      ScenarioForm,
-      scenarioForm: Object.assign({}, ScenarioForm)
+      editId: null
     };
   },
   computed: {
@@ -115,27 +91,17 @@ export default {
     })
   },
   methods: {
-    closeForm() {
-      if (this.mode === this.Modes.EDIT) this.editId = null;
-      this.mode = this.Modes.DEFAULT;
-      this.scenarioForm = Object.assign({}, this.ScenarioForm);
-    },
-    focusForm() {
-      this.$refs.save_form.focus();
-    },
-    setEditMode(eScenarioId) {
-      this.mode = this.Modes.EDIT;
-      this.editId = eScenarioId;
-    },
-    toggleAddMode() {
-      this.mode === this.Modes.ADD
-        ? this.focusForm()
-        : (this.scenarioForm = Object.assign({}, this.ScenarioForm));
+    openFormModal(id = null, scenario = null) {
+      this.$buefy.modal.open({
+        parent: this,
+        component: ScenarioForm,
+        props: { id, scenario },
+        hasModalCard: true,
+        trapFocus: true
+      });
     },
     ...mapActions({
-      addScenario: "scenarios/addScenario",
       removeScenario: "scenarios/removeScenario",
-      editScenario: "scenarios/editScenario",
       duplicateScenario: "scenarios/duplicateScenario"
     }),
     duplicate(eScenarioId) {
@@ -152,31 +118,6 @@ export default {
         hasIcon: true,
         onConfirm: () => this.removeScenario(event)
       });
-    },
-    onSaveSubmit() {
-      if (
-        this.scenarioSet.some(({ name }) => name === this.scenarioForm.name)
-      ) {
-        this.$buefy.toast.open({
-          message: "A scenario with the same name already exists",
-          type: "is-danger"
-        });
-
-        // Clear name and re-focus on name input
-        this.scenarioForm.name = "";
-        this.focusForm();
-      } else {
-        // Add the scenario to state
-        this.addScenario(this.scenarioForm);
-        this.closeForm();
-      }
-    },
-    onEditSubmit() {
-      // Add the scenario to state
-      this.editScenario({ id: this.editId, ...this.scenarioForm });
-
-      this.closeForm();
-      this.editId = null;
     },
     posixTimeToHoursAgo: posixTimeToHoursAgo
   },
