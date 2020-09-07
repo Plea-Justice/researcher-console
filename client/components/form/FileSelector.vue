@@ -2,8 +2,12 @@
   <b-select v-bind="$attrs" v-model="innerValue" :icon="icon">
     <option :value="null">None</option>
     <!-- If value does not exists insert dummy value -->
-    <option v-if="invalidOldFile" :value="value">{{ value }}</option>
-    <option v-for="file in options" :key="file.id" :value="file.id">{{ file.name }}</option>
+    <option v-if="invalidOldFile" :value="value">{{ value.name }}</option>
+    <option
+      v-for="file in options"
+      :key="file.id"
+      :value="{ id: file.id, name: file.name }"
+    >{{ file.name }}</option>
   </b-select>
 </template>
 
@@ -28,7 +32,10 @@ export default {
       }
     },
     invalidOldFile() {
-      return this.value && this.options && !this.options[this.value];
+      console.log(
+        !!this.value && (!this.options || !this.options?.[this.value.id])
+      );
+      return !!this.value && (!this.options || !this.options?.[this.value.id]);
     },
     status() {
       let flag = true;

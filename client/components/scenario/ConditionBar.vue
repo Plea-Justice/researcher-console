@@ -4,11 +4,7 @@
     <div class="titlebar padded-responsive-container">
       <div :style="titleBarCssVars" class="title-wrapper">
         <div class="conditions">
-          <div
-            v-for="(condition, index) in conditionSet"
-            :key="condition.id"
-            class="condition"
-          >
+          <div v-for="(condition, index) in conditionSet" :key="condition.id" class="condition">
             <div class="condition-title">
               <div
                 v-if="isSelectable(condition.id)"
@@ -33,8 +29,7 @@
                   close-type="is-danger is-light"
                   :aria-close-label="`Remove ${tag} tag`"
                   @close="removeTag(condition, tag)"
-                  >{{ tag }}</b-tag
-                >
+                >{{ tag }}</b-tag>
               </div>
 
               <div class="control">
@@ -45,8 +40,7 @@
                   close-type="is-light"
                   close-icon="plus"
                   aria-close-label="Add condition label"
-                  >Label</b-tag
-                >
+                >Tag</b-tag>
               </div>
             </b-field>
           </div>

@@ -16,8 +16,7 @@
             @click="openFormModal()"
             :value="addMode"
             :disabled="!user.permitUploads"
-            >Upload New Asset</ToolBarButton
-          >
+          >Upload New Asset</ToolBarButton>
         </b-tooltip>
       </div>
     </template>
@@ -25,17 +24,12 @@
       <b-field v-if="validAssetTypes.length > 1">
         <b-select placeholder="Asset Type" v-model="selectedAssetType">
           <option value="all">All</option>
-          <option v-for="type in validAssetTypes" :key="type" :value="type">{{
-            type | capitalize
-          }}</option>
+          <option v-for="type in validAssetTypes" :key="type" :value="type">{{ type | capitalize }}</option>
         </b-select>
       </b-field>
     </template>
 
-    <p
-      v-if="!assetSet.length"
-      class="empty-text has-text-weight-medium is-size-5"
-    >
+    <p v-if="!assetSet.length" class="empty-text has-text-weight-medium is-size-5">
       No assets exists!
       <br />Add an asset from the toolbar to get started.
     </p>
@@ -59,9 +53,7 @@
         />
 
         <div class="pt-1 content is-small">
-          <span class="is-pulled-left"
-            >Uploaded {{ posixTimeToHoursAgo(asset.created) }}</span
-          >
+          <span class="is-pulled-left">Uploaded {{ posixTimeToHoursAgo(asset.created) }}</span>
           <span class="is-pulled-right">{{ asset.owner }}</span>
         </div>
 
@@ -108,6 +100,9 @@ export default {
       addMode: false,
       selectedAssetType: "all"
     };
+  },
+  mounted() {
+    console.log(this.assetSet);
   },
   computed: {
     ...mapGetters({

@@ -55,6 +55,7 @@
           `options` prop needs a preloaded value because .includes in
           AssetsByType will return false positive while loading
         -->
+
         <FileSelector
           v-if="isType(field, 'selector')"
           :validator="$v.form[field]"
@@ -154,15 +155,43 @@ export default {
       form
     };
   },
+  mounted() {
+    this.validFieldNames.forEach(fieldName => {
+      const vField = this.$v.form[fieldName];
+      if (vField.$invalid) vField.$touch();
+    });
+  },
+  watch: {
+    // Update form for inbound changes
+    "scene.props": async function() {
+      Object.assign(this.form, this.scene.props);
+    },
+    // Update props with outbound changes
+    form: {
+      deep: true,
+      handler: debounce(async function() {
+        this.updateScene({
+          id: this.scene.id,
+          props: Object.fromEntries(
+            [...this.validFieldNames, "type"].map(field => [
+              field,
+              this.form[field]
+            ])
+          ),
+          valid: !this.$v.form.$invalid
+        });
+      }, 350)
+    }
+  },
   validations() {
     // FIXME: add error message
     // FIXME: extend this from main vuelidate.js ?
     const included = options => value =>
-      !helpers.req(value) || (options ? options.includes(value) : false);
+      !helpers.req(value) || !!options?.[value.id];
 
     const dynamicEntries = Object.fromEntries(
       Object.entries(spec.scene).map(([key, val]) => {
-        if (val === "image" || val === "video") {
+        if (val.type === "selector") {
           return [key, { included: included(this.AssetsByType[key]) }];
         } else {
           return [key, {}];
@@ -181,44 +210,6 @@ export default {
         }
       }
     };
-  },
-  watch: {
-    // Update form for inbound changes
-    "scene.props": async function() {
-      Object.assign(this.form, this.scene.props);
-      // this.$v.form.$reset();
-    },
-    // Update props with outbound changes
-    form: {
-      deep: true,
-      handler: debounce(async function() {
-        this.updateScene({
-          id: this.scene.id,
-          props: Object.fromEntries(
-            [...this.validFieldNames, "type"].map(field => [
-              field,
-              this.form[field]
-            ])
-          ),
-          valid: !this.$v.form.$invalid
-        });
-        // await this.$v.form.$reset();
-      }, 350)
-    }
-    //FIXME: get $anyDirty working so we don't have to deep watch
-    /* "$v.form.$anyDirty": function() {
-      if (this.$v.form.$anyDirty) {
-        debounce(async function() {
-          await this.$v.form.$touch();
-          this.updateScene({
-            id: this.scene.id,
-            props: this.form,
-            valid: !this.$v.form.$invalid
-          });
-          await this.$v.form.$reset();
-        }, 350)();
-      }
-    } */
   },
   computed: {
     isBound() {
@@ -251,12 +242,24 @@ export default {
       return this.assetSet.reduce(
         (obj, asset) => (
           obj[asset.type]
-            ? obj[asset.type][asset.id] = asset
-            : (obj[asset.type] = {[asset.id]: asset}),
+            ? (obj[asset.type][asset.id] = asset)
+            : (obj[asset.type] = { [asset.id]: asset }),
           obj
         ),
         {}
       );
+
+      /*
+      return this.assetSet.reduce(
+        (obj, asset) => (
+          obj[asset.type]
+            ? obj[asset.type].push(asset.id)
+            : (obj[asset.type] = [asset.id]),
+          obj
+        ),
+        {}
+      );
+      */
     }
   },
   methods: {

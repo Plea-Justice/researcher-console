@@ -5,6 +5,7 @@
 
       <div class="frame box">
         <!-- Sidebar -->
+        <!-- FIXME: shoudln;t show when collapsed and no sidebar stuff is needed -->
         <aside v-show="frame.size || !isOnly" class="sidebar buttons">
           <!-- Collapse Button -->
           <b-button
