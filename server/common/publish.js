@@ -35,7 +35,7 @@ function publish(input) {
     const file = path.parse(input);
     const filepath = path.format(file);
 
-    if (file.ext !== '.js') throw Error('File must be of type \'.js\'.')
+    if (file.ext !== '.js') throw Error('File must be of type \'.js\'.');
 
     // Check if file has already been published.
     let data = fs.readFileSync(filepath, {encoding: 'utf-8'});
@@ -48,7 +48,6 @@ function publish(input) {
             return;
         }
     }
-        
     
     // Make a backup copy of the original file.
     if (copy)
@@ -88,10 +87,8 @@ function publish(input) {
     data = multipleReplace(data, replacements);
     
     // Mark file as published and write.
-    data += '\n// Published.'
+    data += '\n// Published.';
     fs.writeFileSync(filepath, data);
-
-    console.log('\033[33mPublished!\033[m');
 }
 
 if (require.main === module) {
@@ -107,6 +104,8 @@ if (require.main === module) {
         }
 
         publish(process.argv[option ? 3 : 2]);
+
+        console.log('\033[33mPublished!\033[m');
     } catch(err) {
         console.log('\033[31m' + `\nError: ${err.message}` + '\033[m\n');
         console.log('Usage:    node publish.js <options> <filename>\n');

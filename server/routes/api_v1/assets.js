@@ -11,7 +11,7 @@ module.exports = function (options) {
     var router = express.Router();
 
     const util = require('../../common/util');
-    const { publish }  = require('../../common/publish');
+    const { publish } = require('../../common/publish');
     const { fork } = require('child_process');
 
     const fs = require('fs-extra');
@@ -21,14 +21,14 @@ module.exports = function (options) {
     const sanitize = require('sanitize-filename');
 
     const assetTypes = util.assetTypes;
-    
+
     // express-fileupload middleware to handle asset uploads.
     router.use(fileupload({
-        limits: { fileSize: options.max_upload_mb * 1024 * 1024},
+        limits: { fileSize: options.max_upload_mb * 1024 * 1024 },
         safeFileNames: true,
         preserveExtension: true,
         abortOnLimit: true,
-        limitHandler: (req, res)=>{
+        limitHandler: (req, res) => {
             res.status(413).json(util.failure(
                 `Uploaded file too large. Assets must be less than ${options.max_upload_mb}MiB.`,
             ));
@@ -46,7 +46,7 @@ module.exports = function (options) {
         try {
             const assets = {};
 
-            const obj = await AssetModel.find({$or: [{user_id: req.session.user_id}, {public: true}]});
+            const obj = await AssetModel.find({ $or: [{ user_id: req.session.user_id }, { public: true }] });
             const list = obj.map(asset => ({
                 id: asset._id,
                 name: asset.name,
@@ -64,7 +64,7 @@ module.exports = function (options) {
 
             list.forEach(asset => assets[asset.id] = asset);
 
-            res.status(200).json(util.success('Asset listings returned.', {assetList, assets, assetTypes}));
+            res.status(200).json(util.success('Asset listings returned.', { assetList, assets, assetTypes }));
         } catch (err) {
             console.log(err);
             res.status(500).json(util.failure('There was an error reading the user\'s assets', err));
@@ -90,7 +90,7 @@ module.exports = function (options) {
             return;
         }
 
-        
+
 
         if (!req.files || Object.keys(req.files).length === 0)
             res.status(400).json(util.failure('No file was uploaded.'));
@@ -99,13 +99,13 @@ module.exports = function (options) {
                 `Asset type does not match one of ${assetTypes}.`,
                 req.body.type
             ));
-        else if (req.body.type.match(/clip|actor/) && 
+        else if (req.body.type.match(/clip|actor/) &&
             path.extname(req.files.file.name) !== '.js')
             res.status(400).json(util.failure('Clips and assets must have a JavaScript file extension.'));
-        else if (req.body.type.match(/foreground|background|cache/) && 
+        else if (req.body.type.match(/foreground|background|cache/) &&
             (!path.extname(req.files.file.name).match(/.*\.(png|bmp|jpg|jpeg)$/)))
             res.status(400).json(util.failure(
-                'Foreground and background images must have a PNG or JPEG file extension.', 
+                'Foreground and background images must have a PNG or JPEG file extension.',
                 null
             ));
         else {
@@ -164,7 +164,7 @@ module.exports = function (options) {
     router.get('/:asset_id/thumbnail', async (req, res) => {
         try {
             const asset_id = req.params.asset_id;
-            const asset = await AssetModel.findOne({_id: asset_id});
+            const asset = await AssetModel.findOne({ _id: asset_id });
             const user_data_dir = util.userDir(options, asset.user_id.toString());
             const thumbnail = path.resolve(path.join(user_data_dir, 'thumbnails', `${asset_id}.jpg`));
 
@@ -185,21 +185,20 @@ module.exports = function (options) {
         const asset_id = req.params.asset_id;
 
         try {
-            let matches = await ScenarioModel.find({
-                user_id: req.session.user_id
+            const scenarios = await ScenarioModel.find({
+                user_id: uid
             });
 
-            const asset = await AssetModel.findOne({_id: asset_id, user_id: uid});
-            
-            matches = matches.filter(scenario => 
-                Object.entries((scenario.scenes)).map(([id, scene])=> 
+            let matches = scenarios.filter(scenario =>
+                Object.entries((scenario.scenes)).map(([id, scene]) => 
                     scene.props ?
-                        [scene.props.actor, scene.props.clip, 
-                            scene.props.foreground, scene.props.background].includes(asset.name) : false
-                ).some(y=>y)
+                        [scene.props.actor, scene.props.clip, scene.props.foreground, scene.props.background]
+                            .map(x => x ? x.id : '')
+                            .includes(asset_id) : false
+                ).some(y => y)  
             );
-            
-            matches = matches.map(x=>({
+
+            matches.map(x => ({
                 id: x._id,
                 name: x.name,
                 description: x.description,
@@ -208,18 +207,18 @@ module.exports = function (options) {
                 modified: x.modified
             }));
 
-            res.json(util.success('Returned scenarios that reference the asset.', matches ));
+            res.json(util.success('Returned scenarios that reference the asset.', matches));
         } catch (err) {
             res.status(500).json(util.failure('References to the asset could not be checked.', err));
         }
-    });    
+    });
 
     /**
      * Delete a file. Asset ID is base64 encoded path.
      */
     router.delete('/:asset_id', async (req, res) => {
         const uid = req.session.user_id;
-        const user_data_dir = util.userDir(options, uid);      
+        const user_data_dir = util.userDir(options, uid);
         const asset_id = req.params.asset_id;
         const thumbnail = path.join(user_data_dir, 'thumbnails', `${asset_id}.jpg`);
 
@@ -229,14 +228,14 @@ module.exports = function (options) {
         }
 
         try {
-            const asset = await AssetModel.findOne({_id: asset_id, user_id: uid});
+            const asset = await AssetModel.findOne({ _id: asset_id, user_id: uid });
 
             if (fs.pathExistsSync(path.join(user_data_dir, asset.path)))
                 fs.unlinkSync(path.join(user_data_dir, asset.path));
 
             if (fs.pathExistsSync(thumbnail))
                 await fs.unlinkSync(thumbnail);
-            
+
             await asset.remove();
 
             res.status(200).json(util.success('Asset deleted successfully.'));

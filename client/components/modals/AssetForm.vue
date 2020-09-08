@@ -59,7 +59,6 @@
           <b-field
             label="Share with Others"
             class="flex-field"
-            v-if="!user.permitSharing"
           >
             <b-switch
               :disabled="!user.permitSharing"
