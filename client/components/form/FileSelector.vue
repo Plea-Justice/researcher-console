@@ -1,14 +1,35 @@
 <template>
-  <b-select v-bind="$attrs" v-model="innerValue" :icon="icon">
-    <option :value="null">None</option>
+  <b-dropdown
+    class="selector-dropdown-button"
+    :class="status.flag ? 'invalid-red-border' : 'valid-green-border'"
+    :triggers="['click', 'focus']"
+    v-bind="$attrs"
+    v-model="innerValue"
+    :icon="icon"
+  >
+    <div class="container" tabindex="0" slot="trigger">
+      <span class="mt-5 ml-3 mb-1 is-pulled-left">{{value ? value.name : 'None'}}</span>
+      <b-icon size="is-medium" class="has-text-primary is-pulled-right mt-5" :class="status.flag ? 'has-text-danger' : 'has-text-success'" icon="angle-down"></b-icon>
+    </div>
+    <b-dropdown-item :value="null">None</b-dropdown-item>
     <!-- If value does not exists insert dummy value -->
-    <option v-if="invalidOldFile" :value="value">{{ value.name }}</option>
-    <option
+    <b-dropdown-item v-if="invalidOldFile" :value="value">{{ value.name }}</b-dropdown-item>
+    <b-dropdown-item
+      class="pr-3"
       v-for="file in options"
       :key="file.id"
       :value="{ id: file.id, name: file.name }"
-    >{{ file.name }}</option>
-  </b-select>
+    >
+      <div class="level">
+        <span class="level-left level-item">{{ file.name }}</span>
+        <span class="level-right level-item is-size-7 has-text-right">
+          {{file.isMine ? '' : `Shared by ${file.owner}`}}
+          <br />
+          {{new Date(file.modified).toLocaleString()}}
+        </span>
+      </div>
+    </b-dropdown-item>
+  </b-dropdown>
 </template>
 
 <script>
@@ -60,3 +81,23 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.selector-dropdown-button {
+  border: thin solid $border;
+  border-radius: $radius;
+}
+
+.selector-dropdown-button:focus-within {
+  border-color: $purple;
+  box-shadow: 0 0 $radius-small $border-hover;
+}
+
+.invalid-red-border {
+  border-color: $danger;
+}
+
+.valid-green-border {
+  border-color: $success;
+}
+</style>
