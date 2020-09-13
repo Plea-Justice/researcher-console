@@ -115,10 +115,10 @@ async function generateSimulation(options, req) {
 
         // Add the requested files to the manifest.
         const requestedAssets = new Set();
-        const addAsset = (id) => {
-            if (id) {
-                requestedAssets.add(availableAssets[id]);
-                return availableAssets[id].name;
+        const addAsset = (prop) => {
+            if (prop) {
+                requestedAssets.add(availableAssets[prop.id]);
+                return availableAssets[prop.id].name;
             }
             return null;
         };

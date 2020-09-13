@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 var AssetSchema = new mongoose.Schema({
     user_id: { type: mongoose.SchemaTypes.ObjectId, required: true },
     owner: { type: String, required: true },
-    path: { type: String, required: true, unique: true },
+    path: { type: String, required: true },
     name: { type: String, required: true },
     type: { type: String, required: true },
     description: { type: String, default: '' },

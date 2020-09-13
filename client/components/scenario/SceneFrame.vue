@@ -74,8 +74,8 @@
                   !frame.size
                     ? 'No Scenes'
                     : uniqueScenes > 1
-                    ? `${uniqueScenes} Unique Scenes`
-                    : 'Same Across Conditions'
+                    ? `${uniqueScenes} experimental conditions are unlocked.`
+                    : 'Locked across all conditions.'
                 "
                 position="is-bottom"
                 animated
