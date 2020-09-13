@@ -220,7 +220,7 @@ export default {
     setSubmitState(newState) {
       if (this.loading) this.loading = false;
       this.submitState = newState;
-      // TODO: Make this a watcher that mounts/unmounts instead
+      // TODO: Make this a watcher that mounts/unmounts instead?
       setTimeout(() => {
         this.submitState = this.SubmitState.NORMAL;
       }, 2000);

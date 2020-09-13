@@ -6,18 +6,13 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton @click="openFormModal()" :mode="Modes.ADD"
-          >Create New Scenario</ToolBarButton
-        >
+        <ToolBarButton @click="openFormModal()" :mode="Modes.ADD">Create New Scenario</ToolBarButton>
       </div>
     </template>
 
-    <p
-      v-if="!scenarioSet.length"
-      class="empty-text has-text-weight-medium is-size-5"
-    >
-      No scenarios have been created!
-      <br />To get started, add a new scenario.
+    <p v-if="!scenarioSet.length" class="empty-text has-text-weight-medium is-size-5">
+      No assets exists!
+      <br />Create a new scenario using the toolbar to get started.
     </p>
     <template v-else>
       <template v-for="scenario in scenarioSet">
@@ -35,9 +30,7 @@
           edit
           duplicate
         >
-          <p class="content" v-if="scenario.description">
-            {{ scenario.description }}
-          </p>
+          <p class="content" v-if="scenario.description">{{ scenario.description }}</p>
           <p class="content is-small">
             Last Modified {{ posixTimeToHoursAgo(scenario.modified) }}
             <br />

@@ -7,20 +7,27 @@
   >
     <template v-slot:header>
       <slot name="header" />
-
-      <template v-if="item">
+      <div v-if="item" class="header-wrapper">
         <!-- If header is in default mode print name w or w/o link -->
-        <h1 class="subtitle center-header">
-          <n-link v-if="link" :to="item.id" class="link-animate" append>
-            {{ item.name }}
-          </n-link>
-          <template v-else>{{ item.name }}</template>
-        </h1>
-      </template>
+        <b-tooltip
+          :active="showTooltip"
+          :label="item.name"
+          posiiton="is-top"
+          type="is-info is-light"
+          style="width: inherit"
+        >
+          <h1 ref="title" class="subtitle overflow-title">
+            <n-link v-if="link" :to="item.id" class="link-animate" append>
+              {{ item.name }}
+            </n-link>
+            <template v-else>{{ item.name }}</template>
+          </h1>
+        </b-tooltip>
+      </div>
     </template>
 
     <template v-slot:default>
-      <div class="test">
+      <div class="card-content-wrapper">
         <slot name="default" />
       </div>
     </template>
@@ -87,13 +94,40 @@ export default {
     duplicate: Boolean,
     // **** GenericCard Props ****
     selectable: Boolean
+  },
+  data() {
+    return {
+      showTooltip: false
+    };
+  },
+  mounted() {
+    const { height } = this.$refs.title.getBoundingClientRect();
+    this.$refs.title.style.whiteSpace = "nowrap";
+
+    const { height: newHeight } = this.$refs.title.getBoundingClientRect();
+    this.$nextTick(() => {
+      this.showTooltip = newHeight < height;
+    });
   }
 };
 </script>
 
 <style scoped>
-.center-header {
-  margin-left: auto;
-  margin-right: auto;
+.header-wrapper {
+  width: 100%;
+  text-align: center;
+}
+
+.overflow-title {
+  /* white-space: nowrap; */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-content-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 </style>

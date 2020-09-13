@@ -2,7 +2,10 @@
   <!-- FIXME: fix how form interaction works either make form top level again or use more effectively here -->
   <!-- If scene is not blank -->
   <form v-if="scene.props !== null" ref="form" class="flex-wrap">
-    <div v-if="isSelectable && $v.form.$invalid" class="invalid-selection-mask" />
+    <div
+      v-if="isSelectable && $v.form.$invalid"
+      class="invalid-selection-mask"
+    />
     <GenericCard
       @selected="$emit('selected', scene.id)"
       :selectable="isSelectable && !$v.form.$invalid"
@@ -20,7 +23,9 @@
         </p>
         <template v-if="isBound">
           <p class="control bound-label">
-            <b-button type="is-light" disabled expanded>Bound: Scene {{ index }}</b-button>
+            <b-button type="is-light" disabled expanded
+              >Bound: Scene {{ index }}</b-button
+            >
           </p>
           <p class="control">
             <b-button
@@ -39,7 +44,8 @@
           :native-value="type"
           :disabled="isBound"
           type="is-light is-primary"
-        >{{ type }}</b-radio-button>
+          >{{ type }}</b-radio-button
+        >
       </b-field>
 
       <form-group
@@ -66,18 +72,22 @@
           expanded
         />
 
-        <b-input
-          v-else-if="isType(field, 'input')"
-          v-model="$v.form[field].$model"
-          :placeholder="`${field}...` | capitalize"
-          :icon="getIcon(field)"
-          :maxlength="maxlength"
-          :disabled="isBound"
-          class="absolute-counter"
-          custom-class="has-fixed-size"
-          type="textarea"
-          expanded
-        />
+        <!-- Textarea -->
+        <template v-else-if="isType(field, 'input')">
+          <b-input
+            v-model="$v.form[field].$model"
+            :placeholder="`${field}...` | capitalize"
+            :maxlength="maxlength"
+            :disabled="isBound"
+            icon="expand-alt"
+            icon-clickable
+            @icon-click="toggleInputModal()"
+            class="absolute-counter"
+            custom-class="has-fixed-size"
+            type="textarea"
+            expanded
+          />
+        </template>
 
         <!-- FIXME: make sure tag input updates $dirty correctly -->
         <BTagInput
@@ -88,16 +98,52 @@
           class="is-capitalized"
           expanded
         />
-
-        <!-- TODO: Display error for incorrect types/types that don't match anything ? -->
       </form-group>
+
+      <!-- FIXME: currenty only supports script modal (static) use programmatic modal? -->
+      <b-modal
+        v-model="inputModalActive"
+        has-modal-card
+        trap-focus
+        aria-role="dialog"
+        aria-modal
+      >
+        <div class="modal-card textarea-modal">
+          <!-- TODO: Consistent close buttons for modals -->
+          <header class="modal-card-head">
+            <h3 class="subtitle">Script</h3>
+          </header>
+          <section class="modal-card-body">
+            <form-group :validator="$v.form.script" v-slot="{ maxlength }">
+              <b-input
+                v-model="$v.form.script.$model"
+                :placeholder="`Script...` | capitalize"
+                :maxlength="maxlength"
+                :disabled="isBound"
+                icon="compress-alt"
+                icon-clickable
+                @icon-click="toggleInputModal()"
+                class="absolute-counter"
+                custom-class="has-fixed-size"
+                type="textarea"
+                contenteditable
+              />
+            </form-group>
+          </section>
+        </div>
+      </b-modal>
     </GenericCard>
   </form>
 
   <!-- Otherwise show blank scene -->
   <GenericCard v-else>
     <div class="center-card-content">
-      <b-button @click="addScene(scene.id)" type="is-light" size="is-medium" icon-left="plus" />
+      <b-button
+        @click="addScene(scene.id)"
+        type="is-light"
+        size="is-medium"
+        icon-left="plus"
+      />
     </div>
   </GenericCard>
 </template>
@@ -152,7 +198,9 @@ export default {
 
     return {
       validSceneTypes: Object.keys(spec.sceneTypes),
-      form
+      form,
+
+      inputModalActive: false
     };
   },
   mounted() {
@@ -248,21 +296,12 @@ export default {
         ),
         {}
       );
-
-      /*
-      return this.assetSet.reduce(
-        (obj, asset) => (
-          obj[asset.type]
-            ? obj[asset.type].push(asset.id)
-            : (obj[asset.type] = [asset.id]),
-          obj
-        ),
-        {}
-      );
-      */
     }
   },
   methods: {
+    toggleInputModal() {
+      this.inputModalActive = !this.inputModalActive;
+    },
     isType(field, type) {
       return spec.scene[field].type === type;
     },
@@ -291,14 +330,28 @@ export default {
   display: none;
 }
 
-.absolute-counter .textarea {
+.textarea + .icon.is-left {
+  height: unset !important;
+  width: unset !important;
+  top: unset !important;
+  left: unset !important;
+  right: 0.5em !important;
+  bottom: 0.5em;
+}
+
+.textarea + .icon.is-left ~ .counter {
+  right: 2.5em;
+  bottom: 0.6em;
+}
+
+.absolute-counter > .textarea {
   padding-bottom: calc(1.625em - 0.5625rem);
 }
 
 .absolute-counter > .textarea ~ .counter {
   position: absolute;
   right: 1em;
-  bottom: 0.25em;
+  bottom: 0.5em;
 }
 </style>
 
@@ -322,6 +375,17 @@ export default {
 .center-card-content {
   @include flexCenter();
   height: 100%;
+}
+
+.textarea-modal {
+  width: 80vw;
+  max-width: $sceneWidth + 50px;
+
+  .modal-card-body {
+    // FIXME: use $box-radius for all $radius-large where appropriate
+    border-bottom-left-radius: $radius-large;
+    border-bottom-right-radius: $radius-large;
+  }
 }
 
 .bound-label {

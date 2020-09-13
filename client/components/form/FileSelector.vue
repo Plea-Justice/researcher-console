@@ -32,9 +32,6 @@ export default {
       }
     },
     invalidOldFile() {
-      console.log(
-        !!this.value && (!this.options || !this.options?.[this.value.id])
-      );
       return !!this.value && (!this.options || !this.options?.[this.value.id]);
     },
     status() {

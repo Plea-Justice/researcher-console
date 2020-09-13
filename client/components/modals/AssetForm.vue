@@ -10,73 +10,38 @@
             class="file is-primary fix-field-max-width no-help"
             :class="{ 'has-name': assetForm.file }"
           >
-            <b-upload
-              v-model="assetForm.file"
-              class="file-label"
-              required
-              expanded
-            >
-              <span
-                class="button file-cta"
-                :class="{ 'is-fullwidth': !assetForm.file }"
-              >
+            <b-upload v-model="assetForm.file" class="file-label" required expanded>
+              <span class="button file-cta" :class="{ 'is-fullwidth': !assetForm.file }">
                 <b-icon class="file-icon" icon="cloud-upload-alt" />
-                <span v-if="!assetForm.file" class="file-label"
-                  >Click to upload</span
-                >
+                <span v-if="!assetForm.file" class="file-label">Click to upload</span>
               </span>
-              <span class="file-name control" v-if="assetForm.file">
-                {{ assetForm.file.name }}
-              </span>
+              <span class="file-name control" v-if="assetForm.file">{{ assetForm.file.name }}</span>
             </b-upload>
-            <HelpSidebar
-              :text="assetsHelp.upload"
-              title="Asset Uploads"
-              class="control"
-            />
+            <HelpSidebar :text="assetsHelp.upload" title="Asset Uploads" class="control" />
           </b-field>
         </b-field>
 
         <b-field label="Asset Type" class="no-help">
-          <b-select
-            placeholder="Select a type"
-            v-model="assetForm.type"
-            expanded
-            required
-          >
-            <option v-for="type in allAssetTypes" :key="type" :value="type">
-              {{ type | capitalize }}
-            </option>
+          <b-select placeholder="Select a type" v-model="assetForm.type" expanded required>
+            <option v-for="type in allAssetTypes" :key="type" :value="type">{{ type | capitalize }}</option>
           </b-select>
-          <HelpSidebar
-            :text="assetsHelp.type"
-            title="Asset Types"
-            class="control"
-          />
+          <HelpSidebar :text="assetsHelp.type" title="Asset Types" class="control" />
         </b-field>
 
         <div class="flex-field-wrapper">
-          <b-field
-            label="Share with Others"
-            class="flex-field"
-            v-if="!user.permitSharing"
-          >
+          <b-field label="Share with Others" class="flex-field" v-if="!user.permitSharing">
             <b-switch
               :disabled="!user.permitSharing"
               v-model="assetForm.public"
               type="is-info"
-            >
-              Make Public
-            </b-switch>
+            >Make Public</b-switch>
           </b-field>
           <HelpSidebar :text="assetsHelp.sharing" title="Asset Types" />
         </div>
       </section>
 
       <footer class="modal-card-foot">
-        <b-button type="is-primary" native-type="submit" value="Save" expanded>
-          Save
-        </b-button>
+        <b-button type="is-primary" native-type="submit" value="Save" expanded>Save</b-button>
       </footer>
     </form>
   </div>
@@ -124,6 +89,7 @@ export default {
     async onSubmit() {
       // If that filename already exists
       // FIXME: check doesn't work (server removes spaces)
+      // FIXME: check against all lowercase (case-insensitive), make all lowercase?
       if (this.assetSet.some(({ name }) => name === this.assetForm.file.name)) {
         this.$buefy.toast.open({
           message: "An asset with the same filename already exists",

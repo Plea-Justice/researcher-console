@@ -9,10 +9,18 @@
               @click="saveHelper()"
               :value="mode"
               :loading="saving"
-              type="is-primary is-dark"
-            >Save</ToolBarButton>
+              :label="saveState.text"
+              :type="saveState.type"
+              :icon-left="saveState.icon"
+              style="min-width: 69px"
+            />
 
-            <ToolBarButton @click="openScenarioOptions()" :value="mode" icon-left="cog">Options</ToolBarButton>
+            <ToolBarButton
+              @click="openScenarioOptions()"
+              :value="mode"
+              icon-left="cog"
+              >Options</ToolBarButton
+            >
 
             <b-button
               @click="collapseAll()"
@@ -26,7 +34,8 @@
               @click="addCondition()"
               :value="mode"
               :disabled="!numScenes"
-            >Add Condition</ToolBarButton>
+              >Add Condition</ToolBarButton
+            >
           </div>
 
           <div class="level-item buttons">
@@ -35,29 +44,28 @@
               @click="toggleHandler($event, 'swap')"
               :mode="Modes.SWAP"
               :disabled="numScenes < 2"
-            >Swap</ToolBarButton>
+              >Swap</ToolBarButton
+            >
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'copy')"
               :mode="Modes.COPY"
               :disabled="numScenes < 2"
-            >Copy</ToolBarButton>
+              >Copy</ToolBarButton
+            >
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'bind')"
               :mode="Modes.BIND"
               :disabled="numScenes < 2"
-            >Bind</ToolBarButton>
+              >Bind</ToolBarButton
+            >
           </div>
         </template>
 
         <template v-slot:end>
-          <div v-if="scenarioStoreHasChanged" class="level-item">
-            <b-tag type="is-warning">Unsaved changes</b-tag>
-          </div>
-
           <div class="level-item">
             <PreviewDropdown
               :scenarioMeta="scenarioMeta"
@@ -140,6 +148,21 @@ export default {
       headerHeight: 0,
 
       saving: false,
+      saveStatus: {
+        valid: {
+          type: "is-success",
+          icon: "check"
+        },
+        invalid: {
+          type: "is-danger",
+          icon: "times"
+        },
+        changed: {
+          type: "is-warning",
+          text: "Save"
+        }
+      },
+
       collapsed: false,
       logout: false,
       snackbar: null
@@ -179,7 +202,14 @@ export default {
       scenarioStatus: "scenario/status",
       numScenes: "scenario/numScenes",
       frameSet: "scenario/frameSet"
-    })
+    }),
+    saveState() {
+      if (!this.scenarioStatus.valid) return this.saveStatus.invalid;
+      else if (this.scenarioStoreHasChanged) return this.saveStatus.changed;
+      else if (this.scenarioStatus.valid && !this.scenarioStoreHasChanged)
+        return this.saveStatus.valid;
+      else return { type: "is-primary" };
+    }
   },
   methods: {
     findScene(sceneId) {
@@ -319,8 +349,7 @@ export default {
       this.$buefy.modal.open({
         parent: this,
         component: LeaveScenario,
-        // FIXME: have this use VueX `status.valid`
-        props: { valid: !this.scenarioStatus.valid },
+        props: { valid: this.scenarioStatus.valid },
         events: { exit: exitAction },
         hasModalCard: true,
         customClass: "dialog",

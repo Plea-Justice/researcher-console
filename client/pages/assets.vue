@@ -31,7 +31,7 @@
 
     <p v-if="!assetSet.length" class="empty-text has-text-weight-medium is-size-5">
       No assets exists!
-      <br />Add an asset from the toolbar to get started.
+      <br />Add an asset using the toolbar to get started.
     </p>
 
     <template v-else>
@@ -100,9 +100,6 @@ export default {
       addMode: false,
       selectedAssetType: "all"
     };
-  },
-  mounted() {
-    console.log(this.assetSet);
   },
   computed: {
     ...mapGetters({

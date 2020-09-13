@@ -37,7 +37,7 @@ export default {
     };
   },
   computed: {
-     ...mapGetters({
+    ...mapGetters({
       scenarioStatus: "scenario/status"
     }),
     user() {
@@ -157,22 +157,20 @@ export default {
       }
     },
     async wrapSnackbar(callback, message) {
-      const { frameErrors, sceneErrors } = this.scenarioStatus;
-      if (frameErrors.length + sceneErrors.length > 0) {
-        this.$emit('gotoErrors');
-        return;
+      if (!this.scenarioStatus.valid) {
+        this.$emit("gotoErrors");
+      } else {
+        this.snackbar = this.$buefy.snackbar.open({
+          message: message,
+          position: "is-top",
+          indefinite: true,
+          actionText: null
+        });
+
+        await callback();
+        this.snackbar.close();
+        this.snackbar = null;
       }
-
-      this.snackbar = this.$buefy.snackbar.open({
-        message: message,
-        position: "is-top",
-        indefinite: true,
-        actionText: null
-      });
-
-      await callback();
-      this.snackbar.close();
-      this.snackbar = null;
     }
   }
 };

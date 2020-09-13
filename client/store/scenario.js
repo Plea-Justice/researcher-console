@@ -1,7 +1,7 @@
 /* eslint no-shadow: ["error", { "allow": ["state", "getters"] }] */
 // eslint-disable-next-line import/no-extraneous-dependencies
-// FIXME: use this.$set
 import Vue from 'vue';
+// FIXME: use this.$set
 
 import { nanoid } from 'nanoid/non-secure';
 
