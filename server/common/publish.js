@@ -54,25 +54,26 @@ function publish(input) {
         fs.copyFileSync(filepath, `${file.name}.orig${file.ext}`);
     
     const replacements = [
-        [/#ACAC3(\d)/gm, 'window.assetPalettes[$1].skin'],
-        [/#AC9C3(\d)/gm, 'window.assetPalettes[$1].skinDark'],
-        [/#AC3C3(\d)/gm, 'window.assetPalettes[$1].hair'],
-        [/#3C3CA(\d)/gm, 'window.assetPalettes[$1].eye'],
-        [/#AC3CA(\d)/gm, 'window.assetPalettes[$1].outfit'],
-        [/#AC2CA(\d)/gm, 'window.assetPalettes[$1].outfitDark'],
+        [/"#ACAC3(\d)"/gm, 'window.assetPalettes[$1].colors[5]'],
+        [/"#AC9C3(\d)"/gm, 'window.assetPalettes[$1].colorsDark[5]'],
+        [/"#AC3C3(\d)"/gm, 'window.assetPalettes[$1].colors[3]'],
+        [/"#3C3CA(\d)"/gm, 'window.assetPalettes[$1].colors[0]'],
+        [/"#AC3CA(\d)"/gm, 'window.assetPalettes[$1].colors[4]'],
+        [/"#AC2CA(\d)"/gm, 'window.assetPalettes[$1].colorsDark[4]'],
         
-        // TODO: Assign all colors slot names instead.
-        [/#3CAC3(\d)/gm, 'window.assetPalettes[$1].unused1'],
-        [/#3CACA(\d)/gm, 'window.assetPalettes[$1].unused2'],
+        // TODO: Assign all colors slot names instead (color1, color2, etc.) and make dynamic.
+        [/"#3CAC3(\d)"/gm, 'window.assetPalettes[$1].colors[1]'],
+        [/"#3CACA(\d)"/gm, 'window.assetPalettes[$1].colors[2]'],
     
         // Customizable features (hair, eyes, etc).
-        [/(slot(\d)figure(\d)([a-z]+?)(\d)[\s\S]*?)(^.*addTween)/gm,
-            '$1if (window.assetPalettes[$2].figure === $3 && window.assetPalettes[$2].$4 === $5)$6'
+        [/(slot(\d)figure(\d)([a-z]+?)(?<!accessory)(\d)[\s\S]*?)(^.*addTween)/gm,
+            '$1if (window.assetPalettes[$2].features.figure === $3 && window.assetPalettes[$2].features.$4 === $5)$6'
         ],
     
         // Base layers and accessories.
-        [/(slot(\d)figure(\d)[a-z]+?\s[\s\S]*?)(^.*addTween)/gm,
-            '$1if (window.assetPalettes[$2].figure === $3)$4'
+        // Accessory layer has number, but number is unused in selection. Only figure.
+        [/(slot(\d)figure(\d)[a-z\d]+?\s[\s\S]*?)(^.*addTween)/gm,
+            '$1if (window.assetPalettes[$2].features.figure === $3)$4'
         ],
     
         // Reference to cache directory for bitmap cached assets.

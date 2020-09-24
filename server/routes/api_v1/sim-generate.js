@@ -218,6 +218,9 @@ async function generateSimulation(options, req) {
             'path': 'assets/',
             // FIXME: Generate list of files.
             'manifest': Array.from(requestedAssets).map(asset => asset.path),
+            'customizable_presets': [
+                /* TODO: Add presets with a new interface feature. */
+            ],
             // 'timelines' array used by simulation to render each in order.
             'conditions': timelines.map((scene_list, i) => ({
                 'name': `Experimental Condition ${i+1}/${timelines.length}`,
