@@ -50,7 +50,7 @@
       >
         <b-image
           :src="
-            `${$axios.defaults.baseURL}/api/v1/assets/${asset.id}/thumbnail`
+            `${envAPIURL}/api/v1/assets/${asset.id}/thumbnail`
           "
           src-fallback="/defaultThumbnail.png"
           responsive
@@ -106,7 +106,8 @@ export default {
       assetsHelp: assetsHelp,
 
       addMode: false,
-      selectedAssetType: "all"
+      selectedAssetType: "all",
+      envAPIURL: process.env.API_URL
     };
   },
   computed: {

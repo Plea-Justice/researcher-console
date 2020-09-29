@@ -11,7 +11,7 @@ Vue.filter('timeToNow', function(value) {
 
   const date = new Date(value);
 
-  const time = Date.now() - date;
+  let time = Date.now() - date;
 
   time *= 1 / 1000;
   if (time <= 60) return `seconds ago`;
