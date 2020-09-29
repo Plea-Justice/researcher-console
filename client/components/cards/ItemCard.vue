@@ -119,7 +119,7 @@ export default {
 }
 
 .overflow-title {
-  /* white-space: nowrap; */
+  /* Applied dynamically in mounted() -> white-space: nowrap; */
   overflow: hidden;
   text-overflow: ellipsis;
 }

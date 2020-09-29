@@ -74,8 +74,9 @@ export default {
     })
   },
   methods: {
+    // TODO: use focus or remove it
     focus() {
-      //this.$refs.focus_target.focus();
+      this.$refs.focus_target.focus();
     },
     ...mapActions({
       addScenario: "scenarios/addScenario",
@@ -83,7 +84,10 @@ export default {
     }),
     async onSubmit() {
       if (
-        this.scenarioSet.some(({ name }) => name === this.scenarioForm.name)
+        this.scenarioSet.some(
+          ({ name }) =>
+            name.toLowerCase() === this.scenarioForm.name.toLowerCase()
+        )
       ) {
         this.$buefy.toast.open({
           message: "A scenario with the same name already exists",
@@ -94,12 +98,17 @@ export default {
         this.scenarioForm.name = "";
         this.focus();
       } else {
-        // Add the scenario to state
-
+        // Add scenario to state
+        const pascalName = toPascalCase(this.scenarioForm.name);
         try {
+          //FIXME: why is this await?
           (await this.id)
-            ? this.editScenario({ ...this.scenarioForm, id: this.id })
-            : this.addScenario(this.scenarioForm);
+            ? this.editScenario({
+                ...this.scenarioForm,
+                name: pascalName,
+                id: this.id
+              })
+            : this.addScenario({ ...this.scenarioForm, name: pascalName });
           this.$parent.close();
         } catch (error) {}
       }

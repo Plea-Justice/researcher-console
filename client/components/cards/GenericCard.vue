@@ -1,11 +1,20 @@
 <template>
   <div :class="{ invalid: invalid }" class="card">
-    <!-- Wrapper for highlighting a card -->
-    <div v-if="selectable" @click="$emit('selected')" class="selection-mask" />
+    <!-- Absolute item for highlighting a card -->
+    <div
+      v-if="selectable"
+      @click="$emit('selected')"
+      :style="{ '--invalid': invalid ? 1 : 0 }"
+      class="selection-mask"
+    />
 
     <!-- Card Header -->
     <!-- when collapsed style header as body -->
-    <header v-if="!emptyHeader" class="card-header flex-header" :class="headerModeStyle">
+    <header
+      v-if="!emptyHeader"
+      class="card-header flex-header"
+      :class="headerModeStyle"
+    >
       <slot name="header" />
     </header>
 
@@ -15,7 +24,7 @@
     </div>
 
     <!-- Card Footer -->
-    <footer v-if="(!emptyFooter && !collapsed)" class="card-footer">
+    <footer v-if="!emptyFooter && !collapsed" class="card-footer">
       <slot name="footer" />
     </footer>
   </div>
@@ -62,13 +71,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+$borderWidth: 1px;
+
 .invalid {
-  border: 1px solid $selectedRedDark;
+  border: $borderWidth solid $selectedRedDark;
 }
 
 .selection-mask {
   @include selectionMask();
-  border-radius: $radius-large;
+  border-radius: calc(#{$radius-large} - var(--invalid) * #{$borderWidth});
 }
 
 .card {

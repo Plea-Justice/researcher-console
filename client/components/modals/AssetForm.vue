@@ -21,13 +21,13 @@
                 :class="{ 'is-fullwidth': !assetForm.file }"
               >
                 <b-icon class="file-icon" icon="cloud-upload-alt" />
-                <span v-if="!assetForm.file" class="file-label"
-                  >Click to upload</span
-                >
+                <span v-if="!assetForm.file" class="file-label">
+                  Click to upload
+                </span>
               </span>
-              <span class="file-name control" v-if="assetForm.file">{{
-                assetForm.file.name
-              }}</span>
+              <span class="file-name control" v-if="assetForm.file">
+                {{ assetForm.file.name }}
+              </span>
             </b-upload>
             <HelpSidebar
               :text="assetsHelp.upload"
@@ -61,17 +61,18 @@
               :disabled="!user.permitSharing"
               v-model="assetForm.public"
               type="is-info"
-              >Make Public</b-switch
             >
+              Make Public
+            </b-switch>
           </b-field>
           <HelpSidebar :text="assetsHelp.sharing" title="Asset Types" />
         </div>
       </section>
 
       <footer class="modal-card-foot">
-        <b-button type="is-primary" native-type="submit" value="Save" expanded
-          >Save</b-button
-        >
+        <b-button type="is-primary" native-type="submit" value="Save" expanded>
+          Save
+        </b-button>
       </footer>
     </form>
   </div>
@@ -120,13 +121,18 @@ export default {
       // If that filename already exists
       // FIXME: check doesn't work (server removes spaces)
       // FIXME: check against all lowercase (case-insensitive), make all lowercase?
-      if (this.assetSet.some(({ name }) => name === this.assetForm.file.name)) {
+      if (
+        this.assetSet.some(
+          ({ name }) =>
+            name.toLowerCase() === this.assetForm.file.name.toLowerCase()
+        )
+      ) {
         this.$buefy.toast.open({
           message: "An asset with the same filename already exists",
           type: "is-danger"
         });
 
-        this.assetForm.file = "";
+        this.assetForm.file = null;
         // TODO: This file upload size is defined in server config.js.
       } else if (this.assetForm.file.size > 1024 * 1024 * 20) {
         this.$buefy.toast.open({
@@ -145,7 +151,7 @@ export default {
 };
 </script>
 
-<!-- Global Style -->
+<!-- Global Styles -->
 <style lang="scss">
 // FIXME: make these global for fixing max-width uploads?
 .fix-field-max-width {

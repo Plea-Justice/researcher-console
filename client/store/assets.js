@@ -35,6 +35,8 @@ export const actions = {
   }
 };
 
+// FIXME: sorting should be handled better
+// set Assets could probably be simplified
 export const mutations = {
   setAssets(state, res) {
     state.assets = res.assets;

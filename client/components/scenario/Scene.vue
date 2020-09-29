@@ -3,12 +3,15 @@
   <!-- If scene is not blank -->
   <form v-if="scene.props !== null" ref="form" class="flex-wrap">
     <div
-      v-if="isSelectable && $v.form.$invalid"
+      v-if="isSelectable && $v.form.$invalid && !invalidSelectable"
       class="invalid-selection-mask"
     />
+
     <GenericCard
       @selected="$emit('selected', scene.id)"
-      :selectable="isSelectable && !$v.form.$invalid"
+      :selectable="
+        isSelectable && ($v.form.$invalid ? invalidSelectable : true)
+      "
       :collapsed="collapsed"
       :invalid="$v.form.$invalid"
     >
@@ -21,6 +24,7 @@
             icon-left="trash-alt"
           />
         </p>
+
         <template v-if="isBound">
           <p class="control bound-label">
             <b-button type="is-light" disabled expanded
@@ -61,7 +65,6 @@
           `options` prop needs a preloaded value because .includes in
           AssetsByType will return false positive while loading
         -->
-
         <FileSelector
           v-if="isType(field, 'selector')"
           :validator="$v.form[field]"
@@ -143,6 +146,7 @@
         type="is-light"
         size="is-medium"
         icon-left="plus"
+        :disabled="isSelectable"
       />
     </div>
   </GenericCard>
@@ -280,6 +284,9 @@ export default {
 
       return result;
     },
+    invalidSelectable() {
+      return this.selectable?.filters?.includes("invalid") ?? false;
+    },
     validFieldNames() {
       return spec.sceneTypes[this.form.type];
     },
@@ -370,6 +377,7 @@ export default {
 
 .card {
   height: 100%;
+  width: 350px;
 }
 
 .center-card-content {

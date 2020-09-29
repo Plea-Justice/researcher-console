@@ -5,13 +5,14 @@
 
       <div class="frame box">
         <!-- Sidebar -->
-        <!-- FIXME: shoudln;t show when collapsed and no sidebar stuff is needed -->
+        <!-- FIXME: shoudln't show when collapsed and no sidebar stuff is needed -->
         <aside v-show="frame.size || !isOnly" class="sidebar buttons">
           <!-- Collapse Button -->
           <b-button
             v-show="!isOnly"
             @click="collapseFrame()"
             :icon-left="`chevron-${collapsed ? 'down' : 'up'}`"
+            :disabled="isSelectable"
             type="is-text"
             size="is-medium"
           />
@@ -20,6 +21,7 @@
           <b-button
             v-show="!isFirst"
             @click="moveUp()"
+            :disabled="isSelectable"
             type="is-light"
             size="is-medium"
             icon-left="arrow-up"
@@ -27,6 +29,7 @@
           <b-button
             v-show="!isLast"
             @click="moveDown()"
+            :disabled="isSelectable"
             type="is-light"
             size="is-medium"
             icon-left="arrow-down"
@@ -36,8 +39,9 @@
           <b-button
             v-show="!collapsed"
             @click="removeFrameHelper(frame.id)"
-            class="has-text-danger"
+            :disabled="isSelectable"
             type="is-text"
+            class="has-text-danger"
             icon-left="trash-alt"
             size="is-medium"
           />
@@ -60,7 +64,7 @@
                 :value="frame.label"
                 @input="setLabel($event)"
                 :maxlength="maxlength"
-                :placeholder="`Scene ${frameIndex + 1 } Label`"
+                :placeholder="`Scene ${frameIndex + 1} Label`"
                 class="absolute-counter"
                 expanded
               />
@@ -70,14 +74,8 @@
               class="frame-header-item"
             >
               <b-tooltip
-                :label="
-                  !frame.size
-                    ? 'No Scenes'
-                    : uniqueScenes > 1
-                    ? `${uniqueScenes} experimental conditions are unlocked.`
-                    : 'Locked across all conditions.'
-                "
-                position="is-bottom"
+                :label="sceneCounterLabel"
+                position="is-right"
                 animated
               >
                 <b-button
@@ -86,12 +84,18 @@
                     'is-dark': !frame.size
                   }"
                   disabled
-                >{{ uniqueScenes }}</b-button>
+                >
+                  {{ uniqueScenes }}
+                </b-button>
               </b-tooltip>
             </div>
           </div>
           <div v-show="!collapsed" class="frame-scenes">
-            <div v-for="(scene, index) in sceneSet" :key="scene.id" class="scene">
+            <div
+              v-for="(scene, index) in sceneSet"
+              :key="scene.id"
+              class="scene"
+            >
               <!-- Bound Scene -->
               <Scene
                 v-if="typeof scene.props === 'string'"
@@ -108,7 +112,7 @@
                 :scene="scene"
                 :index="index"
                 :collapsed="collapsed"
-                :selectable="isSelectable()"
+                :selectable="isSelectable"
               />
             </div>
           </div>
@@ -123,7 +127,9 @@
         type="is-light"
         size="is-small"
         icon-left="plus"
-      >Insert Scene</b-button>
+        :disabled="isSelectable"
+        >Insert Scene
+      </b-button>
     </div>
   </div>
 </template>
@@ -206,6 +212,30 @@ export default {
     isOnly() {
       return this.isFirst && this.isLast;
     },
+    isSelectable() {
+      // Filter out selections in wrong frame
+      let result = this.selectable;
+      if (typeof this.selectable !== "boolean") {
+        if (
+          this.selectable.filters.includes("frame") &&
+          this.selectable.parent.frame !== this.frameIndex
+        )
+          result = false;
+      }
+
+      return result;
+    },
+    sceneCounterLabel() {
+      let label = "No Scenes";
+      if (this.frame.size) {
+        label =
+          this.uniqueScenes > 1
+            ? `${this.uniqueScenes} unbound conditions`
+            : "Bound across all conditions";
+      }
+
+      return label;
+    },
     ...mapGetters({
       getSceneSet: "scenario/sceneSet",
       conditionSet: "scenario/conditionSet"
@@ -233,19 +263,6 @@ export default {
     },
     collapseFrame() {
       this.collapsed = !this.collapsed;
-    },
-    isSelectable() {
-      // Filter out selections in wrong frame
-      let result = this.selectable;
-      if (typeof this.selectable !== "boolean") {
-        if (
-          this.selectable.filters.includes("frame") &&
-          this.selectable.parent.frame !== this.frameIndex
-        )
-          result = false;
-      }
-
-      return result;
     },
     ...mapActions({
       setFrameLabel: "scenario/setFrameLabel",

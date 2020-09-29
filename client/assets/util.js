@@ -2,11 +2,12 @@
 export function noop() {}
 
 export const toPascalCase = text =>
-  text
-    .toLowerCase()
-    .split(' ')
-    .map(word => word[0].toUpperCase() + word[0].substring(1))
-    .join(' ');
+  text.length
+    ? text
+        .split(' ')
+        .map(word => word[0].toUpperCase() + word.substring(1).toLowerCase())
+        .join(' ')
+    : text;
 
 // Stripped down throttle function from underscore.js
 export function throttle(func, wait, options) {

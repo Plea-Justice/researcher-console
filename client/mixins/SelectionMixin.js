@@ -11,6 +11,11 @@ export default {
       SWAP: 3
     };
     const modeNames = [];
+    /*
+      Guarantee key names are correctly ordered/
+      Spec for Object.keys doesn't guarantee order even thought most browsers do order them
+      This is critical to the implementation, so it's ensured manually
+    */
     Object.entries(Modes).forEach(([key, val]) => (modeNames[val] = key.toLowerCase()));
 
     const Select = {
@@ -22,19 +27,28 @@ export default {
     const selectNames = [];
     Object.entries(Select).forEach(([key, val]) => (selectNames[val] = key.toLowerCase()));
 
+    /*
+      **** Filters ****
+      frame: preceding elements must be in the same frame
+      condition: preceding elements must be in the same condition
+      invalid: allows selecting invalid preceding elements (useful for copying to invalid scenes for instance)
+    */
+
+    // TODO: dynamically define type (as an array?) from action values?
     const modeOptions = {
       [Modes.COPY]: {
         type: Select.ANY,
-        filters: [],
+        filters: ['invalid'],
         actions: {
           [Select.SCENE]: this.copyScenes,
           [Select.CONDITION]: this.copyConditions
         },
+        // TODO: message would be better defined as { src: '', target: '' }
         messages: ['Select an element to copy from', 'Select element(s) to paste to']
       },
       [Modes.BIND]: {
         type: Select.SCENE,
-        filters: ['frame'],
+        filters: ['frame', 'invalid'],
         actions: {
           [Select.SCENE]: this.bindScenes
         },
