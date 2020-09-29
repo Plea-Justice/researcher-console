@@ -39,7 +39,7 @@
       <p>{{ file.name }}</p>
       <small class="flex-item-meta truncate-text">
         <span>{{ !file.isMine ? "" : `Shared by ${file.owner} ` }}</span>
-        <span>{{ new Date(file.modified).toLocaleString() }}</span>
+        <span>{{ file.modified | timeToNow }}</span>
       </small>
     </b-dropdown-item>
   </b-dropdown>
@@ -132,6 +132,10 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.dropdown-item {
+  text-transform: none;
 }
 
 .dropdown-flex-item {

@@ -7,21 +7,44 @@
     <template v-slot:toolbar-start>
       <span class="level-item pr-3 is-size-7">Toggle Permissions:</span>
       <div class="level-item">
-        <ToolBarButton class="is-small mr-2" @click="toggleSharingPermission">Sharing</ToolBarButton>
-        <ToolBarButton class="is-small mr-2" @click="toggleUploadPermission">Uploads</ToolBarButton>
-        <ToolBarButton class="is-small mr-2" @click="toggleHostingPermission">Hosted Studies</ToolBarButton>
+        <ToolBarButton class="is-small mr-2" @click="toggleSharingPermission"
+          >Sharing</ToolBarButton
+        >
+        <ToolBarButton class="is-small mr-2" @click="toggleUploadPermission"
+          >Uploads</ToolBarButton
+        >
+        <ToolBarButton class="is-small mr-2" @click="toggleHostingPermission"
+          >Hosted Studies</ToolBarButton
+        >
       </div>
     </template>
     <template v-slot:toolbar-default>
       <div class="level-item">
-        <span class="is-size-7">{{ users.length }} users, {{ activeCount }} active this week.</span>
+        <span class="is-size-7"
+          >{{ users.length }} users, {{ activeCount }} active this week.</span
+        >
       </div>
     </template>
     <template v-slot:toolbar-end>
       <div class="level-item">
-        <ToolBarButton class="is-small mr-2" type="is-danger is-light" @click="toggleAdmin">Toggle Admin</ToolBarButton>
-        <ToolBarButton class="is-small mr-2" type="is-danger is-light" @click="changePassword">Change Password</ToolBarButton>
-        <ToolBarButton class="is-small mr-2" type="is-danger is-light" @click="deleteUser">Delete</ToolBarButton>
+        <ToolBarButton
+          class="is-small mr-2"
+          type="is-danger is-light"
+          @click="toggleAdmin"
+          >Toggle Admin</ToolBarButton
+        >
+        <ToolBarButton
+          class="is-small mr-2"
+          type="is-danger is-light"
+          @click="changePassword"
+          >Change Password</ToolBarButton
+        >
+        <ToolBarButton
+          class="is-small mr-2"
+          type="is-danger is-light"
+          @click="deleteUser"
+          >Delete</ToolBarButton
+        >
       </div>
     </template>
 
@@ -38,57 +61,99 @@
       height="100%"
       default-sort="username"
     >
-        <b-table-column v-slot="props" field="username" label="Username" sortable>{{ props.row.username }}</b-table-column>
-        <b-table-column v-slot="props" field="email" label="Email Address" sortable>{{ props.row.email }}</b-table-column>
-        <b-table-column v-slot="props"
-          field="lastActive"
-          label="Last Activity"
-          sortable
-        >{{ posixTimeToHoursAgo(props.row.lastActive) }}</b-table-column>
-        <b-table-column v-slot="props"
-          field="created"
-          label="Account Created"
-          sortable
-        >{{ posixTimeToHoursAgo(props.row.created) }}</b-table-column>
-        <b-table-column v-slot="props" field="profession" label="Profession" sortable>{{ props.row.profession }}</b-table-column>
-        <b-table-column v-slot="props"
-          field="affiliation"
-          label="Institutional Affiliation"
-          sortable
-        >{{ props.row.affiliation }}</b-table-column>
-        <b-table-column v-slot="props"
-          field="addresses"
-          label="Last IP Address"
-          sortable
-        >{{ props.row.addresses[0] || 'None' }}</b-table-column>
-        <b-table-column v-slot="props" field="permitAdmin" label="Admin" sortable>
-          <span>
-            <b-tag
-              :type="props.row.permitAdmin ? 'is-success' : 'is-danger'"
-            >{{ props.row.permitAdmin ? 'Yes' : 'No' }}</b-tag>
-          </span>
-        </b-table-column>
-        <b-table-column v-slot="props" field="permitSharing" label="Sharing" sortable>
-          <span>
-            <b-tag
-              :type="props.row.permitSharing ? 'is-success' : 'is-danger'"
-            >{{ props.row.permitSharing ? 'Yes' : 'No' }}</b-tag>
-          </span>
-        </b-table-column>
-        <b-table-column v-slot="props" field="permitUploads" label="Uploads" sortable meta="Permission">
-          <span>
-            <b-tag
-              :type="props.row.permitUploads ? 'is-success' : 'is-danger'"
-            >{{ props.row.permitUploads ? 'Yes' : 'No' }}</b-tag>
-          </span>
-        </b-table-column>
-        <b-table-column v-slot="props" field="permitHosting" label="Hosted Studies" sortable>
-          <span>
-            <b-tag
-              :type="props.row.permitHosting ? 'is-success' : 'is-danger'"
-            >{{ props.row.permitHosting ? 'Yes' : 'No' }}</b-tag>
-          </span>
-        </b-table-column>
+      <b-table-column
+        v-slot="props"
+        field="username"
+        label="Username"
+        sortable
+        >{{ props.row.username }}</b-table-column
+      >
+      <b-table-column
+        v-slot="props"
+        field="email"
+        label="Email Address"
+        sortable
+        >{{ props.row.email }}</b-table-column
+      >
+      <b-table-column
+        v-slot="props"
+        field="lastActive"
+        label="Last Activity"
+        sortable
+        >{{ props.row.lastActive | timeToNow }}</b-table-column
+      >
+      <b-table-column
+        v-slot="props"
+        field="created"
+        label="Account Created"
+        sortable
+        >{{ props.row.created | timeToNow }}</b-table-column
+      >
+      <b-table-column
+        v-slot="props"
+        field="profession"
+        label="Profession"
+        sortable
+        >{{ props.row.profession }}</b-table-column
+      >
+      <b-table-column
+        v-slot="props"
+        field="affiliation"
+        label="Institutional Affiliation"
+        sortable
+        >{{ props.row.affiliation }}</b-table-column
+      >
+      <b-table-column
+        v-slot="props"
+        field="addresses"
+        label="Last IP Address"
+        sortable
+        >{{ props.row.addresses[0] || "None" }}</b-table-column
+      >
+      <b-table-column v-slot="props" field="permitAdmin" label="Admin" sortable>
+        <span>
+          <b-tag :type="props.row.permitAdmin ? 'is-success' : 'is-danger'">{{
+            props.row.permitAdmin ? "Yes" : "No"
+          }}</b-tag>
+        </span>
+      </b-table-column>
+      <b-table-column
+        v-slot="props"
+        field="permitSharing"
+        label="Sharing"
+        sortable
+      >
+        <span>
+          <b-tag :type="props.row.permitSharing ? 'is-success' : 'is-danger'">{{
+            props.row.permitSharing ? "Yes" : "No"
+          }}</b-tag>
+        </span>
+      </b-table-column>
+      <b-table-column
+        v-slot="props"
+        field="permitUploads"
+        label="Uploads"
+        sortable
+        meta="Permission"
+      >
+        <span>
+          <b-tag :type="props.row.permitUploads ? 'is-success' : 'is-danger'">{{
+            props.row.permitUploads ? "Yes" : "No"
+          }}</b-tag>
+        </span>
+      </b-table-column>
+      <b-table-column
+        v-slot="props"
+        field="permitHosting"
+        label="Hosted Studies"
+        sortable
+      >
+        <span>
+          <b-tag :type="props.row.permitHosting ? 'is-success' : 'is-danger'">{{
+            props.row.permitHosting ? "Yes" : "No"
+          }}</b-tag>
+        </span>
+      </b-table-column>
     </b-table>
   </GenericLayout>
 </template>
@@ -100,9 +165,6 @@ import ToolBarButton from "~/components/ToolBarButton";
 
 // Content for help fields
 import { adminHelp } from "~/assets/helpText";
-
-// Last modified time
-import { posixTimeToHoursAgo } from "~/assets/util";
 
 export default {
   name: "Admin",
@@ -140,7 +202,6 @@ export default {
     return ret;
   },
   methods: {
-    posixTimeToHoursAgo: posixTimeToHoursAgo,
     async refresh() {
       this.loading = true;
       this.users = (await this.$axios.get("/api/v1/admin/users")).data.result;
@@ -175,14 +236,18 @@ export default {
     toggleSharingPermission() {
       if (this.selected) {
         const user = this.users.find(x => x.user_id === this.selected.user_id);
-        const permissions = { permitSharing: user.permitSharing ? false : true };
+        const permissions = {
+          permitSharing: user.permitSharing ? false : true
+        };
         this.changePermissions(permissions);
       }
     },
     toggleUploadPermission() {
       if (this.selected) {
         const user = this.users.find(x => x.user_id === this.selected.user_id);
-        const permissions = { permitUploads: user.permitUploads ? false : true };
+        const permissions = {
+          permitUploads: user.permitUploads ? false : true
+        };
         this.changePermissions(permissions);
       }
     },

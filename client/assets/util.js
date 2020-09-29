@@ -60,20 +60,3 @@ export function debounce(func, wait, immediate) {
     if (callNow) func.apply(context, args);
   };
 }
-
-export function posixTimeToHoursAgo(posixTime) {
-  const date = new Date(posixTime);
-
-  let time = Date.now() - date;
-
-  time *= 1 / 1000;
-  if (time <= 60) return `seconds ago`;
-
-  time *= 1 / 60;
-  if (time <= 60) return `${parseInt(time)} ${time < 2 ? 'minute' : 'minutes'} ago`;
-
-  time *= 1 / 60;
-  if (time <= 24) return `${parseInt(time)} ${time < 2 ? 'hour' : 'hours'} ago`;
-
-  return date.toLocaleString();
-}

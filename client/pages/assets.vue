@@ -91,9 +91,6 @@ import DeleteAsset from "../components/modals/DeleteAsset";
 // Content for help fields
 import { assetsHelp } from "~/assets/helpText";
 
-// Last modified time
-import { posixTimeToHoursAgo } from "~/assets/util";
-
 export default {
   name: "Scenarios",
   components: { ItemLayout, ToolBarButton, ItemCard, AssetForm, HelpSidebar },
@@ -165,8 +162,7 @@ export default {
         customClass: "dialog",
         trapFocus: true
       });
-    },
-    posixTimeToHoursAgo: posixTimeToHoursAgo
+    }
   },
   head() {
     return {

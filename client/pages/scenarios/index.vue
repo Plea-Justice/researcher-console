@@ -6,11 +6,16 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton @click="openFormModal()" :mode="Modes.ADD">Create New Scenario</ToolBarButton>
+        <ToolBarButton @click="openFormModal()" :mode="Modes.ADD"
+          >Create New Scenario</ToolBarButton
+        >
       </div>
     </template>
 
-    <p v-if="!scenarioSet.length" class="empty-text has-text-weight-medium is-size-5">
+    <p
+      v-if="!scenarioSet.length"
+      class="empty-text has-text-weight-medium is-size-5"
+    >
       No assets exists!
       <br />Create a new scenario using the toolbar to get started.
     </p>
@@ -30,11 +35,13 @@
           edit
           duplicate
         >
-          <p class="content" v-if="scenario.description">{{ scenario.description }}</p>
+          <p class="content" v-if="scenario.description">
+            {{ scenario.description }}
+          </p>
           <p class="content is-small">
-            Last Modified {{ posixTimeToHoursAgo(scenario.modified) }}
+            Last Modified {{ scenario.modified | timeToNow }}
             <br />
-            Created {{ posixTimeToHoursAgo(scenario.created) }}
+            Created {{ scenario.created | timeToNow }}
           </p>
         </ItemCard>
       </template>
@@ -54,9 +61,6 @@ import ScenarioForm from "~/components/modals/ScenarioForm";
 
 // Content for help fields
 import { scenariosHelp } from "~/assets/helpText";
-
-// Last modified time
-import { posixTimeToHoursAgo } from "~/assets/util";
 
 export default {
   name: "Scenarios",
@@ -111,8 +115,7 @@ export default {
         hasIcon: true,
         onConfirm: () => this.removeScenario(event)
       });
-    },
-    posixTimeToHoursAgo: posixTimeToHoursAgo
+    }
   },
   head() {
     return {

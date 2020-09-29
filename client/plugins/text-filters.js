@@ -7,20 +7,29 @@ Vue.filter('capitalize', function(value) {
 });
 
 Vue.filter('timeToNow', function(value) {
+  // FIXME: This doesn't account for leap years, "over" a certain period, etc.
+  // it's prob just easier to use the lightweight dayjs lib
+
   if (!value) return '';
 
   const date = new Date(value);
 
-  const time = Date.now() - date;
+  let time = Date.now() - date;
 
-  time *= 1 / 1000;
-  if (time <= 60) return `seconds ago`;
+  time /= 1000;
+  if (time <= 60) return `just now`;
 
-  time *= 1 / 60;
-  if (time <= 60) return `${parseInt(time)} ${time < 2 ? 'minute' : 'minutes'} ago`;
+  time /= 60;
+  if (time <= 60) return `${Math.trunc(time)} ${time < 2 ? 'minute' : 'minutes'} ago`;
 
-  time *= 1 / 60;
-  if (time <= 24) return `${parseInt(time)} ${time < 2 ? 'hour' : 'hours'} ago`;
+  time /= 60;
+  if (time <= 24) return `${Math.trunc(time)} ${time < 2 ? 'hour' : 'hours'} ago`;
 
-  return date.toLocaleString();
+  const days = Math.trunc(time / 24);
+  if (days <= 7) return `${days} ${days < 2 ? 'day' : 'days'} ago`;
+
+  time /= 7;
+  if (time <= 4) return `${Math.trunc(time)} ${time < 2 ? 'week' : 'weeks'} ago`;
+
+  return date.toLocaleString().split(',')[0];
 });
