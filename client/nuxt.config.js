@@ -18,6 +18,19 @@ export default {
     port: 3001
   },
   /*
+   ** Environmental Variables
+   */
+  env: {
+    // Either 'development' or 'production'
+    MODE: process.env.MODE || 'development',
+    // URL of the backend server.
+    API_URL: process.env.API_URL || 'http://localhost:3000',
+    // URL of this client application.
+    CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:3000',
+    // Address of the webserver from which permanent simulations are hosted.
+    LIVE_URL: process.env.LIVE_URL || 'http://localhost:3000/sim-serve'
+  },
+  /*
    ** Customize the progress-bar color
    */
   loading: { color: '#fff' },
@@ -57,7 +70,7 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    baseURL: process.env.API_URL || 'http://localhost:3000',
     credentials: true
   },
   // See https://github.com/buefy/nuxt-buefy
@@ -116,6 +129,7 @@ export default {
         'faAngleLeft',
         'faAngleRight',
         'faAngleDown',
+        'faAngleUp',
         'faTrashAlt'
       ]
     }

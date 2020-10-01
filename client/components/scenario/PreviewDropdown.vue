@@ -75,7 +75,7 @@ export default {
             });
 
             window.open(
-              `${this.$axios.defaults.baseURL}/sim-prev/sim-${this.scenarioMeta.id}/`
+              `${process.env.API_URL}/sim-prev/sim-${this.scenarioMeta.id}/`
             );
           } catch (err) {
             console.log(err);
@@ -96,7 +96,7 @@ export default {
           });
 
           window.open(
-            `${this.$axios.defaults.baseURL}/sim-prev/sim-${this.scenarioMeta.id}.zip`
+            `${process.env.API_URL}/sim-prev/sim-${this.scenarioMeta.id}.zip`
           );
         } catch (err) {
           console.log(err);
@@ -131,7 +131,7 @@ export default {
               });
 
               this.updateMeta({
-                live: `${this.$axios.defaults.baseURL}/sim-serve/sim-${this.scenarioMeta.id}/simulation.html`
+                live: `${process.env.LIVE_URL}/sim-${this.scenarioMeta.id}/simulation.html`
               });
               this.saveMeta();
 
@@ -149,9 +149,9 @@ export default {
           title: "Live Simulation Link",
           message: `This scenario has been published at: <br /><br />
             <a class="is-size-7" href="${this.scenarioMeta.live}">${this.scenarioMeta.live}</a><br /><br />
-            Opening this link directly will result in an error.
-            Follow <a href="https://pleajustice.org/simulation/working-with-qualtrics">this article</a> to
-            connect to Qualtrics.`,
+            This simulation link may be copied to a Qualtrics survey end block along with the required parameters
+            described <a href="https://pleajustice.org/simulation/working-with-qualtrics">here</a>.<br /><br />
+            Opening the link directly without these parameters will result in an error.`,
           type: "is-success"
         });
       }

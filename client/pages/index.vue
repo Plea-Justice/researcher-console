@@ -105,6 +105,12 @@
             }}
           </b-button>
         </form>
+        <b-message v-if="envMode == 'development'" class="is-size-7 mt-5" style="width: 35em;" :closable="false" 
+          type="is-warning" size="small" title="You are viewing a test instance of the application!">
+            This instance is not the official version of the console and it may be unstable.
+            Information may be unexpectedly modified or deleted at any point.
+            If this occurs, you may simply re-create your account.
+        </b-message>
       </section>
     </div>
   </div>
@@ -145,7 +151,8 @@ export default {
       submitState: SubmitState.NORMAL,
 
       isRegistration: false,
-      loading: false
+      loading: false,
+      envMode: process.env.MODE
     };
   },
   validations() {
