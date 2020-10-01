@@ -6,9 +6,9 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton @click="openFormModal()" :mode="Modes.ADD"
-          >Create New Scenario</ToolBarButton
-        >
+        <ToolBarButton @click="openFormModal()" :mode="Modes.ADD">
+          Create Scenario
+        </ToolBarButton>
       </div>
     </template>
 
@@ -39,9 +39,11 @@
             {{ scenario.description }}
           </p>
           <p class="content is-small">
-            Last Modified {{ scenario.modified | timeToNow }}
+            <span v-if="scenario.modified !== scenario.created">
+              Last Modified {{ scenario.modified | timeToNow }}
+            </span>
             <br />
-            Created {{ scenario.created | timeToNow }}
+            <span>Created {{ scenario.created | timeToNow }}</span>
           </p>
         </ItemCard>
       </template>

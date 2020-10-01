@@ -161,11 +161,10 @@ export default {
       max-width: 100%;
     }
   }
-}
 
-// FIXME: Not properly sizing
-.file-name {
-  width: 100%;
+  .file-name {
+    max-width: unset;
+  }
 }
 
 .file-name.control {

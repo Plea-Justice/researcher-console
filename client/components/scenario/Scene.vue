@@ -120,15 +120,15 @@
             <form-group :validator="$v.form.script" v-slot="{ maxlength }">
               <b-input
                 v-model="$v.form.script.$model"
-                :placeholder="`Script...` | capitalize"
+                :placeholder="`Script...`"
                 :maxlength="maxlength"
                 :disabled="isBound"
+                type="textarea"
                 icon="compress-alt"
                 icon-clickable
                 @icon-click="toggleInputModal()"
                 class="absolute-counter"
                 custom-class="has-fixed-size"
-                type="textarea"
                 contenteditable
               />
             </form-group>
@@ -360,6 +360,12 @@ export default {
   right: 1em;
   bottom: 0.5em;
 }
+
+.textarea-modal {
+  .textarea {
+    height: 180px;
+  }
+}
 </style>
 
 <style lang="scss" scoped>
@@ -394,6 +400,7 @@ export default {
     border-bottom-left-radius: $radius-large;
     border-bottom-right-radius: $radius-large;
   }
+  // Has global styles
 }
 
 .bound-label {

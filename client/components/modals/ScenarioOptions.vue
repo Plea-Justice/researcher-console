@@ -46,9 +46,9 @@
       </section>
 
       <footer class="modal-card-foot">
-        <b-button type="is-primary" native-type="submit" value="Save" expanded
-          >Save</b-button
-        >
+        <b-button type="is-primary" native-type="submit" value="Save" expanded>
+          Save
+        </b-button>
       </footer>
     </form>
   </div>

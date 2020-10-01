@@ -16,8 +16,9 @@
             @click="openFormModal()"
             :value="addMode"
             :disabled="!user.permitUploads"
-            >Upload New Asset</ToolBarButton
           >
+            Upload Asset
+          </ToolBarButton>
         </b-tooltip>
       </div>
     </template>
@@ -49,9 +50,7 @@
         :remove="asset.isMine"
       >
         <b-image
-          :src="
-            `${envAPIURL}/api/v1/assets/${asset.id}/thumbnail`
-          "
+          :src="`${envAPIURL}/api/v1/assets/${asset.id}/thumbnail`"
           src-fallback="/defaultThumbnail.png"
           responsive
           ratio="16by9"
