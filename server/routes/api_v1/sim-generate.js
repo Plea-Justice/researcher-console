@@ -214,10 +214,8 @@ async function generateSimulation(options, req) {
         const manifest = {
             'name': scenario.name,
             'description': scenario.description,
-            // Simulation preload.js requires 'path' and 'manifest'.
-            'path': 'assets/',
             // FIXME: Generate list of files.
-            'manifest': Array.from(requestedAssets).map(asset => asset.path),
+            'resources': Array.from(requestedAssets).map(asset => asset.path),
             'customizable_presets': [
                 /* TODO: Add presets with a new interface feature. */
             ],

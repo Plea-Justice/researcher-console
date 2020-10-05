@@ -67,7 +67,8 @@ function publish(input) {
     
         // Customizable features (hair, eyes, etc).
         [/(slot(\d)figure(\d)([a-z]+?)(?<!accessory)(\d)[\s\S]*?)(^.*addTween)/gm,
-            '$1if (window.assetPalettes[$2].features.figure === $3 && window.assetPalettes[$2].features.$4 === $5)$6'
+            // '$1if (window.assetPalettes[$2].features.figure === $3 && window.assetPalettes[$2].features.$4 === $5)$6'
+            '$1if (window.assetPalettes[$2].features.$4 === $5)$6'
         ],
     
         // Base layers and accessories.

@@ -64,7 +64,8 @@ module.exports = function (options) {
             frames: req.body.frames,
             frameList: req.body.frameList,
             conditions: req.body.conditions,
-            conditionList: req.body.conditionList
+            conditionList: req.body.conditionList,
+            status: req.body.status
         });
 
         scenario.save((err, obj) => {
@@ -110,7 +111,8 @@ module.exports = function (options) {
                         frames: obj.frames,
                         frameList: obj.frameList,
                         conditions: obj.conditions,
-                        conditionList: obj.conditionList
+                        conditionList: obj.conditionList,
+                        status: obj.status
                     }
                 ));
         });
@@ -142,6 +144,7 @@ module.exports = function (options) {
             frameList: req.body.frameList,
             conditions: req.body.conditions,
             conditionList: req.body.conditionList,
+            status: req.body.status,
             modified: Date.now()
         }}, {omitUndefined: true}, (err, result)=>{
             if (err)
