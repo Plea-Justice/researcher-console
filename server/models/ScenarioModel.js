@@ -17,6 +17,7 @@ var ScenarioSchema = new mongoose.Schema({
     frameList: { type: Array, default: [] },
     conditions: { type: Object, default: {} },
     conditionList: { type: Array, default: [] },
+    status: { type: Object },
     public: { type: Boolean, default: false },
     readOnly: { type: Boolean, default: false },
     created: { type: Date, default: Date.now },

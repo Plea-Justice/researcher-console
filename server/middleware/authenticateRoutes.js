@@ -1,11 +1,14 @@
 const util = require('../common/util');
-
+const reqlogin = new Error('Not logged in.');
+const reqadmin = new Error('Administrator priviledges required.');
+const reqpaswd = new Error('Incorrect password.');
+reqlogin.status = reqadmin.status = reqpaswd.status = 401;
 /**
  * Authentication required to access.
  */
 function authenticatedRoute (req, res, next) {
     if (req.session.is_logged_in) next();
-    else res.status(401).json(util.failure('Not logged in.'));
+    else next(reqlogin);
 }
 
 /**
@@ -13,7 +16,7 @@ function authenticatedRoute (req, res, next) {
  */
 async function administratorRoute (req, res, next) {
     if (await util.userIsAdmin(req.session.user_id)) next();
-    else res.status(401).json(util.failure('Administrator priviledges required.'));
+    else next(reqadmin);
 }
 
 /**
@@ -21,7 +24,7 @@ async function administratorRoute (req, res, next) {
  */
 async function mandatoryRoute (req, res, next) {
     if (await util.verifyPassword(req.session.user_id, false, req.body.password)) next();
-    else res.status(401).json(util.failure('Password incorrect or not sent.'));
+    else next(reqpaswd);
 }
 
 module.exports = { authenticatedRoute, administratorRoute, mandatoryRoute };
