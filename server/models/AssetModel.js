@@ -5,19 +5,13 @@ const mongoose = require('mongoose');
 // Changes to this file may render data inaccessible.
 // Removing properties is not recommended.
 
-var ScenarioSchema = new mongoose.Schema({
+var AssetSchema = new mongoose.Schema({
     user_id: { type: mongoose.SchemaTypes.ObjectId, required: true },
-    numScenes: { type: Number, default: 0 },
-    name: { type: String, default: 'New Scenario' },
+    owner: { type: String, required: true },
+    path: { type: String, required: true },
+    name: { type: String, required: true },
+    type: { type: String, required: true },
     description: { type: String, default: '' },
-    survey: { type: String, default: 'no-url-set.html' },
-    live: { type: String, default: '' },
-    scenes: { type: Object, default: {} },
-    frames: { type: Object, default: {} },
-    frameList: { type: Array, default: [] },
-    conditions: { type: Object, default: {} },
-    conditionList: { type: Array, default: [] },
-    status: { type: Object },
     public: { type: Boolean, default: false },
     readOnly: { type: Boolean, default: false },
     created: { type: Date, default: Date.now },
@@ -25,5 +19,5 @@ var ScenarioSchema = new mongoose.Schema({
     version: { type: String, default: '1.0.0' }
 }, { strict: 'throw', strictQuery: true, minimize: false });
 
-var ScenarioModel = mongoose.model('Scenario', ScenarioSchema);
-module.exports = ScenarioModel;
+var AssetModel = mongoose.model('Asset', AssetSchema);
+module.exports = AssetModel;

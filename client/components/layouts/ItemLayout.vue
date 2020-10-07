@@ -60,9 +60,7 @@ export default {
 <style scoped>
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 350px));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 15px;
-  padding-left: 2%;
-  padding-right: 2%;
 }
 </style>

@@ -1,35 +1,44 @@
 <template>
   <ItemLayout
-    :contentTitle="`Assets: ${this.selectedAssetType}`"
+    :contentTitle="`My Assets: ${this.selectedAssetType}`"
     helpTitle="Asset Management"
     :helpText="assetsHelp.navbar"
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton v-model="addMode" @click="toggleAddMode()">Add</ToolBarButton>
+        <b-tooltip
+          label="Your user is not permitted to add files"
+          position="is-bottom"
+          class="is-danger is-light"
+          :active="!user.permitUploads"
+        >
+          <ToolBarButton
+            @click="openFormModal()"
+            :value="addMode"
+            :disabled="!user.permitUploads"
+          >
+            Upload Asset
+          </ToolBarButton>
+        </b-tooltip>
       </div>
     </template>
     <template v-slot:toolbar-end>
       <b-field v-if="validAssetTypes.length > 1">
         <b-select placeholder="Asset Type" v-model="selectedAssetType">
           <option value="all">All</option>
-          <option v-for="type in validAssetTypes" :key="type" :value="type">{{ type | capitalize }}</option>
+          <option v-for="type in validAssetTypes" :key="type" :value="type">{{
+            type | capitalize
+          }}</option>
         </b-select>
       </b-field>
     </template>
 
-    <AssetForm
-      ref="form"
-      v-show="addMode"
-      @close="closeForm()"
-      @submit="onSubmit()"
-      :assetForm="assetForm"
-      :types="allAssetTypes"
-    />
-
-    <p v-if="!addMode && !assetSet.length" class="empty-text has-text-weight-medium is-size-5">
+    <p
+      v-if="!assetSet.length"
+      class="empty-text has-text-weight-medium is-size-5"
+    >
       No assets exists!
-      <br />Add an asset from the toolbar to get started.
+      <br />Add an asset using the toolbar to get started.
     </p>
 
     <template v-else>
@@ -38,26 +47,29 @@
         :key="asset.id"
         @remove="confirmDelete($event)"
         :item="asset"
-        close
+        :remove="asset.isMine"
       >
-        <!-- TODO:: add loading indicator, fix when error-fallback is added next release? -->
         <b-image
-          :src="`${$axios.defaults.baseURL}/api/v1/assets/${asset.id}/thumbnail`"
+          :src="`${envAPIURL}/api/v1/assets/${asset.id}/thumbnail`"
+          src-fallback="/defaultThumbnail.png"
+          responsive
           ratio="16by9"
           lazy
-        >
-          <template v-slot:placeholder>
-            <div class="image-placeholder">
-              <span class="content has-text-grey-light is-size-1">?</span>
-              <span class="content has-text-grey-light is-size-7">No thumbnail available</span>
-            </div>
-          </template>
-        </b-image>
+        />
 
-        <span class="content is-small">Uploaded {{ posixTimeToHoursAgo(asset.created) }}</span>
-        <span style="float: right;">
-          <b-tag type="is-primary">{{ asset.type | capitalize }}</b-tag>
-        </span>
+        <div class="pt-1 content is-small">
+          <span class="is-pulled-left">
+            Uploaded {{ asset.created | timeToNow }}
+          </span>
+          <span class="is-pulled-right">{{ asset.owner }}</span>
+        </div>
+
+        <template v-slot:footer>
+          <b-taglist style="margin-left: auto;">
+            <b-tag v-if="asset.public" type="is-info">Public</b-tag>
+            <b-tag type="is-primary">{{ asset.type | capitalize }}</b-tag>
+          </b-taglist>
+        </template>
       </ItemCard>
     </template>
   </ItemLayout>
@@ -71,15 +83,12 @@ import { mapGetters, mapActions } from "vuex";
 import ItemLayout from "~/components/layouts/ItemLayout";
 import ToolBarButton from "~/components/ToolBarButton";
 import ItemCard from "~/components/cards/ItemCard";
-import AssetForm from "~/components/cards/AssetForm";
+import AssetForm from "~/components/modals/AssetForm";
 import HelpSidebar from "~/components/HelpSidebar";
 import DeleteAsset from "../components/modals/DeleteAsset";
 
 // Content for help fields
 import { assetsHelp } from "~/assets/helpText";
-
-// Last modified time
-import { posixTimeToHoursAgo } from "~/assets/util";
 
 export default {
   name: "Scenarios",
@@ -88,27 +97,17 @@ export default {
     await store.dispatch("assets/getAssets");
   },
   data() {
-    // Template for Form
-    const AssetForm = {
-      name: "",
-      type: null,
-      file: null
-    };
-
     return {
       // import from JS file
       assetsHelp: assetsHelp,
 
-      AssetForm,
-      assetForm: Object.assign({}, AssetForm),
-
       addMode: false,
-      selectedAssetType: "all"
+      selectedAssetType: "all",
+      envAPIURL: process.env.API_URL
     };
   },
   computed: {
     ...mapGetters({
-      allAssetTypes: "assets/allAssetTypes",
       assetSet: "assets/assetSet"
     }),
     assetSetByType() {
@@ -129,18 +128,22 @@ export default {
       return this.selectedAssetType === "all"
         ? this.assetSet
         : this.assetSetByType[this.selectedAssetType];
+    },
+    user() {
+      return this.$auth.user ? this.$auth.user : { name: "dev", n_sessions: 1 };
     }
   },
   methods: {
-    toggleAddMode() {
-      if (!this.addMode) this.assetForm = Object.assign({}, this.AssetForm);
-    },
-    closeForm() {
-      this.addMode = false;
-      this.assetForm = Object.assign({}, this.AssetForm);
+    openFormModal() {
+      this.$buefy.modal.open({
+        parent: this,
+        component: AssetForm,
+        props: { user: this.user },
+        hasModalCard: true,
+        trapFocus: true
+      });
     },
     ...mapActions({
-      addAsset: "assets/addAsset",
       removeAsset: "assets/removeAsset"
     }),
     confirmDelete(id) {
@@ -159,34 +162,7 @@ export default {
         customClass: "dialog",
         trapFocus: true
       });
-    },
-    onSubmit() {
-      // If that filename already exists
-      if (this.assetSet.some(({ name }) => name === this.assetForm.name)) {
-        this.$buefy.toast.open({
-          message: "An asset with the same name already exists",
-          type: "is-danger"
-        });
-
-        // Clear name and re-focus on name input
-        this.assetForm.name = "";
-        this.formFocus();
-        return;
-
-        // TODO: This file upload size is defined in server config.js.
-      } else if (this.assetForm.file.size > 1024 * 1024 * 20) {
-        this.$buefy.toast.open({
-          message: `${this.assetForm.file.name} too large. Must be less than 20MiB in size.`,
-          type: "is-danger"
-        });
-      } else {
-        // Add the scenario to state
-        this.addAsset(this.assetForm);
-      }
-
-      this.closeForm();
-    },
-    posixTimeToHoursAgo: posixTimeToHoursAgo
+    }
   },
   head() {
     return {
@@ -204,14 +180,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// Create space between form inputs
-.input-wrapper {
-  // Everything except last child
-  & > :nth-last-child(n + 2) {
-    margin-bottom: 1.5rem;
-  }
-}
-
 .empty-text {
   position: absolute;
 }

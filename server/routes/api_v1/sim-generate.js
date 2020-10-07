@@ -10,6 +10,7 @@ const os = require('os');
 
 const util = require('../../common/util');
 const ScenarioModel = require('../../models/ScenarioModel');
+const AssetModel = require('../../models/AssetModel');
 const { mandatoryRoute } = require('../../middleware/authenticateRoutes');
 
 const assetTypes = util.assetTypes;
@@ -104,8 +105,26 @@ async function generateSimulation(options, req) {
         const requested = new Map();
         assetTypes.forEach(type => requested[type] = new Set());
 
+        // Get the list of file paths and names without extension for each asset type.
+        const assets = await AssetModel.find({$or: [{user_id: uid}, {public: true}]});
+
+        const availableAssets = new Map();
+        assets.forEach(
+            (asset) => availableAssets[asset._id] = asset
+        );
+
+        // Add the requested files to the manifest.
+        const requestedAssets = new Set();
+        const addAsset = (prop) => {
+            if (prop) {
+                requestedAssets.add(availableAssets[prop.id]);
+                return availableAssets[prop.id].name;
+            }
+            return null;
+        };
+
         // TODO: Send error on no frames or scenes.
-        let timelines = new Array(frames[frameList[0]].scenes.length).fill(0).map(() => new Array());
+        const timelines = new Array(frames[frameList[0]].scenes.length).fill(0).map(() => new Array());
 
         for (const frameID of frameList) {
             let frame = frames[frameID];
@@ -137,14 +156,11 @@ async function generateSimulation(options, req) {
                             'type': 'dialogue',
                             'name': frame.label,
                             'script': scene.script,
-                            'actor': scene.actor,
-                            'bg': scene.background,
-                            'fg': scene.foreground
+                            'actor': addAsset(scene.actor),
+                            'bg': addAsset(scene.background),
+                            'fg': addAsset(scene.foreground)
                         }
                     );
-                    if (scene.actor) requested['actor'].add(scene.actor);
-                    if (scene.foreground) requested['foreground'].add(scene.foreground);
-                    if (scene.background) requested['background'].add(scene.background);
                     break;
                 case 'question':
                     timelines[i].push(
@@ -152,25 +168,21 @@ async function generateSimulation(options, req) {
                             'type': 'dialogue',
                             'name': frame.label,
                             'script': scene.script,
-                            'actor': scene.actor,
-                            'bg': scene.background,
-                            'fg': scene.foreground,
+                            'actor': addAsset(scene.actor),
+                            'bg': addAsset(scene.background),
+                            'fg': addAsset(scene.foreground),
                             'buttons': scene.buttons
                         }
                     );
-                    if (scene.actor) requested['actor'].add(scene.actor);
-                    if (scene.foreground) requested['foreground'].add(scene.foreground);
-                    if (scene.background) requested['background'].add(scene.background);
                     break;
                 case 'clip':
                     timelines[i].push(
                         {
                             'type': 'clip',
                             'name': frame.label,
-                            'clip': scene.clip
+                            'clip': addAsset(scene.clip)
                         }
                     );
-                    if (scene.clip) requested['clip'].add(scene.clip);
                     break;
                 default:
                     throw Error(`Improper scene type: ${scene.id}.`);
@@ -178,37 +190,35 @@ async function generateSimulation(options, req) {
             }
         }
 
-        // Get the list of file paths and names without extension for each asset type.
-        let assets = new Map();
-        assetTypes.forEach(type => assets[type] = 
-                fs.readdirSync(path.join(user_data_dir, type))
-                    .map(x=>[path.join(type, x), x.replace(/\..*$/, '')]));
-
-        // Add the requested files to the manifest.
-        let files = new Set();
-        assetTypes.forEach(type => assets[type].forEach(([file, name])=>{
-            if (requested[type].has(name)) files.add(file);
-        }));
+        //if (requested.size !== usedAssets.size)
+        //    throw Error('One of the requested assets is unavailable.');
             
         // Copy in a clean simulation from the template directory.
         fs.emptyDirSync(tmpdir);
         assetTypes.map(type => fs.mkdirpSync(path.join(tmpdir, 'assets', type)));
-        fs.copySync(path.normalize(options.config.sim_dir), tmpdir, {filter: src => !src.includes('.git')});
+        fs.copySync(path.normalize(options.sim_dir), tmpdir, {filter: src => !src.includes('.git')});
+        
+        // FIXME: Remove need for cache type. Do not use bitmap caching.
         fs.copySync(path.join(user_data_dir, 'cache'), path.join(tmpdir, 'assets', 'cache'));
-        // Copy user's assets.
-        files.forEach(file => fs.copyFileSync(
-            path.join(user_data_dir, file),
-            path.join(tmpdir, 'assets', file)
+        
+        // Copy requested assets.
+        requestedAssets.forEach(asset => fs.copyFileSync(
+            path.join(
+                util.userDir(options, asset.user_id.toString()),
+                asset.path
+            ),
+            path.join(tmpdir, 'assets', asset.path)
         ));
 
         // Create the manifest.
-        let manifest = {
+        const manifest = {
             'name': scenario.name,
             'description': scenario.description,
-            // Simulation preload.js requires 'path' and 'manifest'.
-            'path': 'assets/',
             // FIXME: Generate list of files.
-            'manifest': Array.from(files),
+            'resources': Array.from(requestedAssets).map(asset => asset.path),
+            'customizable_presets': [
+                /* TODO: Add presets with a new interface feature. */
+            ],
             // 'timelines' array used by simulation to render each in order.
             'conditions': timelines.map((scene_list, i) => ({
                 'name': `Experimental Condition ${i+1}/${timelines.length}`,
@@ -220,8 +230,8 @@ async function generateSimulation(options, req) {
         fs.writeJSONSync(path.join(tmpdir, 'manifest.json'), manifest);
 
         // Generate condition summary table.
-        let summary = conditionList.reduce((acc, curr, i)=>
-            acc //+ `<tr><td>${i+1}</td><td>${conditions[curr].name}</td></tr>`
+        const summary = conditionList.reduce((acc, curr, i)=>
+            acc + `<tr><td>${i+1}</td><td>${conditions[curr].tags}</td></tr>`
         , ''); 
 
         util.fileMultipleReplace(path.join(tmpdir, 'index.html'), [

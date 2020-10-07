@@ -35,6 +35,9 @@ function multipleReplace(string, replacements) {
     return string;
 }
 
+const atob = (src) => Buffer.from(src, 'base64').toString('binary');
+const btoa = (src) => Buffer.from(src, 'binary').toString('base64');
+
 /**** Database Related Functions ****/
 
 async function userIsAdmin(user_id) {
@@ -53,14 +56,18 @@ async function userPermissions(user_id) {
         const obj = await UserModel.findById(user_id);
         return {
             permitAdmin: obj.permitAdmin,
-            permitHosting: obj.permitHosting
+            permitHosting: obj.permitHosting,
+            permitSharing: obj.permitSharing,
+            permitUploads: obj.permitUploads
         };
 
     } catch (err) {
         console.log(err);
         return {
             permitAdmin: false,
-            permitHosting: false
+            permitHosting: false,
+            permitSharing: false,
+            permitUploads: false
         };
     }
 }
@@ -86,7 +93,7 @@ async function verifyPassword(user, byName, password) {
 /**** Filesystem Functions ****/
 
 function userDir(options, user_id) {
-    return path.join(options.config.data_dir, user_id);
+    return path.join(options.user_dir, user_id);
 }
 
 function simTmpDir(options, sim_id) {
@@ -98,13 +105,12 @@ function simTmpZipPath(options, sim_id) {
 }
 
 function simServDir(options, sim_id) {
-    return path.join(options.config.sim_serve_dir, `sim-${sim_id}`);
+    return path.join(options.sim_serve_dir, `sim-${sim_id}`);
 }
 
 function fileMultipleReplace(file, replacements) {
     try {
         let string = fs.readFileSync(file, 'utf-8');
-        console.log(string);
         string = multipleReplace(string, replacements);
         fs.writeFileSync(file, string);
     } catch (err) {
@@ -118,6 +124,8 @@ module.exports = {
     success,
     failure,
     multipleReplace,
+    atob,
+    btoa,
     userIsAdmin,
     userPermissions,
     userDir,

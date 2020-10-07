@@ -9,7 +9,10 @@
           <b-input v-model="$v.scenarioForm.name.$model" maxlength="30" />
         </form-group>
 
-        <form-group label="Description" :validator="$v.scenarioForm.description">
+        <form-group
+          label="Description"
+          :validator="$v.scenarioForm.description"
+        >
           <b-input
             v-model="$v.scenarioForm.description.$model"
             type="textarea"
@@ -33,13 +36,19 @@
               @blur="setFocus(false)"
               expanded
             />
-            <HelpSidebar :text="optionsHelp.url" title="Survey URL" class="control" />
+            <HelpSidebar
+              :text="optionsHelp.url"
+              title="Survey URL"
+              class="control"
+            />
           </b-field>
         </form-group>
       </section>
 
       <footer class="modal-card-foot">
-        <b-button type="is-primary" native-type="submit" value="Save" expanded>Save</b-button>
+        <b-button type="is-primary" native-type="submit" value="Save" expanded>
+          Save
+        </b-button>
       </footer>
     </form>
   </div>
@@ -47,7 +56,7 @@
 
 <script>
 // Import VueX
-import { mapGetters, mapActions } from "vuex";
+import { mapActions } from "vuex";
 
 // Import Components
 import HelpSidebar from "~/components/HelpSidebar";

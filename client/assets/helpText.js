@@ -3,7 +3,9 @@ export const assetsHelp = {
     "<p>Assets are resource files which make up animated scenes. These include foreground and background images, movie clips exported to Javascript from Adobe Animate, and actor (character) assets exported from Adobe Animate.</p><p>The default plea research assets should appear here. You may add your own by clicking 'Add Asset', uploading a JPEG or PNG image or exported JavaScript asset, and selecting the type of asset you have uploaded.</p>",
   upload: "<p>Valid filetypes are '.js' animated assets and '.jpg' or '.png' image files.</p>",
   type:
-    "<p>Asset types may be actor, clip, foreground or background.</p><p>Actors are individual characters who may speak whereas clips are premade movie clips that will play through like a video. Both must be files exported from Adobe Animate ending in '.js'. Foregrounds and backgrounds are image files and must end in '.png' or '.jpg'.</p><p>Cache is a special type reserved uploading additional image files needed by Animate projects exported with bitmap caching.</p>"
+    "<p>Asset types may be actor, clip, foreground or background.</p><p>Actors are individual characters who may speak whereas clips are premade movie clips that will play through like a video. Both must be files exported from Adobe Animate ending in '.js'. Foregrounds and backgrounds are image files and must end in '.png' or '.jpg'.</p><p>Cache is a special type reserved uploading additional image files needed by Animate projects exported with bitmap caching.</p>",
+  sharing:
+    '<p>Assets marked as public will be made available to other users. Only you will be able to edit this asset.</p><p>You may revoke access at any time, but bear in mind that once an asset is shared it may be duplicated by others.</p>'
 };
 
 export const adminHelp = {

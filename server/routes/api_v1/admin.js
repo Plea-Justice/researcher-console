@@ -29,6 +29,8 @@ module.exports = function (options) {
             addresses: Array.from(u.addresses.keys()).map(ip => ip.replace(/-/g, '.')),
             permitAdmin: u.permitAdmin,
             permitHosting: u.permitHosting,
+            permitSharing: u.permitSharing,
+            permitUploads: u.permitUploads,
             lastActive: u.lastActive,
             created: u.created
         }));
@@ -50,7 +52,9 @@ module.exports = function (options) {
         try {
             const info = await UserModel.updateOne({_id: subject_id}, {$set: {
                 permitAdmin: req.body.permitAdmin,
-                permitHosting: req.body.permitHosting
+                permitHosting: req.body.permitHosting,
+                permitSharing: req.body.permitSharing,
+                permitUploads: req.body.permitUploads
             }}, {omitUndefined: true});
 
             res.status(200).json(util.success('User permissions updated.', info));

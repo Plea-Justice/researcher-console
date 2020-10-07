@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const rfs = require('rotating-file-stream');
 
-const config = require('./config');
+const options = require('./config');
 const util = require('./common/util');
 
 const app = express();
@@ -15,27 +15,27 @@ const app = express();
 // Use the Jade template engine to generate views.
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-app.set('trust proxy', config.trust_proxy);
+app.set('trust proxy', options.trust_proxy);
 
 // Use Morgan to log HTTP requests in Apache format.
 // Rotate logs daily.
-if (config.logs_enabled) {
+if (options.logs_enabled) {
     app.use(logger('combined', {
         stream: rfs.createStream('access.log', {
-            interval: config.keep_logs, // rotate daily
-            path: path.join(__dirname, config.log_dir)
+            interval: options.keep_logs, // rotate daily
+            path: path.join(__dirname, options.log_dir)
         })
     }));
 }
 
-if (config.log_to_console) {
+if (options.log_to_console) {
     app.use(logger('dev'));
 }
 
 // Connect to the database.
 const mongoose = require('mongoose');
-mongoose.set('debug', config.mongoose_debug);
-mongoose.connect(config.mongo_uri, {useUnifiedTopology: true, useNewUrlParser: true});
+mongoose.set('debug', options.mongoose_debug);
+mongoose.connect(options.mongo_uri, {useUnifiedTopology: true, useNewUrlParser: true});
 const database = mongoose.connection;
 database.on('error', ()=>console.log('Error connecting to database.'));
 database.once('open', ()=>console.log('Connected to database.'));
@@ -45,19 +45,16 @@ database.once('open', ()=>console.log('Connected to database.'));
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 app.use(session({
-    secret: config.session_secret,
+    secret: options.session_secret,
     resave: false,
     saveUninitialized: false,
     cookie: {
         // Sessiion ends at browser close.
         expires: false,
-        secure: config.secure_cookies
+        secure: options.secure_cookies
     },
     store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
-
-// Options for passing to required routes.
-const options = {db: database, config: config};
 
 // Count the user's IP connections.
 app.use(require('./middleware/userSessionCount').countUserSessions);
@@ -73,8 +70,8 @@ app.use(cookieParser());
 
 // Enable Cross-Origin Requests
 const cors = require('cors');
-if (config.cors_enabled) {
-    app.use(cors({credentials: true, origin: config.cors_origin}));
+if (options.cors_enabled) {
+    app.use(cors({credentials: true, origin: options.cors_origin}));
 }
 
 // Serve preview and live published simulations.
@@ -84,16 +81,11 @@ app.use(require('./routes/sim-serve_v1')(options));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Serve the api from the selected route at the selected mount point.
-app.use(config.api_mount_point, require(config.api_definition)(options));
+app.use(options.api_mount_point, require(options.api_definition)(options));
 
 // Serve the client.
-if (config.serve_client) {
-    app.use('/', express.static(config.client_dir));
-    
-    // For dynamic routes, send Nuxt's SPA fallback page.
-    app.use('/', (req, res)=>{
-        res.sendFile(path.resolve(config.client_dir, '200.html'));
-    });
+if (options.serve_client) {
+    app.use('/', express.static(options.client_dir));
 }
 
 // catch 404 and forward to error handler
@@ -102,18 +94,24 @@ app.use(function(req, res, next) {
 });
 
 // error handler
-app.use(function(err, req, res) {
+app.use(function(err, req, res, next) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
     // If the request was made by XHR (API call), return a json object.
     if (req.xhr) {
+        res.status(err.status || 500);
         res.json(util.failure(err.message, err));
     // Otherwise, render an error page.
     } else {
-        res.status(err.status || 500);
-        res.render('error');
+        if (options.serve_client) {
+            // For dynamic routes, send Nuxt's SPA fallback page.
+            res.sendFile(path.resolve(options.client_dir, '200.html'));
+        } else {
+            res.status(err.status || 500);
+            res.render('error');
+        }
     }
 });
 

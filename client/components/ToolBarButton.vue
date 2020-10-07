@@ -3,7 +3,7 @@
     @click="onClick()"
     v-bind="$attrs"
     :type="$attrs.type || EnabledBtnType"
-    :disabled="isDisabled"
+    :disabled="$attrs.disabled || isDisabled"
   >
     <slot name="default" />
   </b-button>
@@ -74,6 +74,3 @@ export default {
   }
 };
 </script>
-
-<style>
-</style>

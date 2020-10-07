@@ -35,10 +35,10 @@ export const actions = {
     if (response.success) commit('updateScenario', scenario);
   },
   async duplicateScenario({ commit, state, getters }, id) {
+    // Fetch full scenario from server
     const response = await this.$axios.$get(`/api/v1/scenarios/${id}`);
     if (response.success) {
       const scenarioName = state.scenarios[id].name;
-
       // Prevent 'Copy' chaining on duplicates
       let copyName =
         scenarioName.substring(scenarioName.lastIndexOf(' ')) === 'Copy'
@@ -47,7 +47,7 @@ export const actions = {
 
       // Add number to ' Copy #' if multiple copies exists
       const duplicateCount = getters.scenarioSet.reduce(
-        (count, scenario) => (scenario.name === copyName ? count + 1 : count),
+        (count, scenario) => (scenario.name.startsWith(copyName) ? count + 1 : count),
         0
       );
 
@@ -57,8 +57,7 @@ export const actions = {
         ...response.result,
         meta: { name: copyName }
       });
-
-      commit('copyScenario', { name: copyName, copyId: id, newId: newResponse.result.id });
+      if (newResponse.success) commit('copyScenario', { name: copyName, copyId: id, newId: newResponse.result.id });
     }
   }
 };

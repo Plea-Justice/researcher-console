@@ -9,12 +9,14 @@
               @click="saveHelper()"
               :value="mode"
               :loading="saving"
-              type="is-primary is-dark"
-              >Save</ToolBarButton
-            >
+              :label="saveState.text"
+              :type="saveState.type"
+              :icon-left="saveState.icon"
+              style="min-width: 69px"
+            />
 
             <ToolBarButton
-              @click="openScenarioProps()"
+              @click="openScenarioOptions()"
               :value="mode"
               icon-left="cog"
               >Options</ToolBarButton
@@ -64,14 +66,11 @@
         </template>
 
         <template v-slot:end>
-          <div v-if="scenarioStoreHasChanged" class="level-item">
-            <b-tag type="is-warning">Unsaved changes</b-tag>
-          </div>
-
           <div class="level-item">
             <PreviewDropdown
               :scenarioMeta="scenarioMeta"
-              @openScenarioProps="openScenarioProps"
+              @gotoErrors="goToErrors()"
+              @openScenarioOptions="openScenarioOptions"
             />
           </div>
         </template>
@@ -147,6 +146,21 @@ export default {
       headerHeight: 0,
 
       saving: false,
+      saveStatus: {
+        valid: {
+          type: "is-success",
+          icon: "check"
+        },
+        invalid: {
+          type: "is-danger",
+          icon: "times"
+        },
+        changed: {
+          type: "is-warning",
+          text: "Save"
+        }
+      },
+
       collapsed: false,
       logout: false,
       snackbar: null
@@ -183,10 +197,17 @@ export default {
   computed: {
     ...mapGetters({
       scenarioMeta: "scenario/scenarioMeta",
-      sceneErrors: "scenario/errors",
+      scenarioStatus: "scenario/status",
       numScenes: "scenario/numScenes",
       frameSet: "scenario/frameSet"
-    })
+    }),
+    saveState() {
+      if (!this.scenarioStatus.valid) return this.saveStatus.invalid;
+      else if (this.scenarioStoreHasChanged) return this.saveStatus.changed;
+      else if (this.scenarioStatus.valid && !this.scenarioStoreHasChanged)
+        return this.saveStatus.valid;
+      else return { type: "is-primary" };
+    }
   },
   methods: {
     findScene(sceneId) {
@@ -200,28 +221,47 @@ export default {
       }
       return indexPair;
     },
+    goToErrors() {
+      const { frameErrors, sceneErrors } = this.scenarioStatus;
+      const numErrors = frameErrors.length + sceneErrors.length;
+
+      if (numErrors) {
+        let message = "";
+        let frameScrollIndex = null;
+
+        if (frameErrors.length) {
+          const errorIndex = this.frameSet.findIndex(
+            frame => frame.id === frameErrors[0]
+          );
+          message = `row ${errorIndex} scenes label`;
+          frameScrollIndex = errorIndex;
+        } else {
+          const errorIndex = this.findScene(sceneErrors[0]);
+          message = `scene ${errorIndex.scene + 1} of current row`;
+          frameScrollIndex = errorIndex.frame;
+        }
+
+        this.$buefy.toast.open({
+          message: `${numErrors} ${
+            numErrors > 1 ? "errors exists, starting" : "error exists"
+          } at ${message}`,
+          type: "is-danger"
+        });
+        this.scrollToFrame({ frameIndex: frameScrollIndex });
+      }
+    },
     async saveHelper() {
       if (this.scenarioStoreHasChanged) {
         this.saving = true;
-        const numErrors = this.sceneErrors.length;
-        if (numErrors > 0) {
-          const errorIndex = this.findScene(this.sceneErrors[0]);
-          if (errorIndex) {
-            this.$buefy.toast.open({
-              message: `${numErrors} ${
-                numErrors > 1 ? "errors exists, starting" : "error exists"
-              } at scene ${errorIndex.scene + 1} of current row`,
-              type: "is-danger"
-            });
-            this.scrollToFrame({ frameIndex: errorIndex.frame });
-          }
-        } else {
+        if (this.scenarioStatus.valid) {
           await this.saveScenario();
           this.scenarioStoreHasChanged = false;
           this.$buefy.toast.open({
             message: "Scenario Saved",
             type: "is-success"
           });
+        } else {
+          this.goToErrors();
         }
         this.saving = false;
       } else {
@@ -238,25 +278,6 @@ export default {
     closeSnackbar() {
       this.snackbar.close();
       this.snackbar = null;
-    },
-    logoutHelper() {
-      this.logout = true;
-      this.$auth.logout();
-    },
-    onLogout() {
-      if (this.scenarioStoreHasChanged) {
-        this.$buefy.modal.open({
-          parent: this,
-          component: LeaveScenario,
-          props: { validate: this.$refs.form.validate },
-          events: { exit: this.logoutHelper },
-          hasModalCard: true,
-          customClass: "dialog",
-          trapFocus: true
-        });
-      } else {
-        this.logoutHelper();
-      }
     },
     toggleHandler(toggledOn, modeName) {
       if (toggledOn) {
@@ -297,6 +318,23 @@ export default {
         });
       });
     },
+    openScenarioOptions() {
+      this.$buefy.modal.open({
+        parent: this,
+        component: ScenarioOptions,
+        hasModalCard: true,
+        trapFocus: true
+      });
+    },
+    logoutHelper() {
+      this.logout = true;
+      this.$auth.logout();
+    },
+    ...mapActions({
+      addCondition: "scenario/addCondition",
+      removeCondition: "scenario/removeCondition",
+      saveScenario: "scenario/saveScenario"
+    }),
     removeConditionHelper(id) {
       const scrollElement = this.$refs.layout.$refs.scroll;
       scrollElement.scrollTo({
@@ -305,38 +343,30 @@ export default {
       });
       this.removeCondition(id);
     },
-    openScenarioProps() {
+    LeaveScenarioHelper(exitAction) {
       this.$buefy.modal.open({
         parent: this,
-        component: ScenarioOptions,
+        component: LeaveScenario,
+        props: { valid: this.scenarioStatus.valid },
+        events: { exit: exitAction },
         hasModalCard: true,
+        customClass: "dialog",
         trapFocus: true
       });
     },
-    ...mapActions({
-      addCondition: "scenario/addCondition",
-      removeCondition: "scenario/removeCondition",
-      saveScenario: "scenario/saveScenario",
-      swapScene: "scenario/swapScene",
-      swapCondition: "scenario/swapCondition",
-      copyScenes: "scenario/copyScenes",
-      copyConditions: "scenario/copyConditions",
-      bindScenes: "scenario/bindScenes"
-    })
+    onLogout() {
+      if (this.scenarioStoreHasChanged) {
+        this.LeaveScenarioHelper(this.logoutHelper);
+      } else {
+        this.logoutHelper();
+      }
+    }
   },
   beforeRouteLeave(to, from, next) {
     this.snackbar && this.closeSnackbar();
 
     if (!this.logout && this.scenarioStoreHasChanged) {
-      this.$buefy.modal.open({
-        parent: this,
-        component: LeaveScenario,
-        props: { valid: !this.sceneErrors.length },
-        events: { exit: next },
-        hasModalCard: true,
-        customClass: "dialog",
-        trapFocus: true
-      });
+      this.LeaveScenarioHelper(next);
     } else {
       next();
     }

@@ -16,8 +16,8 @@
             </ul>
           </div>
 
-          <p>
-            Deleted assets are not recoverable.
+          <p class="no-overflow">
+            Deleted assets are not recoverable.<br />
             Are you sure you want to delete this asset?
           </p>
         </div>
@@ -80,5 +80,9 @@ export default {
   height: 100%;
   display: flex;
   align-items: center;
+}
+
+.no-overflow {
+  width: 100%;
 }
 </style>

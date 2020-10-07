@@ -1,5 +1,5 @@
 export default {
-  mode: 'spa',
+  ssr: false,
 
   /*  Headers of the page */
   head: {
@@ -9,14 +9,26 @@ export default {
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'description', name: 'description', content: process.env.npm_package_description || '' }
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
+    link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }]
   },
   /*
    ** Development configuration for serving only client with nuxt.
    */
   server: {
-    port: 3001,
-    host: 'localhost'
+    port: 3001
+  },
+  /*
+   ** Environmental Variables
+   */
+  env: {
+    // Either 'development' or 'production'
+    MODE: process.env.MODE || 'development',
+    // URL of the backend server.
+    API_URL: process.env.API_URL || 'http://localhost:3000',
+    // URL of this client application.
+    CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:3000',
+    // Address of the webserver from which permanent simulations are hosted.
+    LIVE_URL: process.env.LIVE_URL || 'http://localhost:3000/sim-serve'
   },
   /*
    ** Customize the progress-bar color
@@ -58,9 +70,7 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    // baseURL: process.env.BASE_URL || 'https://0253b0f4-3cd3-43d0-848d-d7aacd8a2a71.mock.pstmn.io'
-    baseURL: process.env.BASE_URL || 'http://localhost:3000',
-    // baseURL: 'https://researcher.pleajustice.org',
+    baseURL: process.env.API_URL || 'http://localhost:3000',
     credentials: true
   },
   // See https://github.com/buefy/nuxt-buefy
@@ -85,6 +95,7 @@ export default {
       solid: [
         'faPlus',
         'faTimes',
+        'faTrash',
         'faQuestion',
         'faExclamationCircle',
         'faExclamationTriangle',
@@ -101,6 +112,7 @@ export default {
         'faUserCircle',
         'faEnvelope',
         'faLock',
+        'faClone',
         'faPencilAlt',
         'faFileDownload',
         'faCloudUploadAlt',
@@ -116,7 +128,9 @@ export default {
         'faUniversity',
         'faAngleLeft',
         'faAngleRight',
-        'faAngleDown'
+        'faAngleDown',
+        'faAngleUp',
+        'faTrashAlt'
       ]
     }
   },

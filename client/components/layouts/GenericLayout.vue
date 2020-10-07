@@ -6,6 +6,9 @@
       <template v-slot:start>
         <slot name="toolbar-start" />
       </template>
+      
+      <slot name="toolbar-default" />
+
       <template v-slot:end>
         <slot name="toolbar-end" />
       </template>

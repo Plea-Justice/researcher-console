@@ -13,6 +13,9 @@
 import { singleErrorExtractorMixin } from "vuelidate-error-extractor";
 export default {
   extends: singleErrorExtractorMixin,
+  mounted() {
+    //this.$refs.field.newType;
+  },
   computed: {
     status() {
       let status = {

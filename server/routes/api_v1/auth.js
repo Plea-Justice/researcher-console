@@ -13,18 +13,20 @@ module.exports = function (options) {
 
     // Limit authentication request rate.
     const rateLimit = require('express-rate-limit');
+    // FIXME: remove this.
+    const { fork } = require('child_process');
 
     const AuthReqLimit = rateLimit({
-        windowMs: options.config.auth_minutes * 60 * 1000,
-        max: options.config.auth_attempts,
+        windowMs: options.auth_minutes * 60 * 1000,
+        max: options.auth_attempts,
         skipSuccessfulRequests: true,
-        message: util.failure(`Too many authentication requests. Try again in ${options.config.auth_minutes} minutes.`)
+        message: util.failure(`Too many authentication requests. Try again in ${options.auth_minutes} minutes.`)
     });
 
     const CreateAccountReqLimit = rateLimit({
-        windowMs: options.config.reg_minutes * 60 * 1000,
-        max: options.config.reg_attempts,
-        message: util.failure(`Too many account creation requests. Try again in ${options.config.reg_minutes} minutes.`)
+        windowMs: options.reg_minutes * 60 * 1000,
+        max: options.reg_attempts,
+        message: util.failure(`Too many account creation requests. Try again in ${options.reg_minutes} minutes.`)
     });
 
     // Login, logout, and register should not require prior authentication.
@@ -33,6 +35,7 @@ module.exports = function (options) {
     const { getUserSessionCount } = require('../../middleware/userSessionCount');
 
     const UserModel = require('../../models/UserModel');
+    const AssetModel = require('../../models/AssetModel');
     const assetTypes = util.assetTypes;
 
     /**
@@ -111,21 +114,19 @@ module.exports = function (options) {
     router.post('/register', CreateAccountReqLimit, async (req, res) => {
         console.log('Registering new user.');
 
-        let user = new UserModel({
+        const user = new UserModel({
             username: req.body.username,
             profession: req.body.profession,
             affiliation: req.body.affiliation,
             email: req.body.email,
             password: bcrypt.hashSync(req.body.password, util.saltRounds)
         });
+
         try {
+            // FIXME: This is not a good way to copy over assets. Resolve this when public assets are enabled.
             const obj = await user.save();
             const user_data_dir = util.userDir(options, obj._id.toString());
             assetTypes.forEach(type => fs.mkdirpSync(path.join(user_data_dir, type)));
-
-            if (options.config.assets_template) {
-                fs.copySync(path.join(options.config.assets_dir), user_data_dir);
-            }
 
             res.status(201).json(util.success('User account created. You may now login.'));
         } catch (err) {

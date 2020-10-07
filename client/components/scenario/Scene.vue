@@ -3,12 +3,15 @@
   <!-- If scene is not blank -->
   <form v-if="scene.props !== null" ref="form" class="flex-wrap">
     <div
-      v-if="isSelectable && $v.form.$invalid"
+      v-if="isSelectable && $v.form.$invalid && !invalidSelectable"
       class="invalid-selection-mask"
     />
+
     <GenericCard
       @selected="$emit('selected', scene.id)"
-      :selectable="isSelectable && !$v.form.$invalid"
+      :selectable="
+        isSelectable && ($v.form.$invalid ? invalidSelectable : true)
+      "
       :collapsed="collapsed"
       :invalid="$v.form.$invalid"
     >
@@ -18,9 +21,10 @@
           <b-button
             @click="removeScene(isBound ? bound : scene.id)"
             type="is-danger is-light"
-            icon-left="times"
+            icon-left="trash-alt"
           />
         </p>
+
         <template v-if="isBound">
           <p class="control bound-label">
             <b-button type="is-light" disabled expanded
@@ -59,29 +63,34 @@
       >
         <!--
           `options` prop needs a preloaded value because .includes in
-          AssetNamesByType will return false positive while loading
+          AssetsByType will return false positive while loading
         -->
         <FileSelector
           v-if="isType(field, 'selector')"
           :validator="$v.form[field]"
           v-model="$v.form[field].$model"
-          :options="AssetNamesByType[field]"
+          :options="AssetsByType[field]"
           :icon="getIcon(field)"
           :disabled="isBound"
           expanded
         />
 
-        <b-input
-          v-else-if="isType(field, 'input')"
-          v-model="$v.form[field].$model"
-          :placeholder="`${field}...` | capitalize"
-          :icon="getIcon(field)"
-          :maxlength="maxlength"
-          :disabled="isBound"
-          type="textarea"
-          custom-class="has-fixed-size"
-          expanded
-        />
+        <!-- Textarea -->
+        <template v-else-if="isType(field, 'input')">
+          <b-input
+            v-model="$v.form[field].$model"
+            :placeholder="`${field}...` | capitalize"
+            :maxlength="maxlength"
+            :disabled="isBound"
+            icon="expand-alt"
+            icon-clickable
+            @icon-click="toggleInputModal()"
+            class="absolute-counter"
+            custom-class="has-fixed-size"
+            type="textarea"
+            expanded
+          />
+        </template>
 
         <!-- FIXME: make sure tag input updates $dirty correctly -->
         <BTagInput
@@ -92,9 +101,40 @@
           class="is-capitalized"
           expanded
         />
-
-        <!-- TODO: Display error for incorrect types/types that don't match anything ? -->
       </form-group>
+
+      <!-- FIXME: currenty only supports script modal (static) use programmatic modal? -->
+      <b-modal
+        v-model="inputModalActive"
+        has-modal-card
+        trap-focus
+        aria-role="dialog"
+        aria-modal
+      >
+        <div class="modal-card textarea-modal">
+          <!-- TODO: Consistent close buttons for modals -->
+          <header class="modal-card-head">
+            <h3 class="subtitle">Script</h3>
+          </header>
+          <section class="modal-card-body">
+            <form-group :validator="$v.form.script" v-slot="{ maxlength }">
+              <b-input
+                v-model="$v.form.script.$model"
+                :placeholder="`Script...`"
+                :maxlength="maxlength"
+                :disabled="isBound"
+                type="textarea"
+                icon="compress-alt"
+                icon-clickable
+                @icon-click="toggleInputModal()"
+                class="absolute-counter"
+                custom-class="has-fixed-size"
+                contenteditable
+              />
+            </form-group>
+          </section>
+        </div>
+      </b-modal>
     </GenericCard>
   </form>
 
@@ -106,6 +146,7 @@
         type="is-light"
         size="is-medium"
         icon-left="plus"
+        :disabled="isSelectable"
       />
     </div>
   </GenericCard>
@@ -161,19 +202,49 @@ export default {
 
     return {
       validSceneTypes: Object.keys(spec.sceneTypes),
-      form
+      form,
+
+      inputModalActive: false
     };
+  },
+  mounted() {
+    this.validFieldNames.forEach(fieldName => {
+      const vField = this.$v.form[fieldName];
+      if (vField.$invalid) vField.$touch();
+    });
+  },
+  watch: {
+    // Update form for inbound changes
+    "scene.props": async function() {
+      Object.assign(this.form, this.scene.props);
+    },
+    // Update props with outbound changes
+    form: {
+      deep: true,
+      handler: debounce(async function() {
+        this.updateScene({
+          id: this.scene.id,
+          props: Object.fromEntries(
+            [...this.validFieldNames, "type"].map(field => [
+              field,
+              this.form[field]
+            ])
+          ),
+          valid: !this.$v.form.$invalid
+        });
+      }, 350)
+    }
   },
   validations() {
     // FIXME: add error message
     // FIXME: extend this from main vuelidate.js ?
     const included = options => value =>
-      !helpers.req(value) || (options ? options.includes(value) : false);
+      !helpers.req(value) || !!options?.[value.id];
 
     const dynamicEntries = Object.fromEntries(
       Object.entries(spec.scene).map(([key, val]) => {
-        if (val === "image" || val === "video") {
-          return [key, { included: included(this.AssetNamesByType[key]) }];
+        if (val.type === "selector") {
+          return [key, { included: included(this.AssetsByType[key]) }];
         } else {
           return [key, {}];
         }
@@ -191,44 +262,6 @@ export default {
         }
       }
     };
-  },
-  watch: {
-    // Update form for inbound changes
-    "scene.props": async function() {
-      Object.assign(this.form, this.scene.props);
-      // this.$v.form.$reset();
-    },
-    // Update props with outbound changes
-    form: {
-      deep: true,
-      handler: debounce(async function() {
-        this.updateScene({
-          id: this.scene.id,
-          props: Object.fromEntries(
-            [...this.validFieldNames, "type"].map(field => [
-              field,
-              this.form[field]
-            ])
-          ),
-          valid: !this.$v.form.$invalid
-        });
-        // await this.$v.form.$reset();
-      }, 350)
-    }
-    //FIXME: get $anyDirty working so we don't have to deep watch
-    /* "$v.form.$anyDirty": function() {
-      if (this.$v.form.$anyDirty) {
-        debounce(async function() {
-          await this.$v.form.$touch();
-          this.updateScene({
-            id: this.scene.id,
-            props: this.form,
-            valid: !this.$v.form.$invalid
-          });
-          await this.$v.form.$reset();
-        }, 350)();
-      }
-    } */
   },
   computed: {
     isBound() {
@@ -251,18 +284,21 @@ export default {
 
       return result;
     },
+    invalidSelectable() {
+      return this.selectable?.filters?.includes("invalid") ?? false;
+    },
     validFieldNames() {
       return spec.sceneTypes[this.form.type];
     },
     ...mapGetters({
       assetSet: "assets/assetSet"
     }),
-    AssetNamesByType() {
+    AssetsByType() {
       return this.assetSet.reduce(
-        (obj, item) => (
-          obj[item.type]
-            ? obj[item.type].push(item.name)
-            : (obj[item.type] = [item.name]),
+        (obj, asset) => (
+          obj[asset.type]
+            ? (obj[asset.type][asset.id] = asset)
+            : (obj[asset.type] = { [asset.id]: asset }),
           obj
         ),
         {}
@@ -270,6 +306,9 @@ export default {
     }
   },
   methods: {
+    toggleInputModal() {
+      this.inputModalActive = !this.inputModalActive;
+    },
     isType(field, type) {
       return spec.scene[field].type === type;
     },
@@ -293,6 +332,40 @@ export default {
     justify-content: center;
   }
 }
+
+.collapsing-counter .counter.is-invisible {
+  display: none;
+}
+
+.textarea + .icon.is-left {
+  height: unset !important;
+  width: unset !important;
+  top: unset !important;
+  left: unset !important;
+  right: 0.5em !important;
+  bottom: 0.5em;
+}
+
+.textarea + .icon.is-left ~ .counter {
+  right: 2.5em;
+  bottom: 0.6em;
+}
+
+.absolute-counter > .textarea {
+  padding-bottom: calc(1.625em - 0.5625rem);
+}
+
+.absolute-counter > .textarea ~ .counter {
+  position: absolute;
+  right: 1em;
+  bottom: 0.5em;
+}
+
+.textarea-modal {
+  .textarea {
+    height: 180px;
+  }
+}
 </style>
 
 <style lang="scss" scoped>
@@ -310,11 +383,24 @@ export default {
 
 .card {
   height: 100%;
+  width: 350px;
 }
 
 .center-card-content {
   @include flexCenter();
   height: 100%;
+}
+
+.textarea-modal {
+  width: 80vw;
+  max-width: $sceneWidth + 50px;
+
+  .modal-card-body {
+    // FIXME: use $box-radius for all $radius-large where appropriate
+    border-bottom-left-radius: $radius-large;
+    border-bottom-right-radius: $radius-large;
+  }
+  // Has global styles
 }
 
 .bound-label {

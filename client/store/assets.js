@@ -24,11 +24,9 @@ export const actions = {
 
     const response = await this.$axios.$post('/api/v1/assets', formData);
     if (response.success) {
-      asset.id = response.result;
-      asset.created = Date.now();
-      asset.name = asset.file.name.replace(/\..*?$/, '');
+      const name = asset.file.name.slice(0, asset.file.name.indexOf('.'));
       delete asset.file;
-      commit('newAsset', { asset });
+      commit('newAsset', { asset: { ...asset, id: response.result, name, created: Date.now() } });
     }
   },
   async removeAsset({ commit }, id) {
@@ -37,22 +35,24 @@ export const actions = {
   }
 };
 
+// FIXME: sorting should be handled better
+// set Assets could probably be simplified
 export const mutations = {
   setAssets(state, res) {
     state.assets = res.assets;
     state.assetList = res.assetList;
     state.allAssetTypes = res.assetTypes.sort();
   },
-  newAsset(state, payload) {
+  newAsset(state, { asset }) {
     // Add new asset to state
 
     // TODO: Order assets?
-    Vue.set(state.assets, payload.asset.id, payload.asset);
-    state.assetList.unshift(payload.asset.id);
+    Vue.set(state.assets, asset.id, asset);
+    state.assetList.unshift(asset.id);
   },
-  deleteAsset(state, payload) {
+  deleteAsset(state, { id }) {
     // Remove asset
-    state.assetList.splice(state.assetList.indexOf(payload.id), 1);
-    Vue.delete(state.assets, payload.id);
+    state.assetList.splice(state.assetList.indexOf(id), 1);
+    Vue.delete(state.assets, id);
   }
 };

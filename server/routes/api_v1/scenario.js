@@ -64,7 +64,8 @@ module.exports = function (options) {
             frames: req.body.frames,
             frameList: req.body.frameList,
             conditions: req.body.conditions,
-            conditionList: req.body.conditionList
+            conditionList: req.body.conditionList,
+            status: req.body.status
         });
 
         scenario.save((err, obj) => {
@@ -110,7 +111,8 @@ module.exports = function (options) {
                         frames: obj.frames,
                         frameList: obj.frameList,
                         conditions: obj.conditions,
-                        conditionList: obj.conditionList
+                        conditionList: obj.conditionList,
+                        status: obj.status
                     }
                 ));
         });
@@ -124,7 +126,7 @@ module.exports = function (options) {
         let id = req.params.scenario_id;
         let uid = req.session.user_id;
 
-        if (options.config.noclobber) {
+        if (options.noclobber) {
             res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
             return;
         }
@@ -142,6 +144,7 @@ module.exports = function (options) {
             frameList: req.body.frameList,
             conditions: req.body.conditions,
             conditionList: req.body.conditionList,
+            status: req.body.status,
             modified: Date.now()
         }}, {omitUndefined: true}, (err, result)=>{
             if (err)
@@ -164,7 +167,7 @@ module.exports = function (options) {
         let id = req.params.scenario_id;
         let uid = req.session.user_id;
 
-        if (options.config.noclobber) {
+        if (options.noclobber) {
             res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
             return;
         }

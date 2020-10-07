@@ -44,8 +44,8 @@
                   closable
                   close-type="is-light"
                   close-icon="plus"
-                  aria-close-label="Add condition tag"
-                  >add</b-tag
+                  aria-close-label="Add condition label"
+                  >Tag</b-tag
                 >
               </div>
             </b-field>
@@ -58,7 +58,7 @@
             <b-input
               v-model="tag"
               @keyup.native.enter="AddTag()"
-              placeholder="Add Tag"
+              placeholder="Add Condition Label"
               expanded
             />
           </b-field>
