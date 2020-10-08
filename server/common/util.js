@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const UserModel = require('../models/UserModel');
 
 /**** Global Constants ****/
-const assetTypes = ['clip', 'actor', 'foreground', 'background', 'cache'];
+const assetTypes = ['clip', 'actor', 'foreground', 'background'];
 const saltRounds = 10;
 
 /**** Request/Response Objects ****/
@@ -15,7 +15,7 @@ function success(message, result) {
     return {
         success: true,
         message: message || '',
-        result: result || null
+        result: result || {}
     };
 }
 
@@ -23,7 +23,7 @@ function failure(message, result) {
     return {
         success: false,
         message: message || '',
-        result: result || null
+        result: result || {}
     };
 }
 
@@ -75,7 +75,7 @@ async function userPermissions(user_id) {
 async function verifyPassword(user, byName, password) {
     try {
         const obj =  byName
-            ? await UserModel.findOne({username: user}) 
+            ? await UserModel.findOne({username: user})
             : await UserModel.findById(user);
 
         if (!obj)

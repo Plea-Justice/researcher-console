@@ -72,7 +72,7 @@ module.exports = function (options) {
             if (err)
                 res.status(500).json(util.failure('There was an error creating the scenario.', err));
             else
-                res.status(201).json(util.success('Scenario created.', {id: obj._id}));
+                res.status(200).json(util.success('Scenario created.', {id: obj._id}));
         });
 
     });
@@ -97,13 +97,14 @@ module.exports = function (options) {
                         id: obj._id,
                         numScenes: obj.numScenes,
                         meta: {
+                            id: obj._id,
                             name: obj.name,
                             description: obj.description,
                             survey: obj.survey,
                             live: obj.live,
                             public: obj.public,
                             readOnly: obj.readOnly,
-                            created: obj.created, 
+                            created: obj.created,
                             modified: obj.modified,
                             version: obj.version
                         },

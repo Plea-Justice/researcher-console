@@ -5,7 +5,7 @@
 module.exports = function (options) {
     const express = require('express');
     var router = express.Router();
-    
+
     const fs = require('fs-extra');
     const path = require('path');
     const bcrypt = require('bcrypt');
@@ -62,7 +62,7 @@ module.exports = function (options) {
                     name: req.session.username,
                     user_id: req.session.user_id,
                     ...await util.userPermissions(req.session.user_id),
-                    n_sessions: await getUserSessionCount(req.session.user_id)
+                    sessions: await getUserSessionCount(req.session.user_id)
                 }}
             ));
     });
@@ -83,11 +83,11 @@ module.exports = function (options) {
                 req.session.user_id = verified._id;
                 req.session.username = verified.username;
                 req.session.is_logged_in = true;
-                
+
                 res.status(200).json(util.success('Logged in.'));
             } else {
                 res.status(401).json(util.failure('Incorrect username or password.'));
-            }   
+            }
         } catch (err) {
             res.status(500).json(util.failure('There was an error logging in.', err));
         }
@@ -106,7 +106,7 @@ module.exports = function (options) {
                 res.status(200).json(util.success('Logged out.'));
         });
     });
-    
+
     /**
      * Register a new user with the specified credentials.
      * @param {username: String, password: String}
@@ -128,7 +128,7 @@ module.exports = function (options) {
             const user_data_dir = util.userDir(options, obj._id.toString());
             assetTypes.forEach(type => fs.mkdirpSync(path.join(user_data_dir, type)));
 
-            res.status(201).json(util.success('User account created. You may now login.'));
+            res.status(200).json(util.success('User account created. You may now login.'));
         } catch (err) {
             res.status(500).json(util.failure('There was an error registering the requested user.', err));
         }

@@ -27,7 +27,7 @@
     </template>
 
     <template slot="end">
-      <b-navbar-item v-if="user.n_sessions > 1" tag="div">
+      <b-navbar-item v-if="user.sessions > 1" tag="div">
         <b-tag type="is-warning" size="is-small">
           Another user may be active
         </b-tag>
@@ -100,7 +100,7 @@ export default {
   },
   computed: {
     user() {
-      return this.$auth.user ? this.$auth.user : { name: "dev", n_sessions: 1 };
+      return this.$auth.user ? this.$auth.user : { name: "dev", sessions: 1 };
     }
   },
   methods: {

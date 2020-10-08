@@ -130,7 +130,7 @@ export default {
         : this.assetSetByType[this.selectedAssetType];
     },
     user() {
-      return this.$auth.user ? this.$auth.user : { name: "dev", n_sessions: 1 };
+      return this.$auth.user ? this.$auth.user : { name: "dev", sessions: 1 };
     }
   },
   methods: {

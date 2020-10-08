@@ -51,7 +51,7 @@ module.exports = function (options) {
 
         try {
             await generateSimulation(options, req);
-            
+
             fs.emptyDirSync(servdir);
             fs.copySync(tmpdir, servdir);
 
@@ -133,16 +133,16 @@ async function generateSimulation(options, req) {
 
                 if (!scenes[sceneID])
                     throw Error('SceneID does not exist.');
-                    
+
                 if (!scenes[sceneID].props)
                     continue;
-                    
+
                 // Check for bound scenes.
                 if (typeof scenes[sceneID].props === 'string') {
                     sceneID = scenes[sceneID].props;
                     if (!scenes[sceneID])
                         throw Error('SceneID does not exist.');
-                        
+
                     if (!scenes[sceneID].props)
                         continue;
                 }
@@ -192,15 +192,12 @@ async function generateSimulation(options, req) {
 
         //if (requested.size !== usedAssets.size)
         //    throw Error('One of the requested assets is unavailable.');
-            
+
         // Copy in a clean simulation from the template directory.
         fs.emptyDirSync(tmpdir);
         assetTypes.map(type => fs.mkdirpSync(path.join(tmpdir, 'assets', type)));
         fs.copySync(path.normalize(options.sim_dir), tmpdir, {filter: src => !src.includes('.git')});
-        
-        // FIXME: Remove need for cache type. Do not use bitmap caching.
-        fs.copySync(path.join(user_data_dir, 'cache'), path.join(tmpdir, 'assets', 'cache'));
-        
+
         // Copy requested assets.
         requestedAssets.forEach(asset => fs.copyFileSync(
             path.join(
@@ -232,7 +229,7 @@ async function generateSimulation(options, req) {
         // Generate condition summary table.
         const summary = conditionList.reduce((acc, curr, i)=>
             acc + `<tr><td>${i+1}</td><td>${conditions[curr].tags}</td></tr>`
-        , ''); 
+        , '');
 
         util.fileMultipleReplace(path.join(tmpdir, 'index.html'), [
             [/{{\s*?n_conditions\s*?}}/g, timelines.length],

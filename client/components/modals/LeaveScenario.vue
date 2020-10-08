@@ -11,7 +11,7 @@
         <div class="media-content">
           <p v-if="validationFailed">
             <span class="has-text-weight-bold">ERROR:</span> Saving failed,
-            <u>invalid scenes exists</u> please return and fix them so your work
+            <u>invalid scenes exist</u> please return and fix them so your work
             can be saved!
           </p>
           <p v-else>If you have made any changes, save them before leaving.</p>

@@ -1,8 +1,6 @@
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
-const os = require('os');
-const fs = require('fs-extra');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const rfs = require('rotating-file-stream');
@@ -100,7 +98,7 @@ app.use(function(err, req, res, next) {
     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
     // If the request was made by XHR (API call), return a json object.
-    if (req.xhr) {
+    if (req.path.startsWith('/api') || req.xhr) {
         res.status(err.status || 500);
         res.json(util.failure(err.message, err));
     // Otherwise, render an error page.
