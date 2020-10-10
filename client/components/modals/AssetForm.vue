@@ -7,7 +7,7 @@
       <section class="modal-card-body">
         <b-field label="File Upload">
           <b-field
-            class="file is-primary fix-field-max-width no-help"
+            class="file is-primary no-help"
             :class="{ 'has-name': assetForm.file }"
           >
             <b-upload
@@ -120,7 +120,6 @@ export default {
     async onSubmit() {
       // If that filename already exists
       // FIXME: check doesn't work (server removes spaces)
-      // FIXME: check against all lowercase (case-insensitive), make all lowercase?
       if (
         this.assetSet.some(
           ({ name }) =>
@@ -154,22 +153,29 @@ export default {
 <!-- Global Styles -->
 <style lang="scss">
 // FIXME: make these global for fixing max-width uploads?
-.fix-field-max-width {
-  & > .field-body {
+.field.file {
+  .field-body {
     max-width: 100%;
-    .field.has-addons {
-      max-width: 100%;
-    }
+  }
+
+  .field.has-addons {
+    max-width: 100%;
   }
 
   .file-name {
+    width: 100%;
     max-width: unset;
+  }
+
+  .file-name.control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
   }
 }
 
-.file-name.control {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+// Remove default error messages when no-help class is applied
+.field.no-help > .help {
+  display: none;
 }
 </style>
 
