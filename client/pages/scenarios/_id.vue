@@ -5,15 +5,17 @@
         <template v-slot:start>
           <p class="level-item">Scenes: {{ numScenes }}</p>
           <div class="level-item buttons">
-            <ToolBarButton
-              @click="saveHelper()"
-              :value="mode"
-              :loading="saving"
-              :label="saveState.text"
-              :type="saveState.type"
-              :icon-left="saveState.icon"
-              style="min-width: 69px"
-            />
+            <b-tooltip :active="!!saveState.tooltip" :label="saveState.tooltip" :type="`${saveState.type} is-light`" position="is-bottom">
+              <ToolBarButton
+                @click="saveHelper()"
+                :value="mode"
+                :loading="saving"
+                :label="saveState.text"
+                :type="saveState.type"
+                :icon-left="saveState.icon"
+                style="min-width: 69px"
+              />
+            </b-tooltip>
 
             <ToolBarButton
               @click="openScenarioOptions()"
@@ -153,7 +155,7 @@ export default {
         },
         invalid: {
           type: "is-danger",
-          icon: "times"
+          icon: "times",
         },
         changed: {
           type: "is-warning",
@@ -201,8 +203,30 @@ export default {
       numScenes: "scenario/numScenes",
       frameSet: "scenario/frameSet"
     }),
+    numErrors() {
+      const { frameErrors, sceneErrors } = this.scenarioStatus;
+      return frameErrors.length + sceneErrors.length;
+    },
+    errorIndex() {
+      const { frameErrors, sceneErrors } = this.scenarioStatus;
+
+      if (this.numErrors) {
+        return frameErrors.length
+          ? this.frameSet.findIndex(frame => frame.id === frameErrors[0])
+          : this.findScene(sceneErrors[0])
+      } else return null
+    },
+    errorHelperLabel() {
+      const { frameErrors, sceneErrors } = this.scenarioStatus;
+
+      if(this.numErrors) {
+        return `${this.numErrors > 1 ? `${this.numErrors} errors exists, starting` : "An error exists"}
+                with
+                ${frameErrors.length ? `row ${this.errorIndex + 1}'s label` : `scene ${this.errorIndex.scene + 1} of row ${this.errorIndex.frame + 1}` }`
+      } else return null
+    },
     saveState() {
-      if (!this.scenarioStatus.valid) return this.saveStatus.invalid;
+      if (!this.scenarioStatus.valid) return { ...this.saveStatus.invalid, tooltip: this.errorHelperLabel };
       else if (this.scenarioStoreHasChanged) return this.saveStatus.changed;
       else if (this.scenarioStatus.valid && !this.scenarioStoreHasChanged)
         return this.saveStatus.valid;
@@ -222,32 +246,14 @@ export default {
       return indexPair;
     },
     goToErrors() {
-      const { frameErrors, sceneErrors } = this.scenarioStatus;
-      const numErrors = frameErrors.length + sceneErrors.length;
-
-      if (numErrors) {
-        let message = "";
-        let frameScrollIndex = null;
-
-        if (frameErrors.length) {
-          const errorIndex = this.frameSet.findIndex(
-            frame => frame.id === frameErrors[0]
-          );
-          message = `row ${errorIndex} scenes label`;
-          frameScrollIndex = errorIndex;
-        } else {
-          const errorIndex = this.findScene(sceneErrors[0]);
-          message = `scene ${errorIndex.scene + 1} of current row`;
-          frameScrollIndex = errorIndex.frame;
-        }
+      if (this.numErrors) {
+        const frameIndex = this.errorIndex?.frame ?? this.errorIndex
 
         this.$buefy.toast.open({
-          message: `${numErrors} ${
-            numErrors > 1 ? "errors exists, starting" : "error exists"
-          } at ${message}`,
+          message: this.errorHelperLabel,
           type: "is-danger"
         });
-        this.scrollToFrame({ frameIndex: frameScrollIndex });
+        this.scrollToFrame({ frameIndex });
       }
     },
     async saveHelper() {
@@ -385,6 +391,10 @@ export default {
   margin-right: 2rem;
 
   & > .button {
+    margin-bottom: 0;
+  }
+
+  & > .b-tooltip .button {
     margin-bottom: 0;
   }
 }

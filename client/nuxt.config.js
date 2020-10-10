@@ -37,7 +37,8 @@ export default {
   /*
    ** Global CSS
    */
-  css: ['~/assets/styles/common.scss', '~/assets/styles/buefy.scss'],
+  // FIXME: make this a styles/stylesheets folder instead where you can import all?
+  css: ['~/assets/styles/common.scss', '~/assets/styles/bulma_extension.scss', '~/assets/styles/buefy.scss'],
   /*
    ** Plugins to load before mounting the App
    */

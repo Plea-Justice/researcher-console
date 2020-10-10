@@ -1,0 +1,6 @@
+// Treats .b-tooltip like .button inside .buttons
+// based on the default .button styling
+// FIXME: should target if inner button isn't .button:not(.is-fullwidth)
+.buttons .b-tooltip:not(:last-child) {
+  margin-right: 0.5rem;
+}
