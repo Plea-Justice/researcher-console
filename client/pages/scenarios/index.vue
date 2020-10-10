@@ -19,9 +19,10 @@
       No assets exists!
       <br />Create a new scenario using the toolbar to get started.
     </p>
-    <template v-else>
-      <template v-for="scenario in scenarioSet">
+
+    <div v-else class="item-grid">
         <ItemCard
+          v-for="scenario in scenarioSet"
           :key="scenario.id"
           @selected="duplicate($event)"
           @remove="confirmDelete($event)"
@@ -46,8 +47,7 @@
             <span>Created {{ scenario.created | timeToNow }}</span>
           </p>
         </ItemCard>
-      </template>
-    </template>
+    </div>
   </ItemLayout>
 </template>
 

@@ -14,9 +14,7 @@
     <section class="section container">
       <h1 class="title is-capitalized">{{ contentTitle }}</h1>
 
-      <div class="grid">
-        <slot name="default" />
-      </div>
+      <slot name="default" />
     </section>
   </div>
 </template>
@@ -56,11 +54,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 15px;
-}
-</style>

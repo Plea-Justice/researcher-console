@@ -1,6 +1,6 @@
 <template>
   <ItemLayout
-    :contentTitle="`My Assets: ${this.selectedAssetType}`"
+    :contentTitle="`My Assets: ${this.selectedType}`"
     helpTitle="Asset Management"
     :helpText="assetsHelp.navbar"
   >
@@ -23,16 +23,17 @@
       </div>
     </template>
     <template v-slot:toolbar-end>
-      <b-field v-if="validAssetTypes.length > 1">
-        <b-select placeholder="Asset Type" v-model="selectedAssetType">
+      <b-field v-if="validTypes.length > 1">
+        <b-select placeholder="Asset Type" v-model="selectedType">
           <option value="all">All</option>
-          <option v-for="type in validAssetTypes" :key="type" :value="type">{{
-            type | capitalize
-          }}</option>
+          <option v-for="type in validTypes" :key="type" :value="type">
+            {{ type | capitalize }}
+          </option>
         </b-select>
       </b-field>
     </template>
 
+    <!-- If no assets exists -->
     <p
       v-if="!assetSet.length"
       class="empty-text has-text-weight-medium is-size-5"
@@ -41,37 +42,41 @@
       <br />Add an asset using the toolbar to get started.
     </p>
 
-    <template v-else>
-      <ItemCard
-        v-for="asset in filteredAssets"
-        :key="asset.id"
-        @remove="confirmDelete($event)"
-        :item="asset"
-        :remove="asset.isMine"
-      >
-        <b-image
-          :src="`${envAPIURL}/api/v1/assets/${asset.id}/thumbnail`"
-          src-fallback="/defaultThumbnail.png"
-          responsive
-          ratio="16by9"
-          lazy
-        />
+    <div v-for="type in selectedTypes" :key="type" class="section">
+      <h3 class="title">{{ `${type}s` | capitalize }}</h3>
 
-        <div class="pt-1 content is-small">
-          <span class="is-pulled-left">
-            Uploaded {{ asset.created | timeToNow }}
-          </span>
-          <span class="is-pulled-right">{{ asset.owner }}</span>
-        </div>
+      <div class="item-grid">
+        <ItemCard
+          v-for="asset in assetSetByType[type]"
+          :key="asset.id"
+          @remove="confirmDelete($event)"
+          :item="asset"
+          :remove="asset.isMine"
+        >
+          <b-image
+            :src="`${envAPIURL}/api/v1/assets/${asset.id}/thumbnail`"
+            src-fallback="/defaultThumbnail.png"
+            responsive
+            ratio="16by9"
+            lazy
+          />
 
-        <template v-slot:footer>
-          <b-taglist style="margin-left: auto;">
-            <b-tag v-if="asset.public" type="is-info">Public</b-tag>
-            <b-tag type="is-primary">{{ asset.type | capitalize }}</b-tag>
-          </b-taglist>
-        </template>
-      </ItemCard>
-    </template>
+          <div class="asset-meta content is-small">
+            <span>
+              Uploaded {{ asset.created | timeToNow }}
+            </span>
+            <span>{{ asset.owner }}</span>
+          </div>
+
+          <template v-slot:footer>
+            <b-taglist style="margin-left: auto;">
+              <b-tag v-if="asset.public" type="is-info">Public</b-tag>
+              <b-tag type="is-primary">{{ asset.type | capitalize }}</b-tag>
+            </b-taglist>
+          </template>
+        </ItemCard>
+      </div>
+    </div>
   </ItemLayout>
 </template>
 
@@ -102,11 +107,14 @@ export default {
       assetsHelp: assetsHelp,
 
       addMode: false,
-      selectedAssetType: "all",
+      selectedType: "all",
       envAPIURL: process.env.API_URL
     };
   },
   computed: {
+    user() {
+      return this.$auth.user ? this.$auth.user : { name: "dev", sessions: 1 };
+    },
     ...mapGetters({
       assetSet: "assets/assetSet"
     }),
@@ -121,17 +129,12 @@ export default {
         {}
       );
     },
-    validAssetTypes() {
+    validTypes() {
       return Object.keys(this.assetSetByType).sort();
     },
-    filteredAssets() {
-      return this.selectedAssetType === "all"
-        ? this.assetSet
-        : this.assetSetByType[this.selectedAssetType];
+    selectedTypes() {
+      return this.selectedType === 'all' ? this.validTypes : [this.selectedType]
     },
-    user() {
-      return this.$auth.user ? this.$auth.user : { name: "dev", sessions: 1 };
-    }
   },
   methods: {
     openFormModal() {
@@ -180,6 +183,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.section:first-of-type {
+  padding-top: 0;
+}
+
 .empty-text {
   position: absolute;
 }
@@ -198,5 +205,11 @@ export default {
   z-index: 1;
 
   background-color: #ffffff;
+}
+
+.asset-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
 }
 </style>

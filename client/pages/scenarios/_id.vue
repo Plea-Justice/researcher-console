@@ -173,7 +173,7 @@ export default {
     ]);
   },
   created() {
-    // FIXME: keep better track of dirty state instead
+    // FIXME: keep better track of dirty state
     this.$store.subscribe((mutation, state) => {
       if (this.scenarioStoreHasChanged) {
         // If state has changed set to false if saving
