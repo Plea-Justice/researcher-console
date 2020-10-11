@@ -13,8 +13,6 @@ module.exports = function (options) {
 
     // Limit authentication request rate.
     const rateLimit = require('express-rate-limit');
-    // FIXME: remove this.
-    const { fork } = require('child_process');
 
     const AuthReqLimit = rateLimit({
         windowMs: options.auth_minutes * 60 * 1000,

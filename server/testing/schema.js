@@ -11,9 +11,9 @@ module.exports = {
         $id: 'org.pleajustice.server.response',
         type: 'object',
         properties: {
-            success: {type: 'boolean'},
-            message: {type: 'string'},
-            result: {type: 'object'}
+            success: { type: 'boolean' },
+            message: { type: 'string' },
+            result: { type: 'object' }
         },
         required: ['success', 'message', 'result'],
         additionalProperties: false
@@ -23,12 +23,12 @@ module.exports = {
         $id: 'org.pleajustice.user',
         type: 'object',
         properties: {
-            name: {type: 'string'},
+            name: { type: 'string' },
             user_id: { $ref: 'org.pleajustice.server.db.id' },  // TODO: Rename this 'id'.
-            sessions: {type: 'integer'},
+            sessions: { type: 'integer' },
         },
         patternProperties: {
-            '^permit': {type: 'boolean'}
+            '^permit': { type: 'boolean' }
         },
         required: ['name', 'user_id', 'sessions'],
         additionalProperties: false
@@ -41,9 +41,15 @@ module.exports = {
             id: { $ref: 'org.pleajustice.server.db.id' },
             meta: { $ref: 'org.pleajustice.scenario.meta' },
             frameList: { type: 'array', items: { type: 'string' }},
-            frames: { type: 'object' }
+            frames: { type: 'object' },
+            conditionList: { type: 'array', items: { type: 'string' }},
+            conditions: { type: 'object' },
+            numScenes: { type: 'integer' },
+            scenes: { type: 'object' },
+            status: { type: 'object' }
         },
-        required: ['meta', 'frameList', 'frames']
+        required: ['meta', 'frameList', 'frames', 'scenes', 'conditionList', 'conditions', 'numScenes'],
+        additionalProperties: false
 
     },
 
@@ -52,15 +58,15 @@ module.exports = {
         type: 'object',
         properties: {
             id: { $ref: 'org.pleajustice.server.db.id' },
-            name: {type: 'string'},
-            description: {type: 'string'},
-            public: {type: 'boolean'},
-            survey: {type: 'string'},
-            live: {type: 'string'},
-            readOnly: {type: 'boolean'},
-            created: {type: 'string', format: 'date-time'},
-            modified: {type: 'string', format: 'date-time'},
-            version: {type: 'string', pattern: '^\\d\\.\\d\\.\\d+$'}
+            name: { type: 'string' },
+            description: { type: 'string' },
+            public: { type: 'boolean' },
+            survey: { type: 'string' },
+            live: { type: 'string' },
+            readOnly: { type: 'boolean' },
+            created: { type: 'string', format: 'date-time' },
+            modified: { type: 'string', format: 'date-time' },
+            version: { type: 'string', pattern: '^\\d\\.\\d\\.\\d+$' }
         },
         required: ['id', 'name', 'description'],
         additionalProperties: false
@@ -72,6 +78,40 @@ module.exports = {
         properties: {
             scenarioList: { type: 'array', items: { type: 'string' }},
             scenarios: { type: 'object', additionalProperties: { $ref: 'org.pleajustice.scenario.meta' }}
-        }
+        },
+        additionalProperties: false
+    },
+
+    Asset: {
+        $id: 'org.pleajustice.asset.asset',
+        type: 'object',
+        properties: {
+            id: { $ref: 'org.pleajustice.server.db.id' },
+            name: { type: 'string' },
+            description: { type: 'string' },
+            type: { type: 'string' },
+            filename: { type: 'string' },
+            owner: { type: 'string' },
+            isMine: { type: 'boolean' },
+            public: { type: 'boolean' },
+            readOnly: { type: 'boolean' },
+            created: { type: 'string', format: 'date-time' },
+            modified: { type: 'string', format: 'date-time' }
+        },
+        required: ['id', 'name', 'type', 'owner', 'public'],
+        additionalProperties: false
+
+    },
+
+    AssetList: {
+        $id: 'org.pleajustice.asset.list',
+        type: 'object',
+        properties: {
+            assetTypes: { type: 'array', items: { type: 'string' }},
+            assetList: { type: 'array', items: { type: 'string' }},
+            assets: { type: 'object', additionalProperties: { $ref: 'org.pleajustice.asset.asset' }}
+        },
+        required: ['assetTypes', 'assetList', 'assets'],
+        additionalProperties: false
     },
 };

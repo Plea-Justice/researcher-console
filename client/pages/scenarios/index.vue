@@ -16,7 +16,7 @@
       v-if="!scenarioSet.length"
       class="empty-text has-text-weight-medium is-size-5"
     >
-      No assets exists!
+      No scenarios exist!
       <br />Create a new scenario using the toolbar to get started.
     </p>
 

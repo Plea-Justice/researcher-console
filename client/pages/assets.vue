@@ -38,7 +38,7 @@
       v-if="!assetSet.length"
       class="empty-text has-text-weight-medium is-size-5"
     >
-      No assets exists!
+      No assets exist!
       <br />Add an asset using the toolbar to get started.
     </p>
 

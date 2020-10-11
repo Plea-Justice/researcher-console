@@ -147,7 +147,20 @@ module.exports = function (options) {
                     path.resolve(path.join(user_data_dir, 'thumbnails', `${asset._id}.jpg`))
                 ]);
 
-                res.status(200).json(util.success('Asset uploaded.', asset._id));
+                res.status(200).json(util.success('Asset uploaded.', {
+                    id: asset._id,
+                    filename: asset.path,
+                    name: asset.name,
+                    type: asset.type,
+                    description: asset.description,
+                    public: asset.public,
+                    readOnly: asset.readOnly,
+                    owner: asset.owner,
+                    isMine: asset.user_id.toString() === req.session.user_id,
+                    created: asset.created,
+                    modified: asset.modified,
+
+                }));
             } catch (err) {
                 if (fs.pathExistsSync(filepath))
                     fs.removeSync(filepath);
@@ -190,12 +203,12 @@ module.exports = function (options) {
             });
 
             let matches = scenarios.filter(scenario =>
-                Object.entries((scenario.scenes)).map(([id, scene]) => 
+                Object.entries((scenario.scenes)).map(([id, scene]) =>
                     scene.props ?
                         [scene.props.actor, scene.props.clip, scene.props.foreground, scene.props.background]
                             .map(x => x ? x.id : '')
                             .includes(asset_id) : false
-                ).some(y => y)  
+                ).some(y => y)
             );
 
             matches.map(x => ({
