@@ -7,10 +7,10 @@
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
         <b-tooltip
-          label="Your user is not permitted to add files"
-          position="is-bottom"
-          class="is-danger is-light"
           :active="!user.permitUploads"
+          label="You're not permitted to add files, request persmission from an admin"
+          position="is-bottom"
+          type="is-info is-light"
         >
           <ToolBarButton
             @click="openFormModal()"

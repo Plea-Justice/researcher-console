@@ -57,13 +57,20 @@
 
         <div class="flex-field-wrapper">
           <b-field label="Share with Others" class="flex-field">
-            <b-switch
-              :disabled="!user.permitSharing"
-              v-model="assetForm.public"
-              type="is-info"
+            <b-tooltip
+              :active="!user.permitSharing"
+              label="You're not permitted share files, request persmission from an admin"
+              position="is-bottom"
+              type="is-info is-light"
             >
-              Make Public
-            </b-switch>
+              <b-switch
+                :disabled="!user.permitSharing"
+                v-model="assetForm.public"
+                type="is-info"
+              >
+                Make Public
+              </b-switch>
+            </b-tooltip>
           </b-field>
           <HelpSidebar :text="assetsHelp.sharing" title="Asset Types" />
         </div>
