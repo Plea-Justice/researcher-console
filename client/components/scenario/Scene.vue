@@ -210,7 +210,10 @@ export default {
   mounted() {
     this.validFieldNames.forEach(fieldName => {
       const vField = this.$v.form[fieldName];
-      if (vField.$invalid) vField.$touch();
+      if (vField.$invalid) {
+        vField.$touch();
+        this.updateSceneErrors({ id: this.scene.id, valid: !this.$v.form.$invalid })
+      };
     });
 
     this.updateSceneErrors({ id: this.scene.id, valid: !this.$v.form.$invalid })
@@ -321,6 +324,7 @@ export default {
       addScene: "scenario/addScene",
       removeScene: "scenario/removeScene",
       updateScene: "scenario/updateScene",
+      updateSceneErrors: "scenario/updateSceneErrors",
       unbindScene: "scenario/unbindScene"
     })
   }

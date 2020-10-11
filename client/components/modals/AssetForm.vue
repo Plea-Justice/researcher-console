@@ -7,7 +7,7 @@
       <section class="modal-card-body">
         <b-field v-if="addMode" label="File Upload">
           <b-field
-            class="file is-primary fix-field-max-width no-help"
+            class="file is-primary no-help"
             :class="{ 'has-name': assetForm.file }"
           >
             <b-upload
@@ -57,13 +57,20 @@
 
         <div class="flex-field-wrapper">
           <b-field label="Share with Others" class="flex-field">
-            <b-switch
-              :disabled="!user.permitSharing"
-              v-model="assetForm.public"
-              type="is-info"
+            <b-tooltip
+              :active="!user.permitSharing"
+              label="You're not permitted share files, request persmission from an admin"
+              position="is-bottom"
+              type="is-info is-light"
             >
-              Make Public
-            </b-switch>
+              <b-switch
+                :disabled="!user.permitSharing"
+                v-model="assetForm.public"
+                type="is-info"
+              >
+                Make Public
+              </b-switch>
+            </b-tooltip>
           </b-field>
           <HelpSidebar :text="assetsHelp.sharing" title="Asset Types" />
         </div>
@@ -125,7 +132,6 @@ export default {
     onSubmit() {
       // If that filename already exists
       // FIXME: check doesn't work (server removes spaces)
-      // FIXME: check against all lowercase (case-insensitive), make all lowercase?
       if (
         this.assetSet.some(
           ({ name }) =>
@@ -160,22 +166,29 @@ export default {
 <!-- Global Styles -->
 <style lang="scss">
 // FIXME: make these global for fixing max-width uploads?
-.fix-field-max-width {
-  & > .field-body {
+.field.file {
+  .field-body {
     max-width: 100%;
-    .field.has-addons {
-      max-width: 100%;
-    }
+  }
+
+  .field.has-addons {
+    max-width: 100%;
   }
 
   .file-name {
+    width: 100%;
     max-width: unset;
+  }
+
+  .file-name.control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
   }
 }
 
-.file-name.control {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+// Remove default error messages when no-help class is applied
+.field.no-help > .help {
+  display: none;
 }
 </style>
 

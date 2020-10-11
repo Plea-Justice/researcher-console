@@ -22,10 +22,13 @@ const initialState = () => ({
   frames: {},
   frameList: [],
   scenes: {},
-  // FIXME: fix parent valid prop (it doesn't get updated)
   status: {
     valid: false,
+    // Tracks errors related to `frames`
+    // Note: doesn't have hierarchy (doesn't track errors for scenes inside of frame)
+    //       only errors related to itself
     frameErrors: [],
+    // Tracks errors related to `scenes`
     sceneErrors: [],
     dirty: 0
   }
@@ -69,6 +72,14 @@ export const actions = {
   updateMeta({ commit }, meta) {
     commit('updateMeta', { meta });
   },
+  updateFrameErrors({ commit }, { valid, id }) {
+    commit('setFrameErrors', { valid, id });
+    commit('updateScenarioValidity');
+  },
+  updateSceneErrors({ commit }, { valid, id }) {
+    commit('setSceneErrors', { valid, id });
+    commit('updateScenarioValidity');
+  },
 
   // **** Condition Actions ****
   addCondition({ commit }) {
@@ -110,16 +121,24 @@ export const actions = {
       frame: { id, size: 0, label: '', scenes }
     });
   },
-  removeFrame({ commit, state }, id) {
+  removeFrame({ commit, dispatch, state }, id) {
+    const frame = state.frames[id];
+
     if (state.frameList.length <= 1) {
       // If last frame simply replace scenes with empty scenes
-      const frame = state.frames[id];
-      frame.scenes.forEach(sceneId => commit('setScene', { id: sceneId, scene: { id: sceneId, props: null } }));
+      // TODO: this can be async
+      frame.scenes.forEach(sceneId => {
+        commit('setScene', { id: sceneId, scene: { id: sceneId, props: null } });
+        dispatch('updateSceneErrors', { id: sceneId, valid: true });
+      });
       commit('updateSceneCount', { modifier: -frame.size, frameId: id });
     } else {
       // Otherwise delete frame & it's scenes
+      frame.scenes.forEach(sceneId => dispatch('updateSceneErrors', { id: sceneId, valid: true }));
       commit('deleteFrame', { id });
     }
+    // unset frame error if removed frame was invalid
+    dispatch('updateFrameErrors', { id, valid: true });
   },
   moveFrameDown({ commit }, id) {
     // Frame stack goes from 0 down incrementally, so add 1 to move down
@@ -129,9 +148,9 @@ export const actions = {
     // Frame stack goes from 0 down incrementally, so add -1 to move up
     commit('moveFrame', { id, modifier: -1 });
   },
-  setFrameLabel({ commit }, { id, value, valid }) {
-    commit('updateFrameErrors', { id, valid });
-    commit('setFrameKey', { id, key: 'label', value });
+  setFrameLabel({ commit, dispatch }, { id, value, valid }) {
+    dispatch('updateFrameErrors', { id, valid });
+    commit('setFrameProp', { id, key: 'label', value });
   },
 
   // **** Scene Actions ****
@@ -146,10 +165,12 @@ export const actions = {
     commit('setScene', { id, scene: { id, props: newProps } });
     commit('updateSceneCount', { modifier: 1, frameId });
   },
-  removeScene({ commit, state, getters }, id) {
+  removeScene({ commit, dispatch, state, getters }, id) {
     commit('setScene', { id, scene: { id, props: null } });
     const frameId = state.frameList[getters.frameSet.findIndex(({ scenes }) => scenes.includes(id))];
     commit('updateSceneCount', { modifier: -1, frameId });
+    // unset scene error if removed scene was invalid
+    dispatch('updateSceneErrors', { id, valid: true });
   },
   updateScene({ commit }, { valid, id, props }) {
     commit('setSceneProps', { valid, id, props: { ...props } });
@@ -208,7 +229,16 @@ export const mutations = {
     const frame = state.frames[frameId];
     Vue.set(state.frames, frameId, { ...frame, size: (frame.size += modifier) });
   },
-  updateFrameErrors(state, { valid, id }) {
+  updateScenarioValidity(state) {
+    const hasErrors = state.status.sceneErrors.length || state.status.frameErrors.length;
+    // if no errors, update valid key
+    if (state.status.valid && hasErrors) {
+      Vue.set(state.status, 'valid', false);
+    } else if (!state.status.valid && !hasErrors) {
+      Vue.set(state.status, 'valid', true);
+    }
+  },
+  setFrameErrors(state, { valid, id }) {
     // If valid and was prev invalid, remove flag
     const errorIndex = state.status.frameErrors.indexOf(id);
     if (valid && errorIndex !== -1) {
@@ -217,13 +247,13 @@ export const mutations = {
       // If invalid and not flagged, flag
       state.status.frameErrors.push(id);
     }
-
-    const hasErrors = state.status.sceneErrors.length || state.status.frameErrors.length;
-    // if no errors, update valid key
-    if (state.status.valid && hasErrors) {
-      Vue.set(state.status, 'valid', false);
-    } else if (!state.status.valid && !hasErrors) {
-      Vue.set(state.status, 'valid', true);
+  },
+  setSceneErrors(state, { valid, id }) {
+    const errorIndex = state.status.sceneErrors.indexOf(id);
+    if (valid && errorIndex !== -1) {
+      state.status.sceneErrors.splice(errorIndex, 1);
+    } else if (!valid && errorIndex === -1) {
+      state.status.sceneErrors.push(id);
     }
   },
 
@@ -299,7 +329,7 @@ export const mutations = {
     state.frameList.splice(state.frameList.indexOf(id), 1);
     Vue.delete(state.frames, id);
   },
-  setFrameKey(state, { id, key, value }) {
+  setFrameProp(state, { id, key, value }) {
     Vue.set(state.frames[id], key, value);
   },
   moveFrame(state, { id, modifier }) {

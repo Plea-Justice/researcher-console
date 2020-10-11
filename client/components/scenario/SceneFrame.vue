@@ -203,10 +203,21 @@ export default {
       }
     };
   },
+  mounted() {
+    // Automatically force raise frame errors when scenes starts being added
+    const unwatch = this.$watch("uniqueScenes", function(newValue) {
+      console.log(newValue)
+      if(newValue > 0) {
+        this.$v.label.$touch()
+        this.updateFrameErrors({ id: this.frame.id, valid: !this.$v.label.$invalid })
+        unwatch()
+      }
+    })
+  },
   watch: {
     isOnly() {
       if (this.isOnly && this.collapsed) this.collapsed = false;
-    }
+    },
   },
   computed: {
     isOnly() {
@@ -266,6 +277,7 @@ export default {
     },
     ...mapActions({
       setFrameLabel: "scenario/setFrameLabel",
+      updateFrameErrors: "scenario/updateFrameErrors",
       moveFrameUp: "scenario/moveFrameUp",
       moveFrameDown: "scenario/moveFrameDown",
       addFrame: "scenario/addFrame",
