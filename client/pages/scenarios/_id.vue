@@ -84,6 +84,8 @@
       />
     </template>
 
+    <p>{{ scenarioStatus }}</p>
+
     <section ref="frames" class="padded-responsive-container responsive-center">
       <!-- Frames -->
       <SceneFrame
