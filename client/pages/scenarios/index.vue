@@ -24,15 +24,15 @@
         <ItemCard
           v-for="scenario in scenarioSet"
           :key="scenario.id"
-          @remove="confirmDelete($event)"
-          @edit="openFormModal(scenario)"
-          @duplicate="duplicateScenario($event)"
           :item="scenario"
+          remove
+          @remove="confirmDelete($event)"
+          edit
+          @edit="openFormModal(scenario)"
+          duplicate
+          @duplicate="duplicateScenario($event)"
           :itemType="'scenario'"
           link
-          remove
-          edit
-          duplicate
         >
           <p class="content" v-if="scenario.description">
             {{ scenario.description }}
