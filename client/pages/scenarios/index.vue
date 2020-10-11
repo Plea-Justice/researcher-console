@@ -6,7 +6,7 @@
   >
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
-        <ToolBarButton @click="openFormModal()" :mode="Modes.ADD">
+        <ToolBarButton @click="openFormModal()" :value="addMode">
           Create Scenario
         </ToolBarButton>
       </div>
@@ -24,11 +24,9 @@
         <ItemCard
           v-for="scenario in scenarioSet"
           :key="scenario.id"
-          @selected="duplicate($event)"
           @remove="confirmDelete($event)"
-          @edit="openFormModal($event, scenario)"
-          @duplicate="duplicate($event)"
-          :selectable="mode === Modes.DUPLICATE"
+          @edit="openFormModal(scenario)"
+          @duplicate="duplicateScenario($event)"
           :item="scenario"
           :itemType="'scenario'"
           link
@@ -40,7 +38,7 @@
             {{ scenario.description }}
           </p>
           <p class="content is-small">
-            <span v-if="scenario.modified !== scenario.created">
+            <span v-if="scenario.modified">
               Last Modified {{ scenario.modified | timeToNow }}
             </span>
             <br />
@@ -73,15 +71,9 @@ export default {
   data() {
     return {
       // import from JS file
-      scenariosHelp: scenariosHelp,
-      Modes: {
-        DEFAULT: 0,
-        ADD: 1,
-        EDIT: 2
-      },
-      // Set to DEFAULT mode
-      mode: 0,
-      editId: null
+      scenariosHelp,
+
+      addMode: false
     };
   },
   computed: {
@@ -90,11 +82,11 @@ export default {
     })
   },
   methods: {
-    openFormModal(id = null, scenario = null) {
+    openFormModal(scenario) {
       this.$buefy.modal.open({
         parent: this,
         component: ScenarioForm,
-        props: { id, scenario },
+        props: { scenario },
         hasModalCard: true,
         trapFocus: true
       });
@@ -103,10 +95,6 @@ export default {
       removeScenario: "scenarios/removeScenario",
       duplicateScenario: "scenarios/duplicateScenario"
     }),
-    duplicate(eScenarioId) {
-      this.duplicateScenario(eScenarioId);
-      this.mode = this.Modes.DEFAULT;
-    },
     confirmDelete(event) {
       this.$buefy.dialog.confirm({
         title: "Delete Scenario",

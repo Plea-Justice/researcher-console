@@ -212,6 +212,8 @@ export default {
       const vField = this.$v.form[fieldName];
       if (vField.$invalid) vField.$touch();
     });
+
+    this.updateSceneErrors({ id: this.scene.id, valid: !this.$v.form.$invalid })
   },
   watch: {
     // Update form for inbound changes

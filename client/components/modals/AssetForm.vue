@@ -5,7 +5,7 @@
         <p class="modal-card-title">Add Asset</p>
       </header>
       <section class="modal-card-body">
-        <b-field label="File Upload">
+        <b-field v-if="addMode" label="File Upload">
           <b-field
             class="file is-primary fix-field-max-width no-help"
             :class="{ 'has-name': assetForm.file }"
@@ -37,7 +37,7 @@
           </b-field>
         </b-field>
 
-        <b-field label="Asset Type" class="no-help">
+        <b-field v-if="addMode" label="Asset Type" class="no-help">
           <b-select
             placeholder="Select a type"
             v-model="assetForm.type"
@@ -93,7 +93,8 @@ export default {
     user: {
       type: Object,
       required: true
-    }
+    },
+    asset: Object
   },
   data() {
     return {
@@ -102,12 +103,16 @@ export default {
         type: null,
         file: null,
         public: false,
-        readOnly: false
+        readOnly: false,
+        ...this.asset
       }
     };
   },
   components: { HelpSidebar },
   computed: {
+    addMode() {
+      return !this.asset
+    },
     ...mapGetters({
       assetSet: "assets/assetSet",
       allAssetTypes: "assets/allAssetTypes"
@@ -117,7 +122,7 @@ export default {
     ...mapActions({
       addAsset: "assets/addAsset"
     }),
-    async onSubmit() {
+    onSubmit() {
       // If that filename already exists
       // FIXME: check doesn't work (server removes spaces)
       // FIXME: check against all lowercase (case-insensitive), make all lowercase?
@@ -125,6 +130,7 @@ export default {
         this.assetSet.some(
           ({ name }) =>
             name.toLowerCase() === this.assetForm.file.name.toLowerCase()
+            && id !== this.assetForm?.id
         )
       ) {
         this.$buefy.toast.open({
@@ -142,7 +148,7 @@ export default {
       } else {
         // Add the scenario to state
         try {
-          await this.addAsset(this.assetForm);
+          this.addMode ? this.addAsset(this.assetForm) : this.editAsset(this.assetForm)
           this.$parent.close();
         } catch (error) {}
       }

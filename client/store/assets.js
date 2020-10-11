@@ -32,6 +32,10 @@ export const actions = {
   async removeAsset({ commit }, id) {
     const response = await this.$axios.$delete(`/api/v1/assets/${id}`);
     if (response.success) commit('deleteAsset', { id });
+  },
+  async editAsset({ commit }, asset) {
+    const response = await this.$axios.$put(`/api/v1/assets/${asset.id}`, asset);
+    if (response.success) commit('updateAsset', asset);
   }
 };
 
@@ -54,5 +58,8 @@ export const mutations = {
     // Remove asset
     state.assetList.splice(state.assetList.indexOf(id), 1);
     Vue.delete(state.assets, id);
+  },
+  updateAsset(state, { asset }) {
+    Vue.set(state.assets, asset.id, asset);
   }
 };

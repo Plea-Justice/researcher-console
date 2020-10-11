@@ -44,22 +44,14 @@ import { toPascalCase } from "~/assets/util";
 
 export default {
   props: {
-    id: String,
     scenario: Object
   },
   data() {
-    const ScenarioForm = {
+    const scenarioForm = {
       name: "",
-      description: ""
-    };
-
-    const scenarioForm = this.scenario
-      ? {
-          ...ScenarioForm,
-          name: this.scenario.name,
-          description: this.scenario.description
-        }
-      : ScenarioForm;
+      description: "",
+      ...this.scenario
+    }
 
     return {
       scenarioForm
@@ -69,12 +61,14 @@ export default {
     this.focus();
   },
   computed: {
+    addMode() {
+      return !this.scenario
+    },
     ...mapGetters({
       scenarioSet: "scenarios/scenarioSet"
     })
   },
   methods: {
-    // TODO: use focus or remove it
     focus() {
       this.$refs.focus_target.focus();
     },
@@ -82,11 +76,12 @@ export default {
       addScenario: "scenarios/addScenario",
       editScenario: "scenarios/editScenario"
     }),
-    async onSubmit() {
+    onSubmit() {
       if (
         this.scenarioSet.some(
-          ({ name }) =>
+          ({ id, name }) =>
             name.toLowerCase() === this.scenarioForm.name.toLowerCase()
+            && id !== this.scenarioForm?.id
         )
       ) {
         this.$buefy.toast.open({
@@ -101,14 +96,13 @@ export default {
         // Add scenario to state
         const pascalName = toPascalCase(this.scenarioForm.name);
         try {
-          //FIXME: why is this await?
-          (await this.id)
-            ? this.editScenario({
+          this.addMode
+            ? this.addScenario({ ...this.scenarioForm, name: pascalName })
+            : this.editScenario({
                 ...this.scenarioForm,
                 name: pascalName,
-                id: this.id
               })
-            : this.addScenario({ ...this.scenarioForm, name: pascalName });
+
           this.$parent.close();
         } catch (error) {}
       }

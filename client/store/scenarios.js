@@ -20,10 +20,8 @@ export const actions = {
     // Get new scenario id from server
     const response = await this.$axios.$post('/api/v1/scenarios', { meta: scenario });
     if (response.success) {
-      scenario.id = response.result.id;
-      scenario.modified = Date.now();
-      scenario.created = Date.now();
-      commit('newScenario', { scenario });
+      const { id } = response.result;
+      commit('newScenario', { ...scenario, id, modified: null, created: Date.now() });
     }
   },
   async removeScenario({ commit }, id) {
@@ -31,8 +29,12 @@ export const actions = {
     if (response.success) commit('deleteScenario', { id });
   },
   async editScenario({ commit }, scenario) {
-    const response = await this.$axios.$put(`/api/v1/scenarios/${scenario.id}`, { meta: scenario });
-    if (response.success) commit('updateScenario', scenario);
+    const modifiedScenario = { ...scenario, modified: Date.now() };
+
+    const response = await this.$axios.$put(`/api/v1/scenarios/${scenario.id}`, {
+      meta: modifiedScenario
+    });
+    if (response.success) commit('updateScenario', modifiedScenario);
   },
   async duplicateScenario({ commit, state, getters }, id) {
     // Fetch full scenario from server
@@ -67,10 +69,10 @@ export const mutations = {
     state.scenarios = res.scenarios;
     state.scenarioList = res.scenarioList;
   },
-  newScenario(state, payload) {
+  newScenario(state, scenario) {
     // Add new scenario to state
-    Vue.set(state.scenarios, payload.scenario.id, payload.scenario);
-    state.scenarioList.unshift(payload.scenario.id);
+    Vue.set(state.scenarios, scenario.id, scenario);
+    state.scenarioList.unshift(scenario.id);
   },
   deleteScenario(state, payload) {
     // Remove scenario
