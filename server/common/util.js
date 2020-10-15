@@ -6,7 +6,16 @@ const bcrypt = require('bcrypt');
 const UserModel = require('../models/UserModel');
 
 /**** Global Constants ****/
-const assetTypes = ['clip', 'actor', 'foreground', 'background'];
+const assetTypes = {
+    // FIXME: Deprecate this and move globals to a more appropriate file.
+    types: ['clip', 'actor', 'foreground', 'background'],
+    spec: {
+        'clip': ['.js'],
+        'actor': ['.js'],
+        'background': ['.js'],
+        'foreground': ['.js']
+    }
+};
 const saltRounds = 10;
 
 /**** Request/Response Objects ****/
@@ -40,9 +49,9 @@ const btoa = (src) => Buffer.from(src, 'binary').toString('base64');
 
 /**** Database Related Functions ****/
 
-async function userIsAdmin(user_id) {
+async function userIsAdmin(id) {
     try {
-        let obj = await UserModel.findById(user_id);
+        let obj = await UserModel.findById(id);
         return obj.permitAdmin;
 
     } catch (err) {
@@ -51,9 +60,9 @@ async function userIsAdmin(user_id) {
     }
 }
 
-async function userPermissions(user_id) {
+async function userPermissions(id) {
     try {
-        const obj = await UserModel.findById(user_id);
+        const obj = await UserModel.findById(id);
         return {
             permitAdmin: obj.permitAdmin,
             permitHosting: obj.permitHosting,
@@ -92,8 +101,8 @@ async function verifyPassword(user, byName, password) {
 }
 /**** Filesystem Functions ****/
 
-function userDir(options, user_id) {
-    return path.join(options.user_dir, user_id);
+function userDir(options, id) {
+    return path.join(options.user_dir, id);
 }
 
 function simTmpDir(options, sim_id) {

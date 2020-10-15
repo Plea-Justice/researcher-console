@@ -6,7 +6,6 @@
 const fs = require('fs-extra');
 const zip = require('cross-zip');
 const path = require('path');
-const os = require('os');
 
 const util = require('../../common/util');
 const ScenarioModel = require('../../models/ScenarioModel');
@@ -39,7 +38,7 @@ module.exports = function (options) {
      */
     router.post('/publish', mandatoryRoute, async (req, res)=>{
         const id = req.params.scenario_id;
-        const uid = req.session.user_id;
+        const uid = req.session.user.id;
         const tmpdir = util.simTmpDir(options, id);
         const servdir = util.simServDir(options, id);
 
@@ -88,9 +87,8 @@ module.exports = function (options) {
  */
 async function generateSimulation(options, req) {
     const id = req.params.scenario_id;
-    const uid = req.session.user_id;
+    const uid = req.session.user.id;
     const tmpdir = util.simTmpDir(options, id);
-    const user_data_dir = util.userDir(options, uid);
 
     try {
         const scenario = await ScenarioModel.findOne({_id: id, user_id: uid});
@@ -103,7 +101,7 @@ async function generateSimulation(options, req) {
 
         // Requested assets by type.
         const requested = new Map();
-        assetTypes.forEach(type => requested[type] = new Set());
+        Object.keys(assetTypes.spec).forEach(type => requested[type] = new Set());
 
         // Get the list of file paths and names without extension for each asset type.
         const assets = await AssetModel.find({$or: [{user_id: uid}, {public: true}]});
@@ -195,7 +193,7 @@ async function generateSimulation(options, req) {
 
         // Copy in a clean simulation from the template directory.
         fs.emptyDirSync(tmpdir);
-        assetTypes.map(type => fs.mkdirpSync(path.join(tmpdir, 'assets', type)));
+        Object.keys(assetTypes.spec).map(type => fs.mkdirpSync(path.join(tmpdir, 'assets', type)));
         fs.copySync(path.normalize(options.sim_dir), tmpdir, {filter: src => !src.includes('.git')});
 
         // Copy requested assets.

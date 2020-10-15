@@ -17,7 +17,7 @@ module.exports = function (options) {
      */
     router.get('/', (req, res) => {
 
-        ScenarioModel.find({ user_id: req.session.user_id }, (err, objs) => {
+        ScenarioModel.find({ $or: [{ user_id: req.session.user.id }, { public: true }] }, (err, objs) => {
             if (err)
                 res.status(500).json(util.failure('There was an error fetching the scenario list.', err));
             else
@@ -52,7 +52,7 @@ module.exports = function (options) {
     router.post('/', (req, res) => {
 
         let scenario = new ScenarioModel({
-            user_id: req.session.user_id,
+            user_id: req.session.user.id,
             name: req.body.meta.name,
             description: req.body.meta.description,
             survey: req.body.meta.survey,
@@ -84,7 +84,7 @@ module.exports = function (options) {
      */
     router.get('/:scenario_id', (req, res) => {
         let id = req.params.scenario_id;
-        let uid = req.session.user_id;
+        let uid = req.session.user.id;
 
         ScenarioModel.findOne({_id: id, user_id: uid}, (err, obj)=>{
             if (err)
@@ -125,7 +125,7 @@ module.exports = function (options) {
     */
     router.put('/:scenario_id', (req, res) => {
         let id = req.params.scenario_id;
-        let uid = req.session.user_id;
+        let uid = req.session.user.id;
 
         if (options.noclobber) {
             res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
@@ -166,7 +166,7 @@ module.exports = function (options) {
      */
     router.delete('/:scenario_id', (req, res) => {
         let id = req.params.scenario_id;
-        let uid = req.session.user_id;
+        let uid = req.session.user.id;
 
         if (options.noclobber) {
             res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));

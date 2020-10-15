@@ -120,6 +120,7 @@ describe('Version 1 API Endpoints', function () {
     });
 
     it('upload asset', function (done) {
+        this.timeout(10000);
         request
             .post(`${base}/assets`)
             .set('cookie', session_cookie)
@@ -148,22 +149,21 @@ describe('Version 1 API Endpoints', function () {
     it('logout', function (done) {
         request
             .post(`${base}/auth/logout`)
+            .set('cookie', session_cookie)
+            .accept('application/json')
             .expect(200)
             .expect('content-type', /application\/json/)
             .end(done);
     });
 
     it('check logged out', function (done) {
-        console.log(session_cookie);
         request
             .get(`${base}/auth/user`)
             .set('cookie', session_cookie)
             .accept('application/json')
-            .expect(200)
+            .expect(401)
             .expect('Content-Type', /application\/json/)
             .expect(validate.Response)
-            .expect(validate.User)
-            .expect((res)=>console.log(res.body))
             .end(done);
     });
 

@@ -59,14 +59,14 @@
       sticky-header
       :loading="loading"
       height="100%"
-      default-sort="username"
+      default-sort="name"
     >
       <b-table-column
         v-slot="props"
-        field="username"
+        field="name"
         label="Username"
         sortable
-        >{{ props.row.username }}</b-table-column
+        >{{ props.row.name }}</b-table-column
       >
       <b-table-column
         v-slot="props"
@@ -211,31 +211,31 @@ export default {
       if (this.selected)
         this.adminAPICall(
           "Delete User",
-          `Confirm deletion of user "${this.selected.username}" by typing your password.`,
+          `Confirm deletion of user "${this.selected.name}" by typing your password.`,
           "delete",
-          `/api/v1/admin/users/${this.selected.user_id}`
+          `/api/v1/admin/users/${this.selected.id}`
         );
     },
     changePermissions(permissions) {
       if (this.selected)
         this.adminAPICall(
           "Modify User Permissions",
-          `Confirm modification of user "${this.selected.username}" by typing your password.`,
+          `Confirm modification of user "${this.selected.name}" by typing your password.`,
           "put",
-          `/api/v1/admin/users/${this.selected.user_id}/permissions`,
+          `/api/v1/admin/users/${this.selected.id}/permissions`,
           permissions
         );
     },
     toggleAdmin() {
       if (this.selected) {
-        const user = this.users.find(x => x.user_id === this.selected.user_id);
+        const user = this.users.find(x => x.id === this.selected.id);
         const permissions = { permitAdmin: user.permitAdmin ? false : true };
         this.changePermissions(permissions);
       }
     },
     toggleSharingPermission() {
       if (this.selected) {
-        const user = this.users.find(x => x.user_id === this.selected.user_id);
+        const user = this.users.find(x => x.id === this.selected.id);
         const permissions = {
           permitSharing: user.permitSharing ? false : true
         };
@@ -244,7 +244,7 @@ export default {
     },
     toggleUploadPermission() {
       if (this.selected) {
-        const user = this.users.find(x => x.user_id === this.selected.user_id);
+        const user = this.users.find(x => x.id === this.selected.id);
         const permissions = {
           permitUploads: user.permitUploads ? false : true
         };
@@ -253,7 +253,7 @@ export default {
     },
     toggleHostingPermission() {
       if (this.selected) {
-        const user = this.users.find(x => x.user_id === this.selected.user_id);
+        const user = this.users.find(x => x.id === this.selected.id);
         const permissions = {
           permitHosting: user.permitHosting ? false : true
         };
@@ -264,7 +264,7 @@ export default {
       if (this.selected)
         this.$buefy.dialog.prompt({
           title: "New Password",
-          message: `Enter a new password for user "${this.selected.username}".`,
+          message: `Enter a new password for user "${this.selected.name}".`,
           inputAttrs: {
             type: "password",
             placeholder: "New Password",
@@ -275,9 +275,9 @@ export default {
           onConfirm: newPass =>
             this.adminAPICall(
               "Confirm Change of Password",
-              `Confirm change of password for user "${this.selected.username}" by typing your password.`,
+              `Confirm change of password for user "${this.selected.name}" by typing your password.`,
               "put",
-              `/api/v1/admin/users/${this.selected.user_id}/password`,
+              `/api/v1/admin/users/${this.selected.id}/password`,
               { newPassword: newPass }
             )
         });

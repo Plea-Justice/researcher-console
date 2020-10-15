@@ -24,13 +24,13 @@ module.exports = {
         type: 'object',
         properties: {
             name: { type: 'string' },
-            user_id: { $ref: 'org.pleajustice.server.db.id' },  // TODO: Rename this 'id'.
+            id: { $ref: 'org.pleajustice.server.db.id' },
             sessions: { type: 'integer' },
         },
         patternProperties: {
             '^permit': { type: 'boolean' }
         },
-        required: ['name', 'user_id', 'sessions'],
+        required: ['name', 'id', 'sessions'],
         additionalProperties: false
     },
 
@@ -107,11 +107,13 @@ module.exports = {
         $id: 'org.pleajustice.asset.list',
         type: 'object',
         properties: {
+            assetTypeSpecs: { type: 'object' },
+            // FIXME: Deprecate this.
             assetTypes: { type: 'array', items: { type: 'string' }},
             assetList: { type: 'array', items: { type: 'string' }},
             assets: { type: 'object', additionalProperties: { $ref: 'org.pleajustice.asset.asset' }}
         },
-        required: ['assetTypes', 'assetList', 'assets'],
+        required: ['assetTypeSpecs', 'assetTypes', 'assetList', 'assets'],
         additionalProperties: false
     },
 };

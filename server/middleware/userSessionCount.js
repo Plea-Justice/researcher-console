@@ -4,15 +4,15 @@ const UserModel = require('../models/UserModel');
 // warning if more than one session is active.
 
 function countUserSessions (req, res, next) {
-    if (req.session && req.session.user_id && req.ip) {
-        UserModel.findById(req.session.user_id, (err, obj)=>{
+    if (req.session.is_logged_in && req.session.user && req.ip) {
+        UserModel.findById(req.session.user.id, (err, obj)=>{
             if (err || !obj) {
                 return;
             } else {
                 // Mongo keys cannot include the '.' character.
                 let ip = req.ip.replace(/\./g, '-');
-                
-                // Delete any records older than 5 minutes. 
+
+                // Delete any records older than 5 minutes.
                 obj.addresses.forEach((val, key, map)=>{
                     if (Date.now() - val > 300000)
                         map.delete(key);
@@ -33,9 +33,9 @@ function countUserSessions (req, res, next) {
 
 // Get the number of active sessions from the database.
 
-async function getUserSessionCount (user_id) {
+async function getUserSessionCount (id) {
     try {
-        let obj = await UserModel.findById(user_id);
+        let obj = await UserModel.findById(id);
         return obj.addresses.size;
 
     } catch (err) {

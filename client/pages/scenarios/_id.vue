@@ -1,7 +1,7 @@
 <template>
   <ScenarioLayout ref="layout" :title="scenarioMeta.name" :logout="onLogout">
     <template ref="header">
-      <ToolBar ref="toolbar" class="horizontal-sticky">
+      <ToolBar ref="toolbar">
         <template v-slot:start>
           <p class="level-item">Scenes: {{ numScenes }}</p>
           <div class="level-item buttons">
@@ -377,10 +377,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.horizontal-sticky {
-  left: 0;
-}
-
 // Toolbar button group spacing
 .level-item.buttons {
   margin-bottom: 0;
