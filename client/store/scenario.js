@@ -24,15 +24,11 @@ const initialState = () => ({
   scenes: {},
   // FIXME: fix parent valid prop (it doesn't get updated)
   status: {
-<<<<<<< Updated upstream
-    valid: false,
-=======
     // New Scenarios have a valid status until flagged otherwise
     valid: true,
     // Tracks errors related to `frames`
     // Note: doesn't have hierarchy (doesn't track errors for scenes inside of frame)
     //       only errors related to itself
->>>>>>> Stashed changes
     frameErrors: [],
     sceneErrors: [],
     // FIXME: remove this if not used to reduce confusion
@@ -155,9 +151,6 @@ export const actions = {
     commit('setScene', { id, scene: { id, props: newProps } });
     commit('updateSceneCount', { modifier: 1, frameId });
   },
-<<<<<<< Updated upstream
-  removeScene({ commit, state, getters }, id) {
-=======
   removeScene({ commit, dispatch, state, getters }, id) {
     // Handle if scene is a bound parent (unbind & remove all children)
     const boundScenes = state.scenes[id]?.bound;
@@ -174,7 +167,6 @@ export const actions = {
     }
 
     // TODO: add a way to do deletion directly instead of depending on conditions & frames?
->>>>>>> Stashed changes
     commit('setScene', { id, scene: { id, props: null } });
     const frameId = state.frameList[getters.frameSet.findIndex(({ scenes }) => scenes.includes(id))];
     commit('updateSceneCount', { modifier: -1, frameId });
@@ -261,15 +253,6 @@ export const mutations = {
       // If invalid and not flagged, flag
       state.status.frameErrors.push(id);
     }
-<<<<<<< Updated upstream
-
-    const hasErrors = state.status.sceneErrors.length || state.status.frameErrors.length;
-    // if no errors, update valid key
-    if (state.status.valid && hasErrors) {
-      Vue.set(state.status, 'valid', false);
-    } else if (!state.status.valid && !hasErrors) {
-      Vue.set(state.status, 'valid', true);
-=======
   },
   setSceneErrors(state, { valid, id }) {
     const errorIndex = state.status.sceneErrors.indexOf(id);
@@ -278,7 +261,6 @@ export const mutations = {
       state.status.sceneErrors.splice(errorIndex, 1);
     } else if (!valid && errorIndex === -1) {
       state.status.sceneErrors.push(id);
->>>>>>> Stashed changes
     }
   },
 
