@@ -1,7 +1,7 @@
 <template>
   <ScenarioLayout ref="layout" :title="scenarioMeta.name" :logout="onLogout">
     <template ref="header">
-      <ToolBar ref="toolbar">
+      <ToolBar ref="toolbar" class="toolbar-horizontal-sticky">
         <template v-slot:start>
           <p class="level-item">Scenes: {{ numScenes }}</p>
           <div class="level-item buttons">
@@ -386,6 +386,11 @@ export default {
     margin-bottom: 0;
   }
 }
+
+  .toolbar-horizontal-sticky {
+    z-index: $buefyOverlapIndex + 2;
+    left: 0;
+  }
 
 .responsive-center {
   max-width: max-content;
