@@ -175,17 +175,21 @@ export default {
     ]);
   },
   created() {
-    // FIXME: keep better track of dirty state
+    const excludedMutators = [
+      'scenario/setSceneErrors',
+      'scenario/setFrameErrors',
+      'scenario/updateScenarioValidity'
+    ]
+
     this.$store.subscribe((mutation, state) => {
-      if (this.scenarioStoreHasChanged) {
-        // If state has changed set to false if saving
-        if (mutation.type === "scenario/putScenario")
-          this.scenarioStoreHasChanged = false;
-      } else if (
+      if(this.scenarioStoreHasChanged && mutation.type === "scenario/putScenario") {
+        this.scenarioStoreHasChanged = false;
+      } else if(
+        !this.scenarioStoreHasChanged &&
         mutation.type.startsWith("scenario/") &&
-        !mutation.type !== "scenario/setScenario"
+        !excludedMutators.includes(mutation.type)
       ) {
-        // Otherwise for any mutation except... mark state has changed
+        // Else for any mutation in 'scenario' store (except excludions)
         this.scenarioStoreHasChanged = true;
       }
     });

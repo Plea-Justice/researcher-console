@@ -24,9 +24,18 @@ const initialState = () => ({
   scenes: {},
   // FIXME: fix parent valid prop (it doesn't get updated)
   status: {
+<<<<<<< Updated upstream
     valid: false,
+=======
+    // New Scenarios have a valid status until flagged otherwise
+    valid: true,
+    // Tracks errors related to `frames`
+    // Note: doesn't have hierarchy (doesn't track errors for scenes inside of frame)
+    //       only errors related to itself
+>>>>>>> Stashed changes
     frameErrors: [],
     sceneErrors: [],
+    // FIXME: remove this if not used to reduce confusion
     dirty: 0
   }
 });
@@ -77,11 +86,11 @@ export const actions = {
   removeCondition({ commit, dispatch, state }, id) {
     const isLast = state.conditionList.length <= 1;
     const index = state.conditionList.indexOf(id);
-    commit('deleteCondition', { index, isLast });
 
-    if (isLast) {
-      dispatch('addCondition');
-      dispatch('addFrame');
+    if (!isLast) {
+      // TODO: async this
+      const sceneIds = state.frameList.map(frameId => state.frames[frameId].scenes[index]);
+      sceneIds.forEach(sceneId => dispatch('removeScene', sceneId));
     }
   },
   async copyConditions({ dispatch, state, getters }, idList) {
@@ -146,34 +155,69 @@ export const actions = {
     commit('setScene', { id, scene: { id, props: newProps } });
     commit('updateSceneCount', { modifier: 1, frameId });
   },
+<<<<<<< Updated upstream
   removeScene({ commit, state, getters }, id) {
+=======
+  removeScene({ commit, dispatch, state, getters }, id) {
+    // Handle if scene is a bound parent (unbind & remove all children)
+    const boundScenes = state.scenes[id]?.bound;
+    if (boundScenes > 0) {
+      const frame = state.frames[state.frameList.find(frameId => state.frames[frameId].scenes.includes(id))];
+
+      const offset = frame.scenes.indexOf(id) + 1;
+      const childIds = frame.scenes.slice(offset, offset + boundScenes);
+      // TODO: async this
+      childIds.forEach(childId => {
+        dispatch('unbindScene', { id: childId, parentId: id });
+        dispatch('removeScene', childId);
+      });
+    }
+
+    // TODO: add a way to do deletion directly instead of depending on conditions & frames?
+>>>>>>> Stashed changes
     commit('setScene', { id, scene: { id, props: null } });
     const frameId = state.frameList[getters.frameSet.findIndex(({ scenes }) => scenes.includes(id))];
     commit('updateSceneCount', { modifier: -1, frameId });
   },
-  updateScene({ commit }, { valid, id, props }) {
-    commit('setSceneProps', { valid, id, props: { ...props } });
+  updateScene({ commit, dispatch }, { id, valid, props }) {
+    commit('setSceneProps', {
+      id,
+      // If object create a copy, otherwise pass flat value
+      props: typeof props === 'object' && props !== null ? { ...props } : props
+    });
+    dispatch('updateSceneErrors', { id, valid });
   },
   copyScenes({ commit, state }, [parentId, ...childIds]) {
     childIds.forEach(id => commit('setScene', { id, scene: { ...state.scenes[parentId], id } }));
   },
-  bindScenes({ commit, state }, [parentId, ...childIds]) {
+  bindScenes({ commit, dispatch, state }, [parentId, ...childIds]) {
     const parent = state.scenes[parentId];
     // TODO: Update key directly?
     // Update parent's bound reference counter
-    commit('setScene', { id: parent.id, scene: { ...parent, bound: parent.bound ? parent.bound + 1 : 0 } });
+    commit('setScene', {
+      id: parent.id,
+      scene: { ...parent, bound: parent.bound ? parent.bound + childIds.length : childIds.length }
+    });
 
     // Update children to reference parentId
-    childIds.forEach(id => commit('setScene', { id, scene: { id, props: parent.id } }));
+    childIds.forEach(id =>
+      dispatch('updateScene', {
+        id,
+        valid: !state.status.sceneErrors.includes(parentId),
+        props: parent.id
+      })
+    );
   },
-  unbindScene({ commit, state }, { id, props }) {
+  unbindScene({ commit, dispatch, state }, { id, parentId }) {
     const childId = id;
-    const parentId = props;
     const parent = state.scenes[parentId];
 
-    // FIXME: be careful with validity, since goal is to update props might be better to use setSceneProps?
-    // Update children with parent's props
-    commit('setScene', { id: childId, scene: { id: childId, props: { ...parent.props } } });
+    // Update children with parent's props & status
+    dispatch('updateScene', {
+      id: childId,
+      valid: !state.status.sceneErrors.includes(parentId),
+      props: { ...parent.props }
+    });
 
     // Update parent's bound reference counter
     commit('setScene', { id: parentId, scene: { ...parent, bound: parent.bound - 1 } });
@@ -217,6 +261,7 @@ export const mutations = {
       // If invalid and not flagged, flag
       state.status.frameErrors.push(id);
     }
+<<<<<<< Updated upstream
 
     const hasErrors = state.status.sceneErrors.length || state.status.frameErrors.length;
     // if no errors, update valid key
@@ -224,6 +269,16 @@ export const mutations = {
       Vue.set(state.status, 'valid', false);
     } else if (!state.status.valid && !hasErrors) {
       Vue.set(state.status, 'valid', true);
+=======
+  },
+  setSceneErrors(state, { valid, id }) {
+    const errorIndex = state.status.sceneErrors.indexOf(id);
+
+    if (valid && errorIndex !== -1) {
+      state.status.sceneErrors.splice(errorIndex, 1);
+    } else if (!valid && errorIndex === -1) {
+      state.status.sceneErrors.push(id);
+>>>>>>> Stashed changes
     }
   },
 
@@ -243,14 +298,14 @@ export const mutations = {
       // TODO: fix these being direct mutations?
       currFrame.scenes.push(sceneId);
 
-      // TODO: use updateCount?
+      // FIXME: use updateCount?
       if (prevScene.props !== null) {
         Vue.set(currFrame, 'size', currFrame.size + 1);
         state.numScenes += 1;
       }
     });
   },
-  deleteCondition(state, { index, id, isLast }) {
+  deleteCondition(state, { id, index, isLast }) {
     if (isLast) {
       // If last Condition reset all conditions, frames, and scenes
       state.frameList = [];
@@ -311,32 +366,12 @@ export const mutations = {
   },
 
   // **** Scene Mutations ****
+  // FIXME: mark this as an unprotected mutation, use least possible
   setScene(state, { id, scene }) {
     Vue.set(state.scenes, id, scene);
   },
-  setSceneProps(state, payload) {
-    const { id, props } = payload;
-    // Mark dirty and start working
-    Vue.set(state.status, 'dirty', state.status.dirty + 1);
-
-    // If invalid scene add to scenario errors, otherwise update errors if scene was previously invalid
-    if (!payload.valid && !state.status.sceneErrors.includes(id)) {
-      Vue.set(state.status, 'errors', [...state.status.sceneErrors, id]);
-    } else {
-      const index = state.status.sceneErrors.indexOf(id);
-      if (index !== -1) state.status.sceneErrors.splice(index, 1);
-    }
-
-    const hasErrors = state.status.sceneErrors.length || state.status.frameErrors.length;
-    // if no errors, update valid key
-    if (state.status.valid && hasErrors) {
-      Vue.set(state.status, 'valid', false);
-    } else if (!state.status.valid && !hasErrors) {
-      Vue.set(state.status, 'valid', true);
-    }
-
+  setSceneProps(state, { id, props }) {
     // Update scene
     Vue.set(state.scenes, id, { ...state.scenes[id], props });
-    Vue.set(state.status, 'dirty', state.status.dirty - 1);
   }
 };
