@@ -1,7 +1,7 @@
 <template>
   <ScenarioLayout ref="layout" :title="scenarioMeta.name" :logout="onLogout">
     <template ref="header">
-      <ToolBar ref="toolbar" class="horizontal-sticky">
+      <ToolBar ref="toolbar" class="toolbar-horizontal-sticky">
         <template v-slot:start>
           <p class="level-item">Scenes: {{ numScenes }}</p>
           <div class="level-item buttons">
@@ -85,6 +85,8 @@
         :selectable="isSelectable(Select.CONDITION)"
       />
     </template>
+
+    <p>{{ scenarioStatus }}</p>
 
     <section ref="frames" class="padded-responsive-container responsive-center">
       <!-- Frames -->
@@ -385,10 +387,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.horizontal-sticky {
-  left: 0;
-}
-
 // Toolbar button group spacing
 .level-item.buttons {
   margin-bottom: 0;
@@ -402,6 +400,11 @@ export default {
     margin-bottom: 0;
   }
 }
+
+  .toolbar-horizontal-sticky {
+    z-index: $buefyOverlapIndex + 2;
+    left: 0;
+  }
 
 .responsive-center {
   max-width: max-content;

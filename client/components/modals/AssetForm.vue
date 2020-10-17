@@ -5,9 +5,9 @@
         <p class="modal-card-title">Add Asset</p>
       </header>
       <section class="modal-card-body">
-        <b-field label="File Upload">
+        <b-field v-if="addMode" label="File Upload">
           <b-field
-            class="file is-primary fix-field-max-width no-help"
+            class="file is-primary no-help"
             :class="{ 'has-name': assetForm.file }"
           >
             <b-upload
@@ -37,7 +37,7 @@
           </b-field>
         </b-field>
 
-        <b-field label="Asset Type" class="no-help">
+        <b-field v-if="addMode" label="Asset Type" class="no-help">
           <b-select
             placeholder="Select a type"
             v-model="assetForm.type"
@@ -57,13 +57,20 @@
 
         <div class="flex-field-wrapper">
           <b-field label="Share with Others" class="flex-field">
-            <b-switch
-              :disabled="!user.permitSharing"
-              v-model="assetForm.public"
-              type="is-info"
+            <b-tooltip
+              :active="!user.permitSharing"
+              label="You're not permitted share files, request persmission from an admin"
+              position="is-bottom"
+              type="is-info is-light"
             >
-              Make Public
-            </b-switch>
+              <b-switch
+                :disabled="!user.permitSharing"
+                v-model="assetForm.public"
+                type="is-info"
+              >
+                Make Public
+              </b-switch>
+            </b-tooltip>
           </b-field>
           <HelpSidebar :text="assetsHelp.sharing" title="Asset Types" />
         </div>
@@ -93,7 +100,8 @@ export default {
     user: {
       type: Object,
       required: true
-    }
+    },
+    asset: Object
   },
   data() {
     return {
@@ -102,12 +110,16 @@ export default {
         type: null,
         file: null,
         public: false,
-        readOnly: false
+        readOnly: false,
+        ...this.asset
       }
     };
   },
   components: { HelpSidebar },
   computed: {
+    addMode() {
+      return !this.asset
+    },
     ...mapGetters({
       assetSet: "assets/assetSet",
       allAssetTypes: "assets/allAssetTypes"
@@ -117,14 +129,14 @@ export default {
     ...mapActions({
       addAsset: "assets/addAsset"
     }),
-    async onSubmit() {
+    onSubmit() {
       // If that filename already exists
       // FIXME: check doesn't work (server removes spaces)
-      // FIXME: check against all lowercase (case-insensitive), make all lowercase?
       if (
         this.assetSet.some(
           ({ name }) =>
             name.toLowerCase() === this.assetForm.file.name.toLowerCase()
+            && id !== this.assetForm?.id
         )
       ) {
         this.$buefy.toast.open({
@@ -142,7 +154,7 @@ export default {
       } else {
         // Add the scenario to state
         try {
-          await this.addAsset(this.assetForm);
+          this.addMode ? this.addAsset(this.assetForm) : this.editAsset(this.assetForm)
           this.$parent.close();
         } catch (error) {}
       }
@@ -154,22 +166,29 @@ export default {
 <!-- Global Styles -->
 <style lang="scss">
 // FIXME: make these global for fixing max-width uploads?
-.fix-field-max-width {
-  & > .field-body {
+.field.file {
+  .field-body {
     max-width: 100%;
-    .field.has-addons {
-      max-width: 100%;
-    }
+  }
+
+  .field.has-addons {
+    max-width: 100%;
   }
 
   .file-name {
+    width: 100%;
     max-width: unset;
+  }
+
+  .file-name.control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
   }
 }
 
-.file-name.control {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+// Remove default error messages when no-help class is applied
+.field.no-help > .help {
+  display: none;
 }
 </style>
 

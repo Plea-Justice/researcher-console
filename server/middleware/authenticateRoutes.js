@@ -15,7 +15,7 @@ function authenticatedRoute (req, res, next) {
  * Administrator priviledges required to access.
  */
 async function administratorRoute (req, res, next) {
-    if (await util.userIsAdmin(req.session.user_id)) next();
+    if (await util.userIsAdmin(req.session.user.id)) next();
     else next(reqadmin);
 }
 
@@ -23,7 +23,7 @@ async function administratorRoute (req, res, next) {
  * Password required on every access.
  */
 async function mandatoryRoute (req, res, next) {
-    if (await util.verifyPassword(req.session.user_id, false, req.body.password)) next();
+    if (await util.verifyPassword(req.session.user.id, false, req.body.password)) next();
     else next(reqpaswd);
 }
 

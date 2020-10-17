@@ -46,7 +46,7 @@ module.exports = function (options) {
         try {
             const assets = {};
 
-            const obj = await AssetModel.find({ $or: [{ user_id: req.session.user_id }, { public: true }] });
+            const obj = await AssetModel.find({ $or: [{ user_id: req.session.user.id }, { public: true }] });
             const list = obj.map(asset => ({
                 id: asset._id,
                 name: asset.name,
@@ -56,7 +56,7 @@ module.exports = function (options) {
                 public: asset.public,
                 readOnly: asset.readOnly,
                 owner: asset.owner,
-                isMine: asset.user_id.toString() === req.session.user_id,
+                isMine: asset.user_id.toString() === req.session.user.id,
                 created: asset.created
             }));
 
@@ -64,7 +64,9 @@ module.exports = function (options) {
 
             list.forEach(asset => assets[asset.id] = asset);
 
-            res.status(200).json(util.success('Asset listings returned.', { assetList, assets, assetTypes }));
+            res.status(200).json(util.success('Asset listings returned.',
+                { assetList, assets, assetTypeSpecs: assetTypes.spec, assetTypes: assetTypes.types }
+            ));
         } catch (err) {
             console.log(err);
             res.status(500).json(util.failure('There was an error reading the user\'s assets', err));
@@ -77,14 +79,14 @@ module.exports = function (options) {
      * @return Filename
      */
     router.post('/', async (req, res) => {
-        const user_data_dir = util.userDir(options, req.session.user_id);
+        const user_data_dir = util.userDir(options, req.session.user.id);
 
         if (options.noclobber) {
             res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
             return;
         }
 
-        const permissions = await util.userPermissions(req.session.user_id);
+        const permissions = await util.userPermissions(req.session.user.id);
         if (!permissions.permitUploads) {
             res.status(400).json(util.failure('User does not have permission to upload.'));
             return;
@@ -94,9 +96,9 @@ module.exports = function (options) {
 
         if (!req.files || Object.keys(req.files).length === 0)
             res.status(400).json(util.failure('No file was uploaded.'));
-        else if (!assetTypes.some((el) => el === req.body.type))
+        else if (!Object.keys(assetTypes.spec).some((el) => el === req.body.type))
             res.status(400).json(util.failure(
-                `Asset type does not match one of ${assetTypes}.`,
+                'Invalid asset type.',
                 req.body.type
             ));
         else if (req.body.type.match(/clip|actor/) &&
@@ -130,14 +132,14 @@ module.exports = function (options) {
                     publish(filepath);
 
                 const asset = new AssetModel({
-                    user_id: req.session.user_id,
+                    user_id: req.session.user.id,
                     path: path.join(req.body.type, name),
                     name: name.replace(/\..*?$/, ''),
                     type: req.body.type,
                     description: req.body.description,
                     public: req.body.public,
                     readOnly: req.body.readOnly,
-                    owner: req.session.username
+                    owner: req.session.user.name
                 });
                 await asset.save();
 
@@ -147,7 +149,20 @@ module.exports = function (options) {
                     path.resolve(path.join(user_data_dir, 'thumbnails', `${asset._id}.jpg`))
                 ]);
 
-                res.status(200).json(util.success('Asset uploaded.', asset._id));
+                res.status(200).json(util.success('Asset uploaded.', {
+                    id: asset._id,
+                    filename: asset.path,
+                    name: asset.name,
+                    type: asset.type,
+                    description: asset.description,
+                    public: asset.public,
+                    readOnly: asset.readOnly,
+                    owner: asset.owner,
+                    isMine: asset.user_id.toString() === req.session.user.id,
+                    created: asset.created,
+                    modified: asset.modified,
+
+                }));
             } catch (err) {
                 if (fs.pathExistsSync(filepath))
                     fs.removeSync(filepath);
@@ -181,7 +196,7 @@ module.exports = function (options) {
      * Find references to an asset (for safe deletion).
      */
     router.get('/:asset_id/references', async (req, res) => {
-        const uid = req.session.user_id;
+        const uid = req.session.user.id;
         const asset_id = req.params.asset_id;
 
         try {
@@ -190,12 +205,12 @@ module.exports = function (options) {
             });
 
             let matches = scenarios.filter(scenario =>
-                Object.entries((scenario.scenes)).map(([id, scene]) => 
+                Object.entries((scenario.scenes)).map(([id, scene]) =>
                     scene.props ?
                         [scene.props.actor, scene.props.clip, scene.props.foreground, scene.props.background]
                             .map(x => x ? x.id : '')
                             .includes(asset_id) : false
-                ).some(y => y)  
+                ).some(y => y)
             );
 
             matches.map(x => ({
@@ -217,7 +232,7 @@ module.exports = function (options) {
      * Delete a file. Asset ID is base64 encoded path.
      */
     router.delete('/:asset_id', async (req, res) => {
-        const uid = req.session.user_id;
+        const uid = req.session.user.id;
         const user_data_dir = util.userDir(options, uid);
         const asset_id = req.params.asset_id;
         const thumbnail = path.join(user_data_dir, 'thumbnails', `${asset_id}.jpg`);

@@ -7,10 +7,10 @@
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
         <b-tooltip
-          label="Your user is not permitted to add files"
-          position="is-bottom"
-          class="is-danger is-light"
           :active="!user.permitUploads"
+          label="You're not permitted to add files, request persmission from an admin"
+          position="is-bottom"
+          type="is-info is-light"
         >
           <ToolBarButton
             @click="openFormModal()"
@@ -38,7 +38,7 @@
       v-if="!assetSet.length"
       class="empty-text has-text-weight-medium is-size-5"
     >
-      No assets exists!
+      No assets exist!
       <br />Add an asset using the toolbar to get started.
     </p>
 
@@ -49,9 +49,11 @@
         <ItemCard
           v-for="asset in assetSetByType[type]"
           :key="asset.id"
-          @remove="confirmDelete($event)"
           :item="asset"
           :remove="asset.isMine"
+          @remove="confirmDelete($event)"
+          :edit="asset.isMine"
+          @edit="openFormModal(asset)"
         >
           <b-image
             :src="`${envAPIURL}/api/v1/assets/${asset.id}/thumbnail`"
@@ -104,7 +106,7 @@ export default {
   data() {
     return {
       // import from JS file
-      assetsHelp: assetsHelp,
+      assetsHelp,
 
       addMode: false,
       selectedType: "all",
@@ -137,11 +139,11 @@ export default {
     },
   },
   methods: {
-    openFormModal() {
+    openFormModal(asset) {
       this.$buefy.modal.open({
         parent: this,
         component: AssetForm,
-        props: { user: this.user },
+        props: { user: this.user, asset },
         hasModalCard: true,
         trapFocus: true
       });

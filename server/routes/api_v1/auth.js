@@ -13,8 +13,6 @@ module.exports = function (options) {
 
     // Limit authentication request rate.
     const rateLimit = require('express-rate-limit');
-    // FIXME: remove this.
-    const { fork } = require('child_process');
 
     const AuthReqLimit = rateLimit({
         windowMs: options.auth_minutes * 60 * 1000,
@@ -35,7 +33,6 @@ module.exports = function (options) {
     const { getUserSessionCount } = require('../../middleware/userSessionCount');
 
     const UserModel = require('../../models/UserModel');
-    const AssetModel = require('../../models/AssetModel');
     const assetTypes = util.assetTypes;
 
     /**
@@ -47,22 +44,22 @@ module.exports = function (options) {
     });
 
     /**
-     * Get the user_id of the current session if the user is logged in.
-     * @return {user: {name: String, user_id: String}}
+     * Get the user id of the current session if the user is logged in.
+     * @return {user: {name: String, id: String}}
      */
     router.get('/user', authenticatedRoute, async (req, res) => {
         // This route should only be accessible from an authenticated session.
-        if (!('user_id' in req.session))
-            res.status(500).json(util.failure('Session user_id not found.'));
-        else if (!('username' in req.session))
-            res.status(500).json(util.failure('Session username not found.'));
+        if (!req.session.is_logged_in)
+            res.status(500).json(util.failure('Session not logged in.'));
+        else if (!('user' in req.session))
+            res.status(500).json(util.failure('Session user not found.'));
         else
             res.status(200).json(util.success('User info returned.',
                 {user: {
-                    name: req.session.username,
-                    user_id: req.session.user_id,
-                    ...await util.userPermissions(req.session.user_id),
-                    sessions: await getUserSessionCount(req.session.user_id)
+                    name: req.session.user.name,
+                    id: req.session.user.id,
+                    ...await util.userPermissions(req.session.user.id),
+                    sessions: await getUserSessionCount(req.session.user.id)
                 }}
             ));
     });
@@ -80,8 +77,10 @@ module.exports = function (options) {
         try {
             const verified = await util.verifyPassword(user, true, pass);
             if (verified) {
-                req.session.user_id = verified._id;
-                req.session.username = verified.username;
+                req.session.user = {
+                    id: verified.id,
+                    name: verified.username
+                };
                 req.session.is_logged_in = true;
 
                 res.status(200).json(util.success('Logged in.'));
@@ -126,7 +125,7 @@ module.exports = function (options) {
             // FIXME: This is not a good way to copy over assets. Resolve this when public assets are enabled.
             const obj = await user.save();
             const user_data_dir = util.userDir(options, obj._id.toString());
-            assetTypes.forEach(type => fs.mkdirpSync(path.join(user_data_dir, type)));
+            Object.keys(assetTypes.spec).forEach(type => fs.mkdirpSync(path.join(user_data_dir, type)));
 
             res.status(200).json(util.success('User account created. You may now login.'));
         } catch (err) {

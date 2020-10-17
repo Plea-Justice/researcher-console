@@ -39,13 +39,13 @@ module.exports = {
 
     // Directory from which to serve live studies.
     sim_serve_dir: './data/simulations/',
-    
+
     // Whether to copy a template to each user's data directory.
     assets_template: true,
     assets_dir: './data/default-assets/',
 
     // Location of the simulation template with simulation as toplevel index.html.
-    sim_dir: './data/default-simulation/',
+    sim_dir: '../../pleabargain-simulation/',
 
     // Maximum upload size in MiB.
     max_upload_mb: 20,

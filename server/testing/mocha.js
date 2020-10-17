@@ -16,7 +16,7 @@ var variables = {};
 
 describe('Version 1 API Endpoints', function () {
 
-    it('POST login', function (done) {
+    it('login', function (done) {
         request
             .post(`${base}/auth/login`)
             .send(archetype.Credentials)
@@ -30,7 +30,7 @@ describe('Version 1 API Endpoints', function () {
             });
     });
 
-    it('GET user', function (done) {
+    it('get user information', function (done) {
         request
             .get(`${base}/auth/user`)
             .set('cookie', session_cookie)
@@ -43,7 +43,8 @@ describe('Version 1 API Endpoints', function () {
             .end(done);
     });
 
-    it('GET scenarios', function (done) {
+    /* Scenarios */
+    it('get user\'s scenario list', function (done) {
         request
             .get(`${base}/scenarios`)
             .set('cookie', session_cookie)
@@ -55,7 +56,7 @@ describe('Version 1 API Endpoints', function () {
             .end(done);
     });
 
-    it('POST scenarios', function (done) {
+    it('create scenario', function (done) {
         request
             .post(`${base}/scenarios`)
             .set('cookie', session_cookie)
@@ -64,12 +65,12 @@ describe('Version 1 API Endpoints', function () {
             .expect(200)
             .expect('Content-Type', /application\/json/)
             .expect(validate.Response)
-            .expect(validate.ObjectId)
+            .expect(validate.ObjectId)          // TODO: This should really be a scenariometa object
             .expect((res) => variables['scenarioid'] = res.body.result.id)
             .end(done);
     });
 
-    it('check scenario meta returned', function (done) {
+    it('check scenario list', function (done) {
         request
             .get(`${base}/scenarios`)
             .set('cookie', session_cookie)
@@ -81,7 +82,7 @@ describe('Version 1 API Endpoints', function () {
             .end(done);
     });
 
-    it('GET scenario', function (done) {
+    it('get scenario', function (done) {
         request
             .get(`${base}/scenarios/${variables['scenarioid']}`)
             .set('cookie', session_cookie)
@@ -93,12 +94,74 @@ describe('Version 1 API Endpoints', function () {
             .end(done);
     });
 
-    it('DELETE scenario', function (done) {
+    it('delete scenario', function (done) {
         request
             .delete(`${base}/scenarios/${variables['scenarioid']}`)
             .set('cookie', session_cookie)
             .accept('application/json')
             .expect(200)
+            .expect('Content-Type', /application\/json/)
+            .expect(validate.Response)
+            .end(done);
+    });
+
+
+    /* Assets */
+    it('get asset list', function (done) {
+        request
+            .get(`${base}/assets`)
+            .set('cookie', session_cookie)
+            .accept('application/json')
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+            .expect(validate.Response)
+            .expect(validate.AssetList)
+            .end(done);
+    });
+
+    it('upload asset', function (done) {
+        this.timeout(10000);
+        request
+            .post(`${base}/assets`)
+            .set('cookie', session_cookie)
+            .accept('application/json')
+            .attach('file', './testing/upload.png')
+            .field('type', 'background')
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+            .expect(validate.Response)
+            .expect(validate.Asset)
+            .expect((res) => variables['asset'] = res.body.result)
+            .end(done);
+    });
+
+    it('delete asset', function (done) {
+        request
+            .delete(`${base}/assets/${variables['asset'].id}`)
+            .set('cookie', session_cookie)
+            .accept('application/json')
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+            .expect(validate.Response)
+            .end(done);
+    });
+
+    it('logout', function (done) {
+        request
+            .post(`${base}/auth/logout`)
+            .set('cookie', session_cookie)
+            .accept('application/json')
+            .expect(200)
+            .expect('content-type', /application\/json/)
+            .end(done);
+    });
+
+    it('check logged out', function (done) {
+        request
+            .get(`${base}/auth/user`)
+            .set('cookie', session_cookie)
+            .accept('application/json')
+            .expect(401)
             .expect('Content-Type', /application\/json/)
             .expect(validate.Response)
             .end(done);

@@ -8,6 +8,8 @@ const userValidator = ajv.compile(schema.User);
 const scenarioValidator = ajv.addSchema(schema.ScenarioMeta).compile(schema.Scenario);
 const scenarioMetaValidator = ajv.compile(schema.ScenarioMeta);
 const scenarioListValidator = ajv.compile(schema.ScenarioList);
+const assetValidator = ajv.compile(schema.Asset);
+const assetListValidator = ajv.compile(schema.AssetList);
 
 module.exports = {
 
@@ -46,6 +48,18 @@ module.exports = {
         if (scenarioListValidator(res.body.result))
             return;
         throw Error(scenarioListValidator.errors[0].message);
+    },
+
+    Asset: function (res) {
+        if (assetValidator(res.body.result))
+            return;
+        throw Error(assetValidator.errors[0].message);
+    },
+
+    AssetList: function (res) {
+        if (assetListValidator(res.body.result))
+            return;
+        throw Error(assetListValidator.errors[0].message);
     }
 
 

@@ -21,8 +21,8 @@ module.exports = function (options) {
     router.get('/users', async (req, res) => {
         let list = await UserModel.find();
         list = list.map((u)=>({
-            user_id: u._id,
-            username: u.username,
+            id: u._id,
+            name: u.username,
             email: u.email,
             profession: u.profession,
             affiliation: u.affiliation,
@@ -43,8 +43,8 @@ module.exports = function (options) {
 
     router.put('/users/:user_id/permissions', async (req, res) => {
         let subject_id = req.params.user_id;
-        
-        if (req.body.permitAdmin !== undefined && req.session.user_id === subject_id) {
+
+        if (req.body.permitAdmin !== undefined && req.session.user.id === subject_id) {
             res.status(400).json(util.failure('You may not change the admin status of the current account.'));
             return;
         }
@@ -81,8 +81,8 @@ module.exports = function (options) {
 
     router.delete('/users/:user_id', async (req, res) => {
         let subject_id = req.params.user_id;
-        
-        if (req.session.user_id === subject_id) {
+
+        if (req.session.user.id === subject_id) {
             res.status(400).json(util.failure('You may not delete the current account.'));
             return;
         }
