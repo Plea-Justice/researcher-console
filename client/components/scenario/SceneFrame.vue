@@ -1,11 +1,10 @@
 <template>
   <div class="frame-wrapper-column">
     <div class="frame-wrapper-row">
-      <p class="frame-index">Scene {{ frameIndex + 1 }}</p>
+      <p class="frame-index">{{ frameIndex + 1 }}</p>
 
       <div class="frame box">
         <!-- Sidebar -->
-        <!-- FIXME: shoudln't show when collapsed and no sidebar stuff is needed -->
         <aside v-show="frame.size || !isOnly" class="sidebar buttons">
           <!-- Collapse Button -->
           <b-button
@@ -69,6 +68,9 @@
                 expanded
               />
             </form-group>
+
+            <p>{{ frame.size }}</p>
+
             <div
               v-if="(frame.size > 1 || collapsed) && conditionSet.length > 1"
               class="frame-header-item"
@@ -176,11 +178,6 @@ export default {
       default: false
     }
   },
-  mounted() {
-    EventListener.collapseAll(collapse => {
-      if (collapse != this.collapsed) this.collapseFrame();
-    });
-  },
   data() {
     return {
       collapsed: false,
@@ -204,6 +201,11 @@ export default {
     };
   },
   mounted() {
+    // Capture Collapse events
+    EventListener.collapseAll(collapse => {
+      if (collapse != this.collapsed) this.collapseFrame();
+    });
+
     // Automatically force raise frame errors when scenes starts being added
     const unwatch = this.$watch("uniqueScenes", function(newValue) {
       console.log(newValue)
@@ -362,7 +364,7 @@ export default {
 .frame-index {
   position: absolute;
   align-self: center;
-  left: -120px;
+  left: -40px;
   font-size: 2rem;
   color: $grey;
 }

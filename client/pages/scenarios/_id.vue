@@ -3,7 +3,6 @@
     <template ref="header">
       <ToolBar ref="toolbar" class="toolbar-horizontal-sticky">
         <template v-slot:start>
-          <p class="level-item">Scenes: {{ numScenes }}</p>
           <div class="level-item buttons">
             <b-tooltip :active="!!saveState.tooltip" :label="saveState.tooltip" :type="`${saveState.type} is-light`" position="is-bottom">
               <ToolBarButton
@@ -27,7 +26,7 @@
             <b-button
               @click="collapseAll()"
               :icon-left="`${collapsed ? 'expand' : 'compress'}-alt`"
-              :disabled="numScenes < 1"
+              :disabled="numScenes < 1 || frameSet.length <= 1"
             />
           </div>
 
@@ -86,6 +85,7 @@
       />
     </template>
 
+    <p>Scenes: {{ numScenes }}</p>
     <p>{{ scenarioStatus }}</p>
 
     <section ref="frames" class="padded-responsive-container responsive-center">

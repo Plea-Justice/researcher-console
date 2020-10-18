@@ -17,7 +17,7 @@
             :value="addMode"
             :disabled="!user.permitUploads"
           >
-            Upload Asset
+            Upload
           </ToolBarButton>
         </b-tooltip>
       </div>
