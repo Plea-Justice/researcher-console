@@ -52,7 +52,7 @@ export default {
         actions: {
           [Select.SCENE]: this.bindScenes
         },
-        messages: ['Select an scene to bind to', 'Select scene(s) to bind']
+        messages: ['Select a scene to bind to', 'Select scene(s) to bind']
       },
       [Modes.SWAP]: {
         type: Select.SCENE,
@@ -61,7 +61,7 @@ export default {
         actions: {
           [Select.SCENE]: this.swapScene
         },
-        messages: ['Select first scene to swap', 'Select second scene to swap with']
+        messages: ['Select a scene to swap with', 'Select a scene in the same condition to swap with']
       }
     };
 

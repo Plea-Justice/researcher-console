@@ -15,6 +15,8 @@
       :collapsed="collapsed"
       :invalid="$v.form.$invalid"
     >
+      <p>{{ scene.bound }}</p>
+
       <!-- Scene Type Toggle -->
       <b-field class="is-capitalized field-centered">
         <p class="control">
@@ -33,7 +35,7 @@
           </p>
           <p class="control">
             <b-button
-              @click="unbindScene({ id: bound, props: scene.id })"
+              @click="unbindScene({ id: bound, parentId: scene.id })"
               icon-left="unlink"
               type="is-primary is-light"
             />
@@ -270,7 +272,7 @@ export default {
   },
   computed: {
     isBound() {
-      return this.bound ? true : false;
+      return !!this.bound;
     },
     isSelectable() {
       let result = this.selectable;

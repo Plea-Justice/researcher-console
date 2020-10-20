@@ -7,7 +7,10 @@
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
         <ToolBarButton @click="openFormModal()" :value="addMode">
-          Create Scenario
+          Create New
+        </ToolBarButton>
+        <ToolBarButton :value="sharedMode">
+          Copy Shared
         </ToolBarButton>
       </div>
     </template>
@@ -73,7 +76,8 @@ export default {
       // import from JS file
       scenariosHelp,
 
-      addMode: false
+      addMode: false,
+      sharedMode: false
     };
   },
   computed: {
