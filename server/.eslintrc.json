@@ -27,7 +27,39 @@
         ],
         "max-len": [
             "error",
-            {"code":120}
-        ]
+            {
+                "code": 80,
+                "ignoreStrings": true,
+                "ignoreTemplateLiterals": true,
+                "ignoreRegExpLiterals": true
+            }
+        ],
+        "no-unused-vars": "warn",
+        "eol-last": "error",
+        "function-paren-newline": [
+            "error",
+            "consistent"
+        ],
+        "operator-linebreak": [
+            "error",
+            "before"
+        ],
+        "prefer-const":"error",
+        "func-call-spacing": [
+            "error",
+            "never"
+        ],
+        "object-curly-newline": [
+            "error",
+            {
+                "consistent": true
+            }
+        ],
+        "object-curly-spacing": [
+            "error",
+            "always"
+        ],
+        "no-tabs": "error",
+        "no-var": "error"
     }
 }

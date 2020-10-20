@@ -38,7 +38,7 @@
             {{ scenario.description }}
           </p>
           <p class="content is-small">
-            <span v-if="scenario.modified">
+            <span v-if="scenario.modified !== scenario.created">
               Last Modified {{ scenario.modified | timeToNow }}
             </span>
             <br />

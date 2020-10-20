@@ -33,7 +33,10 @@ if (options.log_to_console) {
 // Connect to the database.
 const mongoose = require('mongoose');
 mongoose.set('debug', options.mongoose_debug);
-mongoose.connect(options.mongo_uri, {useUnifiedTopology: true, useNewUrlParser: true});
+mongoose.connect(options.mongo_uri, {
+    useUnifiedTopology: true,
+    useNewUrlParser: true
+});
 const database = mongoose.connection;
 database.on('error', ()=>console.log('Error connecting to database.'));
 database.once('open', ()=>console.log('Connected to database.'));
@@ -69,7 +72,7 @@ app.use(cookieParser());
 // Enable Cross-Origin Requests
 const cors = require('cors');
 if (options.cors_enabled) {
-    app.use(cors({credentials: true, origin: options.cors_origin}));
+    app.use(cors({ credentials: true, origin: options.cors_origin }));
 }
 
 // Serve preview and live published simulations.

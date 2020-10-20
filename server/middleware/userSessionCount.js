@@ -10,7 +10,7 @@ function countUserSessions (req, res, next) {
                 return;
             } else {
                 // Mongo keys cannot include the '.' character.
-                let ip = req.ip.replace(/\./g, '-');
+                const ip = req.ip.replace(/\./g, '-');
 
                 // Delete any records older than 5 minutes.
                 obj.addresses.forEach((val, key, map)=>{
@@ -35,7 +35,7 @@ function countUserSessions (req, res, next) {
 
 async function getUserSessionCount (id) {
     try {
-        let obj = await UserModel.findById(id);
+        const obj = await UserModel.findById(id);
         return obj.addresses.size;
 
     } catch (err) {
