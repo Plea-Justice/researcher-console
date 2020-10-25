@@ -51,7 +51,7 @@ const btoa = (src) => Buffer.from(src, 'binary').toString('base64');
 
 async function userIsAdmin(id) {
     try {
-        let obj = await UserModel.findById(id);
+        const obj = await UserModel.findById(id);
         return obj.permitAdmin;
 
     } catch (err) {
@@ -84,7 +84,7 @@ async function userPermissions(id) {
 async function verifyPassword(user, byName, password) {
     try {
         const obj =  byName
-            ? await UserModel.findOne({username: user})
+            ? await UserModel.findOne({ username: user })
             : await UserModel.findById(user);
 
         if (!obj)

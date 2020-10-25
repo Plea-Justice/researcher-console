@@ -3,7 +3,7 @@
 
 // Code to be executed in the browser before loading the asset for thumbnail generation.
 const to_execute = `
-    /* 
+    /*
      * Default colors for thumbnails of customizable assets.
      */
 
@@ -113,7 +113,7 @@ async function thumbnail (inPath, outPath) {
 
     fs.ensureDirSync(path.dirname(outPath));
 
-    let res = await GenThumbnail(inPath, {
+    const res = await GenThumbnail(inPath, {
         exec: to_execute,
         imageQuality: 0.9,
         width: 400,
@@ -137,4 +137,3 @@ thumbnail(process.argv[2], process.argv[3])
     .finally(()=>{
         process.exit();
     });
-

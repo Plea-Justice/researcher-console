@@ -15,7 +15,7 @@ module.exports = {
             message: { type: 'string' },
             result: { type: 'object' }
         },
-        required: ['success', 'message', 'result'],
+        minProperties: 3,
         additionalProperties: false
     },
 
@@ -30,7 +30,7 @@ module.exports = {
         patternProperties: {
             '^permit': { type: 'boolean' }
         },
-        required: ['name', 'id', 'sessions'],
+        minProperties: 7,
         additionalProperties: false
     },
 
@@ -40,15 +40,15 @@ module.exports = {
         properties: {
             id: { $ref: 'org.pleajustice.server.db.id' },
             meta: { $ref: 'org.pleajustice.scenario.meta' },
-            frameList: { type: 'array', items: { type: 'string' }},
+            frameList: { type: 'array', items: { type: 'string' } },
             frames: { type: 'object' },
-            conditionList: { type: 'array', items: { type: 'string' }},
+            conditionList: { type: 'array', items: { type: 'string' } },
             conditions: { type: 'object' },
             numScenes: { type: 'integer' },
             scenes: { type: 'object' },
-            status: { type: 'object' }
+            status: { type: 'object' }  // TODO: Sensible default.
         },
-        required: ['meta', 'frameList', 'frames', 'scenes', 'conditionList', 'conditions', 'numScenes'],
+        minProperties: 8,
         additionalProperties: false
 
     },
@@ -59,6 +59,8 @@ module.exports = {
         properties: {
             id: { $ref: 'org.pleajustice.server.db.id' },
             name: { type: 'string' },
+            owner: { type: 'string' },
+            isMine: { type: 'boolean' },
             description: { type: 'string' },
             public: { type: 'boolean' },
             survey: { type: 'string' },
@@ -68,7 +70,7 @@ module.exports = {
             modified: { type: 'string', format: 'date-time' },
             version: { type: 'string', pattern: '^\\d\\.\\d\\.\\d+$' }
         },
-        required: ['id', 'name', 'description'],
+        minProperties: 12,
         additionalProperties: false
     },
 
@@ -76,9 +78,10 @@ module.exports = {
         $id: 'org.pleajustice.scenario.list',
         type: 'object',
         properties: {
-            scenarioList: { type: 'array', items: { type: 'string' }},
-            scenarios: { type: 'object', additionalProperties: { $ref: 'org.pleajustice.scenario.meta' }}
+            scenarioList: { type: 'array', items: { type: 'string' } },
+            scenarios: { type: 'object', additionalProperties: { $ref: 'org.pleajustice.scenario.meta' } }
         },
+        minProperties: 2,
         additionalProperties: false
     },
 
@@ -90,15 +93,16 @@ module.exports = {
             name: { type: 'string' },
             description: { type: 'string' },
             type: { type: 'string' },
-            filename: { type: 'string' },
+            path: { type: 'string' },
             owner: { type: 'string' },
             isMine: { type: 'boolean' },
             public: { type: 'boolean' },
             readOnly: { type: 'boolean' },
             created: { type: 'string', format: 'date-time' },
-            modified: { type: 'string', format: 'date-time' }
+            modified: { type: 'string', format: 'date-time' },
+            version: { type: 'string', pattern: '^\\d\\.\\d\\.\\d+$' }
         },
-        required: ['id', 'name', 'type', 'owner', 'public'],
+        minProperties: 12,
         additionalProperties: false
 
     },
@@ -109,11 +113,11 @@ module.exports = {
         properties: {
             assetTypeSpecs: { type: 'object' },
             // FIXME: Deprecate this.
-            assetTypes: { type: 'array', items: { type: 'string' }},
-            assetList: { type: 'array', items: { type: 'string' }},
-            assets: { type: 'object', additionalProperties: { $ref: 'org.pleajustice.asset.asset' }}
+            assetTypes: { type: 'array', items: { type: 'string' } },
+            assetList: { type: 'array', items: { type: 'string' } },
+            assets: { type: 'object', additionalProperties: { $ref: 'org.pleajustice.asset.asset' } }
         },
-        required: ['assetTypeSpecs', 'assetTypes', 'assetList', 'assets'],
+        minProperties: 4,
         additionalProperties: false
     },
 };

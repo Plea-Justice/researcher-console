@@ -4,7 +4,7 @@
 
 module.exports = function (options) {
     const express = require('express');
-    var router = express.Router();
+    const router = express.Router();
 
     const fs = require('fs-extra');
     const path = require('path');
@@ -55,13 +55,12 @@ module.exports = function (options) {
             res.status(500).json(util.failure('Session user not found.'));
         else
             res.status(200).json(util.success('User info returned.',
-                {user: {
+                { user: {
                     name: req.session.user.name,
                     id: req.session.user.id,
                     ...await util.userPermissions(req.session.user.id),
                     sessions: await getUserSessionCount(req.session.user.id)
-                }}
-            ));
+                } }));
     });
 
     /**
