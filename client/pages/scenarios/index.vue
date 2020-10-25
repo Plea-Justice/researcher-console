@@ -4,7 +4,6 @@
     helpTitle="Scenario Management"
     :helpText="scenariosHelp.navbar"
   >
-    <!-- FIXME: switch to owner selector or remove
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
         <ToolBarButton @click="openFormModal()" :value="addMode">
@@ -15,8 +14,8 @@
         </ToolBarButton>
       </div>
     </template>
-    -->
 
+    <!-- FIXME: switch to owner selector or remove
     <template v-slot:toolbar-end>
       <b-field v-if="scenarioSet.length > 1">
         <b-select v-model="sortBy">
@@ -30,6 +29,7 @@
         </b-select>
       </b-field>
     </template>
+    -->
 
     <p
       v-if="!scenarioSet.length"
