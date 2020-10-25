@@ -3,9 +3,13 @@
     <template ref="header">
       <ToolBar ref="toolbar" class="toolbar-horizontal-sticky">
         <template v-slot:start>
-          <p class="level-item">Scenes: {{ numScenes }}</p>
           <div class="level-item buttons">
-            <b-tooltip :active="!!saveState.tooltip" :label="saveState.tooltip" :type="`${saveState.type} is-light`" position="is-bottom">
+            <b-tooltip
+              :active="!!saveState.tooltip"
+              :label="saveState.tooltip"
+              :type="`${saveState.type} is-light`"
+              position="is-bottom"
+            >
               <ToolBarButton
                 @click="saveHelper()"
                 :value="mode"
@@ -27,7 +31,7 @@
             <b-button
               @click="collapseAll()"
               :icon-left="`${collapsed ? 'expand' : 'compress'}-alt`"
-              :disabled="numScenes < 1"
+              :disabled="numScenes < 1 || frameSet.length <= 1"
             />
           </div>
 
@@ -86,6 +90,7 @@
       />
     </template>
 
+    <p>Scenes: {{ numScenes }}</p>
     <p>{{ scenarioStatus }}</p>
 
     <section ref="frames" class="padded-responsive-container responsive-center">
@@ -112,6 +117,9 @@ import { mapGetters, mapActions } from "vuex";
 // Import Bus
 import { Event } from "~/bus/eventbus";
 
+// Import Mixins
+import SelectionMixin from "~/mixins/SelectionMixin";
+
 // Import Components
 import ScenarioLayout from "~/components/layouts/ScenarioLayout";
 import ToolBar from "~/components/ToolBar";
@@ -122,13 +130,12 @@ import PreviewDropdown from "~/components/scenario/PreviewDropdown";
 import ScenarioOptions from "~/components/modals/ScenarioOptions";
 import LeaveScenario from "~/components/modals/LeaveScenario";
 
-import SelectionMixin from "~/mixins/SelectionMixin";
-
 // Content for help fields
 import { scenarioHelp } from "~/assets/helpText";
 
 export default {
   name: "Scenario",
+  mixins: [SelectionMixin],
   components: {
     ScenarioLayout,
     ToolBar,
@@ -138,7 +145,6 @@ export default {
     ScenarioOptions,
     PreviewDropdown
   },
-  mixins: [SelectionMixin],
   data() {
     return {
       // import from JS file
@@ -157,7 +163,7 @@ export default {
         },
         invalid: {
           type: "is-danger",
-          icon: "times",
+          icon: "times"
         },
         changed: {
           type: "is-warning",
@@ -178,15 +184,18 @@ export default {
   },
   created() {
     const excludedMutators = [
-      'scenario/setSceneErrors',
-      'scenario/setFrameErrors',
-      'scenario/updateScenarioValidity'
-    ]
+      "scenario/setSceneErrors",
+      "scenario/setFrameErrors",
+      "scenario/updateScenarioValidity"
+    ];
 
     this.$store.subscribe((mutation, state) => {
-      if(this.scenarioStoreHasChanged && mutation.type === "scenario/putScenario") {
+      if (
+        this.scenarioStoreHasChanged &&
+        mutation.type === "scenario/putScenario"
+      ) {
         this.scenarioStoreHasChanged = false;
-      } else if(
+      } else if (
         !this.scenarioStoreHasChanged &&
         mutation.type.startsWith("scenario/") &&
         !excludedMutators.includes(mutation.type)
@@ -219,20 +228,30 @@ export default {
       if (this.numErrors) {
         return frameErrors.length
           ? this.frameSet.findIndex(frame => frame.id === frameErrors[0])
-          : this.findScene(sceneErrors[0])
-      } else return null
+          : this.findScene(sceneErrors[0]);
+      } else return null;
     },
     errorHelperLabel() {
       const { frameErrors, sceneErrors } = this.scenarioStatus;
 
-      if(this.numErrors) {
-        return `${this.numErrors > 1 ? `${this.numErrors} errors exists, starting` : "An error exists"}
+      if (this.numErrors) {
+        return `${
+          this.numErrors > 1
+            ? `${this.numErrors} errors exists, starting`
+            : "An error exists"
+        }
                 with
-                ${frameErrors.length ? `row ${this.errorIndex + 1}'s label` : `scene ${this.errorIndex.scene + 1} of row ${this.errorIndex.frame + 1}` }`
-      } else return null
+                ${
+                  frameErrors.length
+                    ? `row ${this.errorIndex + 1}'s label`
+                    : `scene ${this.errorIndex.scene + 1} of row ${this
+                        .errorIndex.frame + 1}`
+                }`;
+      } else return null;
     },
     saveState() {
-      if (!this.scenarioStatus.valid) return { ...this.saveStatus.invalid, tooltip: this.errorHelperLabel };
+      if (!this.scenarioStatus.valid)
+        return { ...this.saveStatus.invalid, tooltip: this.errorHelperLabel };
       else if (this.scenarioStoreHasChanged) return this.saveStatus.changed;
       else if (this.scenarioStatus.valid && !this.scenarioStoreHasChanged)
         return this.saveStatus.valid;
@@ -253,7 +272,7 @@ export default {
     },
     goToErrors() {
       if (this.numErrors) {
-        const frameIndex = this.errorIndex?.frame ?? this.errorIndex
+        const frameIndex = this.errorIndex?.frame ?? this.errorIndex;
 
         this.$buefy.toast.open({
           message: this.errorHelperLabel,
@@ -401,10 +420,10 @@ export default {
   }
 }
 
-  .toolbar-horizontal-sticky {
-    z-index: $buefyOverlapIndex + 2;
-    left: 0;
-  }
+.toolbar-horizontal-sticky {
+  z-index: $buefyOverlapIndex + 2;
+  left: 0;
+}
 
 .responsive-center {
   max-width: max-content;

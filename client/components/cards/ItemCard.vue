@@ -12,7 +12,7 @@
         <b-tooltip
           :active="showTooltip"
           :label="item.name"
-          posiiton="is-top"
+          position="is-top"
           type="is-info is-light"
           style="width: inherit"
         >
@@ -32,7 +32,7 @@
       </div>
     </template>
 
-    <template v-slot:footer>
+    <template v-slot:footer v-if="remove || edit || duplicate">
       <div>
         <b-button
           v-if="save"
@@ -44,27 +44,30 @@
           expanded
         />
         <div class="b-tooltips">
-          <b-tooltip :label="`Delete ${itemType}`" position="is-bottom">
+          <b-tooltip
+            v-if="remove"
+            :label="`Delete ${itemType}`"
+            position="is-bottom"
+          >
             <b-button
-              v-if="remove"
               @click="$emit('remove', item.id)"
               type="is-danger"
               icon-left="trash-alt"
             />
           </b-tooltip>
-          <b-tooltip :label="`Edit ${itemType}`" position="is-bottom">
-            <b-button
-              v-if="edit"
-              @click="$emit('edit', item.id)"
-              icon-left="pencil-alt"
-            />
+          <b-tooltip
+            v-if="edit"
+            :label="`Edit ${itemType}`"
+            position="is-bottom"
+          >
+            <b-button @click="$emit('edit', item.id)" icon-left="pencil-alt" />
           </b-tooltip>
-          <b-tooltip :label="`Duplicate ${itemType}`" position="is-bottom">
-            <b-button
-              v-if="duplicate"
-              @click="$emit('duplicate', item.id)"
-              icon-left="clone"
-            />
+          <b-tooltip
+            v-if="duplicate"
+            :label="`Duplicate ${itemType}`"
+            position="is-bottom"
+          >
+            <b-button @click="$emit('duplicate', item.id)" icon-left="clone" />
           </b-tooltip>
         </div>
       </div>

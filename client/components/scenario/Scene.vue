@@ -15,7 +15,6 @@
       :collapsed="collapsed"
       :invalid="$v.form.$invalid"
     >
-      <p>{{ isBound ? bound : scene.id }}</p>
       <p>{{ scene.bound }}</p>
 
       <!-- Scene Type Toggle -->

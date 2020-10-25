@@ -8,7 +8,7 @@
       <div class="level-item buttons">
         <b-tooltip
           :active="!user.permitUploads"
-          label="You're not permitted to add files, request persmission from an admin"
+          label="You're not permitted to add files, request permission from an admin"
           position="is-bottom"
           type="is-info is-light"
         >
@@ -17,7 +17,7 @@
             :value="addMode"
             :disabled="!user.permitUploads"
           >
-            Upload Asset
+            Upload
           </ToolBarButton>
         </b-tooltip>
       </div>
@@ -64,9 +64,7 @@
           />
 
           <div class="asset-meta content is-small">
-            <span>
-              Uploaded {{ asset.created | timeToNow }}
-            </span>
+            <span> Uploaded {{ asset.created | timeToNow }} </span>
             <span>{{ asset.owner }}</span>
           </div>
 
@@ -135,8 +133,10 @@ export default {
       return Object.keys(this.assetSetByType).sort();
     },
     selectedTypes() {
-      return this.selectedType === 'all' ? this.validTypes : [this.selectedType]
-    },
+      return this.selectedType === "all"
+        ? this.validTypes
+        : [this.selectedType];
+    }
   },
   methods: {
     openFormModal(asset) {

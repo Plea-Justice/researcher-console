@@ -104,6 +104,7 @@ $borderWidth: 1px;
 
 .card-content {
   flex-grow: 1;
+  max-width: 100%;
 }
 
 .card-footer {

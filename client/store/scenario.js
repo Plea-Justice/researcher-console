@@ -23,7 +23,8 @@ const initialState = () => ({
   frameList: [],
   scenes: {},
   status: {
-    valid: false,
+    // FIXME:
+    valid: true,
     // Tracks errors related to `frames`
     // Note: doesn't have hierarchy (doesn't track errors for scenes inside of frame)
     //       only errors related to itself
@@ -83,8 +84,14 @@ export const actions = {
   },
 
   // **** Condition Actions ****
-  addCondition({ commit }) {
+  addCondition({ commit, dispatch, state, getters }) {
     commit('newCondition');
+
+    const conditionIndex = state.conditionList.length - 1;
+    // TODO: async this
+    getters.frameSet.forEach(frame => {
+      dispatch('addScene', frame.scenes[conditionIndex]);
+    });
   },
   removeCondition({ commit, dispatch, state }, id) {
     const isLast = state.conditionList.length <= 1;
@@ -95,11 +102,18 @@ export const actions = {
       const sceneIds = state.frameList.map(frameId => state.frames[frameId].scenes[index]);
       sceneIds.forEach(sceneId => dispatch('removeScene', sceneId));
     }
+
+    commit('deleteCondition', { index, isLast });
+
+    if (isLast) {
+      dispatch('addCondition');
+      dispatch('addFrame');
+    }
   },
   async copyConditions({ dispatch, state, getters }, idList) {
     const indexList = idList.map(id => state.conditionList.indexOf(id));
 
-    // FIXME: async this
+    // TODO: async this
     getters.frameSet.forEach(({ scenes }) => {
       const sceneIdList = indexList.map(index => scenes[index]);
       dispatch('copyScenes', sceneIdList);
@@ -132,6 +146,7 @@ export const actions = {
         commit('setScene', { id: sceneId, scene: { id: sceneId, props: null } });
         dispatch('updateSceneErrors', { id: sceneId, valid: true });
       });
+
       commit('updateSceneCount', { modifier: -frame.size, frameId: id });
     } else {
       // Otherwise delete frame & it's scenes
@@ -155,23 +170,28 @@ export const actions = {
   },
 
   // **** Scene Actions ****
-  addScene({ commit, state, getters }, id) {
+  addScene({ commit, dispatch, state, getters }, id) {
     const frameId = state.frameList[getters.frameSet.findIndex(({ scenes }) => scenes.includes(id))];
     const frame = state.frames[frameId];
     const prevSceneIdx = frame.scenes.indexOf(id) - 1;
     const prevScene = prevSceneIdx >= 0 ? state.scenes[frame.scenes[prevSceneIdx]] : undefined;
 
-    const newProps = prevScene && prevScene.props !== null ? { ...prevScene.props } : {};
+    if (typeof prevScene?.props === 'string' || prevScene?.bound) {
+      commit('setScene', { id, scene: { id, props: null } });
+      dispatch('bindScenes', [prevScene.id, id]);
+    } else if ((prevScene?.props ?? null) !== null) {
+      commit('setScene', { id, scene: { id, props: { ...prevScene.props } } });
+    } else {
+      commit('setScene', { id, scene: { id, props: {} } });
+    }
 
-    commit('setScene', { id, scene: { id, props: newProps } });
     commit('updateSceneCount', { modifier: 1, frameId });
   },
   removeScene({ commit, dispatch, state, getters }, id) {
-    // Handle if scene is a bound parent (unbind & remove all children)
+    // Handle scene if bound parent: unbind & remove all children
     const boundScenes = state.scenes[id]?.bound;
     if (boundScenes > 0) {
       const frame = state.frames[state.frameList.find(frameId => state.frames[frameId].scenes.includes(id))];
-
       const offset = frame.scenes.indexOf(id) + 1;
       const childIds = frame.scenes.slice(offset, offset + boundScenes);
       // TODO: async this
@@ -179,6 +199,19 @@ export const actions = {
         dispatch('unbindScene', { id: childId, parentId: id });
         dispatch('removeScene', childId);
       });
+    } else if (typeof state.scenes[id].props === 'string') {
+      // Handle scene if bound child: decrement bound parents counter
+      const frame = state.frames[state.frameList.find(frameId => state.frames[frameId].scenes.includes(id))];
+      const childIndex = frame.scenes.indexOf(id);
+      const sceneIds = frame.scenes.slice(0, childIndex).reverse();
+
+      // TODO: async this
+      for (const sceneId of sceneIds) {
+        if (state.scenes[sceneId].bound >= 0) {
+          dispatch('unbindScene', { id, parentId: sceneId });
+          break;
+        }
+      }
     }
 
     // TODO: add a way to do deletion directly instead of depending on conditions & frames?
@@ -228,11 +261,12 @@ export const actions = {
       props: { ...parent.props }
     });
 
+    // FIXME: when .bound hits 0 remove the property
     // Update parent's bound reference counter
     commit('setScene', { id: parentId, scene: { ...parent, bound: parent.bound - 1 } });
   },
   swapScene({ commit, state }, [id1, id2]) {
-    // Splice frame instead?
+    // TODO: Splice frame instead?
     const scene1 = { ...state.scenes[id1], id: id2 };
     commit('setScene', { id: id1, scene: { ...state.scenes[id2], id: id1 } });
     commit('setScene', { id: id2, scene: scene1 });
@@ -298,19 +332,13 @@ export const mutations = {
 
     // Copy last condition into new condition
     state.frameList.forEach(frameId => {
-      const currFrame = state.frames[frameId];
-      const prevScene = state.scenes[currFrame.scenes[currFrame.scenes.length - 1]];
+      const frame = state.frames[frameId];
 
+      // Create new scene & add to frame
       const sceneId = nanoid();
-      Vue.set(state.scenes, sceneId, { ...prevScene, id: sceneId });
+      Vue.set(state.scenes, sceneId, { id: sceneId, props: null });
       // TODO: fix these being direct mutations?
-      currFrame.scenes.push(sceneId);
-
-      // FIXME: use updateCount?
-      if (prevScene.props !== null) {
-        Vue.set(currFrame, 'size', currFrame.size + 1);
-        state.numScenes += 1;
-      }
+      frame.scenes.push(sceneId);
     });
   },
   deleteCondition(state, { id, index, isLast }) {
@@ -326,11 +354,7 @@ export const mutations = {
         // Remove that conditions scene's from each frame
         // TODO: fix this being a direct mutation?
         const removedSceneId = currFrame.scenes.splice(index, 1);
-        // Update frame size
-        if (state.scenes[removedSceneId].props !== null) {
-          Vue.set(currFrame, 'size', currFrame.size - 1);
-          state.numScenes -= 1;
-        }
+
         // Remove scene from scenes
         Vue.delete(state.scenes, removedSceneId);
       });
