@@ -32,7 +32,7 @@ module.exports = function (options) {
                 scenarios: objs.reduce((dict, obj) => {
                     dict[obj._id] = {
                         ...obj.meta,
-                        isMine: obj.owner._id === uid
+                        isMine: obj.owner._id.toString() === uid
                     };
                     return dict;
                 }, {}),
@@ -100,7 +100,7 @@ module.exports = function (options) {
             ...obj.data,
             meta: {
                 ...obj.meta,
-                isMine: obj.owner._id === uid
+                isMine: obj.owner._id.toString() === uid
             }
         }));
     });
@@ -120,28 +120,48 @@ module.exports = function (options) {
                 $or: [{ owner: uid }, { public: true }]
             })).toObject();
 
-            // Prevent 'Copy' chaining on duplicates
-            obj.name = obj.name + (await ScenarioModel.find({
-                owner: uid,
-                name: obj.name
-            })).length;
+            // Rename the copy. Increment copy count if chained.
+            const list = (await ScenarioModel.find({
+                owner: uid
+            }, { name: true })).map(s => s.name);
 
+            let suffix = '';
+            const name = obj.name.replace(/( (Copy)( (\d+))?)?$/, '');
+
+            const matches = list.map(
+                x => x.match(`^${name}( (Copy)( (\\d+))?)?$`)
+            ).filter(x => x);
+
+            // If any copies already exist, this is also a copy.
+            if (matches) {
+                suffix += ' Copy';
+
+                // If 'Copy' already exists, increment the number part
+                if (matches.reduce((acc, x) => x[1] ? true : acc, false)) {
+                    const n = Number(matches.reduce(
+                        (max, x) => x[4] && x[4] > max ? x[4] : max, -1
+                    ));
+
+                    suffix += ` ${n < 1 ? 1 : n + 1}`;
+                }
+            }
+
+            obj.name = name + suffix ;
             obj.owner = uid;
             obj.public = false;
             delete obj._id;
             delete obj.created;
             delete obj.modified;
 
-            await ScenarioModel.create(obj);
+            obj = await ScenarioModel.create(obj);
 
         } catch (err) {
+            console.log(err);
             res.status(500).json(util.failure('There was an error copying the scenario.', err));
             return;
         }
 
-        res.status(200).json({
-            ...obj
-        });
+        res.status(200).json(util.success('Scenario Returned', { ...obj.meta, isMine: obj.owner._id == uid }));
     });
 
 

@@ -42,11 +42,11 @@
     <div v-else class="item-grid">
       <div v-for="scenario in scenarioSet" :key="scenario.id">
         <ItemCard
-          v-if="!scenario.public"
+          v-if="!scenario.public || scenario.isMine"
           :item="scenario"
-          remove
+          :remove="scenario.isMine"
           @remove="confirmDelete($event)"
-          edit
+          :edit="scenario.isMine"
           @edit="openFormModal(scenario)"
           duplicate
           @duplicate="duplicateScenario($event)"

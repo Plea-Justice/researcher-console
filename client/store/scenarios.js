@@ -38,28 +38,9 @@ export const actions = {
   },
   async duplicateScenario({ commit, state, getters }, id) {
     // Fetch full scenario from server
-    const response = await this.$axios.$get(`/api/v1/scenarios/${id}`);
+    const response = await this.$axios.$post(`/api/v1/scenarios/${id}`);
     if (response.success) {
-      const scenarioName = state.scenarios[id].name;
-      // Prevent 'Copy' chaining on duplicates
-      let copyName =
-        scenarioName.substring(scenarioName.lastIndexOf(' ')) === 'Copy'
-          ? scenarioName
-          : `${state.scenarios[id].name} Copy`;
-
-      // Add number to ' Copy #' if multiple copies exists
-      const duplicateCount = getters.scenarioSet.reduce(
-        (count, scenario) => (scenario.name.startsWith(copyName) ? count + 1 : count),
-        0
-      );
-
-      if (duplicateCount > 0) copyName += ` ${duplicateCount + 1}`;
-
-      const newResponse = await this.$axios.$post('/api/v1/scenarios', {
-        ...response.result,
-        meta: { name: copyName }
-      });
-      if (newResponse.success) commit('copyScenario', { name: copyName, copyId: id, newId: newResponse.result.id });
+      commit('copyScenario', response.result);
     }
   }
 };
@@ -83,11 +64,9 @@ export const mutations = {
     Vue.set(state.scenarios, payload.id, payload);
   },
   copyScenario(state, payload) {
-    const copiedScenario = Object.assign({}, state.scenarios[payload.copyId]);
-    copiedScenario.id = payload.newId;
-    copiedScenario.name = payload.name;
+    const copiedScenario = Object.assign({}, payload);
 
-    Vue.set(state.scenarios, payload.newId, copiedScenario);
-    state.scenarioList.splice(state.scenarioList.indexOf(payload.copyId) + 1, 0, payload.newId);
+    Vue.set(state.scenarios, payload.id, copiedScenario);
+    state.scenarioList.push(payload.id);
   }
 };
