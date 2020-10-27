@@ -8,7 +8,7 @@ const AssetModel = require('../../models/AssetModel');
 
 module.exports = function (options) {
     const express = require('express');
-    var router = express.Router();
+    const router = express.Router();
 
     const util = require('../../common/util');
     const { publish } = require('../../common/publish');
@@ -65,8 +65,12 @@ module.exports = function (options) {
             list.forEach(asset => assets[asset.id] = asset);
 
             res.status(200).json(util.success('Asset listings returned.',
-                { assetList, assets, assetTypeSpecs: assetTypes.spec, assetTypes: assetTypes.types }
-            ));
+                {
+                    assetList,
+                    assets,
+                    assetTypeSpecs: assetTypes.spec,
+                    assetTypes: assetTypes.types
+                }));
         } catch (err) {
             console.log(err);
             res.status(500).json(util.failure('There was an error reading the user\'s assets', err));
@@ -101,11 +105,11 @@ module.exports = function (options) {
                 'Invalid asset type.',
                 req.body.type
             ));
-        else if (req.body.type.match(/clip|actor/) &&
-            path.extname(req.files.file.name) !== '.js')
+        else if (req.body.type.match(/clip|actor/)
+            && path.extname(req.files.file.name) !== '.js')
             res.status(400).json(util.failure('Clips and assets must have a JavaScript file extension.'));
-        else if (req.body.type.match(/foreground|background|cache/) &&
-            (!path.extname(req.files.file.name).match(/.*\.(png|bmp|jpg|jpeg)$/)))
+        else if (req.body.type.match(/foreground|background|cache/)
+            && (!path.extname(req.files.file.name).match(/.*\.(png|bmp|jpg|jpeg)$/)))
             res.status(400).json(util.failure(
                 'Foreground and background images must have a PNG or JPEG file extension.',
                 null
@@ -116,8 +120,8 @@ module.exports = function (options) {
                 ? req.body.name + path.extname(req.files.file.name)
                 : req.files.file.name;
             */
-            let name = sanitize(req.files.file.name).replace(/[\s,;]+/g, '_');
-            let filepath = path.join(user_data_dir, req.body.type, name);
+            const name = sanitize(req.files.file.name).replace(/[\s,;]+/g, '_');
+            const filepath = path.join(user_data_dir, req.body.type, name);
 
             if (fs.pathExistsSync(filepath)) {
                 res.status(400).json(util.failure('An asset with the specified name already exists.'));
@@ -168,7 +172,8 @@ module.exports = function (options) {
                     fs.removeSync(filepath);
 
                 res.status(500).json(
-                    util.failure('Error uploading the asset. If it is still visible, delete it and try again.', err));
+                    util.failure('Error uploading the asset. If it is still visible, delete it and try again.', err)
+                );
             }
         }
     });
@@ -204,14 +209,17 @@ module.exports = function (options) {
                 user_id: uid
             });
 
-            let matches = scenarios.filter(scenario =>
+            const matches = scenarios.filter(scenario =>
                 Object.entries((scenario.scenes)).map(([id, scene]) =>
-                    scene.props ?
-                        [scene.props.actor, scene.props.clip, scene.props.foreground, scene.props.background]
+                    scene.props
+                        ? [
+                            scene.props.actor,
+                            scene.props.clip,
+                            scene.props.foreground,
+                            scene.props.background
+                        ]
                             .map(x => x ? x.id : '')
-                            .includes(asset_id) : false
-                ).some(y => y)
-            );
+                            .includes(asset_id) : false).some(y => y));
 
             matches.map(x => ({
                 id: x._id,

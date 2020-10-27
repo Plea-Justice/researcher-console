@@ -23,6 +23,7 @@ export default {
   env: {
     // Either 'development' or 'production'
     MODE: process.env.MODE || 'development',
+    BRANCH: process.env.GIT_BRANCH || 'v1',
     // URL of the backend server.
     API_URL: process.env.API_URL || 'http://localhost:3000',
     // URL of this client application.
