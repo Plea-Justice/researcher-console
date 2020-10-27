@@ -210,7 +210,8 @@ module.exports = function (options) {
             const matches = scenarios.filter(scenario =>
                 Object.entries((scenario.scenes)).map(([id, scene]) =>
                     scene.props
-                        ? [ scene.props.actor,
+                        ? [
+                            scene.props.actor,
                             scene.props.clip,
                             scene.props.foreground,
                             scene.props.background

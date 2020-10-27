@@ -29,7 +29,7 @@ module.exports = {
 
     // MongoDB Settings
     // Switch this to a different database for development.
-    mongo_uri: 'mongodb://localhost:27017/researcher',
+    mongo_uri: `mongodb://localhost:27017/${process.env.RESEARCHER_DB || 'researcher'}`,
 
     // Log debug info from Mongoose.
     mongoose_debug: false,

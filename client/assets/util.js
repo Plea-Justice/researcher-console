@@ -5,6 +5,7 @@ export const toPascalCase = text =>
   text.length
     ? text
         .split(' ')
+        .filter(x => x !== '')
         .map(word => word[0].toUpperCase() + word.substring(1).toLowerCase())
         .join(' ')
     : text;
