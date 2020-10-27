@@ -27,7 +27,7 @@ module.exports = function (options) {
             return;
         }
 
-        res.status(200).json(util.success('User\'s scenarios returned.',
+        res.status(200).json(util.success('User\'s scenario metadata list returned.',
             {
                 scenarios: objs.reduce((dict, obj) => {
                     dict[obj._id] = {
@@ -72,7 +72,10 @@ module.exports = function (options) {
             return;
         }
 
-        res.status(200).json(util.success('Scenario created.', { id: obj._id }));
+        res.status(200).json(util.success(
+            'Scenario created. Scenario metadata returned.',
+            { ...obj.meta, isMine: obj.owner._id == uid }
+        ));
     });
 
 
@@ -150,6 +153,8 @@ module.exports = function (options) {
             obj.owner = uid;
             obj.public = false;
             delete obj._id;
+            delete obj.survey;
+            delete obj.live;
             delete obj.created;
             delete obj.modified;
 
@@ -161,7 +166,7 @@ module.exports = function (options) {
             return;
         }
 
-        res.status(200).json(util.success('Scenario Returned', { ...obj.meta, isMine: obj.owner._id == uid }));
+        res.status(200).json(util.success('Scenario metadata returned.', { ...obj.meta, isMine: obj.owner._id == uid }));
     });
 
 

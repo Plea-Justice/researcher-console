@@ -18,6 +18,7 @@ module.exports = function (options) {
     const path = require('path');
     const os = require('os');
     const fileupload = require('express-fileupload');
+    const mongoose = require('mongoose');
     const sanitize = require('sanitize-filename');
 
     const assetTypes = util.assetTypes;
@@ -173,6 +174,52 @@ module.exports = function (options) {
         }
     });
 
+
+    /**
+     * Copy an asset.
+     */
+    router.post('/:asset_id', async (req, res) => {
+        const id = req.params.asset_id;
+        const uid = req.session.user.id;
+        const to_user_dir = util.userDir(options, uid);
+
+        try {
+            const obj = (await AssetModel.findOne({
+                _id: id,
+                $or: [{ owner: uid }, { public: true }]
+            })).toObject();
+
+            const from_user_dir = util.userDir(
+                options,
+                obj.owner._id.toString()
+            );
+
+            obj._id = mongoose.Types.ObjectId();
+
+            fs.copySync(
+                path.join(from_user_dir, obj.path),
+                path.join(to_user_dir, obj.path),
+                { overwrite: false, errorOnExist: true }
+            );
+
+            fs.copySync(
+                path.join(from_user_dir, 'thumbnails', `${id}.jpg`),
+                path.join(to_user_dir, 'thumbnails', `${obj._id.toString()}.jpg`)
+            );
+
+            obj.owner = uid;
+            obj.public = false;
+
+            await AssetModel.create(obj);
+
+            res.status(200).json(util.success('Asset copied. Metadata returned.', obj));
+
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(util.failure('The asset could not be copied. Check for any assets with the same name.', err));
+        }
+    });
+
     /**
      * Fetch an asset's thumbnail, if it exists.
      */
@@ -182,7 +229,7 @@ module.exports = function (options) {
             const asset = await AssetModel.findOne({ _id: asset_id });
             const user_data_dir = util.userDir(
                 options,
-                asset.owner.toString()
+                asset.owner._id.toString()
             );
             const thumbnail = path.resolve(path.join(user_data_dir, 'thumbnails', `${asset_id}.jpg`));
 

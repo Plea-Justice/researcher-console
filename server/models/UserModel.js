@@ -12,7 +12,7 @@ const UserSchema = new mongoose.Schema({
     permitAdmin:    { type: Boolean, default: false },
     permitHosting:  { type: Boolean, default: false },
     permitSharing:  { type: Boolean, default: false },
-    permitUploads:  { type: Boolean, default: true },
+    permitUploads:  { type: Boolean, default: false },
     lastActive:     { type: Date, default: Date.now },
 
     created:    { type: Date, default: Date.now },
@@ -20,6 +20,33 @@ const UserSchema = new mongoose.Schema({
     version:    { type: String, default: '1.0.0' },
 
 }, { strict: 'throw', strictQuery: true, minimize: false });
+
+// ALWAYS use this accessor to retrieve the user's metadata.
+// This avoids accidental leakage of the password field from the database.
+UserSchema.virtual('meta')
+    .get(function () {
+        return {
+            id:             this._id,
+            name:           this.username,
+
+            email:          this.email,
+            profession:     this.profession,
+            affiliation:    this.affiliation,
+            addresses:      Array.from(this.addresses.keys()).map(ip => ip.replace(/-/g, '.')),
+            sessions:       this.addresses.size,
+
+            permitAdmin:    this.permitAdmin,
+            permitHosting:  this.permitHosting,
+            permitSharing:  this.permitSharing,
+            permitUploads:  this.permitUploads,
+
+            lastActive:     this.lastActive,
+
+            created:        this.created,
+            modified:       this.modified,
+            version:        this.version
+        };
+    });
 
 const UserModel = mongoose.model('User', UserSchema);
 module.exports = UserModel;

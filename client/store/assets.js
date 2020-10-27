@@ -24,9 +24,8 @@ export const actions = {
 
     const response = await this.$axios.$post('/api/v1/assets', formData);
     if (response.success) {
-      const name = asset.file.name.slice(0, asset.file.name.indexOf('.'));
       delete asset.file;
-      commit('newAsset', { asset: { ...asset, id: response.result, name, created: Date.now() } });
+      commit('newAsset', { asset: response.result });
     }
   },
   async removeAsset({ commit }, id) {

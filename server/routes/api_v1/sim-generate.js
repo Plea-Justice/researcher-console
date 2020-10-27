@@ -204,7 +204,7 @@ async function generateSimulation(options, req) {
         // Copy requested assets.
         requestedAssets.forEach(asset => fs.copyFileSync(
             path.join(
-                util.userDir(options, asset.owner.toString()),
+                util.userDir(options, asset.owner._id.toString()),
                 asset.path
             ),
             path.join(tmpdir, 'assets', asset.path)

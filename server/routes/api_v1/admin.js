@@ -20,20 +20,7 @@ module.exports = function (options) {
 
     router.get('/users', async (req, res) => {
         let list = await UserModel.find();
-        list = list.map((u)=>({
-            id: u._id,
-            name: u.username,
-            email: u.email,
-            profession: u.profession,
-            affiliation: u.affiliation,
-            addresses: Array.from(u.addresses.keys()).map(ip => ip.replace(/-/g, '.')),
-            permitAdmin: u.permitAdmin,
-            permitHosting: u.permitHosting,
-            permitSharing: u.permitSharing,
-            permitUploads: u.permitUploads,
-            lastActive: u.lastActive,
-            created: u.created
-        }));
+        list = list.map(u=>u.meta);
         res.json(util.success('Returned user list.', list));
     });
 

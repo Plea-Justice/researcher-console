@@ -12,7 +12,6 @@
             :itemType="'scenario'"
             duplicate
             @duplicate="duplicateScenario($event)"
-            link
           >
             <p class="content description" v-if="scenario.description">
               {{ scenario.description }}

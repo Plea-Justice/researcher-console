@@ -20,8 +20,7 @@ export const actions = {
     // Get new scenario id from server
     const response = await this.$axios.$post('/api/v1/scenarios', { meta: scenario });
     if (response.success) {
-      const { id } = response.result;
-      commit('newScenario', { ...scenario, id, modified: null, created: Date.now() });
+      commit('newScenario', response.result);
     }
   },
   async removeScenario({ commit }, id) {

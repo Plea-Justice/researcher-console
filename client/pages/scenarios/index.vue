@@ -10,7 +10,7 @@
           Create New
         </ToolBarButton>
         <ToolBarButton @click="openSharedModal()" :value="sharedMode">
-          Copy Shared
+          Copy Shared Template
         </ToolBarButton>
       </div>
     </template>
@@ -63,6 +63,11 @@
             <br />
             <span>Created {{ scenario.created | timeToNow }}</span>
           </p>
+          <template v-slot:footer>
+            <b-taglist style="margin-left: auto;">
+              <b-tag v-if="scenario.public" type="is-info">Public</b-tag>
+            </b-taglist>
+          </template>
         </ItemCard>
       </div>
     </div>

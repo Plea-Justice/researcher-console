@@ -23,14 +23,31 @@ module.exports = {
         $id: 'org.pleajustice.user',
         type: 'object',
         properties: {
-            name: { type: 'string' },
+
             id: { $ref: 'org.pleajustice.server.db.id' },
+            name: { type: 'string' },
+
+            email: { type: 'string', pattern: '^\\w*?@\\w+\\.[\\w\\.]*\\w$' },
+            profession: { type: 'string' },
+            affiliation: { type: 'string' },
+            addresses: { type: 'array', items: { type: 'string', pattern: '^(([a-f\\d]{0,4}[:\\.-]){2,3}[a-f\\d]{1,4})+$' } },
             sessions: { type: 'integer' },
+
+            permitAdmin: { type: 'boolean' },
+            permitHosting: { type: 'boolean' },
+            permitSharing: { type: 'boolean' },
+            permitUploads: { type: 'boolean' },
+
+            lastActive: { type: 'string', format: 'date-time' },
+
+            created: { type: 'string', format: 'date-time' },
+            modified: { type: 'string', format: 'date-time' },
+            version: { type: 'string', pattern: '^\\d\\.\\d\\.\\d+$' }
         },
         patternProperties: {
             '^permit': { type: 'boolean' }
         },
-        minProperties: 7,
+        minProperties: 15,
         additionalProperties: false
     },
 

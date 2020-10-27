@@ -40,6 +40,7 @@ ScenarioSchema.virtual('meta')
         return {
             id:         this._id,
             name:       this.name,
+            // Do not return the full user object that includes its password.
             owner:      this.owner.username,
 
             description: this.description,
