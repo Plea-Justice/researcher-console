@@ -40,8 +40,9 @@
     </p>
 
     <div v-else class="item-grid">
-      <div v-for="scenario in scenarioSet" :key="scenario.id">
+      <template v-for="scenario in scenarioSet">
         <ItemCard
+          :key="scenario.id"
           v-if="!scenario.public || scenario.isMine"
           :item="scenario"
           :remove="scenario.isMine"
@@ -53,6 +54,7 @@
           :itemType="'scenario'"
           link
         >
+          {{ scenario.id }}
           <p class="content description" v-if="scenario.description">
             {{ scenario.description }}
           </p>
@@ -69,7 +71,7 @@
             </b-taglist>
           </template>
         </ItemCard>
-      </div>
+      </template>
     </div>
   </ItemLayout>
 </template>

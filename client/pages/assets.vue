@@ -19,6 +19,10 @@
           >
             Upload
           </ToolBarButton>
+
+          <ToolBarButton @click="openSharedModal()" :value="sharedMode">
+            Shared Assets
+          </ToolBarButton>
         </b-tooltip>
       </div>
     </template>
@@ -46,35 +50,37 @@
       <h3 class="title">{{ `${type}s` | capitalize }}</h3>
 
       <div class="item-grid">
-        <ItemCard
-          v-for="asset in assetSetByType[type]"
-          :key="asset.id"
-          :item="asset"
-          :remove="asset.isMine"
-          @remove="confirmDelete($event)"
-          :edit="asset.isMine"
-          @edit="openFormModal(asset)"
-        >
-          <b-image
-            :src="`${envAPIURL}/api/v1/assets/${asset.id}/thumbnail`"
-            src-fallback="/defaultThumbnail.png"
-            responsive
-            ratio="16by9"
-            lazy
-          />
+        <template v-for="asset in assetSetByType[type]">
+          <ItemCard
+            :key="asset.id"
+            v-if="!asset.public || asset.owner === user.name"
+            :item="asset"
+            :remove="asset.isMine"
+            @remove="confirmDelete($event)"
+            :edit="asset.isMine"
+            @edit="openFormModal(asset)"
+          >
+            <b-image
+              :src="`${envAPIURL}/api/v1/assets/${asset.id}/thumbnail`"
+              src-fallback="/defaultThumbnail.png"
+              responsive
+              ratio="16by9"
+              lazy
+            />
 
-          <div class="asset-meta content is-small">
-            <span> Uploaded {{ asset.created | timeToNow }} </span>
-            <span>{{ asset.owner }}</span>
-          </div>
+            <div class="asset-meta content is-small">
+              <span> Uploaded {{ asset.created | timeToNow }} </span>
+              <span>{{ asset.owner }}</span>
+            </div>
 
-          <template v-slot:footer>
-            <b-taglist style="margin-left: auto;">
-              <b-tag v-if="asset.public" type="is-info">Public</b-tag>
-              <b-tag type="is-primary">{{ asset.type | capitalize }}</b-tag>
-            </b-taglist>
-          </template>
-        </ItemCard>
+            <template v-slot:footer>
+              <b-taglist style="margin-left: auto;">
+                <b-tag v-if="asset.public" type="is-info">Public</b-tag>
+                <b-tag type="is-primary">{{ asset.type | capitalize }}</b-tag>
+              </b-taglist>
+            </template>
+          </ItemCard>
+        </template>
       </div>
     </div>
   </ItemLayout>
@@ -91,13 +97,14 @@ import ItemCard from "~/components/cards/ItemCard";
 import AssetForm from "~/components/modals/AssetForm";
 import HelpSidebar from "~/components/HelpSidebar";
 import DeleteAsset from "../components/modals/DeleteAsset";
+import SharedAssets from "~/components/modals/SharedAssets";
 
 // Content for help fields
 import { assetsHelp } from "~/assets/helpText";
 
 export default {
   name: "Scenarios",
-  components: { ItemLayout, ToolBarButton, ItemCard, AssetForm, HelpSidebar },
+  components: { ItemLayout, ToolBarButton, ItemCard, HelpSidebar },
   async fetch({ store, params }) {
     await store.dispatch("assets/getAssets");
   },
@@ -107,6 +114,7 @@ export default {
       assetsHelp,
 
       addMode: false,
+      sharedMode: false,
       selectedType: "all",
       envAPIURL: process.env.API_URL
     };
@@ -144,6 +152,14 @@ export default {
         parent: this,
         component: AssetForm,
         props: { user: this.user, asset },
+        hasModalCard: true,
+        trapFocus: true
+      });
+    },
+    openSharedModal() {
+      this.$buefy.modal.open({
+        parent: this,
+        component: SharedAssets,
         hasModalCard: true,
         trapFocus: true
       });
