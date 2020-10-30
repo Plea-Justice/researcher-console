@@ -53,12 +53,12 @@ module.exports = function (options) {
 
         let scenario = new ScenarioModel({
             user_id: req.session.user.id,
-            name: req.body.meta.name,
-            description: req.body.meta.description,
-            survey: req.body.meta.survey,
-            live: req.body.meta.live,
-            public: req.body.meta.public,
-            readOnly: req.body.meta.readOnly,
+            name: req.body.meta?.name,
+            description: req.body?.meta.description,
+            survey: req.body.meta?.survey,
+            live: req.body.meta?.live,
+            public: req.body.meta?.public,
+            readOnly: req.body.meta?.readOnly,
             numScenes: req.body.numScenes,
             scenes: req.body.scenes,
             frames: req.body.frames,
@@ -133,12 +133,12 @@ module.exports = function (options) {
         }
 
         ScenarioModel.updateOne({_id: id, user_id: uid}, {$set: {
-            name: req.body.meta.name,
-            description: req.body.meta.description,
-            survey: req.body.meta.survey,
-            live: req.body.meta.live,
-            public: req.body.meta.public,
-            readOnly: req.body.meta.readOnly,
+            name: req.body.meta?.name,
+            description: req.body.meta?.description,
+            survey: req.body.meta?.survey,
+            live: req.body.meta?.live,
+            public: req.body.meta?.public,
+            readOnly: req.body.meta?.readOnly,
             numScenes: req.body.numScenes,
             scenes: req.body.scenes,
             frames: req.body.frames,
