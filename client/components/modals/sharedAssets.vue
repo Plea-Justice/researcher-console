@@ -1,32 +1,24 @@
 <template>
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">Shared Scenarios</p>
+      <p class="modal-card-title">Shared Assets</p>
     </header>
     <section class="modal-card-body">
       <div class="item-grid">
-        <template v-for="scenario in scenarioSet">
+        <div v-for="asset in assetSet" :key="asset.id">
           <ItemCard
-            :key="scenario.id"
-            v-if="scenario.public"
-            :item="scenario"
+            v-if="!asset.public"
+            :item="asset"
             :itemType="'scenario'"
             duplicate
-            @duplicate="copyScenario($event)"
+            @duplicate="copyAsset($event)"
             link
           >
-            <p class="content description" v-if="scenario.description">
-              {{ scenario.description }}
-            </p>
             <p class="content is-small">
-              <span v-if="scenario.modified">
-                Last Modified {{ scenario.modified | timeToNow }}
-              </span>
-              <br />
-              <span>Created {{ scenario.created | timeToNow }}</span>
+              <span>Created {{ asset.created | timeToNow }}</span>
             </p>
           </ItemCard>
-        </template>
+        </div>
       </div>
     </section>
   </div>
@@ -43,17 +35,17 @@ export default {
   components: { ItemCard },
   computed: {
     ...mapGetters({
-      scenarioSet: "scenarios/scenarioSet"
+      assetSet: "assets/assetSet"
     })
   },
   methods: {
     ...mapActions({
-      addScenario: "scenarios/addScenario"
+      addAsset: "assets/addAsset"
     }),
-    copyScenario(id) {
+    copyAsset(id) {
       //FIXME: needs check for duplicates
-      this.addScenario({
-        ...this.scenarioSet.find(scenario => scenario.id === id)
+      this.addAsset({
+        ...this.assetSet.find(asset => asset.id === id)
       });
     }
   }
@@ -70,12 +62,6 @@ export default {
 <style scoped>
 .modal-card {
   width: 90vw;
-}
-
-.description {
-  margin-bottom: auto;
-  padding-bottom: 1.5rem;
-  overflow-wrap: anywhere;
 }
 
 .modal-card-body {

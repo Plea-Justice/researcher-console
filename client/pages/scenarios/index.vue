@@ -4,7 +4,6 @@
     helpTitle="Scenario Management"
     :helpText="scenariosHelp.navbar"
   >
-    <!-- FIXME: switch to owner selector or remove
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
         <ToolBarButton @click="openFormModal()" :value="addMode">
@@ -15,8 +14,8 @@
         </ToolBarButton>
       </div>
     </template>
-    -->
 
+    <!-- FIXME: switch to owner selector or remove
     <template v-slot:toolbar-end>
       <b-field v-if="scenarioSet.length > 1">
         <b-select v-model="sortBy">
@@ -30,6 +29,7 @@
         </b-select>
       </b-field>
     </template>
+    -->
 
     <p
       v-if="!scenarioSet.length"
@@ -40,8 +40,9 @@
     </p>
 
     <div v-else class="item-grid">
-      <div v-for="scenario in scenarioSet" :key="scenario.id">
+      <template v-for="scenario in scenarioSet">
         <ItemCard
+          :key="scenario.id"
           v-if="!scenario.public"
           :item="scenario"
           remove
@@ -53,18 +54,21 @@
           :itemType="'scenario'"
           link
         >
+          {{ scenario.id }}
           <p class="content description" v-if="scenario.description">
             {{ scenario.description }}
           </p>
           <p class="content is-small">
-            <span v-if="scenario.modified">
+            <span
+              v-if="scenario.modified && scenario.modified !== scenario.created"
+            >
               Last Modified {{ scenario.modified | timeToNow }}
             </span>
             <br />
             <span>Created {{ scenario.created | timeToNow }}</span>
           </p>
         </ItemCard>
-      </div>
+      </template>
     </div>
   </ItemLayout>
 </template>
