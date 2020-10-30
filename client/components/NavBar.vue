@@ -24,6 +24,7 @@
           {{ route.name }}
         </b-navbar-item>
       </template>
+      <b-navbar-item  tag="div" v-if="env.MODE === 'development'"><code>Developer Mode: {{env.BRANCH}}</code></b-navbar-item>
     </template>
 
     <template slot="end">
@@ -95,7 +96,8 @@ export default {
           name: "scenarios",
           path: "/scenarios"
         }
-      ]
+      ],
+      env: {MODE: process.env.MODE, BRANCH: process.env.BRANCH}
     };
   },
   computed: {

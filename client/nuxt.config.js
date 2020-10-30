@@ -23,6 +23,7 @@ export default {
   env: {
     // Either 'development' or 'production'
     MODE: process.env.MODE || 'development',
+    BRANCH: process.env.GIT_BRANCH || 'v1',
     // URL of the backend server.
     API_URL: process.env.API_URL || 'http://localhost:3000',
     // URL of this client application.
@@ -153,7 +154,7 @@ export default {
         endpoints: {
           login: { url: '/api/v1/auth/login', method: 'post' },
           logout: { url: '/api/v1/auth/logout', method: 'post' },
-          user: { url: '/api/v1/auth/user', method: 'get', propertyName: 'result.user' },
+          user: { url: '/api/v1/auth/user', method: 'get', propertyName: 'result' },
           tokenRequired: false,
           tokenType: false
         }

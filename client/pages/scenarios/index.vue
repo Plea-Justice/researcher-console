@@ -10,7 +10,7 @@
           Create New
         </ToolBarButton>
         <ToolBarButton @click="openSharedModal()" :value="sharedMode">
-          Copy Shared
+          Copy Shared Template
         </ToolBarButton>
       </div>
     </template>
@@ -43,11 +43,11 @@
       <template v-for="scenario in scenarioSet">
         <ItemCard
           :key="scenario.id"
-          v-if="!scenario.public"
+          v-if="!scenario.public || scenario.isMine"
           :item="scenario"
-          remove
+          :remove="scenario.isMine"
           @remove="confirmDelete($event)"
-          edit
+          :edit="scenario.isMine"
           @edit="openFormModal(scenario)"
           duplicate
           @duplicate="duplicateScenario($event)"
@@ -59,14 +59,17 @@
             {{ scenario.description }}
           </p>
           <p class="content is-small">
-            <span
-              v-if="scenario.modified && scenario.modified !== scenario.created"
-            >
+            <span v-if="scenario.modified !== scenario.created">
               Last Modified {{ scenario.modified | timeToNow }}
             </span>
             <br />
             <span>Created {{ scenario.created | timeToNow }}</span>
           </p>
+          <template v-slot:footer>
+            <b-taglist style="margin-left: auto;">
+              <b-tag v-if="scenario.public" type="is-info">Public</b-tag>
+            </b-taglist>
+          </template>
         </ItemCard>
       </template>
     </div>

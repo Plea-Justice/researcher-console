@@ -287,7 +287,7 @@ export const mutations = {
   // **** Scenario Mutations ****
   updateMeta(state, payload) {
     Object.keys(state.meta).forEach(key => {
-      if (payload.meta[key]) Vue.set(state.meta, key, payload.meta[key]);
+      if (payload.meta.hasOwnProperty(key)) Vue.set(state.meta, key, payload.meta[key]);
     });
   },
   updateSceneCount(state, { modifier, frameId }) {

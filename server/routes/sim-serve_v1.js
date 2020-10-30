@@ -1,6 +1,6 @@
 /**
- * This file defines routes for serving temporary preview and permanent live simulations.
- * 
+ * This file defines routes for serving temporary preview and live simulations.
+ *
  * See app.js for routing to this point.
  * Applicable documentation at https://expressjs.com/en/guide/routing.html.
  */

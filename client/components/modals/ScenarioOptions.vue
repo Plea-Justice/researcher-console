@@ -43,6 +43,20 @@
             />
           </b-field>
         </form-group>
+
+        <form-group
+          label="Share with Others"
+        >
+          <b-field>
+             <b-switch
+                :disabled="!user.permitSharing"
+                v-model="scenarioForm.public"
+                type="is-info"
+              >
+                Make Public
+              </b-switch>
+          </b-field>
+        </form-group>
       </section>
 
       <footer class="modal-card-foot">
@@ -111,6 +125,9 @@ export default {
         status = { type: "is-warning" };
       }
       return status;
+    },
+    user() {
+      return this.$auth.user ? this.$auth.user : { name: "dev", sessions: 1 };
     }
   },
   methods: {

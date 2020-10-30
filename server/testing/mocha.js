@@ -11,8 +11,8 @@ const request = supertest('http://localhost:3000');
 const base = '/api/v1';
 
 
-var session_cookie = '';
-var variables = {};
+let session_cookie = '';
+const variables = {};
 
 describe('Version 1 API Endpoints', function () {
 
@@ -39,7 +39,7 @@ describe('Version 1 API Endpoints', function () {
             .expect('content-type', /application\/json/)
             .expect(validate.Response)
             .expect(validate.User)
-            .expect((res) => variables['user'] = res.body.result.user)
+            .expect((res) => variables['user'] = res.body.result)
             .end(done);
     });
 
@@ -65,7 +65,7 @@ describe('Version 1 API Endpoints', function () {
             .expect(200)
             .expect('Content-Type', /application\/json/)
             .expect(validate.Response)
-            .expect(validate.ObjectId)          // TODO: This should really be a scenariometa object
+            .expect(validate.ScenarioMeta)
             .expect((res) => variables['scenarioid'] = res.body.result.id)
             .end(done);
     });
@@ -146,6 +146,8 @@ describe('Version 1 API Endpoints', function () {
             .end(done);
     });
 
+
+    /* Logout */
     it('logout', function (done) {
         request
             .post(`${base}/auth/logout`)

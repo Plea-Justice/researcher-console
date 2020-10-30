@@ -8,17 +8,18 @@
         <template v-for="scenario in scenarioSet">
           <ItemCard
             :key="scenario.id"
-            v-if="scenario.public"
+            v-if="scenario.public && !scenario.isMine"
             :item="scenario"
             :itemType="'scenario'"
             duplicate
-            @duplicate="copyScenario($event)"
-            link
+            @duplicate="duplicateScenario($event)"
           >
             <p class="content description" v-if="scenario.description">
               {{ scenario.description }}
             </p>
             <p class="content is-small">
+              <span>Shared by {{ scenario.owner }}</span>
+              <br />
               <span v-if="scenario.modified">
                 Last Modified {{ scenario.modified | timeToNow }}
               </span>
@@ -48,14 +49,8 @@ export default {
   },
   methods: {
     ...mapActions({
-      addScenario: "scenarios/addScenario"
-    }),
-    copyScenario(id) {
-      //FIXME: needs check for duplicates
-      this.addScenario({
-        ...this.scenarioSet.find(scenario => scenario.id === id)
-      });
-    }
+      duplicateScenario: "scenarios/duplicateScenario"
+    })
   }
 };
 </script>

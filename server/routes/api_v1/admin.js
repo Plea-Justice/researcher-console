@@ -4,7 +4,7 @@
 
 module.exports = function (options) {
     const express = require('express');
-    var router = express.Router();
+    const router = express.Router();
 
     const fs = require('fs-extra');
     const bcrypt = require('bcrypt');
@@ -20,20 +20,7 @@ module.exports = function (options) {
 
     router.get('/users', async (req, res) => {
         let list = await UserModel.find();
-        list = list.map((u)=>({
-            id: u._id,
-            name: u.username,
-            email: u.email,
-            profession: u.profession,
-            affiliation: u.affiliation,
-            addresses: Array.from(u.addresses.keys()).map(ip => ip.replace(/-/g, '.')),
-            permitAdmin: u.permitAdmin,
-            permitHosting: u.permitHosting,
-            permitSharing: u.permitSharing,
-            permitUploads: u.permitUploads,
-            lastActive: u.lastActive,
-            created: u.created
-        }));
+        list = list.map(u=>u.meta);
         res.json(util.success('Returned user list.', list));
     });
 
@@ -42,20 +29,25 @@ module.exports = function (options) {
     */ router.use(mandatoryRoute);
 
     router.put('/users/:user_id/permissions', async (req, res) => {
-        let subject_id = req.params.user_id;
+        const subject_id = req.params.user_id;
 
-        if (req.body.permitAdmin !== undefined && req.session.user.id === subject_id) {
+        if (
+            req.body.permitAdmin !== undefined
+            && req.session.user.id === subject_id
+        ) {
             res.status(400).json(util.failure('You may not change the admin status of the current account.'));
             return;
         }
 
         try {
-            const info = await UserModel.updateOne({_id: subject_id}, {$set: {
-                permitAdmin: req.body.permitAdmin,
-                permitHosting: req.body.permitHosting,
-                permitSharing: req.body.permitSharing,
-                permitUploads: req.body.permitUploads
-            }}, {omitUndefined: true});
+            const info = await UserModel.updateOne(
+                { _id: subject_id }, { $set: {
+                    permitAdmin: req.body.permitAdmin,
+                    permitHosting: req.body.permitHosting,
+                    permitSharing: req.body.permitSharing,
+                    permitUploads: req.body.permitUploads
+                } }, { omitUndefined: true }
+            );
 
             res.status(200).json(util.success('User permissions updated.', info));
         } catch (err) {
@@ -64,14 +56,16 @@ module.exports = function (options) {
     });
 
     router.put('/users/:user_id/attributes', async (req, res) => {
-        let subject_id = req.params.user_id;
+        const subject_id = req.params.user_id;
 
         try {
-            const info = await UserModel.updateOne({_id: subject_id}, {$set: {
-                username: req.body.username,
-                profession: req.body.profession,
-                affiliation: req.body.affiliation
-            }}, {omitUndefined: true});
+            const info = await UserModel.updateOne(
+                { _id: subject_id }, { $set: {
+                    username: req.body.username,
+                    profession: req.body.profession,
+                    affiliation: req.body.affiliation
+                } }, { omitUndefined: true }
+            );
 
             res.status(200).json(util.success('User permissions updated.', info));
         } catch (err) {
@@ -80,7 +74,7 @@ module.exports = function (options) {
     });
 
     router.delete('/users/:user_id', async (req, res) => {
-        let subject_id = req.params.user_id;
+        const subject_id = req.params.user_id;
 
         if (req.session.user.id === subject_id) {
             res.status(400).json(util.failure('You may not delete the current account.'));
@@ -88,7 +82,7 @@ module.exports = function (options) {
         }
 
         try {
-            const info = await UserModel.deleteOne({_id: subject_id});
+            const info = await UserModel.deleteOne({ _id: subject_id });
             fs.removeSync(util.userDir(options, subject_id));
 
             res.status(200).json(util.success('User deleted.', info));
@@ -98,12 +92,16 @@ module.exports = function (options) {
     });
 
     router.put('/users/:user_id/password', async (req, res) => {
-        let subject_id = req.params.user_id;
+        const subject_id = req.params.user_id;
 
         try {
-            const info = await UserModel.updateOne({_id: subject_id}, {$set: {
-                password: bcrypt.hashSync(req.body.newPassword, util.saltRounds)
-            }}, {omitUndefined: true});
+            const info = await UserModel.updateOne(
+                { _id: subject_id }, { $set: {
+                    password: bcrypt.hashSync(
+                        req.body.newPassword, util.saltRounds
+                    )
+                } }, { omitUndefined: true }
+            );
 
             res.status(200).json(util.success('User permissions updated.', info));
         } catch (err) {

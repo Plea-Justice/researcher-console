@@ -8,7 +8,7 @@ const AssetModel = require('../../models/AssetModel');
 
 module.exports = function (options) {
     const express = require('express');
-    var router = express.Router();
+    const router = express.Router();
 
     const util = require('../../common/util');
     const { publish } = require('../../common/publish');
@@ -18,6 +18,7 @@ module.exports = function (options) {
     const path = require('path');
     const os = require('os');
     const fileupload = require('express-fileupload');
+    const mongoose = require('mongoose');
     const sanitize = require('sanitize-filename');
 
     const assetTypes = util.assetTypes;
@@ -43,21 +44,17 @@ module.exports = function (options) {
      * @return [File names.]
      */
     router.get('/', async (req, res) => {
+        const uid = req.session.user.id;
+
         try {
             const assets = {};
 
-            const obj = await AssetModel.find({ $or: [{ user_id: req.session.user.id }, { public: true }] });
+            const obj = await AssetModel.find({
+                $or: [{ owner: uid }, { public: true }]
+            });
             const list = obj.map(asset => ({
-                id: asset._id,
-                name: asset.name,
-                type: asset.type,
-                filename: asset.path,
-                modified: asset.modified,
-                public: asset.public,
-                readOnly: asset.readOnly,
-                owner: asset.owner,
-                isMine: asset.user_id.toString() === req.session.user.id,
-                created: asset.created
+                ...asset.meta,
+                isMine: asset.owner._id.toString() === uid,
             }));
 
             const assetList = list.map(asset => asset.id);
@@ -65,8 +62,12 @@ module.exports = function (options) {
             list.forEach(asset => assets[asset.id] = asset);
 
             res.status(200).json(util.success('Asset listings returned.',
-                { assetList, assets, assetTypeSpecs: assetTypes.spec, assetTypes: assetTypes.types }
-            ));
+                {
+                    assetList,
+                    assets,
+                    assetTypeSpecs: assetTypes.spec,
+                    assetTypes: assetTypes.types
+                }));
         } catch (err) {
             console.log(err);
             res.status(500).json(util.failure('There was an error reading the user\'s assets', err));
@@ -79,14 +80,15 @@ module.exports = function (options) {
      * @return Filename
      */
     router.post('/', async (req, res) => {
-        const user_data_dir = util.userDir(options, req.session.user.id);
+        const uid = req.session.user.id;
+        const user_data_dir = util.userDir(options, uid);
 
         if (options.noclobber) {
             res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
             return;
         }
 
-        const permissions = await util.userPermissions(req.session.user.id);
+        const permissions = await util.userPermissions(uid);
         if (!permissions.permitUploads) {
             res.status(400).json(util.failure('User does not have permission to upload.'));
             return;
@@ -94,30 +96,38 @@ module.exports = function (options) {
 
 
 
-        if (!req.files || Object.keys(req.files).length === 0)
+        if (!req.files || Object.keys(req.files).length === 0) {
             res.status(400).json(util.failure('No file was uploaded.'));
-        else if (!Object.keys(assetTypes.spec).some((el) => el === req.body.type))
+
+        } else if (!Object.keys(assetTypes.spec)
+            .some((el) => el === req.body.type)) {
+
             res.status(400).json(util.failure(
                 'Invalid asset type.',
                 req.body.type
             ));
-        else if (req.body.type.match(/clip|actor/) &&
-            path.extname(req.files.file.name) !== '.js')
+
+        } else if (req.body.type.match(/clip|actor/)
+            && path.extname(req.files.file.name) !== '.js') {
+
             res.status(400).json(util.failure('Clips and assets must have a JavaScript file extension.'));
-        else if (req.body.type.match(/foreground|background|cache/) &&
-            (!path.extname(req.files.file.name).match(/.*\.(png|bmp|jpg|jpeg)$/)))
+
+        } else if (req.body.type.match(/foreground|background|cache/)
+            && (!path.extname(req.files.file.name).match(/.*\.(png|bmp|jpg|jpeg)$/))) {
+
             res.status(400).json(util.failure(
                 'Foreground and background images must have a PNG or JPEG file extension.',
                 null
             ));
-        else {
+
+        } else {
             /* FIXME: Renaming disabled until simulation compatible.
             let name = req.body.name.length > 0
                 ? req.body.name + path.extname(req.files.file.name)
                 : req.files.file.name;
             */
-            let name = sanitize(req.files.file.name).replace(/[\s,;]+/g, '_');
-            let filepath = path.join(user_data_dir, req.body.type, name);
+            const name = sanitize(req.files.file.name).replace(/[\s,;]+/g, '_');
+            const filepath = path.join(user_data_dir, req.body.type, name);
 
             if (fs.pathExistsSync(filepath)) {
                 res.status(400).json(util.failure('An asset with the specified name already exists.'));
@@ -132,15 +142,15 @@ module.exports = function (options) {
                     publish(filepath);
 
                 const asset = new AssetModel({
-                    user_id: req.session.user.id,
+                    owner: uid,
                     path: path.join(req.body.type, name),
                     name: name.replace(/\..*?$/, ''),
                     type: req.body.type,
                     description: req.body.description,
                     public: req.body.public,
                     readOnly: req.body.readOnly,
-                    owner: req.session.user.name
                 });
+
                 await asset.save();
 
                 // Generate a thumbnail for the asset in the background.
@@ -150,26 +160,63 @@ module.exports = function (options) {
                 ]);
 
                 res.status(200).json(util.success('Asset uploaded.', {
-                    id: asset._id,
-                    filename: asset.path,
-                    name: asset.name,
-                    type: asset.type,
-                    description: asset.description,
-                    public: asset.public,
-                    readOnly: asset.readOnly,
-                    owner: asset.owner,
-                    isMine: asset.user_id.toString() === req.session.user.id,
-                    created: asset.created,
-                    modified: asset.modified,
-
+                    ...asset.meta,
+                    isMine: asset.owner._id.toString() === uid
                 }));
             } catch (err) {
                 if (fs.pathExistsSync(filepath))
                     fs.removeSync(filepath);
 
                 res.status(500).json(
-                    util.failure('Error uploading the asset. If it is still visible, delete it and try again.', err));
+                    util.failure('Error uploading the asset. If it is still visible, delete it and try again.', err)
+                );
             }
+        }
+    });
+
+
+    /**
+     * Copy an asset.
+     */
+    router.post('/:asset_id', async (req, res) => {
+        const id = req.params.asset_id;
+        const uid = req.session.user.id;
+        const to_user_dir = util.userDir(options, uid);
+
+        try {
+            const obj = (await AssetModel.findOne({
+                _id: id,
+                $or: [{ owner: uid }, { public: true }]
+            })).toObject();
+
+            const from_user_dir = util.userDir(
+                options,
+                obj.owner._id.toString()
+            );
+
+            obj._id = mongoose.Types.ObjectId();
+
+            fs.copySync(
+                path.join(from_user_dir, obj.path),
+                path.join(to_user_dir, obj.path),
+                { overwrite: false, errorOnExist: true }
+            );
+
+            fs.copySync(
+                path.join(from_user_dir, 'thumbnails', `${id}.jpg`),
+                path.join(to_user_dir, 'thumbnails', `${obj._id.toString()}.jpg`)
+            );
+
+            obj.owner = uid;
+            obj.public = false;
+
+            await AssetModel.create(obj);
+
+            res.status(200).json(util.success('Asset copied. Metadata returned.', obj));
+
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(util.failure('The asset could not be copied. Check for any assets with the same name.', err));
         }
     });
 
@@ -180,7 +227,10 @@ module.exports = function (options) {
         try {
             const asset_id = req.params.asset_id;
             const asset = await AssetModel.findOne({ _id: asset_id });
-            const user_data_dir = util.userDir(options, asset.user_id.toString());
+            const user_data_dir = util.userDir(
+                options,
+                asset.owner._id.toString()
+            );
             const thumbnail = path.resolve(path.join(user_data_dir, 'thumbnails', `${asset_id}.jpg`));
 
             if (!fs.pathExistsSync(thumbnail))
@@ -201,17 +251,20 @@ module.exports = function (options) {
 
         try {
             const scenarios = await ScenarioModel.find({
-                user_id: uid
+                owner: uid
             });
 
-            let matches = scenarios.filter(scenario =>
+            const matches = scenarios.filter(scenario =>
                 Object.entries((scenario.scenes)).map(([id, scene]) =>
-                    scene.props ?
-                        [scene.props.actor, scene.props.clip, scene.props.foreground, scene.props.background]
+                    scene.props
+                        ? [
+                            scene.props.actor,
+                            scene.props.clip,
+                            scene.props.foreground,
+                            scene.props.background
+                        ]
                             .map(x => x ? x.id : '')
-                            .includes(asset_id) : false
-                ).some(y => y)
-            );
+                            .includes(asset_id) : false).some(y => y));
 
             matches.map(x => ({
                 id: x._id,
@@ -243,7 +296,10 @@ module.exports = function (options) {
         }
 
         try {
-            const asset = await AssetModel.findOne({ _id: asset_id, user_id: uid });
+            const asset = await AssetModel.findOne({
+                _id: asset_id,
+                owner: uid
+            });
 
             if (fs.pathExistsSync(path.join(user_data_dir, asset.path)))
                 fs.unlinkSync(path.join(user_data_dir, asset.path));

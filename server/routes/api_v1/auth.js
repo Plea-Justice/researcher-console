@@ -4,7 +4,7 @@
 
 module.exports = function (options) {
     const express = require('express');
-    var router = express.Router();
+    const router = express.Router();
 
     const fs = require('fs-extra');
     const path = require('path');
@@ -52,16 +52,15 @@ module.exports = function (options) {
         if (!req.session.is_logged_in)
             res.status(500).json(util.failure('Session not logged in.'));
         else if (!('user' in req.session))
-            res.status(500).json(util.failure('Session user not found.'));
-        else
-            res.status(200).json(util.success('User info returned.',
-                {user: {
-                    name: req.session.user.name,
-                    id: req.session.user.id,
-                    ...await util.userPermissions(req.session.user.id),
-                    sessions: await getUserSessionCount(req.session.user.id)
-                }}
-            ));
+            res.status(500).json(util.failure('Session user is unset.'));
+        else {
+            try {
+                const obj = await UserModel.findById(req.session.user.id);
+                res.status(200).json(util.success('User info returned.', obj.meta));
+            } catch (err) {
+                res.status(500).json(util.failure('There was an error getting the user metadata.'));
+            }
+        }
     });
 
     /**
@@ -122,10 +121,11 @@ module.exports = function (options) {
         });
 
         try {
-            // FIXME: This is not a good way to copy over assets. Resolve this when public assets are enabled.
             const obj = await user.save();
             const user_data_dir = util.userDir(options, obj._id.toString());
-            Object.keys(assetTypes.spec).forEach(type => fs.mkdirpSync(path.join(user_data_dir, type)));
+            Object.keys(assetTypes.spec).forEach(
+                type => fs.mkdirpSync(path.join(user_data_dir, type))
+            );
 
             res.status(200).json(util.success('User account created. You may now login.'));
         } catch (err) {

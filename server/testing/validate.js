@@ -20,15 +20,14 @@ module.exports = {
     },
 
     ObjectId: function (res) {
-        if (objectIdValidator(res.body.result.id)) // TODO: id can be flattened to just result.
+        if (objectIdValidator(res.body.result))
             return;
         throw Error(objectIdValidator.errors[0].message);
     },
 
     User: function (res) {
-        if (userValidator(res.body.result.user)) // TODO: user can be flattened to just result.
+        if (userValidator(res.body.result))
             return;
-        console.log(res.body.result.user);
         throw Error(userValidator.errors[0].message);
     },
 

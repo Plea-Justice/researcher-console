@@ -1,23 +1,51 @@
 // Mongoose database.
 const mongoose = require('mongoose');
+const autopopulate = require('mongoose-autopopulate');
+const ObjectId = mongoose.SchemaTypes.ObjectId;
 
 // Warning!
 // Changes to this file may render data inaccessible.
 // Removing properties is not recommended.
 
-var AssetSchema = new mongoose.Schema({
-    user_id: { type: mongoose.SchemaTypes.ObjectId, required: true },
-    owner: { type: String, required: true },
-    path: { type: String, required: true },
-    name: { type: String, required: true },
-    type: { type: String, required: true },
+const AssetSchema = new mongoose.Schema({
+    // Required
+    name:       { type: String, required: true },
+    owner:      { type: ObjectId, ref: 'User', required: true, autopopulate: true },
+
+    path:       { type: String, required: true },
+    type:       { type: String, required: true },
+
+    // Default
     description: { type: String, default: '' },
-    public: { type: Boolean, default: false },
-    readOnly: { type: Boolean, default: false },
-    created: { type: Date, default: Date.now },
-    modified: { type: Date, default: Date.now },
-    version: { type: String, default: '1.0.0' }
+    public:     { type: Boolean, default: false },
+    readOnly:   { type: Boolean, default: false },
+    created:    { type: Date, default: Date.now },
+    modified:   { type: Date, default: Date.now },
+    version:    { type: String, default: '1.0.0' },
+
 }, { strict: 'throw', strictQuery: true, minimize: false });
 
-var AssetModel = mongoose.model('Asset', AssetSchema);
+AssetSchema.plugin(autopopulate);
+
+AssetSchema.virtual('meta')
+    .get(function () {
+        return {
+            id:         this._id,
+            name:       this.name,
+            owner:      this.owner.username,
+
+            description: this.description,
+            public:     this.public,
+            readOnly:   this.readOnly,
+            created:    this.created,
+            modified:   this.modified,
+            version:    this.version,
+
+            path:     this.path,
+            type:       this.type
+        };
+    });
+
+
+const AssetModel = mongoose.model('Asset', AssetSchema);
 module.exports = AssetModel;

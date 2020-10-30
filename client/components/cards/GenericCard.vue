@@ -19,7 +19,7 @@
     </header>
 
     <!-- Card Body -->
-    <div v-show="!collapsed" class="card-content">
+    <div v-show="!collapsed" class="card-content py-3 px-3">
       <slot name="default" />
     </div>
 
