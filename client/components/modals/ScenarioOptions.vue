@@ -71,7 +71,7 @@
 import { mapActions } from "vuex";
 
 // Import Mixins
-import User from "~/mixins/user";
+import User from "~/mixins/User";
 
 // Import Components
 import HelpSidebar from "~/components/HelpSidebar";

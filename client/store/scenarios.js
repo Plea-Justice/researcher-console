@@ -35,8 +35,7 @@ export const actions = {
     });
     if (response.success) commit('updateScenario', modifiedScenario);
   },
-  async duplicateScenario({ commit, state, getters }, id) {
-    // Fetch full scenario from server
+  async duplicateScenario({ commit }, id) {
     const response = await this.$axios.$post(`/api/v1/scenarios/${id}`);
     if (response.success) {
       commit('copyScenario', response.result);

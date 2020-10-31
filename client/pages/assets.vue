@@ -1,6 +1,10 @@
 <template>
   <ItemLayout
-    :contentTitle="`My Assets: ${this.selectedType}`"
+    :contentTitle="
+      `My Assets: ${this.selectedType} ${
+        this.numSelectedAssets ? `(${this.numSelectedAssets})` : ''
+      }`
+    "
     helpTitle="Asset Management"
     :helpText="assetsHelp.navbar"
   >
@@ -19,11 +23,14 @@
           >
             Upload
           </ToolBarButton>
-
-          <ToolBarButton @click="openSharedModal()" :value="sharedMode">
-            Shared Assets
-          </ToolBarButton>
         </b-tooltip>
+        <ToolBarButton
+          v-if="numSharedAssets"
+          @click="openSharedModal()"
+          :value="sharedMode"
+        >
+          Shared Assets
+        </ToolBarButton>
       </div>
     </template>
     <template v-slot:toolbar-end>
@@ -39,50 +46,32 @@
 
     <!-- If no assets exists -->
     <p
-      v-if="!assetSet.length"
+      v-if="!(assetSet.length - numSharedAssets)"
       class="empty-text has-text-weight-medium is-size-5"
     >
       No assets exist!
       <br />Add an asset using the toolbar to get started.
     </p>
 
-    <div v-for="type in selectedTypes" :key="type" class="section">
-      <h3 class="title">{{ `${type}s` | capitalize }}</h3>
+    <template v-else>
+      <div v-for="type in selectedTypes" :key="type" class="section">
+        <h3 class="title">{{ `${type}s` | capitalize }}</h3>
 
-      <div class="item-grid">
-        <template v-for="asset in assetSetByType[type]">
-          <ItemCard
-            :key="asset.id"
-            v-if="!asset.public || asset.owner === user.name"
-            :item="asset"
-            :remove="asset.isMine"
-            @remove="confirmDelete($event)"
-            :edit="asset.isMine"
-            @edit="openFormModal(asset)"
-          >
-            <b-image
-              :src="`${envAPIURL}/api/v1/assets/${asset.id}/thumbnail`"
-              src-fallback="/defaultThumbnail.png"
-              responsive
-              ratio="16by9"
-              lazy
+        <div class="item-grid">
+          <template v-for="asset in assetSetByType[type]">
+            <Asset
+              :key="asset.id"
+              v-if="!asset.public || asset.owner === user.name"
+              :asset="asset"
+              :remove="asset.isMine"
+              @remove="confirmDelete($event)"
+              :edit="asset.isMine"
+              @edit="openFormModal(asset)"
             />
-
-            <div class="asset-meta content is-small">
-              <span> Uploaded {{ asset.created | timeToNow }} </span>
-              <span>{{ asset.owner }}</span>
-            </div>
-
-            <template v-slot:footer>
-              <b-taglist style="margin-left: auto;">
-                <b-tag v-if="asset.public" type="is-info">Public</b-tag>
-                <b-tag type="is-primary">{{ asset.type | capitalize }}</b-tag>
-              </b-taglist>
-            </template>
-          </ItemCard>
-        </template>
+          </template>
+        </div>
       </div>
-    </div>
+    </template>
   </ItemLayout>
 </template>
 
@@ -91,12 +80,12 @@
 import { mapGetters, mapActions } from "vuex";
 
 // Import Mixins
-import User from "~/mixins/user";
+import User from "~/mixins/User";
 
 // Import Components
 import ItemLayout from "~/components/layouts/ItemLayout";
 import ToolBarButton from "~/components/ToolBarButton";
-import ItemCard from "~/components/cards/ItemCard";
+import Asset from "~/components/cards/Asset";
 import AssetForm from "~/components/modals/AssetForm";
 import HelpSidebar from "~/components/HelpSidebar";
 import DeleteAsset from "../components/modals/DeleteAsset";
@@ -108,7 +97,7 @@ import { assetsHelp } from "~/assets/helpText";
 export default {
   name: "Scenarios",
   mixins: [User],
-  components: { ItemLayout, ToolBarButton, ItemCard, HelpSidebar },
+  components: { ItemLayout, ToolBarButton, Asset, HelpSidebar },
   async fetch({ store, params }) {
     await store.dispatch("assets/getAssets");
   },
@@ -119,27 +108,42 @@ export default {
 
       addMode: false,
       sharedMode: false,
-      selectedType: "all",
-      envAPIURL: process.env.API_URL
+      selectedType: "all"
     };
   },
   computed: {
     ...mapGetters({
       assetSet: "assets/assetSet"
     }),
+    numSharedAssets() {
+      return this.assetSet.reduce(
+        (acc, asset) =>
+          asset.public && asset.owner !== this.user.name ? (acc += 1) : acc,
+        0
+      );
+    },
     assetSetByType() {
       return this.assetSet.reduce(
-        (obj, item) => (
-          obj[item.type]
-            ? obj[item.type].push(item)
-            : (obj[item.type] = [item]),
+        (obj, asset) => (
+          obj[asset.type]
+            ? obj[asset.type].push(asset)
+            : (obj[asset.type] = [asset]),
           obj
         ),
         {}
       );
     },
     validTypes() {
+      // FIXME: likely has to delimit shared scenarios
       return Object.keys(this.assetSetByType).sort();
+    },
+    numSelectedAssets() {
+      return this.selectedType === "all"
+        ? this.assetSet.length - this.numSharedAssets
+        : this.assetSetByType[this.selectedType].reduce(
+            (acc, asset) => (asset.owner === this.user.name ? (acc += 1) : acc),
+            0
+          );
     },
     selectedTypes() {
       return this.selectedType === "all"

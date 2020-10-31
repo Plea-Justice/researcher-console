@@ -19,7 +19,7 @@
     </header>
 
     <!-- Card Body -->
-    <div v-show="!collapsed" class="card-content py-3 px-3">
+    <div v-show="!collapsed" class="card-content">
       <slot name="default" />
     </div>
 
@@ -105,6 +105,7 @@ $borderWidth: 1px;
 .card-content {
   flex-grow: 1;
   max-width: 100%;
+  padding: 0.75rem;
 }
 
 .card-footer {

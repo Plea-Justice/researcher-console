@@ -9,8 +9,12 @@
         <ToolBarButton @click="openFormModal()" :value="addMode">
           Create New
         </ToolBarButton>
-        <ToolBarButton @click="openSharedModal()" :value="sharedMode">
-          Copy Shared Template
+        <ToolBarButton
+          v-if="numSharedScenarios"
+          @click="openSharedModal()"
+          :value="sharedMode"
+        >
+          Shared Scenarios
         </ToolBarButton>
       </div>
     </template>
@@ -32,7 +36,7 @@
     -->
 
     <p
-      v-if="!scenarioSet.length"
+      v-if="!(scenarioSet.length - numSharedScenarios)"
       class="empty-text has-text-weight-medium is-size-5"
     >
       No scenarios exist!
@@ -41,35 +45,17 @@
 
     <div v-else class="item-grid">
       <template v-for="scenario in scenarioSet">
-        <ItemCard
+        <Scenario
           :key="scenario.id"
           v-if="!scenario.public || scenario.isMine"
-          :item="scenario"
+          :scenario="scenario"
           :remove="scenario.isMine"
           @remove="confirmDelete($event)"
           :edit="scenario.isMine"
           @edit="openFormModal(scenario)"
           duplicate
           @duplicate="duplicateScenario($event)"
-          :itemType="'scenario'"
-          link
-        >
-          <p class="content description" v-if="scenario.description">
-            {{ scenario.description }}
-          </p>
-          <p class="content is-small">
-            <span v-if="scenario.modified !== scenario.created">
-              Last Modified {{ scenario.modified | timeToNow }}
-            </span>
-            <br />
-            <span>Created {{ scenario.created | timeToNow }}</span>
-          </p>
-          <template v-slot:footer>
-            <b-taglist style="margin-left: auto;">
-              <b-tag v-if="scenario.public" type="is-info">Public</b-tag>
-            </b-taglist>
-          </template>
-        </ItemCard>
+        />
       </template>
     </div>
   </ItemLayout>
@@ -82,7 +68,7 @@ import { mapGetters, mapActions } from "vuex";
 // Import Components
 import ItemLayout from "~/components/layouts/ItemLayout";
 import ToolBarButton from "~/components/ToolBarButton";
-import ItemCard from "~/components/cards/ItemCard";
+import Scenario from "~/components/cards/Scenario";
 import ScenarioForm from "~/components/modals/ScenarioForm";
 import SharedScenarios from "~/components/modals/SharedScenarios";
 
@@ -91,7 +77,7 @@ import { scenariosHelp } from "~/assets/helpText";
 
 export default {
   name: "Scenarios",
-  components: { ItemLayout, ToolBarButton, ItemCard, ScenarioForm },
+  components: { ItemLayout, ToolBarButton, Scenario, ScenarioForm },
   async fetch({ store, params }) {
     await store.dispatch("scenarios/getScenarios");
   },
@@ -117,6 +103,12 @@ export default {
     ...mapGetters({
       scenarioSet: "scenarios/scenarioSet"
     }),
+    numSharedScenarios() {
+      return this.scenarioSet.reduce(
+        (acc, scenario) => (!scenario.isMine ? (acc += 1) : acc),
+        0
+      );
+    },
     sortedScenarios() {
       return this.scenarioSet.sort(scenario => scenario[this.sortBy]);
     }
@@ -173,12 +165,5 @@ export default {
 <style scoped>
 .empty-text {
   position: absolute;
-}
-
-/* FIXME: this is duplicate in SharedScenarios modal */
-.description {
-  margin-bottom: auto;
-  padding-bottom: 1.5rem;
-  overflow-wrap: anywhere;
 }
 </style>

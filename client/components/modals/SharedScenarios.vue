@@ -1,36 +1,15 @@
 <template>
-  <div class="modal-card">
-    <header class="modal-card-head">
-      <p class="modal-card-title">Shared Scenarios</p>
-    </header>
-    <section class="modal-card-body">
-      <div class="item-grid">
-        <template v-for="scenario in scenarioSet">
-          <ItemCard
-            :key="scenario.id"
-            v-if="scenario.public && !scenario.isMine"
-            :item="scenario"
-            :itemType="'scenario'"
-            duplicate
-            @duplicate="duplicateScenario($event)"
-          >
-            <p class="content description" v-if="scenario.description">
-              {{ scenario.description }}
-            </p>
-            <p class="content is-small">
-              <span>Shared by {{ scenario.owner }}</span>
-              <br />
-              <span v-if="scenario.modified">
-                Last Modified {{ scenario.modified | timeToNow }}
-              </span>
-              <br />
-              <span>Created {{ scenario.created | timeToNow }}</span>
-            </p>
-          </ItemCard>
-        </template>
-      </div>
-    </section>
-  </div>
+  <SharedItems name="shared scenarios">
+    <template v-for="scenario in scenarioSet">
+      <Scenario
+        :key="scenario.id"
+        v-if="scenario.public && !scenario.isMine"
+        :scenario="scenario"
+        duplicate
+        @duplicate="duplicateScenario($event)"
+      />
+    </template>
+  </SharedItems>
 </template>
 
 <script>
@@ -38,10 +17,11 @@
 import { mapGetters, mapActions } from "vuex";
 
 // Import Components
-import ItemCard from "~/components/cards/ItemCard";
+import SharedItems from "~/components/modals/SharedItems";
+import Scenario from "~/components/cards/Scenario";
 
 export default {
-  components: { ItemCard },
+  components: { SharedItems, Scenario },
   computed: {
     ...mapGetters({
       scenarioSet: "scenarios/scenarioSet"
@@ -54,31 +34,3 @@ export default {
   }
 };
 </script>
-
-<style>
-/* FIXME: This will break things */
-.animation-content {
-  max-width: unset !important;
-}
-</style>
-
-<style scoped>
-.modal-card {
-  width: 90vw;
-}
-
-.description {
-  margin-bottom: auto;
-  padding-bottom: 1.5rem;
-  overflow-wrap: anywhere;
-}
-
-.modal-card-body {
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
-}
-
-.item-grid {
-  padding: 1rem 2rem;
-}
-</style>

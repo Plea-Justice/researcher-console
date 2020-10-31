@@ -8,6 +8,7 @@
     <template v-slot:header>
       <slot name="header" />
       <div v-if="item" class="header-wrapper">
+        <!-- FIXME: consider moving this right to the asset/scenario cards -->
         <!-- If header is in default mode print name w or w/o link -->
         <b-tooltip
           :active="showTooltip"

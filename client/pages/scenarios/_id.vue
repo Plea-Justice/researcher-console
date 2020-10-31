@@ -25,8 +25,8 @@
               @click="openScenarioOptions()"
               :value="mode"
               icon-left="cog"
-              >Options</ToolBarButton
-            >
+              >Options
+            </ToolBarButton>
 
             <b-button
               @click="collapseAll()"
@@ -40,8 +40,8 @@
               @click="addCondition()"
               :value="mode"
               :disabled="!numScenes"
-              >Add Condition</ToolBarButton
-            >
+              >Add Condition
+            </ToolBarButton>
           </div>
 
           <div class="level-item buttons">
@@ -50,24 +50,24 @@
               @click="toggleHandler($event, 'swap')"
               :mode="Modes.SWAP"
               :disabled="numScenes < 2"
-              >Swap</ToolBarButton
-            >
+              >Swap
+            </ToolBarButton>
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'copy')"
               :mode="Modes.COPY"
               :disabled="numScenes < 2"
-              >Copy</ToolBarButton
-            >
+              >Copy
+            </ToolBarButton>
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'bind')"
               :mode="Modes.BIND"
               :disabled="numScenes < 2"
-              >Bind</ToolBarButton
-            >
+              >Bind
+            </ToolBarButton>
           </div>
         </template>
 
@@ -90,8 +90,10 @@
       />
     </template>
 
-    <p>Scenes: {{ numScenes }}</p>
-    <p>{{ scenarioStatus }}</p>
+    <template v-if="env.MODE === 'development'">
+      <p>Scenes: {{ numScenes }}</p>
+      <p>{{ scenarioStatus }}</p>
+    </template>
 
     <section ref="frames" class="padded-responsive-container responsive-center">
       <!-- Frames -->
@@ -147,6 +149,9 @@ export default {
   },
   data() {
     return {
+      // Env
+      env: { MODE: process.env.MODE },
+
       // import from JS file
       scenarioHelp: scenarioHelp,
 
