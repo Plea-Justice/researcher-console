@@ -24,7 +24,9 @@
           {{ route.name }}
         </b-navbar-item>
       </template>
-      <b-navbar-item  tag="div" v-if="env.MODE === 'development'"><code>Developer Mode: {{env.BRANCH}}</code></b-navbar-item>
+      <b-navbar-item tag="div" v-if="env.MODE === 'development'">
+        <code>Developer Mode: {{ env.BRANCH }}</code>
+      </b-navbar-item>
     </template>
 
     <template slot="end">
@@ -61,6 +63,9 @@
 </template>
 
 <script>
+// Import Mixins
+import User from "~/mixins/user";
+
 // Import Components
 import HelpSidebar from "~/components/HelpSidebar";
 
@@ -69,6 +74,7 @@ import { noop } from "~/assets/util";
 
 export default {
   name: "NavBar",
+  mixins: [User],
   components: { HelpSidebar },
   props: {
     title: {
@@ -97,13 +103,8 @@ export default {
           path: "/scenarios"
         }
       ],
-      env: {MODE: process.env.MODE, BRANCH: process.env.BRANCH}
+      env: { MODE: process.env.MODE, BRANCH: process.env.BRANCH }
     };
-  },
-  computed: {
-    user() {
-      return this.$auth.user ? this.$auth.user : { name: "dev", sessions: 1 };
-    }
   },
   methods: {
     logoutHandler() {

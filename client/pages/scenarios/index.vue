@@ -54,7 +54,6 @@
           :itemType="'scenario'"
           link
         >
-          {{ scenario.id }}
           <p class="content description" v-if="scenario.description">
             {{ scenario.description }}
           </p>

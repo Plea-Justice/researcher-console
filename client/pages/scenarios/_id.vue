@@ -118,7 +118,7 @@ import { mapGetters, mapActions } from "vuex";
 import { Event } from "~/bus/eventbus";
 
 // Import Mixins
-import SelectionMixin from "~/mixins/SelectionMixin";
+import Selection from "~/mixins/Selection";
 
 // Import Components
 import ScenarioLayout from "~/components/layouts/ScenarioLayout";
@@ -135,7 +135,7 @@ import { scenarioHelp } from "~/assets/helpText";
 
 export default {
   name: "Scenario",
-  mixins: [SelectionMixin],
+  mixins: [Selection],
   components: {
     ScenarioLayout,
     ToolBar,

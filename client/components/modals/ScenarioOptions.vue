@@ -44,17 +44,15 @@
           </b-field>
         </form-group>
 
-        <form-group
-          label="Share with Others"
-        >
+        <form-group label="Share with Others">
           <b-field>
-             <b-switch
-                :disabled="!user.permitSharing"
-                v-model="scenarioForm.public"
-                type="is-info"
-              >
-                Make Public
-              </b-switch>
+            <b-switch
+              :disabled="!user.permitSharing"
+              v-model="scenarioForm.public"
+              type="is-info"
+            >
+              Make Public
+            </b-switch>
           </b-field>
         </form-group>
       </section>
@@ -72,6 +70,9 @@
 // Import VueX
 import { mapActions } from "vuex";
 
+// Import Mixins
+import User from "~/mixins/user";
+
 // Import Components
 import HelpSidebar from "~/components/HelpSidebar";
 
@@ -84,6 +85,7 @@ import { scenarioOptionsHelp } from "~/assets/helpText";
 
 export default {
   name: "ScenarioOptions",
+  mixins: [User],
   components: { HelpSidebar },
   data() {
     return {
@@ -125,9 +127,6 @@ export default {
         status = { type: "is-warning" };
       }
       return status;
-    },
-    user() {
-      return this.$auth.user ? this.$auth.user : { name: "dev", sessions: 1 };
     }
   },
   methods: {

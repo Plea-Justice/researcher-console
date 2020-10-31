@@ -90,6 +90,9 @@
 // Import VueX
 import { mapGetters, mapActions } from "vuex";
 
+// Import Mixins
+import User from "~/mixins/user";
+
 // Import Components
 import ItemLayout from "~/components/layouts/ItemLayout";
 import ToolBarButton from "~/components/ToolBarButton";
@@ -104,6 +107,7 @@ import { assetsHelp } from "~/assets/helpText";
 
 export default {
   name: "Scenarios",
+  mixins: [User],
   components: { ItemLayout, ToolBarButton, ItemCard, HelpSidebar },
   async fetch({ store, params }) {
     await store.dispatch("assets/getAssets");
@@ -120,9 +124,6 @@ export default {
     };
   },
   computed: {
-    user() {
-      return this.$auth.user ? this.$auth.user : { name: "dev", sessions: 1 };
-    },
     ...mapGetters({
       assetSet: "assets/assetSet"
     }),

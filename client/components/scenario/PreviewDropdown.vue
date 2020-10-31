@@ -1,11 +1,20 @@
 <template>
   <div class="buttons">
-    <ToolBarButton @click="preview" type="is-primary" icon-left="eye">Preview</ToolBarButton>
+    <ToolBarButton @click="preview" type="is-primary" icon-left="eye"
+      >Preview</ToolBarButton
+    >
     <b-dropdown position="is-bottom-left">
-      <ToolBarButton class="button is-primary" slot="trigger" icon-left="angle-down">Publish</ToolBarButton>
+      <ToolBarButton
+        class="button is-primary"
+        slot="trigger"
+        icon-left="angle-down"
+        >Publish</ToolBarButton
+      >
 
       <b-dropdown-item @click="download">Manual Download</b-dropdown-item>
-      <b-dropdown-item @click="publish" :disabled="!user.permitHosting">Publish Live</b-dropdown-item>
+      <b-dropdown-item @click="publish" :disabled="!user.permitHosting"
+        >Publish Live</b-dropdown-item
+      >
       <b-dropdown-item v-if="scenarioMeta.live" @click="liveURLPopup">
         <b-tag type="is-success">Active Live Link</b-tag>
       </b-dropdown-item>
@@ -17,11 +26,15 @@
 // Import VueX
 import { mapActions, mapGetters } from "vuex";
 
+// Import Mixins
+import User from "~/mixins/user";
+
 // Import Components
 import ToolBarButton from "~/components/ToolBarButton";
 
 export default {
   components: { ToolBarButton },
+  mixins: [User],
   props: {
     scenarioMeta: {
       type: Object,
@@ -39,10 +52,7 @@ export default {
   computed: {
     ...mapGetters({
       scenarioStatus: "scenario/status"
-    }),
-    user() {
-      return this.$auth.user ? this.$auth.user : { name: "dev", sessions: 1 };
-    }
+    })
   },
   methods: {
     ...mapActions({
