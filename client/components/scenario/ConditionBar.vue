@@ -27,7 +27,7 @@
               <h1 class="condition-name subtitle">Condition {{ index + 1 }}</h1>
 
               <b-button
-                @click="openOptionsModal()"
+                @click="openOptionsModal(condition, index)"
                 type="is-light"
                 size="is-small"
                 icon-left="cog"
@@ -83,10 +83,10 @@
 import { mapGetters, mapActions } from "vuex";
 
 // Import Components
-// import ConditionOptions from "~/components/modals/ConditionOptions";
+import ConditionOptions from "~/components/modals/ConditionOptions";
 
 export default {
-  // components: { ConditionOptions },
+  components: { ConditionOptions },
   props: {
     selectable: [Object, Boolean]
   },
@@ -119,14 +119,15 @@ export default {
 
       return result;
     },
-    /* openOptionsModal() {
+    openOptionsModal(condition, index) {
       this.$buefy.modal.open({
         parent: this,
         component: ConditionOptions,
+        props: { condition: { index, ...condition } },
         hasModalCard: true,
         trapFocus: true
       });
-    }, */
+    },
     toggleTagInput(index) {
       this.showTagInput = !this.showTagInput;
       this.bindInputToCondition = this.showTagInput
