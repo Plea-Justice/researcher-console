@@ -1,9 +1,7 @@
 <template>
   <ItemLayout
     :contentTitle="
-      `My Assets: ${this.selectedType} ${
-        this.numSelectedAssets ? `(${this.numSelectedAssets})` : ''
-      }`
+      `My Assets: ${this.selectedType} ${`(${this.numSelectedAssets})` || ''}`
     "
     helpTitle="Asset Management"
     :helpText="assetsHelp.navbar"
@@ -25,7 +23,7 @@
           </ToolBarButton>
         </b-tooltip>
         <ToolBarButton
-          v-if="numSharedAssets"
+          v-if="hasSharedAssets"
           @click="openSharedModal()"
           :value="sharedMode"
         >
@@ -45,10 +43,7 @@
     </template>
 
     <!-- If no assets exists -->
-    <p
-      v-if="!(assetSet.length - numSharedAssets)"
-      class="empty-text has-text-weight-medium is-size-5"
-    >
+    <p v-if="!numMyAssets" class="empty-text has-text-weight-medium is-size-5">
       No assets exist!
       <br />Add an asset using the toolbar to get started.
     </p>
@@ -58,17 +53,15 @@
         <h3 class="title">{{ `${type}s` | capitalize }}</h3>
 
         <div class="item-grid">
-          <template v-for="asset in assetSetByType[type]">
-            <Asset
-              :key="asset.id"
-              v-if="!asset.public || asset.owner === user.name"
-              :asset="asset"
-              :remove="asset.isMine"
-              @remove="confirmDelete($event)"
-              :edit="asset.isMine"
-              @edit="openFormModal(asset)"
-            />
-          </template>
+          <Asset
+            v-for="asset in myAssetsByType[type]"
+            :key="asset.id"
+            :asset="asset"
+            :remove="asset.isMine"
+            @remove="confirmDelete($event)"
+            :edit="asset.isMine"
+            @edit="openFormModal(asset)"
+          />
         </div>
       </div>
     </template>
@@ -115,40 +108,40 @@ export default {
     ...mapGetters({
       assetSet: "assets/assetSet"
     }),
-    numSharedAssets() {
-      return this.assetSet.reduce(
-        (acc, asset) =>
-          asset.public && asset.owner !== this.user.name ? (acc += 1) : acc,
-        0
-      );
-    },
-    assetSetByType() {
-      return this.assetSet.reduce(
-        (obj, asset) => (
-          obj[asset.type]
-            ? obj[asset.type].push(asset)
-            : (obj[asset.type] = [asset]),
-          obj
-        ),
-        {}
-      );
+    myAssetsByType() {
+      return this.assetSet
+        .filter(asset => asset.owner === this.user.name)
+        .reduce(
+          (obj, asset) => (
+            obj[asset.type]
+              ? obj[asset.type].push(asset)
+              : (obj[asset.type] = [asset]),
+            obj
+          ),
+          {}
+        );
     },
     validTypes() {
-      // FIXME: likely has to delimit shared scenarios
-      return Object.keys(this.assetSetByType).sort();
-    },
-    numSelectedAssets() {
-      return this.selectedType === "all"
-        ? this.assetSet.length - this.numSharedAssets
-        : this.assetSetByType[this.selectedType].reduce(
-            (acc, asset) => (asset.owner === this.user.name ? (acc += 1) : acc),
-            0
-          );
+      return Object.keys(this.myAssetsByType).sort();
     },
     selectedTypes() {
       return this.selectedType === "all"
         ? this.validTypes
         : [this.selectedType];
+    },
+    numMyAssets() {
+      return Object.values(this.myAssetsByType).reduce(
+        (acc, assets) => (acc += assets.length),
+        0
+      );
+    },
+    numSelectedAssets() {
+      return this.selectedType === "all"
+        ? this.numMyAssets
+        : this.myAssetsByType[this.selectedType].length;
+    },
+    hasSharedAssets() {
+      return this.numMyAssets < this.assetSet.length;
     }
   },
   methods: {

@@ -20,9 +20,9 @@
     </template>
     <template v-slot:toolbar-default>
       <div class="level-item">
-        <span class="is-size-7"
-          >{{ users.length }} users, {{ activeCount }} active this week.</span
-        >
+        <span class="is-size-7">
+          {{ users.length }} users, {{ activeCount }} active this week.
+        </span>
       </div>
     </template>
     <template v-slot:toolbar-end>
@@ -61,13 +61,9 @@
       height="100%"
       default-sort="name"
     >
-      <b-table-column
-        v-slot="props"
-        field="name"
-        label="Username"
-        sortable
-        >{{ props.row.name }}</b-table-column
-      >
+      <b-table-column v-slot="props" field="name" label="Username" sortable>{{
+        props.row.name
+      }}</b-table-column>
       <b-table-column
         v-slot="props"
         field="email"
@@ -124,9 +120,9 @@
         sortable
       >
         <span>
-          <b-tag :type="props.row.permitSharing ? 'is-success' : 'is-danger'">{{
-            props.row.permitSharing ? "Yes" : "No"
-          }}</b-tag>
+          <b-tag :type="props.row.permitSharing ? 'is-success' : 'is-danger'">
+            {{ props.row.permitSharing ? "Yes" : "No" }}
+          </b-tag>
         </span>
       </b-table-column>
       <b-table-column
@@ -137,9 +133,9 @@
         meta="Permission"
       >
         <span>
-          <b-tag :type="props.row.permitUploads ? 'is-success' : 'is-danger'">{{
-            props.row.permitUploads ? "Yes" : "No"
-          }}</b-tag>
+          <b-tag :type="props.row.permitUploads ? 'is-success' : 'is-danger'">
+            {{ props.row.permitUploads ? "Yes" : "No" }}
+          </b-tag>
         </span>
       </b-table-column>
       <b-table-column
@@ -149,9 +145,9 @@
         sortable
       >
         <span>
-          <b-tag :type="props.row.permitHosting ? 'is-success' : 'is-danger'">{{
-            props.row.permitHosting ? "Yes" : "No"
-          }}</b-tag>
+          <b-tag :type="props.row.permitHosting ? 'is-success' : 'is-danger'">
+            {{ props.row.permitHosting ? "Yes" : "No" }}
+          </b-tag>
         </span>
       </b-table-column>
     </b-table>

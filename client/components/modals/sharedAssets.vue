@@ -1,15 +1,13 @@
 <template>
-  <SharedItems name="Shared Assets">
-    <template v-for="asset in assetSet">
-      <Asset
-        :key="asset.id"
-        v-if="asset.public && asset.owner !== user.name"
-        :asset="asset"
-        :itemType="'Scenario'"
-        duplicate
-        @duplicate="copyAsset($event)"
-      />
-    </template>
+  <SharedItems :name="`My Assets: ${`(${sharedAssetSet.length})` || ''}`">
+    <Asset
+      v-for="asset in assetSet"
+      :key="asset.id"
+      :asset="asset"
+      :itemType="'Scenario'"
+      duplicate
+      @duplicate="copyAsset($event)"
+    />
   </SharedItems>
 </template>
 
@@ -30,13 +28,20 @@ export default {
   computed: {
     ...mapGetters({
       assetSet: "assets/assetSet"
-    })
+    }),
+    sharedAssetSet() {
+      return this.assetSet.filter(
+        asset => asset.public && asset.owner !== this.user.name
+      );
+    }
   },
   methods: {
     ...mapActions({
       addAsset: "assets/addAsset"
     }),
     copyAsset(id) {
+      console.log("Fired");
+
       //FIXME: needs check for duplicates
       this.addAsset({
         ...this.assetSet.find(asset => asset.id === id)

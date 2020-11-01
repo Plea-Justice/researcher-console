@@ -1,9 +1,9 @@
 <template>
   <ItemCard
-    :item="{ id: scenario.id, name: scenario.name }"
-    v-bind="$attrs"
-    itemType="Scenario"
     v-on="$listeners"
+    v-bind="$attrs"
+    :item="{ id: scenario.id, name: scenario.name }"
+    itemType="Scenario"
     link
   >
     <p class="content description" v-if="scenario.description">

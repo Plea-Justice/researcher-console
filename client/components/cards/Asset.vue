@@ -1,7 +1,8 @@
 <template>
   <ItemCard
-    :item="{ id: asset.id, name: asset.name }"
+    v-on="$listeners"
     v-bind="$attrs"
+    :item="{ id: asset.id, name: asset.name }"
     itemType="Asset"
   >
     <b-image
