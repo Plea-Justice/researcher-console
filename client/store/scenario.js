@@ -327,7 +327,7 @@ export const mutations = {
   // **** Condition Mutations ****
   newCondition(state) {
     const id = nanoid();
-    Vue.set(state.conditions, id, { id, tags: [] });
+    Vue.set(state.conditions, id, { id, tags: [], customizations: {} });
     state.conditionList.push(id);
 
     // Copy last condition into new condition

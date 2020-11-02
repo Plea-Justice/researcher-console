@@ -23,16 +23,18 @@
                 icon-left="trash"
                 class="custom-small"
               />
-
               <h1 class="condition-name subtitle">Condition {{ index + 1 }}</h1>
 
-              <b-button
-                @click="openOptionsModal(condition, index)"
-                type="is-light"
-                size="is-small"
-                icon-left="cog"
-                class="custom-small"
-              />
+              <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-right">
+                <b-button
+                  type="is-light"
+                  size="is-small"
+                  icon-left="cog"
+                  class="has-text-grey custom-small"
+                  slot="trigger"
+                />
+                <b-dropdown-item @click="openAdvancedAssets(condition, index)" aria-role="listitem">Customize Assets</b-dropdown-item>
+              </b-dropdown>
             </div>
 
             <b-field grouped class="tag-list">
@@ -82,11 +84,10 @@
 // Import VueX
 import { mapGetters, mapActions } from "vuex";
 
-// Import Components
-import ConditionOptions from "~/components/modals/ConditionOptions";
+import AdvancedAssets from "~/components/modals/AdvancedAssets"
 
 export default {
-  components: { ConditionOptions },
+  components: { AdvancedAssets },
   props: {
     selectable: [Object, Boolean]
   },
@@ -119,15 +120,6 @@ export default {
 
       return result;
     },
-    openOptionsModal(condition, index) {
-      this.$buefy.modal.open({
-        parent: this,
-        component: ConditionOptions,
-        props: { condition: { index, ...condition } },
-        hasModalCard: true,
-        trapFocus: true
-      });
-    },
     toggleTagInput(index) {
       this.showTagInput = !this.showTagInput;
       this.bindInputToCondition = this.showTagInput
@@ -154,7 +146,16 @@ export default {
         id: condition.id,
         tags: condition.tags.filter(tag => tag != targetTag)
       });
-    }
+    },
+    openAdvancedAssets(condition, index) {
+      this.$buefy.modal.open({
+        parent: this,
+        component: AdvancedAssets,
+        props: { condition: { index, ...condition } },
+        hasModalCard: true,
+        trapFocus: true
+      });
+    },
   }
 };
 </script>

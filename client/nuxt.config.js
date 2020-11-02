@@ -133,7 +133,9 @@ export default {
         'faAngleRight',
         'faAngleDown',
         'faAngleUp',
-        'faTrashAlt'
+        'faTrashAlt',
+        'faEllipsisV',
+        'faEllipsisH'
       ]
     }
   },
