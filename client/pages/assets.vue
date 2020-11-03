@@ -53,15 +53,17 @@
         <h3 class="title">{{ `${type}s` | capitalize }}</h3>
 
         <div class="item-grid">
+          <template v-for="asset in myAssetsByType[type]">
           <Asset
-            v-for="asset in myAssetsByType[type]"
             :key="asset.id"
             :asset="asset"
-            :remove="asset.isMine"
+            v-if="asset.owner === user.name"
+            remove
             @remove="confirmDelete($event)"
-            :edit="asset.isMine"
+            edit
             @edit="openFormModal(asset)"
           />
+          </template>
         </div>
       </div>
     </template>

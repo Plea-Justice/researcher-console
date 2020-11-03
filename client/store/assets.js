@@ -28,6 +28,11 @@ export const actions = {
       commit('newAsset', { asset: response.result });
     }
   },
+  async duplicateAsset({ commit }, id) {
+    const response = await this.$axios.$post(`/api/v1/assets/${id}`);
+
+    if (response.success) commit('newAsset', { asset: response.result });
+  },
   async removeAsset({ commit }, id) {
     const response = await this.$axios.$delete(`/api/v1/assets/${id}`);
     if (response.success) commit('deleteAsset', { id });

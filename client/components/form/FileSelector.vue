@@ -38,7 +38,7 @@
     >
       <p>{{ file.name }}</p>
       <small class="flex-item-meta truncate-text">
-        <span>{{ !file.isMine ? "" : `Shared by ${file.owner} ` }}</span>
+        <span>{{ file.owner === user.name ? "" : `Shared by ${file.owner} ` }}</span>
         <span>{{ file.modified | timeToNow }}</span>
       </small>
     </b-dropdown-item>
@@ -47,9 +47,11 @@
 
 <script>
 import FormElementMixin from "buefy/src/utils/FormElementMixin";
+import User from "~/mixins/User";
 
 export default {
   extends: FormElementMixin,
+  mixins: [User],
   props: {
     value: {
       required: true

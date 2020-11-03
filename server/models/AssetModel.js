@@ -11,9 +11,10 @@ const AssetSchema = new mongoose.Schema({
     // Required
     name:       { type: String, required: true },
     owner:      { type: ObjectId, ref: 'User', required: true, autopopulate: true },
+    author:      { type: ObjectId, ref: 'User', autopopulate: true, immutable: true },
 
-    path:       { type: String, required: true },
-    type:       { type: String, required: true },
+    path:       { type: String, required: true, immutable: true },
+    type:       { type: String, required: true, immutable: true },
 
     // Default
     description: { type: String, default: '' },
@@ -32,7 +33,8 @@ AssetSchema.virtual('meta')
         return {
             id:         this._id,
             name:       this.name,
-            owner:      this.owner.username,
+            owner:      this.owner?.username,
+            author:     this.author?.username,
 
             description: this.description,
             public:     this.public,

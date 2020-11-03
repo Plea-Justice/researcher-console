@@ -77,7 +77,7 @@ module.exports = {
             id: { $ref: 'org.pleajustice.server.db.id' },
             name: { type: 'string' },
             owner: { type: 'string' },
-            isMine: { type: 'boolean' },
+            author: { type: 'string' },
             description: { type: 'string' },
             public: { type: 'boolean' },
             survey: { type: 'string' },
@@ -87,7 +87,7 @@ module.exports = {
             modified: { type: 'string', format: 'date-time' },
             version: { type: 'string', pattern: '^\\d\\.\\d\\.\\d+$' }
         },
-        minProperties: 12,
+        minProperties: 11, // FIXME: 12 for author
         additionalProperties: false
     },
 
@@ -112,14 +112,14 @@ module.exports = {
             type: { type: 'string' },
             path: { type: 'string' },
             owner: { type: 'string' },
-            isMine: { type: 'boolean' },
+            author: { type: 'string' },
             public: { type: 'boolean' },
             readOnly: { type: 'boolean' },
             created: { type: 'string', format: 'date-time' },
             modified: { type: 'string', format: 'date-time' },
             version: { type: 'string', pattern: '^\\d\\.\\d\\.\\d+$' }
         },
-        minProperties: 12,
+        minProperties: 11,  // FIXME: 12 for author
         additionalProperties: false
 
     },
