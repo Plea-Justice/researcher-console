@@ -13,7 +13,7 @@
   position: relative;
   text-decoration: none;
 
-  &:after {
+  &::after {
     content: "";
     position: absolute;
     bottom: -0.15em;
@@ -21,13 +21,14 @@
     width: 100%;
     height: 0.1em;
     min-height: 1px;
+    border-radius: 20px;
     background-color: currentColor;
     transform-origin: center;
     transition: transform 0.25s ease;
   }
 
   &:hover {
-    &:after {
+    &::after {
       transform: scaleX(0);
     }
   }

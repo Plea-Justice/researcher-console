@@ -30,10 +30,7 @@ module.exports = function (options) {
         res.status(200).json(util.success('User\'s scenario metadata list returned.',
             {
                 scenarios: objs.reduce((dict, obj) => {
-                    dict[obj._id] = {
-                        ...obj.meta,
-                        isMine: obj.owner._id.toString() === uid
-                    };
+                    dict[obj._id] = obj.meta;
                     return dict;
                 }, {}),
                 scenarioList: objs.map(obj => obj._id)
@@ -51,6 +48,7 @@ module.exports = function (options) {
         try {
             const scenario = new ScenarioModel({
                 owner:       uid,
+                author:      uid,
                 name:       req.body.meta?.name,
                 description: req.body.meta?.description,
                 survey:     req.body.meta?.survey,
@@ -73,8 +71,7 @@ module.exports = function (options) {
         }
 
         res.status(200).json(util.success(
-            'Scenario created. Scenario metadata returned.',
-            { ...obj.meta, isMine: obj.owner._id == uid }
+            'Scenario created. Scenario metadata returned.', obj.meta
         ));
     });
 
@@ -101,10 +98,7 @@ module.exports = function (options) {
 
         res.status(200).json(util.success('Scenario returned.', {
             ...obj.data,
-            meta: {
-                ...obj.meta,
-                isMine: obj.owner._id.toString() === uid
-            }
+            meta: obj.meta
         }));
     });
 
@@ -166,7 +160,7 @@ module.exports = function (options) {
             return;
         }
 
-        res.status(200).json(util.success('Scenario metadata returned.', { ...obj.meta, isMine: obj.owner._id == uid }));
+        res.status(200).json(util.success('Scenario metadata returned.', obj.meta));
     });
 
 

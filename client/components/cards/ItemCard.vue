@@ -17,11 +17,19 @@
           type="is-info is-light"
           style="width: inherit"
         >
-          <h1 ref="title" class="subtitle overflow-title">
-            <n-link v-if="link" :to="item.id" class="link-animate" append>
-              {{ item.name }}
+          <h1 ref="title" class="subtitle">
+            <n-link
+              v-if="link"
+              :to="item.id"
+              class="link-animate"
+              style="display: inline-grid"
+              append
+            >
+              <span class="overflow-title">{{ item.name }}</span>
             </n-link>
-            <template v-else>{{ item.name }}</template>
+            <span class="overflow-title" style="display: block" v-else>
+              {{ item.name }}
+            </span>
           </h1>
         </b-tooltip>
       </div>

@@ -34,7 +34,6 @@
       </b-field>
     </template>
     -->
-
     <p
       v-if="!(scenarioSet.length - numSharedScenarios)"
       class="empty-text has-text-weight-medium is-size-5"
@@ -47,11 +46,11 @@
       <template v-for="scenario in scenarioSet">
         <Scenario
           :key="scenario.id"
-          v-if="!scenario.public || scenario.isMine"
+          v-if="scenario.owner === user.name"
           :scenario="scenario"
-          :remove="scenario.isMine"
+          remove
           @remove="confirmDelete($event)"
-          :edit="scenario.isMine"
+          edit
           @edit="openFormModal(scenario)"
           duplicate
           @duplicate="duplicateScenario($event)"
@@ -72,12 +71,16 @@ import Scenario from "~/components/cards/Scenario";
 import ScenarioForm from "~/components/modals/ScenarioForm";
 import SharedScenarios from "~/components/modals/SharedScenarios";
 
+// Mixins
+import User from "~/mixins/User";
+
 // Content for help fields
 import { scenariosHelp } from "~/assets/helpText";
 
 export default {
   name: "Scenarios",
   components: { ItemLayout, ToolBarButton, Scenario, ScenarioForm },
+  mixins: [User],
   async fetch({ store, params }) {
     await store.dispatch("scenarios/getScenarios");
   },
@@ -105,7 +108,8 @@ export default {
     }),
     numSharedScenarios() {
       return this.scenarioSet.reduce(
-        (acc, scenario) => (!scenario.isMine ? (acc += 1) : acc),
+        (acc, scenario) =>
+          scenario.owner !== this.user.name ? (acc += 1) : acc,
         0
       );
     },

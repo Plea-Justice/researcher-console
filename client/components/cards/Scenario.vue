@@ -12,8 +12,8 @@
     <p class="content is-small">
       <span v-if="scenario.modified !== scenario.created">
         Last Modified {{ scenario.modified | timeToNow }}
+        <br />
       </span>
-      <br />
       <span>Created {{ scenario.created | timeToNow }}</span>
     </p>
     <template v-slot:footer>

@@ -81,14 +81,13 @@
                 animated
               >
                 <b-button
+                  :label="uniqueScenes"
                   :class="{
+                    'is-static': true,
                     'is-info': uniqueScenes > 1,
                     'is-dark': !frame.size
                   }"
-                  disabled
-                >
-                  {{ uniqueScenes }}
-                </b-button>
+                />
               </b-tooltip>
             </div>
           </div>
@@ -126,12 +125,12 @@
       <b-button
         v-show="!(isLast && !frame.size)"
         @click="addFrameHelper(frame.id)"
+        :disabled="isSelectable"
+        label="Insert Scene"
         type="is-light"
         size="is-small"
         icon-left="plus"
-        :disabled="isSelectable"
-        >Insert Scene
-      </b-button>
+      />
     </div>
   </div>
 </template>
@@ -208,18 +207,21 @@ export default {
 
     // Automatically force raise frame errors when scenes starts being added
     const unwatch = this.$watch("uniqueScenes", function(newValue) {
-      console.log(newValue)
-      if(newValue > 0) {
-        this.$v.label.$touch()
-        this.updateFrameErrors({ id: this.frame.id, valid: !this.$v.label.$invalid })
-        unwatch()
+      console.log(newValue);
+      if (newValue > 0) {
+        this.$v.label.$touch();
+        this.updateFrameErrors({
+          id: this.frame.id,
+          valid: !this.$v.label.$invalid
+        });
+        unwatch();
       }
-    })
+    });
   },
   watch: {
     isOnly() {
       if (this.isOnly && this.collapsed) this.collapsed = false;
-    },
+    }
   },
   computed: {
     isOnly() {

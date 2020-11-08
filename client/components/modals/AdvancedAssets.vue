@@ -1,96 +1,116 @@
 <template>
-  <div class="modal-card" style="width: auto">
+  <div class="modal-card">
     <form @submit.prevent="onSubmit()">
-
       <header class="modal-card-head">
-        <p class="modal-card-title">Condition {{ condition.index + 1 }} - Asset Customization</p>
+        <p class="modal-card-title">
+          Condition {{ condition.index + 1 }} - Asset Customization
+        </p>
       </header>
-
       <section class="modal-card-body">
-        <div class="is-pulled-right">
-          <b-button type="is-primary">
-            Reset This Slot
-          </b-button>
-          <b-button type="is-primary">
-            Reset All
-          </b-button>
-        </div>
-        <b-tabs v-model="current" expanded>
-
+        <b-tabs v-model="current" expanded multiline>
           <template v-for="(slot, index) in slots">
-            <b-tab-item :key="slot.id" :value="index" :label="index">
+            <b-tab-item
+              :key="slot.id"
+              :value="index.toString()"
+              :label="index.toString()"
+            >
+              <div class="buttons">
+                <b-button type="is-primary">
+                  Reset This Slot
+                </b-button>
+                <b-button type="is-primary">
+                  Reset All Slots
+                </b-button>
+              </div>
 
               <div v-if="index === 0" class="is-pulled-right">
-                <b-field  class="has-text-small" horizontal>
-                  <b-switch v-model="disableAvatar"/>
+                <b-field class="has-text-small" horizontal>
+                  <b-switch v-model="disableAvatar" />
                 </b-field>
               </div>
 
-              Slot #{{index}} {{special[index] ? `(${special[index]})` : '' }}
+              Slot #{{ index }}
+              {{ special[index] ? `(${special[index]})` : "" }}
               {{ slot }}
 
-              <b-field >
-                <b-field label="Figure" class="pr-3"
-                  :message="figures[slot.figure]">
+              <div class="numberinputs">
+                <b-field label="Figure" :message="figures[slot.figure]">
                   <b-numberinput
                     v-model="slot.figure"
                     size="is-small"
                     min="0"
                     :max="figures.length - 1"
+                    controls-position="compact"
                   />
                 </b-field>
-                <b-field label="Eyes" class="px-3"
-                  :message="eyes[slot.eyes]">
+                <b-field label="Eyes" :message="eyes[slot.eyes]">
                   <b-numberinput
                     v-model="slot.eyes"
                     size="is-small"
                     min="0"
                     :max="eyes.length - 1"
+                    controls-position="compact"
                   />
                 </b-field>
-                <b-field label="Hair" class="px-3"
-                  :message="hair[slot.hair]">
+                <b-field label="Hair" :message="hair[slot.hair]">
                   <b-numberinput
                     v-model="slot.hair"
                     size="is-small"
                     min="0"
                     :max="hair.length - 1"
+                    controls-position="compact"
+                  />
+                </b-field>
+              </div>
+
+              <b-field label="Colors" class="colors">
+                <b-field
+                  v-for="(color, index) in slot.colors"
+                  :key="index"
+                  :message="colors[index]"
+                >
+                  <p class="control">
+                    <b-button
+                      :style="`background-color: red`"
+                      size="is-small"
+                      class="is-static"
+                    />
+                  </p>
+
+                  <b-input
+                    v-model="slot.colors[index]"
+                    @focus="prefixHex(slot.colors, index)"
+                    @blur="unprefixHex(slot.colors, index)"
+                    size="is-small"
+                    placeholder="#ABCDEF"
                   />
                 </b-field>
               </b-field>
 
-              <b-field label="Colors" >
-                <template v-for="(color, index) in slot.colors">
-                  <b-field :key="index" :message="colors[index]">
-                    <b-input v-model="slot.colors[index]" size="is-small" placeholder="#ABCDEF" />
-                  </b-field>
-                </template>
-              </b-field>
-
-              <b-field label="Additional Layers (JSON)" >
+              <b-field label="Additional Layers (JSON)">
                 <b-field>
-                  <b-input v-model="slot.custom" size="is-small" placeholder="{ layer: true, layer2: false }" />
+                  <b-input
+                    v-model="slot.custom"
+                    size="is-small"
+                    placeholder="{ layer: true, layer2: false }"
+                  />
                 </b-field>
               </b-field>
-
             </b-tab-item>
           </template>
         </b-tabs>
       </section>
 
       <footer class="modal-card-foot">
-        <b-button type="is-primary" native-type="submit" value="Save" expanded>
+        <b-button type="is-primary" native-type="submit" expanded>
           Done
         </b-button>
       </footer>
-
     </form>
   </div>
 </template>
 
 <script>
-
-
 import HelpSidebar from "~/components/HelpSidebar";
 import { helpers } from "vuelidate/lib/validators";
 import { advancedAssetsHelp } from "~/assets/helpText";
@@ -122,25 +142,52 @@ export default {
       slots: slots,
       special: ["Avatar", "Judge", "Defense Attorney", "Prosecutor"],
 
-      hair: ['Style 1', 'Style 2', 'Style 3', 'Religious Headwear', 'None'],
-      eyes: ['Style 1', 'Style 2', 'Style 3'],
-      figures: ['Masculine Figure', 'Feminine Figure'],
-      colors: ['Eyes', 'None', 'None', 'Hair', 'Outfit', 'Skin'],
+      hair: ["Style 1", "Style 2", "Style 3", "Religious Headwear", "None"],
+      eyes: ["Style 1", "Style 2", "Style 3"],
+      figures: ["Masculine Figure", "Feminine Figure"],
+      colors: ["Eyes", "None", "None", "Hair", "Outfit", "Skin"],
 
       disableAvatar: true,
 
-      optionsHelp: advancedAssetsHelp,
+      optionsHelp: advancedAssetsHelp
     };
   },
   methods: {
-
     onSubmit() {
       // TODO: Extra processing and validation will have to happen before saving
       // depending on the simulation format.
       // this.condition.customizations = this.slots;
 
       this.$parent.close();
+    },
+    prefixHex(colors, index) {
+      if (!colors[index].length) colors.splice(index, 1, "#");
+    },
+    unprefixHex(colors, index) {
+      if (colors[index].length === 1) colors.splice(index, 1, "");
     }
   }
 };
 </script>
+
+<style>
+.colors > .field-body > .field {
+  display: flex;
+  gap: 10px;
+}
+</style>
+
+<style scoped>
+/* FIXME: come up with a common style fix for cards */
+.modal-card {
+  width: auto;
+  max-width: 90vw;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.numberinputs {
+  display: flex;
+  gap: 2rem;
+}
+</style>

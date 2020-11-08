@@ -77,7 +77,7 @@
       </section>
 
       <footer class="modal-card-foot">
-        <b-button type="is-primary" native-type="submit" value="Save" expanded>
+        <b-button type="is-primary" native-type="submit" expanded>
           Save
         </b-button>
       </footer>
@@ -118,7 +118,7 @@ export default {
   components: { HelpSidebar },
   computed: {
     addMode() {
-      return !this.asset
+      return !this.asset;
     },
     ...mapGetters({
       assetSet: "assets/assetSet",
@@ -135,8 +135,8 @@ export default {
       if (
         this.assetSet.some(
           ({ name }) =>
-            name.toLowerCase() === this.assetForm.file.name.toLowerCase()
-            && id !== this.assetForm?.id
+            name.toLowerCase() === this.assetForm.file.name.toLowerCase() &&
+            id !== this.assetForm?.id
         )
       ) {
         this.$buefy.toast.open({
@@ -154,7 +154,9 @@ export default {
       } else {
         // Add the scenario to state
         try {
-          this.addMode ? this.addAsset(this.assetForm) : this.editAsset(this.assetForm)
+          this.addMode
+            ? this.addAsset(this.assetForm)
+            : this.editAsset(this.assetForm);
           this.$parent.close();
         } catch (error) {}
       }

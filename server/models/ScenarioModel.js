@@ -11,6 +11,7 @@ const ScenarioSchema = new mongoose.Schema({
     // Required
     name:       { type: String, required: true },
     owner:      { type: ObjectId, ref: 'User', required: true, autopopulate: true },
+    author:      { type: ObjectId, ref: 'User', autopopulate: true, immutable: true },
 
     // Default
     description: { type: String, default: '' },
@@ -41,7 +42,8 @@ ScenarioSchema.virtual('meta')
             id:         this._id,
             name:       this.name,
             // Do not return the full user object that includes its password.
-            owner:      this.owner.username,
+            owner:      this.owner?.username,
+            author:     this.author?.username,
 
             description: this.description,
             public:     this.public,

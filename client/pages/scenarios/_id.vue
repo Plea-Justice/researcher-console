@@ -7,8 +7,10 @@
             <b-tooltip
               :active="!!saveState.tooltip"
               :label="saveState.tooltip"
-              :type="`${saveState.type} is-light`"
+              :type="`${saveState.type}`"
               position="is-bottom"
+              append-to-body
+              always
             >
               <ToolBarButton
                 @click="saveHelper()"

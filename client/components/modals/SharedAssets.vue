@@ -1,7 +1,7 @@
 <template>
   <SharedItems :name="`My Assets: ${`(${sharedAssetSet.length})` || ''}`">
     <Asset
-      v-for="asset in assetSet"
+      v-for="asset in sharedAssetSet"
       :key="asset.id"
       :asset="asset"
       :itemType="'Scenario'"
@@ -37,15 +37,13 @@ export default {
   },
   methods: {
     ...mapActions({
-      addAsset: "assets/addAsset"
+      duplicateAsset: "assets/duplicateAsset"
     }),
     copyAsset(id) {
       console.log("Fired");
 
       //FIXME: needs check for duplicates
-      this.addAsset({
-        ...this.assetSet.find(asset => asset.id === id)
-      });
+      this.duplicateAsset(id);
     }
   }
 };

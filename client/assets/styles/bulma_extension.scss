@@ -6,3 +6,8 @@
 .buttons .b-tooltip:not(:last-child) {
   margin-right: 0.5rem;
 }
+
+// FIXME: Tempfix for bulma 0.9.1, should be fixed in next release
+.card {
+  overflow: visible !important;
+}

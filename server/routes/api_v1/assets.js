@@ -52,11 +52,8 @@ module.exports = function (options) {
             const obj = await AssetModel.find({
                 $or: [{ owner: uid }, { public: true }]
             });
-            const list = obj.map(asset => ({
-                ...asset.meta,
-                isMine: asset.owner._id.toString() === uid,
-            }));
 
+            const list = obj.map(asset => asset.meta);
             const assetList = list.map(asset => asset.id);
 
             list.forEach(asset => assets[asset.id] = asset);
@@ -143,6 +140,7 @@ module.exports = function (options) {
 
                 const asset = new AssetModel({
                     owner: uid,
+                    author: uid,
                     path: path.join(req.body.type, name),
                     name: name.replace(/\..*?$/, ''),
                     type: req.body.type,
@@ -159,10 +157,7 @@ module.exports = function (options) {
                     path.resolve(path.join(user_data_dir, 'thumbnails', `${asset._id}.jpg`))
                 ]);
 
-                res.status(200).json(util.success('Asset uploaded.', {
-                    ...asset.meta,
-                    isMine: asset.owner._id.toString() === uid
-                }));
+                res.status(200).json(util.success('Asset uploaded.', asset.meta));
             } catch (err) {
                 if (fs.pathExistsSync(filepath))
                     fs.removeSync(filepath);
@@ -182,9 +177,10 @@ module.exports = function (options) {
         const id = req.params.asset_id;
         const uid = req.session.user.id;
         const to_user_dir = util.userDir(options, uid);
+        let obj;
 
         try {
-            const obj = (await AssetModel.findOne({
+            obj = (await AssetModel.findOne({
                 _id: id,
                 $or: [{ owner: uid }, { public: true }]
             })).toObject();
@@ -209,10 +205,11 @@ module.exports = function (options) {
 
             obj.owner = uid;
             obj.public = false;
+            delete obj.modified;
 
-            await AssetModel.create(obj);
+            obj = await AssetModel.create(obj);
 
-            res.status(200).json(util.success('Asset copied. Metadata returned.', obj));
+            res.status(200).json(util.success('Asset copied. Metadata returned.', obj.meta));
 
         } catch (err) {
             console.log(err);

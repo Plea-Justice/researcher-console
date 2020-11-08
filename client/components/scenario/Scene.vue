@@ -29,9 +29,9 @@
 
         <template v-if="isBound">
           <p class="control bound-label">
-            <b-button type="is-light" disabled expanded
-              >Bound: Scene {{ index }}</b-button
-            >
+            <b-button type="is-light" disabled expanded>
+              Bound: Scene {{ index }}
+            </b-button>
           </p>
           <p class="control">
             <b-button
@@ -49,7 +49,7 @@
           v-model="$v.form.type.$model"
           :native-value="type"
           :disabled="isBound"
-          type="is-light is-primary"
+          type="is-primary is-light"
           >{{ type }}</b-radio-button
         >
       </b-field>
@@ -214,11 +214,17 @@ export default {
       const vField = this.$v.form[fieldName];
       if (vField.$invalid) {
         vField.$touch();
-        this.updateSceneErrors({ id: this.scene.id, valid: !this.$v.form.$invalid })
-      };
+        this.updateSceneErrors({
+          id: this.scene.id,
+          valid: !this.$v.form.$invalid
+        });
+      }
     });
 
-    this.updateSceneErrors({ id: this.scene.id, valid: !this.$v.form.$invalid })
+    this.updateSceneErrors({
+      id: this.scene.id,
+      valid: !this.$v.form.$invalid
+    });
   },
   watch: {
     // Update form for inbound changes

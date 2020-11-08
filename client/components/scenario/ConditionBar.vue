@@ -25,7 +25,11 @@
               />
               <h1 class="condition-name subtitle">Condition {{ index + 1 }}</h1>
 
-              <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-right">
+              <b-dropdown
+                aria-role="list"
+                class="is-pulled-right"
+                position="is-bottom-right"
+              >
                 <b-button
                   type="is-light"
                   size="is-small"
@@ -33,7 +37,11 @@
                   class="has-text-grey custom-small"
                   slot="trigger"
                 />
-                <b-dropdown-item @click="openAdvancedAssets(condition, index)" aria-role="listitem">Customize Assets</b-dropdown-item>
+                <b-dropdown-item
+                  @click="openAdvancedAssets(condition, index)"
+                  aria-role="listitem"
+                  >Customize Assets</b-dropdown-item
+                >
               </b-dropdown>
             </div>
 
@@ -84,7 +92,7 @@
 // Import VueX
 import { mapGetters, mapActions } from "vuex";
 
-import AdvancedAssets from "~/components/modals/AdvancedAssets"
+import AdvancedAssets from "~/components/modals/AdvancedAssets";
 
 export default {
   components: { AdvancedAssets },
@@ -155,7 +163,7 @@ export default {
         hasModalCard: true,
         trapFocus: true
       });
-    },
+    }
   }
 };
 </script>
