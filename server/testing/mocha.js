@@ -94,6 +94,20 @@ describe('Version 1 API Endpoints', function () {
             .end(done);
     });
 
+
+    it('copy scenario', function (done) {
+        request
+            .post(`${base}/scenarios/${variables['scenarioid']}`)
+            .set('cookie', session_cookie)
+            .accept('application/json')
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+            .expect(validate.Response)
+            .expect(validate.ScenarioMeta)
+            .expect((res) => variables['scenariocopyid'] = res.body.result.id)
+            .end(done);
+    });
+
     it('delete scenario', function (done) {
         request
             .delete(`${base}/scenarios/${variables['scenarioid']}`)
@@ -102,7 +116,18 @@ describe('Version 1 API Endpoints', function () {
             .expect(200)
             .expect('Content-Type', /application\/json/)
             .expect(validate.Response)
-            .end(done);
+            .then(()=>{
+                request
+                    .delete(`${base}/scenarios/${variables['scenariocopyid']}`)
+                    .set('cookie', session_cookie)
+                    .accept('application/json')
+                    .expect(200)
+                    .expect('Content-Type', /application\/json/)
+                    .expect(validate.Response)
+                    .end(done);
+            });
+
+
     });
 
 

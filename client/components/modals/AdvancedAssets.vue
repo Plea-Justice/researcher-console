@@ -5,6 +5,14 @@
         <p class="modal-card-title">
           Condition {{ condition.index + 1 }} - Asset Customization
         </p>
+        <div class="buttons">
+          <b-button type="is-primary">
+            Reset This Slot
+          </b-button>
+          <b-button type="is-primary">
+            Reset All Slots
+          </b-button>
+        </div>
       </header>
       <section class="modal-card-body">
         <b-tabs v-model="current" expanded multiline>
@@ -14,17 +22,12 @@
               :value="index.toString()"
               :label="index.toString()"
             >
-              <div class="buttons">
-                <b-button type="is-primary">
-                  Reset This Slot
-                </b-button>
-                <b-button type="is-primary">
-                  Reset All Slots
-                </b-button>
-              </div>
-
               <div v-if="index === 0" class="is-pulled-right">
-                <b-field class="has-text-small" horizontal>
+                <b-field
+                  label="Preset Avatar"
+                  class="has-text-small"
+                  horizontal
+                >
                   <b-switch v-model="disableAvatar" />
                 </b-field>
               </div>
@@ -83,6 +86,7 @@
                     @blur="unprefixHex(slot.colors, index)"
                     size="is-small"
                     placeholder="#ABCDEF"
+                    maxlength="7"
                   />
                 </b-field>
               </b-field>
@@ -126,20 +130,21 @@ export default {
   },
   data() {
     // Initialize slots with the actor defaults.
-    const slots = Array.from({ length: 10 }, (x, i) => ({
-      id: i,
-      modified: false,
-      figure: 0,
-      hair: 0,
-      eyes: 0,
-      colors: new Array(6).fill(""),
-      custom: ""
-    }));
+    const init = () =>
+      Array.from({ length: 10 }, (x, i) => ({
+        id: i,
+        modified: false,
+        figure: 0,
+        hair: 0,
+        eyes: 0,
+        colors: new Array(6).fill(""),
+        custom: ""
+      }));
 
     return {
       modified: false,
       current: 1,
-      slots: slots,
+      slots: init(),
       special: ["Avatar", "Judge", "Defense Attorney", "Prosecutor"],
 
       hair: ["Style 1", "Style 2", "Style 3", "Religious Headwear", "None"],
@@ -151,6 +156,12 @@ export default {
 
       optionsHelp: advancedAssetsHelp
     };
+  },
+  watch: {
+    slots: {
+      handler: function (v) { this.modified = true; },
+      deep: true
+    }
   },
   methods: {
     onSubmit() {

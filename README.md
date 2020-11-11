@@ -19,7 +19,7 @@ MongoDB is necessary to support the backend. After installing the database, star
 
 ## Client
 
-The console frontend is built with [Nuxt.js](https://nuxtjs.org), which provides additional features to [Vue.js](https://vuejs.org/) for single page applications. Components are from [Buefy](https://buefy.org/), a Vue based on the [Bulma](https://bulma.io/) CSS framework. [Axios](https://github.com/axios/axios) handles XHR requests to the server.
+The console frontend is built with [Nuxt.js](https://nuxtjs.org), which provides additional features to [Vue.js](https://vuejs.org/) for single page applications. Vue components are from [Buefy](https://buefy.org/), based on the [Bulma](https://bulma.io/) CSS framework. [Axios](https://github.com/axios/axios) handles XHR requests to the server.
 
 ### Building the Frontend
 
@@ -191,13 +191,15 @@ The API defines endpoints for managing scenarios, assets, and user authenticatio
 | `POST` | `/api/v1/scenarios` | Create a new scenario. |
 | `GET` | `/api/v1/scenarios/{scenario_id}` | Get a scenario. |
 | `PUT` | `/api/v1/scenarios/{scenario_id}` | Save a scenario. |
+| `POST` | `/api/v1/scenarios/{scenario_id}` | Copy a scenario. |
 | `DELETE` | `/api/v1/scenarios/{scenario_id}` | Delete a scenario. |
 | `POST` | `/api/v1/scenarios/{scenario_id}/generate` | Generate a simulation. |
 | `POST` | `/api/v1/scenarios/{scenario_id}/zip` | Prepare a ZIP of a generated simulation. |
 | `GET` | `/api/v1/assets` | Get the list of assets. |
 | `POST` | `/api/v1/assets` | Upload an asset. |
+| `POST` | `/api/v1/assets/{asset_id}` | Copy an asset. |
 | `DELETE` | `/api/v1/assets/{asset_id}` | Delete an asset. |
-| `GET` | `/api/v1/assets/{asset_id}/thumbnail` | Get an assets image thumbnail. |
+| `GET` | `/api/v1/assets/{asset_id}/thumbnail` | Get an asset's image thumbnail. |
 | `POST` | `/api/v1/auth/login` | Begin a logged in session. |
 | `POST` | `/api/v1/auth/logout` | Destroy a logged in session. |
 | `POST` | `/api/v1/auth/register` | Register new credentials. |

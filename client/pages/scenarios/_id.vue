@@ -9,7 +9,6 @@
               :label="saveState.tooltip"
               :type="`${saveState.type}`"
               position="is-bottom"
-              append-to-body
               always
             >
               <ToolBarButton
