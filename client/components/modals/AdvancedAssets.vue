@@ -6,12 +6,8 @@
           Condition {{ condition.index + 1 }} - Asset Customization
         </p>
         <div class="buttons">
-          <b-button type="is-primary">
-            Reset This Slot
-          </b-button>
-          <b-button type="is-primary">
-            Reset All Slots
-          </b-button>
+          <b-button type="is-primary"> Reset This Slot </b-button>
+          <b-button type="is-primary"> Reset All Slots </b-button>
         </div>
       </header>
       <section class="modal-card-body">
@@ -80,30 +76,9 @@
                   :key="index"
                   v-model="slot.colors[index]"
                   :message="colors[index]"
-<<<<<<< HEAD
                   size="is-medium"
                   placeholder="#ffffff"
                 />
-=======
-                >
-                  <p class="control">
-                    <b-button
-                      :style="`background-color: red`"
-                      size="is-small"
-                      class="is-static"
-                    />
-                  </p>
-
-                  <b-input
-                    v-model="slot.colors[index]"
-                    @focus="prefixHex(slot.colors, index)"
-                    @blur="unprefixHex(slot.colors, index)"
-                    size="is-small"
-                    placeholder="#ABCDEF"
-                    maxlength="7"
-                  />
-                </b-field>
->>>>>>> 35c60dbdd83c7c06985b3dbb7d3a4a2543146563
               </b-field>
 
               <b-field label="Additional Layers (JSON)">
@@ -142,8 +117,8 @@ export default {
   props: {
     condition: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     // Initialize slots with the actor defaults.
@@ -155,7 +130,7 @@ export default {
         hair: 0,
         eyes: 0,
         colors: new Array(6).fill(""),
-        custom: ""
+        custom: "",
       }));
 
     return {
@@ -169,14 +144,16 @@ export default {
       figures: ["Masculine Figure", "Feminine Figure"],
       colors: ["Eyes", "None", "None", "Hair", "Outfit", "Skin"],
 
-      disableAvatar: true
+      disableAvatar: true,
     };
   },
   watch: {
     slots: {
-      handler: function (v) { this.modified = true; },
-      deep: true
-    }
+      handler: function (v) {
+        this.modified = true;
+      },
+      deep: true,
+    },
   },
   methods: {
     onSubmit() {
@@ -185,8 +162,8 @@ export default {
       // this.condition.customizations = this.slots;
 
       this.$parent.close();
-    }
-  }
+    },
+  },
 };
 </script>
 
