@@ -7,6 +7,7 @@
         :scenario="scenario"
         duplicate
         @duplicate="duplicateScenario($event)"
+        :link="false"
       />
     </template>
   </SharedItems>

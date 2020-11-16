@@ -4,7 +4,7 @@
     v-bind="$attrs"
     :item="{ id: scenario.id, name: scenario.name }"
     itemType="Scenario"
-    link
+    :link="link"
   >
     <p class="content description" v-if="scenario.description">
       {{ scenario.description }}
@@ -34,6 +34,11 @@ export default {
     scenario: {
       type: Object,
       required: true
+    },
+    link: {
+      type: Boolean,
+      default: true,
+      required: false
     }
   }
 };

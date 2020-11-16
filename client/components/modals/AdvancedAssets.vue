@@ -5,6 +5,14 @@
         <p class="modal-card-title">
           Condition {{ condition.index + 1 }} - Asset Customization
         </p>
+        <div class="buttons">
+          <b-button type="is-primary">
+            Reset This Slot
+          </b-button>
+          <b-button type="is-primary">
+            Reset All Slots
+          </b-button>
+        </div>
       </header>
       <section class="modal-card-body">
         <b-field label="Slot" horizontal>
@@ -22,17 +30,12 @@
               :value="index.toString()"
               :label="index.toString()"
             >
-              <div class="buttons">
-                <b-button type="is-primary">
-                  Reset This Slot
-                </b-button>
-                <b-button type="is-primary">
-                  Reset All Slots
-                </b-button>
-              </div>
-
               <div v-if="index === 0" class="is-pulled-right">
-                <b-field class="has-text-small" horizontal>
+                <b-field
+                  label="Preset Avatar"
+                  class="has-text-small"
+                  horizontal
+                >
                   <b-switch v-model="disableAvatar" />
                 </b-field>
               </div>
@@ -77,9 +80,30 @@
                   :key="index"
                   v-model="slot.colors[index]"
                   :message="colors[index]"
+<<<<<<< HEAD
                   size="is-medium"
                   placeholder="#ffffff"
                 />
+=======
+                >
+                  <p class="control">
+                    <b-button
+                      :style="`background-color: red`"
+                      size="is-small"
+                      class="is-static"
+                    />
+                  </p>
+
+                  <b-input
+                    v-model="slot.colors[index]"
+                    @focus="prefixHex(slot.colors, index)"
+                    @blur="unprefixHex(slot.colors, index)"
+                    size="is-small"
+                    placeholder="#ABCDEF"
+                    maxlength="7"
+                  />
+                </b-field>
+>>>>>>> 35c60dbdd83c7c06985b3dbb7d3a4a2543146563
               </b-field>
 
               <b-field label="Additional Layers (JSON)">
@@ -123,20 +147,21 @@ export default {
   },
   data() {
     // Initialize slots with the actor defaults.
-    const slots = Array.from({ length: 10 }, (x, i) => ({
-      id: i,
-      modified: false,
-      figure: 0,
-      hair: 0,
-      eyes: 0,
-      colors: new Array(6).fill(""),
-      custom: ""
-    }));
+    const init = () =>
+      Array.from({ length: 10 }, (x, i) => ({
+        id: i,
+        modified: false,
+        figure: 0,
+        hair: 0,
+        eyes: 0,
+        colors: new Array(6).fill(""),
+        custom: ""
+      }));
 
     return {
       modified: false,
       current: 1,
-      slots: slots,
+      slots: init(),
       special: ["Avatar", "Judge", "Defense Attorney", "Prosecutor"],
 
       hair: ["Style 1", "Style 2", "Style 3", "Religious Headwear", "None"],
@@ -146,6 +171,12 @@ export default {
 
       disableAvatar: true
     };
+  },
+  watch: {
+    slots: {
+      handler: function (v) { this.modified = true; },
+      deep: true
+    }
   },
   methods: {
     onSubmit() {
