@@ -17,13 +17,15 @@ const initialState = () => ({
     readOnly: false,
     version: ''
   },
-  conditions: {},
+  tagSetList: [],
+  tagSets: {},
+  tags: {},
   conditionList: [],
-  frames: {},
+  conditions: {},
   frameList: [],
+  frames: {},
   scenes: {},
   status: {
-    // FIXME:
     valid: true,
     // Tracks errors related to `frames`
     // Note: doesn't have hierarchy (doesn't track errors for scenes inside of frame)
@@ -40,7 +42,16 @@ export const state = () => initialState();
 
 export const getters = {
   scenarioMeta: state => ({ id: state.id, ...state.meta }),
-  conditionSet: state => state.conditionList.map(id => state.conditions[id]),
+  conditionSet: state =>
+    state.conditionList.map(conditionId => ({
+      ...state.conditions[conditionId],
+      tags: state.conditions[conditionId].tags.map(id => state.tags[id])
+    })),
+  tagSets: state =>
+    state.tagSetList.map(setId => ({
+      ...state.tagSets[setId],
+      tags: state.tagSets[setId].tags.map(tagId => state.tags[tagId])
+    })),
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
   numScenes: state => state.numScenes,
@@ -82,6 +93,15 @@ export const actions = {
     commit('setSceneErrors', { valid, id });
     commit('updateScenarioValidity');
   },
+  addTagSet({ commit }, { name }) {
+    commit('newTagSet', { id: nanoid(), name });
+  },
+  addTag({ commit }, { setId, name }) {
+    commit('newTag', { setId, tag: { id: nanoid(), name } });
+  },
+  removeTag({ state, commit }, { setId, name }) {
+    commit('deleteTag', { setId, tagIndex: state.tagSets[setId].tags.findIndex(id => state.tags[id].name === name) });
+  },
 
   // **** Condition Actions ****
   addCondition({ commit, dispatch, state, getters }) {
@@ -119,8 +139,8 @@ export const actions = {
       dispatch('copyScenes', sceneIdList);
     });
   },
-  updateTags({ commit }, { id, tags }) {
-    commit('setTags', { id, tags });
+  updateConditionTags({ commit }, { conditionId, tags }) {
+    commit('setConditionTags', { conditionId, tags });
   },
 
   // **** Frame Actions ****
@@ -285,6 +305,7 @@ export const mutations = {
   },
 
   // **** Scenario Mutations ****
+  // TODO: double check update meta
   updateMeta(state, payload) {
     Object.keys(state.meta).forEach(key => {
       if (payload.meta.hasOwnProperty(key)) Vue.set(state.meta, key, payload.meta[key]);
@@ -322,6 +343,18 @@ export const mutations = {
     } else if (!valid && errorIndex === -1) {
       state.status.sceneErrors.push(id);
     }
+  },
+  newTagSet(state, { id, name }) {
+    this._vm.$set(state.tagSets, id, { id, name, tags: [] });
+    state.tagSetList.push(id);
+  },
+  newTag(state, { setId, tag }) {
+    this._vm.$set(state.tags, tag.id, tag);
+    state.tagSets[setId].tags.push(tag.id);
+  },
+  deleteTag(state, { setId, tagId, tagIndex }) {
+    state.tagSets[setId].tags.splice(tagIndex, 1);
+    this._vm.$delete(state.tags, tagId);
   },
 
   // **** Condition Mutations ****
@@ -363,8 +396,12 @@ export const mutations = {
     state.conditionList.splice(index, 1);
     Vue.delete(state.conditions, id);
   },
-  setTags(state, { id, tags }) {
-    Vue.set(state.conditions[id], 'tags', tags);
+  setConditionTags(state, { conditionId, tags }) {
+    console.log('Updating condition tags');
+
+    // this._vm.$set(state.conditions[conditionId], 'tags', tags);
+    this._vm.$set(state.conditions, conditionId, { ...state.conditions[conditionId], tags });
+    console.log({ ...state.conditions[conditionId] });
   },
 
   // **** Frame Mutations ****

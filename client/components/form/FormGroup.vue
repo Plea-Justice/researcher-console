@@ -1,7 +1,7 @@
 <template>
   <b-field
     v-bind="$attrs"
-    :label="`${label}`"
+    :label="label"
     :custom-class="status.label"
     :type="status.type"
     :message="$attrs.message || firstErrorMessage"

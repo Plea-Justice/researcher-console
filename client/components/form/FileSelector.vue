@@ -4,6 +4,7 @@
     :triggers="['click']"
     v-bind="$attrs"
     v-model="innerValue"
+    class="control"
     expanded
   >
     <!-- FIXME: add button class styles for border/outline, etc. -->
@@ -101,25 +102,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.field.is-floating-in-label .select {
-  height: 3.25em;
-
-  & .mimic-select {
-    padding-top: calc(3.25em / 2 - (1.5rem * 3 / 4) / 2);
-    padding-bottom: 1px;
-    height: 3.25em;
-  }
-
-  &::after {
-    margin-top: 1px !important;
-  }
-
-  & + .icon {
-    padding-top: calc(1.625em - 0.5625rem);
-    height: 3.25em;
-  }
-}
-
 // This fixes button styling so it properly holds select
 .button.control {
   height: 100%;

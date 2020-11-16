@@ -6,6 +6,12 @@
       <div class="frame box">
         <!-- Sidebar -->
         <aside v-show="frame.size || !isOnly" class="sidebar buttons">
+          <b-button
+            v-if="env.MODE === 'development'"
+            :label="frame.size.toString()"
+            type="is-static"
+          />
+
           <!-- Collapse Button -->
           <b-button
             v-show="!isOnly"
@@ -69,8 +75,6 @@
               />
             </form-group>
 
-            <p>{{ frame.size }}</p>
-
             <div
               v-if="(frame.size > 1 || collapsed) && conditionSet.length > 1"
               class="frame-header-item"
@@ -81,13 +85,16 @@
                 animated
               >
                 <b-button
-                  :label="uniqueScenes"
+                  :label="uniqueScenes.toString()"
                   :class="{
-                    'is-static': true,
                     'is-info': uniqueScenes > 1,
-                    'is-dark': !frame.size
+                    'is-dark': !frame.size,
                   }"
+                  class="is-static"
+                  style="color: white"
+                  disabled
                 />
+                <!--TEMP: color: white fixes is-static not being fully compatible with .is-info -->
               </b-tooltip>
             </div>
           </div>
@@ -157,31 +164,34 @@ export default {
   props: {
     frame: {
       type: Object,
-      required: true
+      required: true,
     },
     frameIndex: {
       type: Number,
-      required: true
+      required: true,
     },
     isFirst: {
       type: Boolean,
-      required: false
+      required: false,
     },
     isLast: {
       type: Boolean,
-      required: false
+      required: false,
     },
     selectable: {
       type: [Boolean, Object],
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
+      // Env
+      env: { MODE: process.env.MODE },
+
       collapsed: false,
       // frame validated props
-      label: this.frame.label
+      label: this.frame.label,
     };
   },
   validations() {
@@ -195,24 +205,24 @@ export default {
         // This should be updated to whatever character set we want to allow for Qualtrics stuff
         required,
         alphaNumSpace,
-        maxLength: maxLength(25)
-      }
+        maxLength: maxLength(25),
+      },
     };
   },
   mounted() {
     // Capture Collapse events
-    EventListener.collapseAll(collapse => {
+    EventListener.collapseAll((collapse) => {
       if (collapse != this.collapsed) this.collapseFrame();
     });
 
     // Automatically force raise frame errors when scenes starts being added
-    const unwatch = this.$watch("uniqueScenes", function(newValue) {
+    const unwatch = this.$watch("uniqueScenes", function (newValue) {
       console.log(newValue);
       if (newValue > 0) {
         this.$v.label.$touch();
         this.updateFrameErrors({
           id: this.frame.id,
-          valid: !this.$v.label.$invalid
+          valid: !this.$v.label.$invalid,
         });
         unwatch();
       }
@@ -221,7 +231,7 @@ export default {
   watch: {
     isOnly() {
       if (this.isOnly && this.collapsed) this.collapsed = false;
-    }
+    },
   },
   computed: {
     isOnly() {
@@ -253,7 +263,7 @@ export default {
     },
     ...mapGetters({
       getSceneSet: "scenario/sceneSet",
-      conditionSet: "scenario/conditionSet"
+      conditionSet: "scenario/conditionSet",
     }),
     sceneSet() {
       return this.getSceneSet(this.frame.id);
@@ -270,7 +280,7 @@ export default {
             (acc, curr) => (typeof curr.props !== "string" ? acc + 1 : acc),
             0
           );
-    }
+    },
   },
   methods: {
     focus() {
@@ -285,15 +295,15 @@ export default {
       moveFrameUp: "scenario/moveFrameUp",
       moveFrameDown: "scenario/moveFrameDown",
       addFrame: "scenario/addFrame",
-      removeFrame: "scenario/removeFrame"
+      removeFrame: "scenario/removeFrame",
     }),
-    setLabel: debounce(function(newValue) {
+    setLabel: debounce(function (newValue) {
       this.label = newValue;
       this.$v.label.$touch();
       this.setFrameLabel({
         id: this.frame.id,
         value: newValue,
-        valid: !this.$v.label.$invalid
+        valid: !this.$v.label.$invalid,
       });
     }, 250),
     moveUp() {
@@ -314,13 +324,13 @@ export default {
       // Make this a not smooth scroll, just want to re-allign frame
       this.$emit("scroll-to", {
         frameIndex: this.frameIndex ? this.frameIndex - 1 : 0,
-        smooth: false
+        smooth: false,
       });
     },
     getSiblingScene(sceneId) {
       for (const scene of this.sceneSet) if (scene.id === sceneId) return scene;
-    }
-  }
+    },
+  },
 };
 </script>
 

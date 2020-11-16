@@ -9,7 +9,6 @@
               :label="saveState.tooltip"
               :type="`${saveState.type}`"
               position="is-bottom"
-              append-to-body
               always
             >
               <ToolBarButton
@@ -131,7 +130,7 @@ import ToolBarButton from "~/components/ToolBarButton";
 import ConditionBar from "~/components/scenario/ConditionBar";
 import SceneFrame from "~/components/scenario/SceneFrame";
 import PreviewDropdown from "~/components/scenario/PreviewDropdown";
-import ScenarioOptions from "~/components/modals/ScenarioOptions";
+import ScenarioOptions from "~/components/modals/ScenarioOptions/ScenarioOptions";
 import LeaveScenario from "~/components/modals/LeaveScenario";
 
 // Content for help fields
@@ -147,7 +146,7 @@ export default {
     ConditionBar,
     SceneFrame,
     ScenarioOptions,
-    PreviewDropdown
+    PreviewDropdown,
   },
   data() {
     return {
@@ -166,34 +165,34 @@ export default {
       saveStatus: {
         valid: {
           type: "is-success",
-          icon: "check"
+          icon: "check",
         },
         invalid: {
           type: "is-danger",
-          icon: "times"
+          icon: "times",
         },
         changed: {
           type: "is-warning",
-          text: "Save"
-        }
+          text: "Save",
+        },
       },
 
       collapsed: false,
       logout: false,
-      snackbar: null
+      snackbar: null,
     };
   },
   async fetch({ store, params }) {
     await Promise.all([
       store.dispatch("scenario/getScenario", params.id),
-      store.dispatch("assets/getAssets")
+      store.dispatch("assets/getAssets"),
     ]);
   },
   created() {
     const excludedMutators = [
       "scenario/setSceneErrors",
       "scenario/setFrameErrors",
-      "scenario/updateScenarioValidity"
+      "scenario/updateScenarioValidity",
     ];
 
     this.$store.subscribe((mutation, state) => {
@@ -223,7 +222,7 @@ export default {
       scenarioMeta: "scenario/scenarioMeta",
       scenarioStatus: "scenario/status",
       numScenes: "scenario/numScenes",
-      frameSet: "scenario/frameSet"
+      frameSet: "scenario/frameSet",
     }),
     numErrors() {
       const { frameErrors, sceneErrors } = this.scenarioStatus;
@@ -234,7 +233,7 @@ export default {
 
       if (this.numErrors) {
         return frameErrors.length
-          ? this.frameSet.findIndex(frame => frame.id === frameErrors[0])
+          ? this.frameSet.findIndex((frame) => frame.id === frameErrors[0])
           : this.findScene(sceneErrors[0]);
       } else return null;
     },
@@ -251,8 +250,9 @@ export default {
                 ${
                   frameErrors.length
                     ? `row ${this.errorIndex + 1}'s label`
-                    : `scene ${this.errorIndex.scene + 1} of row ${this
-                        .errorIndex.frame + 1}`
+                    : `scene ${this.errorIndex.scene + 1} of row ${
+                        this.errorIndex.frame + 1
+                      }`
                 }`;
       } else return null;
     },
@@ -263,7 +263,7 @@ export default {
       else if (this.scenarioStatus.valid && !this.scenarioStoreHasChanged)
         return this.saveStatus.valid;
       else return { type: "is-primary" };
-    }
+    },
   },
   methods: {
     findScene(sceneId) {
@@ -283,7 +283,7 @@ export default {
 
         this.$buefy.toast.open({
           message: this.errorHelperLabel,
-          type: "is-danger"
+          type: "is-danger",
         });
         this.scrollToFrame({ frameIndex });
       }
@@ -296,7 +296,7 @@ export default {
           this.scenarioStoreHasChanged = false;
           this.$buefy.toast.open({
             message: "Scenario Saved",
-            type: "is-success"
+            type: "is-success",
           });
         } else {
           this.goToErrors();
@@ -305,7 +305,7 @@ export default {
       } else {
         this.$buefy.toast.open({
           message: "Scenario is already up to date",
-          type: "is-info"
+          type: "is-info",
         });
       }
     },
@@ -332,7 +332,7 @@ export default {
               );
             this.selectionReset();
             this.mode = this.Modes.DEFAULT;
-          }
+          },
         });
 
         this.select = this.modeOptions[this.mode].type;
@@ -352,7 +352,7 @@ export default {
 
         scrollElement.scrollTo({
           top: frameTopPos - this.headerHeight + scrollElement.scrollTop,
-          ...(smooth && { behavior: "smooth" })
+          ...(smooth && { behavior: "smooth" }),
         });
       });
     },
@@ -361,7 +361,7 @@ export default {
         parent: this,
         component: ScenarioOptions,
         hasModalCard: true,
-        trapFocus: true
+        trapFocus: true,
       });
     },
     logoutHelper() {
@@ -371,13 +371,13 @@ export default {
     ...mapActions({
       addCondition: "scenario/addCondition",
       removeCondition: "scenario/removeCondition",
-      saveScenario: "scenario/saveScenario"
+      saveScenario: "scenario/saveScenario",
     }),
     removeConditionHelper(id) {
       const scrollElement = this.$refs.layout.$refs.scroll;
       scrollElement.scrollTo({
         // FIXME: have scene sizes reference the Buefy variables somehow
-        left: scrollElement.scrollLeft - (350 + 20)
+        left: scrollElement.scrollLeft - (350 + 20),
       });
       this.removeCondition(id);
     },
@@ -389,7 +389,7 @@ export default {
         events: { exit: exitAction },
         hasModalCard: true,
         customClass: "dialog",
-        trapFocus: true
+        trapFocus: true,
       });
     },
     onLogout() {
@@ -398,7 +398,7 @@ export default {
       } else {
         this.logoutHelper();
       }
-    }
+    },
   },
   beforeRouteLeave(to, from, next) {
     this.snackbar && this.closeSnackbar();
@@ -408,7 +408,7 @@ export default {
     } else {
       next();
     }
-  }
+  },
 };
 </script>
 

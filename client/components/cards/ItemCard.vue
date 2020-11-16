@@ -14,7 +14,7 @@
           :active="showTooltip"
           :label="item.name"
           position="is-top"
-          type="is-info is-light"
+          type="is-primary is-light"
           style="width: inherit"
         >
           <h1 ref="title" class="subtitle">
@@ -56,6 +56,7 @@
           <b-tooltip
             v-if="remove"
             :label="`Delete ${itemType}`"
+            type="is-danger"
             position="is-bottom"
           >
             <b-button
@@ -96,7 +97,7 @@ export default {
     item: Object,
     itemType: {
       type: String,
-      default: ""
+      default: "",
     },
     value: Object,
     link: Boolean,
@@ -105,11 +106,11 @@ export default {
     edit: Boolean,
     duplicate: Boolean,
     // **** GenericCard Props ****
-    selectable: Boolean
+    selectable: Boolean,
   },
   data() {
     return {
-      showTooltip: false
+      showTooltip: false,
     };
   },
   mounted() {
@@ -120,7 +121,7 @@ export default {
     this.$nextTick(() => {
       this.showTooltip = newHeight < height;
     });
-  }
+  },
 };
 </script>
 

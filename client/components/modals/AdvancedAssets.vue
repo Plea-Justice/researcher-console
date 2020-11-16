@@ -7,6 +7,14 @@
         </p>
       </header>
       <section class="modal-card-body">
+        <b-field label="Slot" horizontal>
+          <b-select>
+            <option v-for="(slot, index) in slots" :key="index" :value="index">
+              {{ index }}
+            </option>
+          </b-select>
+        </b-field>
+
         <b-tabs v-model="current" expanded multiline>
           <template v-for="(slot, index) in slots">
             <b-tab-item
@@ -64,27 +72,14 @@
               </div>
 
               <b-field label="Colors" class="colors">
-                <b-field
+                <ColorInput
                   v-for="(color, index) in slot.colors"
                   :key="index"
+                  v-model="slot.colors[index]"
                   :message="colors[index]"
-                >
-                  <p class="control">
-                    <b-button
-                      :style="`background-color: red`"
-                      size="is-small"
-                      class="is-static"
-                    />
-                  </p>
-
-                  <b-input
-                    v-model="slot.colors[index]"
-                    @focus="prefixHex(slot.colors, index)"
-                    @blur="unprefixHex(slot.colors, index)"
-                    size="is-small"
-                    placeholder="#ABCDEF"
-                  />
-                </b-field>
+                  size="is-medium"
+                  placeholder="#ffffff"
+                />
               </b-field>
 
               <b-field label="Additional Layers (JSON)">
@@ -102,22 +97,24 @@
       </section>
 
       <footer class="modal-card-foot">
-        <b-button type="is-primary" native-type="submit" expanded>
-          Done
-        </b-button>
+        <b-button
+          label="Done"
+          type="is-primary"
+          native-type="submit"
+          expanded
+        />
       </footer>
     </form>
   </div>
 </template>
 
 <script>
-import HelpSidebar from "~/components/HelpSidebar";
-import { helpers } from "vuelidate/lib/validators";
-import { advancedAssetsHelp } from "~/assets/helpText";
+// Import Components
+import ColorInput from "~/components/form/ColorInput";
 
 export default {
   name: "AdvancedAssets",
-  components: { HelpSidebar },
+  components: { ColorInput },
   props: {
     condition: {
       type: Object,
@@ -147,9 +144,7 @@ export default {
       figures: ["Masculine Figure", "Feminine Figure"],
       colors: ["Eyes", "None", "None", "Hair", "Outfit", "Skin"],
 
-      disableAvatar: true,
-
-      optionsHelp: advancedAssetsHelp
+      disableAvatar: true
     };
   },
   methods: {
@@ -159,12 +154,6 @@ export default {
       // this.condition.customizations = this.slots;
 
       this.$parent.close();
-    },
-    prefixHex(colors, index) {
-      if (!colors[index].length) colors.splice(index, 1, "#");
-    },
-    unprefixHex(colors, index) {
-      if (colors[index].length === 1) colors.splice(index, 1, "");
     }
   }
 };
@@ -177,13 +166,18 @@ export default {
 }
 </style>
 
-<style scoped>
+<style lang="scss" scoped>
 /* FIXME: come up with a common style fix for cards */
 .modal-card {
   width: auto;
   max-width: 90vw;
+  max-height: 90vh;
   margin-left: auto !important;
   margin-right: auto !important;
+
+  & > .modal-card-body {
+    //FIXME: set max-height
+  }
 }
 
 .numberinputs {

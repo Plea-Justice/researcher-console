@@ -9,13 +9,7 @@
             :key="condition.id"
             class="condition"
           >
-            <div class="condition-title">
-              <div
-                v-if="isSelectable(condition.id)"
-                @click="$emit('selected', condition.id)"
-                class="condition-select"
-              />
-
+            <div class="buttons has-addons">
               <b-button
                 @click="$emit('remove', condition.id)"
                 type="is-danger is-light"
@@ -23,65 +17,31 @@
                 icon-left="trash"
                 class="custom-small"
               />
-              <h1 class="condition-name subtitle">Condition {{ index + 1 }}</h1>
-
-              <b-dropdown
-                aria-role="list"
-                class="is-pulled-right"
-                position="is-bottom-right"
-              >
-                <b-button
-                  type="is-light"
-                  size="is-small"
-                  icon-left="cog"
-                  class="has-text-grey custom-small"
-                  slot="trigger"
-                />
-                <b-dropdown-item
-                  @click="openAdvancedAssets(condition, index)"
-                  aria-role="listitem"
-                  >Customize Assets</b-dropdown-item
-                >
-              </b-dropdown>
+              <b-button size="is-small" type="is-primary is-light is-static">
+                <h1 class="subtitle">Condition {{ index + 1 }}</h1>
+              </b-button>
+              <b-button
+                @click="openConditionOptions(condition, index)"
+                type="is-light"
+                size="is-small"
+                icon-left="cog"
+                class="custom-small"
+              />
             </div>
 
-            <b-field grouped class="tag-list">
-              <div v-for="tag in condition.tags" :key="tag" class="control">
-                <b-tag
-                  attached
-                  closable
-                  close-type="is-danger is-light"
-                  :aria-close-label="`Remove ${tag} tag`"
-                  @close="removeTag(condition, tag)"
-                  >{{ tag }}</b-tag
-                >
-              </div>
-
-              <div class="control">
-                <b-tag
-                  @close="toggleTagInput(index)"
-                  attached
-                  closable
-                  close-type="is-light"
-                  close-icon="plus"
-                  aria-close-label="Add condition label"
-                  >Tag</b-tag
-                >
-              </div>
-            </b-field>
+            <b-taglist>
+              <b-tag
+                v-for="tag in condition.tags"
+                :key="tag.id"
+                attached
+                closable
+                close-type="is-danger is-light"
+                :aria-close-label="`Remove ${tag} tag`"
+              >
+                {{ tag.name }}
+              </b-tag>
+            </b-taglist>
           </div>
-        </div>
-
-        <div v-if="showTagInput" class="tagbar">
-          <b-button @click="closeTagInput()" type="is-text" icon-left="times" />
-          <b-field class="tag-input">
-            <b-input
-              v-model="tag"
-              @keyup.native.enter="AddTag()"
-              placeholder="Add Condition Label"
-              expanded
-            />
-          </b-field>
         </div>
       </div>
     </div>
@@ -90,33 +50,24 @@
 
 <script>
 // Import VueX
-import { mapGetters, mapActions } from "vuex";
-
-import AdvancedAssets from "~/components/modals/AdvancedAssets";
+import { mapGetters } from "vuex";
+import ConditionOptions from "~/components/modals/ConditionOptions/ConditionOptions";
 
 export default {
-  components: { AdvancedAssets },
   props: {
-    selectable: [Object, Boolean]
-  },
-  data() {
-    return {
-      showTagInput: false,
-      bindInputToCondition: null,
-      tag: ""
-    };
+    selectable: [Object, Boolean],
   },
   computed: {
     ...mapGetters({
       conditionSet: "scenario/conditionSet",
-      numScenes: "scenario/numScenes"
+      numScenes: "scenario/numScenes",
     }),
     titleBarCssVars() {
       return {
         "--frame-sidebar-active": this.numScenes ? 1 : 0,
-        "--num-conditions": this.conditionSet.length
+        "--num-conditions": this.conditionSet.length,
       };
-    }
+    },
   },
   methods: {
     isSelectable(id) {
@@ -128,43 +79,16 @@ export default {
 
       return result;
     },
-    toggleTagInput(index) {
-      this.showTagInput = !this.showTagInput;
-      this.bindInputToCondition = this.showTagInput
-        ? this.conditionSet[index]
-        : null;
-    },
-    closeTagInput() {
-      this.showTagInput = false;
-      this.bindInputToCondition = null;
-    },
-    ...mapActions({
-      updateTags: "scenario/updateTags"
-    }),
-    AddTag() {
-      const condition = this.bindInputToCondition;
-      this.updateTags({
-        id: condition.id,
-        tags: [...condition.tags, this.tag]
-      });
-      this.tag = "";
-    },
-    removeTag(condition, targetTag) {
-      this.updateTags({
-        id: condition.id,
-        tags: condition.tags.filter(tag => tag != targetTag)
-      });
-    },
-    openAdvancedAssets(condition, index) {
+    openConditionOptions(condition, index) {
       this.$buefy.modal.open({
         parent: this,
-        component: AdvancedAssets,
-        props: { condition: { index, ...condition } },
+        component: ConditionOptions,
+        props: { index, condition },
         hasModalCard: true,
-        trapFocus: true
+        trapFocus: true,
       });
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -213,9 +137,11 @@ export default {
   }
 }
 
+// FIXME: this isn't lined up properly
 .conditions {
   display: flex;
 
+  // FIXME: make all of these use the gap property
   // Effectively flex-gap .condition
   & > :nth-last-child(n + 2) {
     margin-right: $frameSceneGap;
@@ -252,21 +178,5 @@ export default {
   height: 105%;
   width: 105%;
   border-radius: $radius-large;
-}
-
-.tagbar {
-  display: flex;
-  align-items: center;
-  width: max-content;
-  position: sticky;
-  left: 1.25rem;
-
-  & > :nth-last-child(n + 2) {
-    margin-right: $frameSceneGap;
-  }
-}
-
-.tag-input {
-  width: $sceneWidth;
 }
 </style>
