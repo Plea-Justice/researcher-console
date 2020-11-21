@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-card" style="width: 30vw">
+  <div class="modal-card" style="width: 50vw;">
     <form @submit.prevent="onSubmit()">
       <header class="modal-card-head">
         <p class="modal-card-title">Scenario Options</p>
@@ -60,6 +60,14 @@
             </form-group>
           </b-tab-item>
 
+          <b-tab-item label="Assets" value="assets">
+                <Shuttle
+                  label="Select assets for use in this scenario."
+                  lhead="Available Assets"
+                  rhead="Selections"
+                />
+          </b-tab-item>
+
           <b-tab-item label="Tags" value="tags">
             <Tags />
           </b-tab-item>
@@ -83,7 +91,8 @@ import { mapActions } from "vuex";
 import User from "~/mixins/User";
 
 // Import Components
-import Tags from "~/components/modals/ScenarioOptions/tags";
+import Tags from "~/components/modals/ScenarioOptions/Tags";
+import Shuttle from "~/components/form/Shuttle";
 import HelpSidebar from "~/components/HelpSidebar";
 
 // Import Vuelidate Rules
@@ -96,7 +105,7 @@ import { scenarioOptionsHelp } from "~/assets/helpText";
 export default {
   name: "ScenarioOptions",
   mixins: [User],
-  components: { Tags, HelpSidebar },
+  components: { Tags, Shuttle, HelpSidebar },
   props: {
     openTab: String,
   },
