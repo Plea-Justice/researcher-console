@@ -2,15 +2,11 @@
   <div>
     <form @submit.prevent="onSubmit()">
       <b-field label="Add Tag Set">
-        <b-input v-model.trim="groupName" required />
-        <p class="control">
-          <b-button native-type="submit" icon-left="plus" />
-        </p>
+        <b-input v-model.trim="groupName" />
       </b-field>
     </form>
 
     <b-field v-for="tagSet in tagSets" :key="tagSet.id" :label="tagSet.name">
-      {{ tagSet.tags }}
       <b-taginput
         :value="tagSet.tags.map((tag) => tag.name)"
         @add="addTag({ setId: tagSet.id, name: $event })"

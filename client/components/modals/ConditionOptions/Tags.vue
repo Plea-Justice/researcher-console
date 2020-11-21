@@ -23,10 +23,11 @@
       </b-tag>
     </b-taglist>
 
-    {{ conditionTags }}
-
     <b-field v-for="tagSet in tagSets" :key="tagSet.id" :label="tagSet.name">
-      <b-select :value="conditionTags" @input="tagCondition($event)">
+      <b-select
+        :value="getSetTagId(tagSet)"
+        @input="tagCondition($event, tagSet)"
+      >
         <option :value="null">None</option>
         <option v-for="tag in tagSet.tags" :key="tag.id" :value="tag.id">
           {{ tag.name }}
@@ -49,10 +50,12 @@ export default {
       type: String,
       required: true,
     },
+    /*
     conditionTags: {
       type: Array,
       required: true,
     },
+    */
   },
   data() {
     return {
@@ -62,7 +65,16 @@ export default {
   computed: {
     ...mapGetters({
       allTagSets: "scenario/tagSets",
+      conditionSet: "scenario/conditionSet",
     }),
+    // Due to a limitation with Bulma tags must be extracted from the getter as modal props ar not reactive
+    // and the only "official" workaround is only more cumbersome
+    conditionTags() {
+      return (
+        this.conditionSet.find((condition) => condition.id === this.conditionId)
+          .tags || []
+      );
+    },
     tagSets() {
       return this.allTagSets.filter((tagSet) => tagSet.tags.length);
     },
@@ -79,17 +91,30 @@ export default {
         hasModalCard: true,
       });
     },
-    getSetTag(tagSet) {
-      return tagSet.tags.find((tag) => conditionTags.includes(tag.id)) || null;
+    getSetTagId(tagSet) {
+      return (
+        tagSet.tags.find((tag) => this.conditionTags.includes(tag.id))?.id ??
+        null
+      );
     },
     ...mapActions({
       updateConditionTags: "scenario/updateConditionTags",
     }),
-    tagCondition(tagId) {
-      this.updateConditionTags({
-        conditionId: this.conditionId,
-        tags: [...this.conditionTags, tagId],
-      });
+    tagCondition(tagId, tagSet) {
+      const oldTagId = this.getSetTagId(tagSet);
+
+      if (tagId !== oldTagId) {
+        const newConditionTags =
+          oldTagId === null
+            ? this.conditionTags
+            : this.conditionTags.filter((tagId) => tagId !== oldTagId);
+
+        this.updateConditionTags({
+          conditionId: this.conditionId,
+          tags:
+            tagId === null ? newConditionTags : [...newConditionTags, tagId],
+        });
+      }
     },
   },
 };

@@ -42,16 +42,13 @@ export const state = () => initialState();
 
 export const getters = {
   scenarioMeta: state => ({ id: state.id, ...state.meta }),
-  conditionSet: state =>
-    state.conditionList.map(conditionId => ({
-      ...state.conditions[conditionId],
-      tags: state.conditions[conditionId].tags.map(id => state.tags[id])
-    })),
+  conditionSet: state => state.conditionList.map(conditionId => state.conditions[conditionId]),
   tagSets: state =>
     state.tagSetList.map(setId => ({
       ...state.tagSets[setId],
       tags: state.tagSets[setId].tags.map(tagId => state.tags[tagId])
     })),
+  tagsSet: state => tagIds => tagIds.map(id => state.tags[id]),
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
   numScenes: state => state.numScenes,
@@ -397,11 +394,8 @@ export const mutations = {
     Vue.delete(state.conditions, id);
   },
   setConditionTags(state, { conditionId, tags }) {
-    console.log('Updating condition tags');
-
     // this._vm.$set(state.conditions[conditionId], 'tags', tags);
     this._vm.$set(state.conditions, conditionId, { ...state.conditions[conditionId], tags });
-    console.log({ ...state.conditions[conditionId] });
   },
 
   // **** Frame Mutations ****

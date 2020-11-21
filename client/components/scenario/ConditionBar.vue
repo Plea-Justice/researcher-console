@@ -9,7 +9,9 @@
             :key="condition.id"
             class="condition"
           >
-            <div class="buttons has-addons">
+            <div class="condition-header buttons has-addons">
+              <div v-if="isSelectable(condition.id)" class="condition-select" />
+
               <b-button
                 @click="$emit('remove', condition.id)"
                 type="is-danger is-light"
@@ -59,9 +61,16 @@ export default {
   },
   computed: {
     ...mapGetters({
-      conditionSet: "scenario/conditionSet",
+      getConditionSet: "scenario/conditionSet",
+      tagsSet: "scenario/tagsSet",
       numScenes: "scenario/numScenes",
     }),
+    conditionSet() {
+      return this.getConditionSet.map((condition) => ({
+        ...condition,
+        tags: this.tagsSet(condition.tags),
+      }));
+    },
     titleBarCssVars() {
       return {
         "--frame-sidebar-active": this.numScenes ? 1 : 0,
@@ -105,7 +114,7 @@ export default {
   // width: max-content;
 
   // FIXME: background-color: $white-bis;
-  background-color: hsla(0, 0%, 98%, 0.65);
+  background-color: $white-bis;
 }
 
 // FIXME: conditionbar doesn't cover full width
@@ -153,30 +162,20 @@ export default {
   flex-direction: column;
   flex: 0 0 $sceneWidth;
   align-items: center;
-  // For .select-title placement
 }
 
-.condition-title {
-  display: flex;
-  align-items: center;
-  position: relative;
-  margin-left: -1.75rem;
-  gap: 0.25rem;
-}
-
-.condition-name {
-  line-height: 0;
+.condition-header {
   margin-bottom: 0;
-}
-
-.tag-list {
-  margin-top: 0.5rem;
+  position: relative;
 }
 
 .condition-select {
   @include selectionMask();
-  height: 105%;
+  // Height accounts for .button margin-bottom
+  height: calc(100% - 0.5rem);
   width: 105%;
+  top: 0;
+  left: -2.5%;
   border-radius: $radius-large;
 }
 </style>
