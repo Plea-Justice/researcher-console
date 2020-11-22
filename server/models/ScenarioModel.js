@@ -30,6 +30,7 @@ const ScenarioSchema = new mongoose.Schema({
     frameList:  { type: Array, default: [] },
     conditions: { type: Object, default: {} },
     conditionList: { type: Array, default: [] },
+    assetList:  { type: Array, default: [] },
     status:     { type: Object },
 
 }, { strict: 'throw', strictQuery: true, minimize: false });
@@ -53,7 +54,8 @@ ScenarioSchema.virtual('meta')
             version:    this.version,
 
             survey:     this.survey,
-            live:       this.live
+            live:       this.live,
+            assetList:  this.assetList
         };
     });
 

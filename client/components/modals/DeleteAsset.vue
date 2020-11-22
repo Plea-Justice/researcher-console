@@ -12,7 +12,10 @@
           <div v-if="references && references.length" class="content">
             <p>"{{ name }}" is used in the following scenarios:</p>
             <ul>
-              <li v-for="ref in references" :key="ref.id">{{ ref.name }}</li>
+              <li v-for="ref in references" :key="ref.id">
+                {{ ref.name }}
+                &emsp;<span class="is-size-7">(Owned by: {{ref.owner}})</span>
+              </li>
             </ul>
           </div>
 

@@ -1,7 +1,7 @@
 <template>
   <b-field :label="label">
       <div class="panel tile is-child is-horizontal">
-
+{{ preselected }}
         <div class="panel-block is-flex is-justify-content-space-between">
           <p>
             <b>{{ lhead }}</b>
@@ -31,9 +31,9 @@
           />
         </div>
         <template>
-          <label class="panel-block" v-for="item of filtered()" :key="item">
+          <label class="panel-block" v-for="item of filtered()" :key="keyfield ? item[keyfield] : item">
             <b-checkbox v-model="checked" :native-value="item">
-              {{ item }}
+              {{ textfield ? item[textfield] : item }}
             </b-checkbox>
           </label>
         </template>
@@ -61,9 +61,9 @@
           />
         </div>
         <template>
-          <label class="panel-block" v-for="item of selections" :key="item">
+          <label class="panel-block" v-for="item of selections" :key="keyfield ? item[keyfield] : item">
             <b-checkbox v-model="checked" :native-value="item">
-              {{ item }}
+              {{ textfield ? item[textfield] : item }}
             </b-checkbox>
           </label>
         </template>
@@ -83,14 +83,19 @@ export default {
   props: {
     options: {
       type: Array,
-      required: true,
+      required: true
     },
     preselected: {
       type: Array,
       default() { return []; },
-      required: false,
+      required: false
     },
-    keyname: {
+    keyfield: {
+      type: String,
+      default: null,
+      required: false
+    },
+    textfield: {
       type: String,
       default: null,
       required: false
@@ -98,17 +103,17 @@ export default {
     label: {
       type: String,
       default: "Select items from the left column.",
-      required: false,
+      required: false
     },
     lhead: {
       type: String,
       default: "Options",
-      required: false,
+      required: false
     },
     rhead: {
       type: String,
       default: "Selections",
-      required: false,
+      required: false
     },
   },
   data() {
@@ -117,8 +122,8 @@ export default {
       query: "",
       lcheckedall: false,
       rcheckedall: false,
-      selections: this.preselected,
-      checked: [],
+      selections: this.keyfield ? this.options.filter(x => this.preselected.includes(x[this.keyfield])) : this.preselected,
+      checked: []
     };
   },
   computed: {
@@ -133,7 +138,7 @@ export default {
 
       if (this.search) {
         list = list.filter((o) =>
-          o.toLowerCase().startsWith(this.query.toLowerCase())
+          (this.textfield ? o[this.textfield] : o).toLowerCase().startsWith(this.query.toLowerCase())
         );
       }
 
@@ -143,16 +148,13 @@ export default {
       for (const item of this.filtered()) {
         if (this.checked.includes(item)) this.selections.push(item);
       }
-      this.selections = this.selections.sort();
-      this.lcheckedall = this.rcheckedall = this.checkall([], true);
-      this.$emit('selected', this.selections);
+
+      this.selectedEvent();
     },
     deselect() {
       this.selections = this.selections.filter(item => !this.checked.includes(item));
 
-      this.selections = this.selections.sort();
-      this.lcheckedall = this.rcheckedall = this.checkall([], true);
-      this.$emit('selected', this.selections);
+      this.selectedEvent();
     },
     checkall(array, checkedall) {
       if (checkedall) this.checked = [];
@@ -160,6 +162,11 @@ export default {
 
       return !checkedall;
     },
+    selectedEvent() {
+      this.selections = this.selections.sort();
+      this.lcheckedall = this.rcheckedall = this.checkall([], true);
+      this.$emit('selected', this.keyfield ? this.selections.map(x => x[this.keyfield]) : this.selections);
+    }
   },
 };
 </script>

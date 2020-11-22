@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-card" style="width: 50vw;">
+  <div class="modal-card" style="width: 50vw">
     <form @submit.prevent="onSubmit()">
       <header class="modal-card-head">
         <p class="modal-card-title">Scenario Options</p>
@@ -61,11 +61,16 @@
           </b-tab-item>
 
           <b-tab-item label="Assets" value="assets">
-                <Shuttle
-                  label="Select assets for use in this scenario."
-                  lhead="Available Assets"
-                  rhead="Selections"
-                />
+            <Shuttle
+              label="Select assets for use in this scenario."
+              lhead="Available Assets"
+              rhead="Selected for Use"
+              keyfield="id"
+              textfield="name"
+              :options="assetSet"
+              :preselected="scenarioForm.assetList"
+              @selected="updateAssets"
+            />
           </b-tab-item>
 
           <b-tab-item label="Tags" value="tags">
@@ -85,7 +90,7 @@
 
 <script>
 // Import VueX
-import { mapActions } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 
 // Import Mixins
 import User from "~/mixins/User";
@@ -108,6 +113,9 @@ export default {
   components: { Tags, Shuttle, HelpSidebar },
   props: {
     openTab: String,
+  },
+  async fetch({ store, params }) {
+    await store.dispatch("assets/getAssets");
   },
   data() {
     return {
@@ -134,8 +142,8 @@ export default {
         },
         survey: {
           url,
-        },
-      },
+        }
+      }
     };
   },
   computed: {
@@ -151,6 +159,9 @@ export default {
       }
       return status;
     },
+    ...mapGetters({
+      assetSet: "assets/assetSet"
+    }),
   },
   methods: {
     setFocus(focus) {
@@ -160,6 +171,10 @@ export default {
       updateMeta: "scenario/updateMeta",
       saveMeta: "scenario/saveMeta",
     }),
+    updateAssets(list) {
+      console.log('Asset List Update: ', list);
+      this.scenarioForm.assetList = list;
+    },
     onSubmit() {
       this.updateMeta(this.scenarioForm);
 

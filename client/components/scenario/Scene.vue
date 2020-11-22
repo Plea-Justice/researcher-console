@@ -304,16 +304,18 @@ export default {
       return spec.sceneTypes[this.form.type];
     },
     ...mapGetters({
-      assetSet: "assets/assetSet"
+      assets: "assets/assets",
+      scenarioAssets: "scenario/assetList"
     }),
     AssetsByType() {
-      return this.assetSet.reduce(
-        (obj, asset) => (
-          obj[asset.type]
-            ? (obj[asset.type][asset.id] = asset)
-            : (obj[asset.type] = { [asset.id]: asset }),
+      return this.scenarioAssets.reduce(
+        (obj, id) => {
+          const asset = this.assets[id] || {name: 'deleted', id: null};
+          return obj[asset.type]
+            ? (obj[asset.type][id] = asset)
+            : (obj[asset.type] = { [id]: asset }),
           obj
-        ),
+        },
         {}
       );
     }

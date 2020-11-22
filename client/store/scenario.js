@@ -25,6 +25,7 @@ const initialState = () => ({
   frameList: [],
   frames: {},
   scenes: {},
+  assetList: [],
   status: {
     valid: true,
     // Tracks errors related to `frames`
@@ -52,6 +53,7 @@ export const getters = {
       ...state.tagSets[setId],
       tags: state.tagSets[setId].tags.map(tagId => state.tags[tagId])
     })),
+  assetList: state => state.meta.assetList,
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
   numScenes: state => state.numScenes,

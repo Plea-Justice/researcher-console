@@ -248,31 +248,13 @@ module.exports = function (options) {
 
         try {
             const scenarios = await ScenarioModel.find({
-                owner: uid
+                $or: [{ owner: uid }, { public: true }]
             });
 
             const matches = scenarios.filter(scenario =>
-                Object.entries((scenario.scenes)).map(([id, scene]) =>
-                    scene.props
-                        ? [
-                            scene.props.actor,
-                            scene.props.clip,
-                            scene.props.foreground,
-                            scene.props.background
-                        ]
-                            .map(x => x ? x.id : '')
-                            .includes(asset_id) : false).some(y => y));
+                scenario.meta.assetList.includes(asset_id));
 
-            matches.map(x => ({
-                id: x._id,
-                name: x.name,
-                description: x.description,
-                survey: x.survey,
-                created: x.created,
-                modified: x.modified
-            }));
-
-            res.json(util.success('Returned scenarios that reference the asset.', matches));
+            res.json(util.success('Returned scenarios that reference the asset.',  matches.map(x => x.meta)));
         } catch (err) {
             res.status(500).json(util.failure('References to the asset could not be checked.', err));
         }

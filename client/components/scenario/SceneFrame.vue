@@ -59,7 +59,7 @@
           <div class="frame-header">
             <form-group
               :validator="$v.label"
-              attribute="Scenes Label"
+              attribute="Scene Label"
               class="frame-header-item"
               grouped
               v-slot="{ maxlength }"

@@ -9,6 +9,7 @@ export const state = () => ({
 });
 
 export const getters = {
+  assets: state => state.assets,
   assetSet: state => state.assetList.map(id => state.assets[id]),
   allAssetTypes: state => state.allAssetTypes
 };
