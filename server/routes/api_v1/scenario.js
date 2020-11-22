@@ -55,6 +55,7 @@ module.exports = function (options) {
                 live:       req.body.meta?.live,
                 public:     req.body.meta?.public,
                 readOnly:   req.body.meta?.readOnly,
+                assetList:  req.body.meta?.assetList,
                 numScenes:  req.body.numScenes,
                 scenes:     req.body.scenes,
                 frames:     req.body.frames,
@@ -194,6 +195,7 @@ module.exports = function (options) {
                 frameList:  req.body.frameList,
                 conditions: req.body.conditions,
                 conditionList: req.body.conditionList,
+                assetList:  req.body.meta?.assetList,
                 status:     req.body.status,
                 modified:   Date.now()
             } }, { omitUndefined: true });

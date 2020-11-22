@@ -100,6 +100,7 @@ export default {
         'faTimes',
         'faTrash',
         'faQuestion',
+        'faInfoCircle',
         'faExclamationCircle',
         'faExclamationTriangle',
         'faChevronUp',
@@ -136,7 +137,8 @@ export default {
         'faTrashAlt',
         'faEllipsisV',
         'faEllipsisH',
-        'faSearch'
+        'faSearch',
+        'faClipboard'
       ]
     }
   },

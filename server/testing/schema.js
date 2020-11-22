@@ -82,12 +82,13 @@ module.exports = {
             public: { type: 'boolean' },
             survey: { type: 'string' },
             live: { type: 'string' },
+            assetList: { type: 'array', items: { $ref: 'org.pleajustice.server.db.id' } },
             readOnly: { type: 'boolean' },
             created: { type: 'string', format: 'date-time' },
             modified: { type: 'string', format: 'date-time' },
             version: { type: 'string', pattern: '^\\d\\.\\d\\.\\d+$' }
         },
-        minProperties: 11, // FIXME: 12 for author
+        minProperties: 12, // FIXME: 13 for author
         additionalProperties: false
     },
 

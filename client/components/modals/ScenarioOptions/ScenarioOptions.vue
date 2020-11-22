@@ -7,7 +7,17 @@
 
       <section class="modal-card-body">
         <b-tabs v-model="tab">
-          <b-tab-item label="Settings" value="settings">
+          <b-tab-item value="settings">
+            <template v-slot:header>
+              <span>Settings</span>
+              <b-tooltip
+                v-if="!scenarioForm.survey"
+                label="Insert a link to your Qualtrics survey."
+                position="is-right"
+              >
+                <b-icon icon="info-circle" type="is-warning" size="is-small" />
+              </b-tooltip>
+            </template>
             <form-group label="Name" :validator="$v.scenarioForm.name">
               <b-input v-model="$v.scenarioForm.name.$model" maxlength="30" />
             </form-group>
@@ -60,11 +70,27 @@
             </form-group>
           </b-tab-item>
 
-          <b-tab-item label="Assets" value="assets">
+          <b-tab-item value="assets">
+            <template v-slot:header>
+              <span>Assets</span>
+              <!-- FIXME: Tooltop position is right because other positions appear under tab body or card header. -->
+              <b-tooltip
+                v-if="scenarioForm.assetList.length < 1"
+                label="Select assets from the library for use in this scenario."
+                position="is-right"
+              >
+                <b-icon icon="info-circle" type="is-warning" size="is-small" />
+              </b-tooltip>
+            </template>
             <Shuttle
               label="Select assets for use in this scenario."
               lhead="Available Assets"
-              rhead="Selections"
+              rhead="Selected for Use"
+              keyfield="id"
+              textfield="name"
+              :options="assetSet"
+              :preselected="scenarioForm.assetList"
+              @selected="updateAssets"
             />
           </b-tab-item>
 
@@ -85,7 +111,7 @@
 
 <script>
 // Import VueX
-import { mapActions } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 
 // Import Mixins
 import User from "~/mixins/User";
@@ -108,6 +134,9 @@ export default {
   components: { Tags, Shuttle, HelpSidebar },
   props: {
     openTab: String,
+  },
+  async fetch({ store, params }) {
+    await store.dispatch("assets/getAssets");
   },
   data() {
     return {
@@ -151,6 +180,9 @@ export default {
       }
       return status;
     },
+    ...mapGetters({
+      assetSet: "assets/assetSet",
+    }),
   },
   methods: {
     setFocus(focus) {
@@ -160,6 +192,10 @@ export default {
       updateMeta: "scenario/updateMeta",
       saveMeta: "scenario/saveMeta",
     }),
+    updateAssets(list) {
+      console.log("Asset List Update: ", list);
+      this.scenarioForm.assetList = list;
+    },
     onSubmit() {
       this.updateMeta(this.scenarioForm);
 
