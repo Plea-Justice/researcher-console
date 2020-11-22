@@ -14,7 +14,7 @@
       </b-navbar-item>
       <template v-for="route in routes">
         <b-navbar-item
-          v-if="route.name != 'index'"
+          v-if="route.name !== 'index'"
           :key="route.path"
           :active="route.path === $nuxt.$route.path"
           :to="route.path"
@@ -25,7 +25,10 @@
         </b-navbar-item>
       </template>
       <b-navbar-item tag="div" v-if="env.MODE === 'development'">
-        <code>Developer Mode: {{ env.BRANCH }}</code>
+        <b-button
+          type="is-info is-light is-static"
+          :label="`Dev Mode: ${env.BRANCH}`"
+        />
       </b-navbar-item>
     </template>
 
@@ -52,8 +55,9 @@
           @click="logoutHandler()"
           type="is-danger"
           icon-left="sign-out-alt"
-          >Log Out, {{ user.name }}</b-button
         >
+          Log Out, {{ user.name }}
+        </b-button>
 
         <!-- Help Menu -->
         <HelpSidebar v-if="helpText" :title="helpTitle" :text="helpText" />
@@ -80,37 +84,37 @@ export default {
     title: {
       type: String,
       required: false,
-      default: ""
+      default: "",
     },
     path: {
       type: String,
       required: false,
-      default: ""
+      default: "",
     },
     helpText: String,
     helpTitle: String,
-    logout: Function
+    logout: Function,
   },
   data() {
     return {
       routes: [
         {
           name: "assets",
-          path: "/assets"
+          path: "/assets",
         },
         {
           name: "scenarios",
-          path: "/scenarios"
-        }
+          path: "/scenarios",
+        },
       ],
-      env: { MODE: process.env.MODE, BRANCH: process.env.BRANCH }
+      env: { MODE: process.env.MODE, BRANCH: process.env.BRANCH },
     };
   },
   methods: {
     logoutHandler() {
       this.logout ? this.logout() : this.$auth.logout();
-    }
-  }
+    },
+  },
 };
 </script>
 

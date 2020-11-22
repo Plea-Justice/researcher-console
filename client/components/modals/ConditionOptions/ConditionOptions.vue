@@ -27,7 +27,7 @@ export default {
   components: { AssetCustomization, Tags },
   props: {
     index: {
-      type: String,
+      type: Number,
       required: true,
     },
     condition: {
