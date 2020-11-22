@@ -100,6 +100,7 @@ export default {
         'faTimes',
         'faTrash',
         'faQuestion',
+        'faInfoCircle',
         'faExclamationCircle',
         'faExclamationTriangle',
         'faChevronUp',

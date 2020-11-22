@@ -26,7 +26,15 @@
               @click="openScenarioOptions()"
               :value="mode"
               icon-left="cog"
-              >Options
+              ><span>Options</span>
+              <b-tooltip
+                v-if="!scenarioMeta.survey || scenarioMeta.assetList.length < 1"
+                class="ml-3 is-pulled-right"
+                label="Check that your scenario options are filled."
+                position="is-right"
+              >
+                <b-icon icon="info-circle" type="is-warning" size="is-small" />
+              </b-tooltip>
             </ToolBarButton>
 
             <b-button

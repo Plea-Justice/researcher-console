@@ -21,7 +21,7 @@ const ScenarioSchema = new mongoose.Schema({
     modified:   { type: Date, default: Date.now },
     version:    { type: String, default: '1.0.0' },
 
-    survey:     { type: String, default: 'no-url-set.html' },
+    survey:     { type: String, default: '' },
     live:       { type: String, default: '' },
 
     numScenes:  { type: Number, default: 0 },
