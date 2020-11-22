@@ -31,9 +31,10 @@ import User from "~/mixins/User";
 
 // Import Components
 import ToolBarButton from "~/components/ToolBarButton";
+import SimulationLink from "~/components/modals/SimulationLink";
 
 export default {
-  components: { ToolBarButton },
+  components: { ToolBarButton, SimulationLink },
   mixins: [User],
   props: {
     scenarioMeta: {
@@ -155,14 +156,14 @@ export default {
     },
     liveURLPopup() {
       if (this.scenarioMeta.live) {
-        this.$buefy.dialog.alert({
-          title: "Live Simulation Link",
-          message: `This scenario has been published at: <br /><br />
-            <a class="is-size-7" href="${this.scenarioMeta.live}">${this.scenarioMeta.live}</a><br /><br />
-            This simulation link may be copied to a Qualtrics survey end block along with the required parameters
-            described <a href="https://pleajustice.org/simulation/working-with-qualtrics">here</a>.<br /><br />
-            Opening the link directly without these parameters will result in an error.`,
-          type: "is-success"
+        this.$buefy.modal.open({
+          parent: this,
+          component: SimulationLink,
+          hasModalCard: true,
+          trapFocus: true,
+          props: {
+            url: this.scenarioMeta.live
+          }
         });
       }
     },

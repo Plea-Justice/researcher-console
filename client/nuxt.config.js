@@ -137,7 +137,8 @@ export default {
         'faTrashAlt',
         'faEllipsisV',
         'faEllipsisH',
-        'faSearch'
+        'faSearch',
+        'faClipboard'
       ]
     }
   },

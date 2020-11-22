@@ -17,6 +17,7 @@
     "@nuxtjs/auth": "^4.9.1",
     "@nuxtjs/axios": "^5.12.2",
     "@nuxtjs/pwa": "^3.1.2",
+    "clipboard": "^2.0.6",
     "nanoid": "^3.1.12",
     "nuxt": "^2.14.6",
     "nuxt-buefy": "^0.4.3",
