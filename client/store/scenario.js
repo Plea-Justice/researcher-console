@@ -96,8 +96,8 @@ export const actions = {
   addTag({ commit }, { setId, name }) {
     commit('newTag', { setId, tag: { id: nanoid(), name } });
   },
-  removeTag({ state, commit }, { setId, name }) {
-    commit('deleteTag', { setId, tagIndex: state.tagSets[setId].tags.findIndex(id => state.tags[id].name === name) });
+  removeTag({ state, commit }, { setId, tagId }) {
+    commit('deleteTag', { setId, tagId, tagIndex: state.tagSets[setId].tags.findIndex(id => id === tagId) });
   },
 
   // **** Condition Actions ****

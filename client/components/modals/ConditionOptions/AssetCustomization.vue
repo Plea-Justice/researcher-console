@@ -54,13 +54,18 @@
       </b-field>
     </div>
 
-    <b-field
-      v-for="(color, index) in selectedSlot.colors"
-      :key="`${selectedSlot.id}:${index}:${colors[index]}`"
-      :label="colors[index]"
-    >
-      <ColorInput v-model="selectedSlot.colors[index]" />
-    </b-field>
+    <div>
+      <h2 class="subtitle">Colors</h2>
+      <b-field grouped group-multiline>
+        <b-field
+          v-for="(color, index) in selectedSlot.colors"
+          :key="`${selectedSlot.id}:${index}:${colors[index]}`"
+          :label="colors[index]"
+        >
+          <ColorInput v-model="selectedSlot.colors[index]" />
+        </b-field>
+      </b-field>
+    </div>
 
     <b-field label="Additional Layers (JSON)">
       <b-input
@@ -69,7 +74,6 @@
         size="is-small"
         custom-class="has-fixed-size"
         placeholder="{ layer: true, layer2: false }"
-        expanded
       />
     </b-field>
   </div>
@@ -112,6 +116,10 @@ export default {
   },
 };
 </script>
+
+<!-- Global Style -->
+<style>
+</style>
 
 <style scoped>
 .flex-fields {

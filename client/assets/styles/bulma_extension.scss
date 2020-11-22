@@ -7,7 +7,18 @@
   margin-right: 0.5rem;
 }
 
-// FIXME: Tempfix for bulma 0.9.1, should be fixed in next release
+// TEMPFIX: issue#10
+// for bulma 0.9.1, should be fixed in next release
 .card {
   overflow: visible !important;
+}
+
+// TEMPFIX: issue#13
+// for bulma 0.9.1, nested grouped fields with labels cause <p class="control> elements to float up
+.field.is-grouped > .control {
+  align-self: flex-end;
+}
+
+.field.is-grouped.is-grouped-multiline > .field {
+  margin-bottom: 0.75rem;
 }

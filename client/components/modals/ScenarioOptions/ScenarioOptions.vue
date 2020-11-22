@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-card" style="width: 50vw;">
+  <div class="modal-card" style="width: 50vw">
     <form @submit.prevent="onSubmit()">
       <header class="modal-card-head">
         <p class="modal-card-title">Scenario Options</p>
@@ -52,7 +52,7 @@
                 <b-switch
                   :disabled="!user.permitSharing"
                   v-model="scenarioForm.public"
-                  type="is-info"
+                  type="is-success"
                 >
                   Make Public
                 </b-switch>
@@ -61,11 +61,11 @@
           </b-tab-item>
 
           <b-tab-item label="Assets" value="assets">
-                <Shuttle
-                  label="Select assets for use in this scenario."
-                  lhead="Available Assets"
-                  rhead="Selections"
-                />
+            <Shuttle
+              label="Select assets for use in this scenario."
+              lhead="Available Assets"
+              rhead="Selections"
+            />
           </b-tab-item>
 
           <b-tab-item label="Tags" value="tags">

@@ -91,13 +91,13 @@
       />
     </template>
 
-    <section ref="frames" class="padded-responsive-container responsive-center">
-      <!-- Debug Info -->
-      <template v-if="env.MODE === 'development'">
-        <p>Scenes: {{ numScenes }}</p>
-        <p>{{ scenarioStatus }}</p>
-      </template>
+    <!-- Debug Info -->
+    <section class="section" v-if="env.MODE === 'development'">
+      <p>Scenes: {{ numScenes }}</p>
+      <p>{{ scenarioStatus }}</p>
+    </section>
 
+    <section ref="frames" class="padded-responsive-container responsive-center">
       <!-- Frames -->
       <SceneFrame
         v-for="(frame, index) in frameSet"
