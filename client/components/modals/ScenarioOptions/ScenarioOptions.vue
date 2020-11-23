@@ -8,12 +8,16 @@
       <section class="modal-card-body">
         <b-tabs v-model="tab">
           <b-tab-item value="settings">
-          <template v-slot:header>
-            <span>Settings</span>
-            <b-tooltip v-if="!scenarioForm.survey" label="Insert a link to your Qualtrics survey." position="is-right">
-              <b-icon icon="info-circle" type="is-warning" size="is-small"/>
-            </b-tooltip>
-          </template>
+            <template v-slot:header>
+              <span>Settings</span>
+              <b-tooltip
+                v-if="!scenarioForm.survey"
+                label="Insert a link to your Qualtrics survey."
+                position="is-right"
+              >
+                <b-icon icon="info-circle" type="is-warning" size="is-small" />
+              </b-tooltip>
+            </template>
             <form-group label="Name" :validator="$v.scenarioForm.name">
               <b-input v-model="$v.scenarioForm.name.$model" maxlength="30" />
             </form-group>
@@ -58,7 +62,7 @@
                 <b-switch
                   :disabled="!user.permitSharing"
                   v-model="scenarioForm.public"
-                  type="is-info"
+                  type="is-success"
                 >
                   Make Public
                 </b-switch>
@@ -67,13 +71,17 @@
           </b-tab-item>
 
           <b-tab-item value="assets">
-          <template v-slot:header>
-            <span>Assets</span>
-            <!-- FIXME: Tooltop position is right because other positions appear under tab body or card header. -->
-            <b-tooltip v-if="scenarioForm.assetList.length < 1" label="Select assets from the library for use in this scenario." position="is-right">
-              <b-icon icon="info-circle" type="is-warning" size="is-small"/>
-            </b-tooltip>
-          </template>
+            <template v-slot:header>
+              <span>Assets</span>
+              <!-- FIXME: Tooltop position is right because other positions appear under tab body or card header. -->
+              <b-tooltip
+                v-if="scenarioForm.assetList.length < 1"
+                label="Select assets from the library for use in this scenario."
+                position="is-right"
+              >
+                <b-icon icon="info-circle" type="is-warning" size="is-small" />
+              </b-tooltip>
+            </template>
             <Shuttle
               label="Select assets for use in this scenario."
               lhead="Available Assets"
@@ -155,8 +163,8 @@ export default {
         },
         survey: {
           url,
-        }
-      }
+        },
+      },
     };
   },
   computed: {
@@ -173,7 +181,7 @@ export default {
       return status;
     },
     ...mapGetters({
-      assetSet: "assets/assetSet"
+      assetSet: "assets/assetSet",
     }),
   },
   methods: {
@@ -185,7 +193,7 @@ export default {
       saveMeta: "scenario/saveMeta",
     }),
     updateAssets(list) {
-      console.log('Asset List Update: ', list);
+      console.log("Asset List Update: ", list);
       this.scenarioForm.assetList = list;
     },
     onSubmit() {

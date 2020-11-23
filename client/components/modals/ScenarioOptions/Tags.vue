@@ -8,9 +8,10 @@
 
     <b-field v-for="tagSet in tagSets" :key="tagSet.id" :label="tagSet.name">
       <b-taginput
-        :value="tagSet.tags.map((tag) => tag.name)"
-        @add="addTag({ setId: tagSet.id, name: $event })"
-        @remove="removeTag({ setId: tagSet.id, name: $event })"
+        :value="tagSet.tags"
+        field="name"
+        @add="addTagHelper({ setId: tagSet.id, name: $event })"
+        @remove="removeTag({ setId: tagSet.id, tagId: $event.id })"
         aria-close-label="Delete this tag"
       />
     </b-field>
@@ -49,6 +50,9 @@ export default {
     onSubmit() {
       this.addTagSet({ name: toPascalCase(this.groupName) });
       this.groupName = "";
+    },
+    addTagHelper({ setId, name }) {
+      this.addTag({ setId, name: toPascalCase(name) });
     },
   },
 };
