@@ -225,6 +225,16 @@ export default {
     this.headerHeight =
       this.$refs.toolbar.$el.clientHeight +
       this.$refs.conditionbar.$el.clientHeight;
+
+    // CTRL + S to save. Use a library if we add more hotkeys.
+    this._listenKeySave = (e) => {
+      if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.saveHelper();
+      }
+    };
+
+    document.addEventListener('keydown', this._listenKeySave);
   },
   computed: {
     ...mapGetters({
@@ -411,6 +421,8 @@ export default {
   },
   beforeRouteLeave(to, from, next) {
     this.snackbar && this.closeSnackbar();
+
+    document.removeEventListener('keydown', this._listenKeySave);
 
     if (!this.logout && this.scenarioStoreHasChanged) {
       this.LeaveScenarioHelper(next);

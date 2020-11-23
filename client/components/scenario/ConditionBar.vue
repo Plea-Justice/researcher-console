@@ -22,13 +22,18 @@
               <b-button size="is-small" type="is-primary is-light is-static">
                 <h1 class="subtitle">Condition {{ index + 1 }}</h1>
               </b-button>
-              <b-button
-                @click="openConditionOptions(condition, index)"
-                type="is-light"
-                size="is-small"
-                icon-left="cog"
-                class="custom-small"
-              />
+
+              <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-right">
+                <b-button
+                  type="is-light"
+                  size="is-small"
+                  icon-left="cog"
+                  class="custom-small"
+                  slot="trigger"
+                />
+                <b-dropdown-item @click="openTags(condition, index)" aria-role="listitem">Variable Tags</b-dropdown-item>
+                <b-dropdown-item @click="openAdvancedAssets(condition, index)" aria-role="listitem">Customize Assets</b-dropdown-item>
+              </b-dropdown>
             </div>
 
             <b-taglist>
@@ -53,7 +58,8 @@
 <script>
 // Import VueX
 import { mapGetters } from "vuex";
-import ConditionOptions from "~/components/modals/ConditionOptions/ConditionOptions";
+import AdvancedAssets from "~/components/modals/ConditionOptions/AdvancedAssets";
+import ConditionTags from "~/components/modals/ConditionOptions/Tags";
 
 export default {
   props: {
@@ -88,10 +94,19 @@ export default {
 
       return result;
     },
-    openConditionOptions(condition, index) {
+    openTags(condition, index) {
       this.$buefy.modal.open({
         parent: this,
-        component: ConditionOptions,
+        component: ConditionTags,
+        props: { index, condition },
+        hasModalCard: true,
+        trapFocus: true,
+      });
+    },
+    openAdvancedAssets(condition, index) {
+      this.$buefy.modal.open({
+        parent: this,
+        component: AdvancedAssets,
         props: { index, condition },
         hasModalCard: true,
         trapFocus: true,

@@ -1,15 +1,21 @@
 <template>
   <div>
     <form @submit.prevent="onSubmit()">
-      <b-field label="Add Tag Set">
-        <b-input v-model.trim="groupName" />
+      <b-field
+        class="mb-2"
+        label="Add Variable Name"
+        message="Conditions may be labeled with these variable names."
+      >
+        <b-input v-model.trim="groupName" placeholder="e.g. innocence" />
       </b-field>
     </form>
 
-    <b-field v-for="tagSet in tagSets" :key="tagSet.id" :label="tagSet.name">
+    <b-field v-for="tagSet in tagSets" :key="tagSet.id" :label="tagSet.name"
+      :message="tagSet.tags.length < 1 ? 'Add levels of this variable.' : false">
       <b-taginput
         :value="tagSet.tags"
         field="name"
+        placeholder="e.g. innocent, guilty..."
         @add="addTagHelper({ setId: tagSet.id, name: $event })"
         @remove="removeTag({ setId: tagSet.id, tagId: $event.id })"
         aria-close-label="Delete this tag"
