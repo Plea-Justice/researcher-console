@@ -62,6 +62,9 @@ module.exports = function (options) {
                 frameList:  req.body.frameList,
                 conditions: req.body.conditions,
                 conditionList: req.body.conditionList,
+                tags:       req.body.tags,
+                tagSets:    req.body.tagSets,
+                tagSetList: req.body.tagSetList,
                 status:     req.body.status
             });
 
@@ -195,6 +198,9 @@ module.exports = function (options) {
                 frameList:  req.body.frameList,
                 conditions: req.body.conditions,
                 conditionList: req.body.conditionList,
+                tags:       req.body.tags,
+                tagSets:    req.body.tagSets,
+                tagSetList: req.body.tagSetList,
                 assetList:  req.body.meta?.assetList,
                 status:     req.body.status,
                 modified:   Date.now()

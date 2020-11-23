@@ -30,6 +30,9 @@ const ScenarioSchema = new mongoose.Schema({
     frameList:  { type: Array, default: [] },
     conditions: { type: Object, default: {} },
     conditionList: { type: Array, default: [] },
+    tags:       { type: Object, default: {} },
+    tagSets:    { type: Object, default: {} },
+    tagSetList:    { type: Array, default: [] },
     assetList:  { type: Array, default: [] },
     status:     { type: Object },
 
@@ -70,6 +73,9 @@ ScenarioSchema.virtual('data')
             frameList:  this.frameList,
             conditions: this.conditions,
             conditionList: this.conditionList,
+            tags:       this.tags,
+            tagSets:    this.tagSets,
+            tagSetList: this.tagSetList,
             status:     this.status
         };
     });

@@ -61,11 +61,14 @@ module.exports = {
             frames: { type: 'object' },
             conditionList: { type: 'array', items: { type: 'string' } },
             conditions: { type: 'object' },
+            tagSetList: { type: 'array', items: { type: 'string' } },
+            tagSets: { type: 'object' },
+            tags: { type: 'object' },
             numScenes: { type: 'integer' },
             scenes: { type: 'object' },
             status: { type: 'object' }  // TODO: Sensible default.
         },
-        minProperties: 8,
+        minProperties: 11,
         additionalProperties: false
 
     },
