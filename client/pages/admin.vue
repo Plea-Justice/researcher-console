@@ -5,46 +5,28 @@
     :helpText="adminHelp.navbar"
   >
     <template v-slot:toolbar-start>
-      <span class="level-item pr-3 is-size-7">Toggle Permissions:</span>
-      <div class="level-item">
-        <ToolBarButton class="is-small mr-2" @click="toggleSharingPermission"
-          >Sharing</ToolBarButton
-        >
-        <ToolBarButton class="is-small mr-2" @click="toggleUploadPermission"
-          >Uploads</ToolBarButton
-        >
-        <ToolBarButton class="is-small mr-2" @click="toggleHostingPermission"
-          >Hosted Studies</ToolBarButton
-        >
-      </div>
-    </template>
-    <template v-slot:toolbar-default>
-      <div class="level-item">
-        <span class="is-size-7">
-          {{ users.length }} users, {{ activeCount }} active this week.
-        </span>
-      </div>
-    </template>
-    <template v-slot:toolbar-end>
       <div class="level-item">
         <ToolBarButton
           class="is-small mr-2"
-          type="is-danger is-light"
-          @click="toggleAdmin"
-          >Toggle Admin</ToolBarButton
-        >
-        <ToolBarButton
-          class="is-small mr-2"
-          type="is-danger is-light"
+          type="is-danger"
+          outlined
           @click="changePassword"
           >Change Password</ToolBarButton
         >
         <ToolBarButton
           class="is-small mr-2"
-          type="is-danger is-light"
+          type="is-danger"
+          outlined
           @click="deleteUser"
           >Delete</ToolBarButton
         >
+      </div>
+    </template>
+    <template v-slot:toolbar-end>
+      <div class="level-item">
+        <span class="is-size-7">
+          {{ users.length }} users, {{ activeCount }} active this week.
+        </span>
       </div>
     </template>
 
@@ -55,7 +37,9 @@
       narrowed
       striped
       hoverable
-      :selected.sync="selected"
+      checkable
+      detailed
+      :checked-rows.sync="checked"
       sticky-header
       :loading="loading"
       height="100%"
@@ -99,18 +83,14 @@
         sortable
         >{{ props.row.affiliation }}</b-table-column
       >
-      <b-table-column
-        v-slot="props"
-        field="addresses"
-        label="Last IP Address"
-        sortable
-        >{{ props.row.addresses[0] || "None" }}</b-table-column
-      >
       <b-table-column v-slot="props" field="permitAdmin" label="Admin" sortable>
         <span>
-          <b-tag :type="props.row.permitAdmin ? 'is-success' : 'is-danger'">{{
-            props.row.permitAdmin ? "Yes" : "No"
-          }}</b-tag>
+          <b-button
+            :type="props.row.permitAdmin ? 'is-success' : 'is-danger'"
+            size="is-small"
+            @click="togglePermission(props.row.id, 'permitAdmin')"
+            >{{ props.row.permitAdmin ? "Yes" : "No" }}</b-button
+          >
         </span>
       </b-table-column>
       <b-table-column
@@ -120,9 +100,13 @@
         sortable
       >
         <span>
-          <b-tag :type="props.row.permitSharing ? 'is-success' : 'is-danger'">
+          <b-button
+            :type="props.row.permitSharing ? 'is-success' : 'is-danger'"
+            size="is-small"
+            @click="togglePermission(props.row.id, 'permitSharing')"
+          >
             {{ props.row.permitSharing ? "Yes" : "No" }}
-          </b-tag>
+          </b-button>
         </span>
       </b-table-column>
       <b-table-column
@@ -133,9 +117,13 @@
         meta="Permission"
       >
         <span>
-          <b-tag :type="props.row.permitUploads ? 'is-success' : 'is-danger'">
+          <b-button
+            :type="props.row.permitUploads ? 'is-success' : 'is-danger'"
+            size="is-small"
+            @click="togglePermission(props.row.id, 'permitUploads')"
+          >
             {{ props.row.permitUploads ? "Yes" : "No" }}
-          </b-tag>
+          </b-button>
         </span>
       </b-table-column>
       <b-table-column
@@ -145,11 +133,27 @@
         sortable
       >
         <span>
-          <b-tag :type="props.row.permitHosting ? 'is-success' : 'is-danger'">
+          <b-button
+            :type="props.row.permitHosting ? 'is-success' : 'is-danger'"
+            size="is-small"
+            @click="togglePermission(props.row.id, 'permitHosting')"
+          >
             {{ props.row.permitHosting ? "Yes" : "No" }}
-          </b-tag>
+          </b-button>
         </span>
       </b-table-column>
+      <template slot="detail" slot-scope="props">
+        <table>
+          <tr>
+            <th>User ID</th>
+            <th>Last IP Address</th>
+          </tr>
+          <tr>
+            <td>{{ props.row.id }}</td>
+            <td>{{ props.row.addresses[0] || "None" }}</td>
+          </tr>
+        </table>
+      </template>
     </b-table>
   </GenericLayout>
 </template>
@@ -168,7 +172,7 @@ export default {
   data() {
     return {
       adminHelp: adminHelp,
-      selected: null,
+      checked: [],
       users: [],
       loading: true
     };
@@ -204,63 +208,38 @@ export default {
       this.loading = false;
     },
     deleteUser() {
-      if (this.selected)
+      if (this.checked.length > 0)
         this.adminAPICall(
           "Delete User",
-          `Confirm deletion of user "${this.selected.name}" by typing your password.`,
+          `Confirm deletion of user(s) [${this.checked.map(
+            x => x.name
+          )}] by typing your password.`,
           "delete",
-          `/api/v1/admin/users/${this.selected.id}`
+          this.checked.map(x => `/api/v1/admin/users/${x.id}`)
         );
     },
-    changePermissions(permissions) {
-      if (this.selected)
-        this.adminAPICall(
-          "Modify User Permissions",
-          `Confirm modification of user "${this.selected.name}" by typing your password.`,
-          "put",
-          `/api/v1/admin/users/${this.selected.id}/permissions`,
-          permissions
-        );
+    modifyPermissions(user, permissions) {
+      this.adminAPICall(
+        "Modify User Permissions",
+        `Confirm modification of user "${user.name}" by typing your password.`,
+        "put",
+        [`/api/v1/admin/users/${user.id}/permissions`],
+        permissions
+      );
     },
-    toggleAdmin() {
-      if (this.selected) {
-        const user = this.users.find(x => x.id === this.selected.id);
-        const permissions = { permitAdmin: user.permitAdmin ? false : true };
-        this.changePermissions(permissions);
-      }
-    },
-    toggleSharingPermission() {
-      if (this.selected) {
-        const user = this.users.find(x => x.id === this.selected.id);
-        const permissions = {
-          permitSharing: user.permitSharing ? false : true
-        };
-        this.changePermissions(permissions);
-      }
-    },
-    toggleUploadPermission() {
-      if (this.selected) {
-        const user = this.users.find(x => x.id === this.selected.id);
-        const permissions = {
-          permitUploads: user.permitUploads ? false : true
-        };
-        this.changePermissions(permissions);
-      }
-    },
-    toggleHostingPermission() {
-      if (this.selected) {
-        const user = this.users.find(x => x.id === this.selected.id);
-        const permissions = {
-          permitHosting: user.permitHosting ? false : true
-        };
-        this.changePermissions(permissions);
-      }
+    togglePermission(id, permission) {
+      const user = this.users.find(x => x.id === id);
+      const permissions = { [permission]: user[permission] ? false : true };
+      console.log(id, permission, user, permissions);
+      this.modifyPermissions(user, permissions);
     },
     changePassword() {
-      if (this.selected)
+      if (this.checked.length > 0)
         this.$buefy.dialog.prompt({
           title: "New Password",
-          message: `Enter a new password for user "${this.selected.name}".`,
+          message: `Enter new password for user(s) [${this.checked.map(
+            x => x.name
+          )}].`,
           inputAttrs: {
             type: "password",
             placeholder: "New Password",
@@ -271,35 +250,36 @@ export default {
           onConfirm: newPass =>
             this.adminAPICall(
               "Confirm Change of Password",
-              `Confirm change of password for user "${this.selected.name}" by typing your password.`,
+              `Confirm change of password for user(s) [${this.checked.map(
+                x => x.name
+              )}] by typing <u>your</u> password.`,
               "put",
-              `/api/v1/admin/users/${this.selected.id}/password`,
+              this.checked.map(x => `/api/v1/admin/users/${x.id}/password`),
               { newPassword: newPass }
             )
         });
     },
-    adminAPICall(title, message, method, url, data) {
-      if (this.selected)
-        this.$buefy.dialog.prompt({
-          title: title,
-          message: message,
-          type: "is-warning",
-          inputAttrs: {
-            type: "password",
-            placeholder: "Administrator Password",
-            maxlength: 100
-          },
-          trapFocus: true,
-          onConfirm: pass =>
-            this.$axios({
-              method: method,
-              url: url,
-              data: {
-                password: pass,
-                ...data
-              }
-            }).then(this.refresh)
-        });
+    adminAPICall(title, message, method, urls, data) {
+      this.$buefy.dialog.prompt({
+        title: title,
+        message: message,
+        type: "is-warning",
+        inputAttrs: {
+          type: "password",
+          placeholder: "Administrator Password",
+          maxlength: 100
+        },
+        trapFocus: true,
+        onConfirm: pass => Promise.all(
+          urls.map(url => this.$axios({
+            method: method,
+            url: url,
+            data: {
+              password: pass,
+              ...data
+            }
+          }))).then(this.refresh)
+      });
     }
   },
   head() {
