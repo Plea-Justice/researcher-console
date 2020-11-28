@@ -1,95 +1,86 @@
 <template>
-  <div class="modal-card">
-    <form @submit.prevent="onSubmit()">
-      <header class="modal-card-head">
-        <p class="modal-card-title">
-          Condition {{ index + 1 }} - Asset Customization
-        </p>
-        <div class="buttons">
-          <b-button type="is-primary"> Reset This Slot </b-button>
-          <b-button type="is-primary"> Reset All Slots </b-button>
-        </div>
-      </header>
-      <section class="modal-card-body">
-        <b-tabs v-model="selectedSlotIndex" expanded multiline>
-          <template v-for="(slot, index) in slots">
-            <b-tab-item
-              :key="slot.id"
-              :value="index.toString()"
-              :label="index.toString() + (special[index] ? ` (${special[index]})` : '')"
-            >
-              <div class="flex-fields">
-                <div class="numberinputs">
-                  <b-field
-                    label="Figure"
-                    :message="figures[selectedSlot.figure]"
-                  >
-                    <b-numberinput
-                      v-model="selectedSlot.figure"
-                      size="is-small"
-                      min="0"
-                      :max="figures.length - 1"
-                      controls-position="compact"
-                    />
-                  </b-field>
-                  <b-field label="Eyes" :message="eyes[selectedSlot.eyes]">
-                    <b-numberinput
-                      v-model="selectedSlot.eyes"
-                      size="is-small"
-                      min="0"
-                      :max="eyes.length - 1"
-                      controls-position="compact"
-                    />
-                  </b-field>
-                  <b-field label="Hair" :message="hair[selectedSlot.hair]">
-                    <b-numberinput
-                      v-model="selectedSlot.hair"
-                      size="is-small"
-                      min="0"
-                      :max="hair.length - 1"
-                      controls-position="compact"
-                    />
-                  </b-field>
-                </div>
+  <form @submit.prevent="onSubmit()" class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">
+        Condition {{ index + 1 }} - Asset Customization
+      </p>
+    </header>
+    <section class="modal-card-body">
+      <b-tabs v-model="selectedSlotIndex" expanded multiline>
+        <template v-for="(slot, index) in slots">
+          <b-tab-item
+            :key="slot.id"
+            :value="index.toString()"
+            :label="`${index} ${special[index] ? ` (${special[index]})` : ''}`"
+          >
+            <div class="buttons">
+              <b-button type="is-primary"> Reset This Slot </b-button>
+              <b-button type="is-primary"> Reset All Slots </b-button>
+            </div>
 
-                <div>
-                  <h2 class="subtitle">Colors</h2>
-                  <b-field grouped group-multiline>
-                    <b-field
-                      v-for="(color, index) in selectedSlot.colors"
-                      :key="`${selectedSlot.id}:${index}:${colors[index]}`"
-                      :label="colors[index]"
-                    >
-                      <ColorInput v-model="selectedSlot.colors[index]" />
-                    </b-field>
-                  </b-field>
-                </div>
-
-                <b-field label="Additional Layers (JSON)">
-                  <b-input
-                    v-model="selectedSlot.custom"
-                    type="textarea"
+            <div class="flex-fields">
+              <div class="numberinputs">
+                <b-field label="Figure" :message="figures[selectedSlot.figure]">
+                  <b-numberinput
+                    v-model="selectedSlot.figure"
                     size="is-small"
-                    custom-class="has-fixed-size"
-                    placeholder="{ layer: true, layer2: false }"
+                    min="0"
+                    :max="figures.length - 1"
+                    controls-position="compact"
+                  />
+                </b-field>
+                <b-field label="Eyes" :message="eyes[selectedSlot.eyes]">
+                  <b-numberinput
+                    v-model="selectedSlot.eyes"
+                    size="is-small"
+                    min="0"
+                    :max="eyes.length - 1"
+                    controls-position="compact"
+                  />
+                </b-field>
+                <b-field label="Hair" :message="hair[selectedSlot.hair]">
+                  <b-numberinput
+                    v-model="selectedSlot.hair"
+                    size="is-small"
+                    min="0"
+                    :max="hair.length - 1"
+                    controls-position="compact"
                   />
                 </b-field>
               </div>
-            </b-tab-item>
-          </template>
-        </b-tabs>
-      </section>
 
-      <footer class="modal-card-foot">
-        <b-button
-          label="Done"
-          type="is-primary"
-          native-type="submit"
-          expanded
-        />
-      </footer>
-    </form>
-  </div>
+              <div>
+                <h2 class="subtitle">Colors</h2>
+                <b-field grouped group-multiline>
+                  <b-field
+                    v-for="(color, index) in selectedSlot.colors"
+                    :key="`${selectedSlot.id}:${index}:${colors[index]}`"
+                    :label="colors[index]"
+                  >
+                    <ColorInput v-model="selectedSlot.colors[index]" />
+                  </b-field>
+                </b-field>
+              </div>
+
+              <b-field label="Additional Layers (JSON)">
+                <b-input
+                  v-model="selectedSlot.custom"
+                  type="textarea"
+                  size="is-small"
+                  custom-class="has-fixed-size"
+                  placeholder="{ layer: true, layer2: false }"
+                />
+              </b-field>
+            </div>
+          </b-tab-item>
+        </template>
+      </b-tabs>
+    </section>
+
+    <footer class="modal-card-foot">
+      <b-button label="Done" type="is-primary" native-type="submit" expanded />
+    </footer>
+  </form>
 </template>
 
 <script>
@@ -170,19 +161,6 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-/* FIXME: come up with a common style fix for cards */
-.modal-card {
-  width: auto;
-  max-width: 90vw;
-  max-height: 90vh;
-  margin-left: auto !important;
-  margin-right: auto !important;
-
-  & > .modal-card-body {
-    //FIXME: set max-height
-  }
-}
-
 .flex-fields {
   margin-top: 0.5rem;
   display: flex;

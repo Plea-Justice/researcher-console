@@ -1,17 +1,20 @@
 <template>
-  <div>
+  <div class="flex-fields">
     <form @submit.prevent="onSubmit()">
       <b-field
-        class="mb-2"
         label="Add Variable Name"
-        message="Conditions may be labeled with these variable names."
+        message="Conditions can be labeled using these variable levels"
       >
         <b-input v-model.trim="groupName" placeholder="e.g. innocence" />
       </b-field>
     </form>
 
-    <b-field v-for="tagSet in tagSets" :key="tagSet.id" :label="tagSet.name"
-      :message="tagSet.tags.length < 1 ? 'Add levels of this variable.' : false">
+    <b-field
+      v-for="tagSet in tagSets"
+      :key="tagSet.id"
+      :label="tagSet.name"
+      :message="tagSet.tags.length < 1 ? 'Add levels of this variable.' : false"
+    >
       <b-taginput
         :value="tagSet.tags"
         field="name"
@@ -63,3 +66,11 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.flex-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+</style>

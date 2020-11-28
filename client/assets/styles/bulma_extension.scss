@@ -1,5 +1,7 @@
 // ******** Buttons ********
 
+// FIXES
+
 // Treats .b-tooltip like .button inside .buttons
 // based on the default .button styling
 // FIXME: should target if inner button isn't .button:not(.is-fullwidth)
@@ -21,4 +23,19 @@
 
 .field.is-grouped.is-grouped-multiline > .field {
   margin-bottom: 0.75rem;
+}
+
+// ******** Additions/Improvements ********
+
+// Allows modals to size more flexibly (width)
+.modal-card {
+  max-width: 90vw;
+  width: minmax(10vw, auto) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.modal-card-body:last-child {
+  border-bottom-left-radius: $radius-large;
+  border-bottom-right-radius: $radius-large;
 }

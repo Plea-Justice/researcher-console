@@ -53,6 +53,7 @@
         </aside>
 
         <div
+          class="frame-content"
           :class="{ 'frame-content-collapsed': collapsed }"
           :style="{ '--num-scenes': this.frame.scenes.length }"
         >
@@ -385,6 +386,7 @@ export default {
   display: flex;
   height: max-content;
   width: min-content;
+  align-items: stretch;
   // Fix box model for box-shadow
   margin-top: 1px;
   // Remove bottom margin from box (leave 1px for box model)
@@ -402,6 +404,11 @@ export default {
   $scene: $frameSceneGap + $sceneWidth;
   min-width: calc(#{$scene} * var(--num-scenes) - #{$frameSceneGap});
   width: max-content;
+}
+
+.frame-content {
+  display: flex;
+  flex-direction: column;
 }
 
 .frame-header {
@@ -431,6 +438,7 @@ export default {
 .frame-scenes {
   display: flex;
   flex-direction: row;
+  flex-grow: 1;
   margin-top: 1.25rem;
   // Everything except last child & > :not(:last-child)
   & > div:nth-last-of-type(n + 2) {

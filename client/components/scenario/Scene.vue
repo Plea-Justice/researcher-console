@@ -1,7 +1,7 @@
 <template>
   <!-- FIXME: fix how form interaction works either make form top level again or use more effectively here -->
   <!-- If scene is not blank -->
-  <form v-if="scene.props !== null" ref="form" class="flex-wrap">
+  <form v-if="scene.props !== null" ref="form">
     <div
       v-if="isSelectable && $v.form.$invalid && !invalidSelectable"
       class="invalid-selection-mask"
@@ -178,12 +178,12 @@ export default {
   components: {
     GenericCard,
     FileSelector,
-    BTagInput
+    BTagInput,
   },
   props: {
     scene: {
       type: Object,
-      required: true
+      required: true,
     },
     index: Number,
     collapsed: Boolean,
@@ -191,67 +191,67 @@ export default {
     bound: {
       type: [String, Boolean],
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     const defaultType = Object.keys(spec.sceneTypes)[0];
     const form = {
-      ...Object.fromEntries(Object.keys(spec.scene).map(key => [key, null])),
+      ...Object.fromEntries(Object.keys(spec.scene).map((key) => [key, null])),
       type: defaultType,
-      ...this.scene.props
+      ...this.scene.props,
     };
 
     return {
       validSceneTypes: Object.keys(spec.sceneTypes),
       form,
 
-      inputModalActive: false
+      inputModalActive: false,
     };
   },
   mounted() {
-    this.validFieldNames.forEach(fieldName => {
+    this.validFieldNames.forEach((fieldName) => {
       const vField = this.$v.form[fieldName];
       if (vField.$invalid) {
         vField.$touch();
         this.updateSceneErrors({
           id: this.scene.id,
-          valid: !this.$v.form.$invalid
+          valid: !this.$v.form.$invalid,
         });
       }
     });
 
     this.updateSceneErrors({
       id: this.scene.id,
-      valid: !this.$v.form.$invalid
+      valid: !this.$v.form.$invalid,
     });
   },
   watch: {
     // Update form for inbound changes
-    "scene.props": async function() {
+    "scene.props": async function () {
       Object.assign(this.form, this.scene.props);
     },
     // Update props with outbound changes
     form: {
       deep: true,
-      handler: debounce(async function() {
+      handler: debounce(async function () {
         this.updateScene({
           id: this.scene.id,
           props: Object.fromEntries(
-            [...this.validFieldNames, "type"].map(field => [
+            [...this.validFieldNames, "type"].map((field) => [
               field,
-              this.form[field]
+              this.form[field],
             ])
           ),
-          valid: !this.$v.form.$invalid
+          valid: !this.$v.form.$invalid,
         });
-      }, 350)
-    }
+      }, 350),
+    },
   },
   validations() {
     // FIXME: add error message
     // FIXME: extend this from main vuelidate.js ?
-    const included = options => value =>
+    const included = (options) => (value) =>
       !helpers.req(value) || !!options?.[value.id];
 
     const dynamicEntries = Object.fromEntries(
@@ -268,12 +268,12 @@ export default {
       form: {
         ...dynamicEntries,
         type: {
-          required
+          required,
         },
         script: {
-          maxLength: maxLength(220)
-        }
-      }
+          maxLength: maxLength(220),
+        },
+      },
     };
   },
   computed: {
@@ -305,20 +305,19 @@ export default {
     },
     ...mapGetters({
       assets: "assets/assets",
-      scenarioAssets: "scenario/assetList"
+      scenarioAssets: "scenario/assetList",
     }),
     AssetsByType() {
-      return this.scenarioAssets.reduce(
-        (obj, id) => {
-          const asset = this.assets[id] || {name: 'deleted', id: null};
-          return obj[asset.type]
+      return this.scenarioAssets.reduce((obj, id) => {
+        const asset = this.assets[id] || { name: "deleted", id: null };
+        return (
+          obj[asset.type]
             ? (obj[asset.type][id] = asset)
             : (obj[asset.type] = { [id]: asset }),
           obj
-        },
-        {}
-      );
-    }
+        );
+      }, {});
+    },
   },
   methods: {
     toggleInputModal() {
@@ -335,9 +334,9 @@ export default {
       removeScene: "scenario/removeScene",
       updateScene: "scenario/updateScene",
       updateSceneErrors: "scenario/updateSceneErrors",
-      unbindScene: "scenario/unbindScene"
-    })
-  }
+      unbindScene: "scenario/unbindScene",
+    }),
+  },
 };
 </script>
 
@@ -385,12 +384,6 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-.flex-wrap {
-  position: relative;
-  display: flex;
-  flex-grow: 1;
-}
-
 .invalid-selection-mask {
   @include absoluteMask();
   background-color: $selectedRed;

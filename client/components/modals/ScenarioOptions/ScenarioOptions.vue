@@ -71,27 +71,19 @@
           </b-tab-item>
 
           <b-tab-item value="assets">
+            <!-- This doesn't have proper styling for label -->
             <template v-slot:header>
               <span>Assets</span>
-              <!-- FIXME: Tooltop position is right because other positions appear under tab body or card header. -->
+              <!-- FIXME: Tooltip position is-right because other positions appear under tab body or card header. -->
               <b-tooltip
                 v-if="scenarioForm.assetList.length < 1"
-                label="Select assets from the library for use in this scenario."
+                label="Select assets from your library to use in this scenario."
                 position="is-right"
               >
-                <b-icon icon="info-circle" type="is-warning" size="is-small" />
+                <b-icon icon="info-circle" type="is-info" />
               </b-tooltip>
             </template>
-            <Shuttle
-              label="Select assets for use in this scenario."
-              lhead="Available Assets"
-              rhead="Selected for Use"
-              keyfield="id"
-              textfield="name"
-              :options="assetSet"
-              :preselected="scenarioForm.assetList"
-              @selected="updateAssets"
-            />
+            <AssetSelection />
           </b-tab-item>
 
           <b-tab-item label="Tags" value="tags">
@@ -100,10 +92,13 @@
         </b-tabs>
       </section>
 
-      <footer class="modal-card-foot">
-        <b-button type="is-primary" native-type="submit" value="Save" expanded>
-          Save
-        </b-button>
+      <footer v-if="tab === 'settings'" class="modal-card-foot">
+        <b-button
+          native-type="submit"
+          label="Update Settings"
+          type="is-primary"
+          expanded
+        />
       </footer>
     </form>
   </div>
@@ -111,15 +106,15 @@
 
 <script>
 // Import VueX
-import { mapGetters, mapActions } from "vuex";
+import { mapActions } from "vuex";
 
 // Import Mixins
 import User from "~/mixins/User";
 
 // Import Components
-import Tags from "~/components/modals/ScenarioOptions/Tags";
-import Shuttle from "~/components/form/Shuttle";
 import HelpSidebar from "~/components/HelpSidebar";
+import AssetSelection from "~/components/modals/ScenarioOptions/AssetSelection";
+import Tags from "~/components/modals/ScenarioOptions/Tags";
 
 // Import Vuelidate Rules
 import { required, maxLength } from "vuelidate/lib/validators";
@@ -131,7 +126,7 @@ import { scenarioOptionsHelp } from "~/assets/helpText";
 export default {
   name: "ScenarioOptions",
   mixins: [User],
-  components: { Tags, Shuttle, HelpSidebar },
+  components: { HelpSidebar, AssetSelection, Tags },
   props: {
     openTab: String,
   },
@@ -180,9 +175,6 @@ export default {
       }
       return status;
     },
-    ...mapGetters({
-      assetSet: "assets/assetSet",
-    }),
   },
   methods: {
     setFocus(focus) {
@@ -192,10 +184,6 @@ export default {
       updateMeta: "scenario/updateMeta",
       saveMeta: "scenario/saveMeta",
     }),
-    updateAssets(list) {
-      console.log("Asset List Update: ", list);
-      this.scenarioForm.assetList = list;
-    },
     onSubmit() {
       this.updateMeta(this.scenarioForm);
 

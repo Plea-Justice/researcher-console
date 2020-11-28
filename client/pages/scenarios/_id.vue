@@ -26,14 +26,15 @@
               @click="openScenarioOptions()"
               :value="mode"
               icon-left="cog"
-              ><span>Options</span>
+            >
+              <span>Options</span>
               <b-tooltip
                 v-if="!scenarioMeta.survey || scenarioMeta.assetList.length < 1"
                 class="ml-3 is-pulled-right"
                 label="Check that your scenario options are filled."
                 position="is-right"
               >
-                <b-icon icon="info-circle" type="is-warning" size="is-small" />
+                <b-icon icon="info-circle" type="is-info" size="is-small" />
               </b-tooltip>
             </ToolBarButton>
 
@@ -84,7 +85,7 @@
           <div class="level-item">
             <PreviewDropdown
               :scenarioMeta="scenarioMeta"
-              @gotoErrors="goToErrors()"
+              @goToErrors="goToErrors()"
               @openScenarioOptions="openScenarioOptions"
             />
           </div>
@@ -234,7 +235,7 @@ export default {
       }
     };
 
-    document.addEventListener('keydown', this._listenKeySave);
+    document.addEventListener("keydown", this._listenKeySave);
   },
   computed: {
     ...mapGetters({
@@ -422,7 +423,7 @@ export default {
   beforeRouteLeave(to, from, next) {
     this.snackbar && this.closeSnackbar();
 
-    document.removeEventListener('keydown', this._listenKeySave);
+    document.removeEventListener("keydown", this._listenKeySave);
 
     if (!this.logout && this.scenarioStoreHasChanged) {
       this.LeaveScenarioHelper(next);

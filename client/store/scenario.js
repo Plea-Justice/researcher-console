@@ -33,9 +33,7 @@ const initialState = () => ({
     //       only errors related to itself
     frameErrors: [],
     // Tracks errors related to `scenes`
-    sceneErrors: [],
-    // FIXME: remove this if not used to reduce confusion
-    dirty: 0
+    sceneErrors: []
   }
 });
 
@@ -49,7 +47,7 @@ export const getters = {
       ...state.tagSets[setId],
       tags: state.tagSets[setId].tags.map(tagId => state.tags[tagId])
     })),
-  assetList: state => state.meta.assetList,
+  assetList: state => state.assetList,
   tagsSet: state => tagIds => tagIds.map(id => state.tags[id]),
   frameSet: state => state.frameList.map(frameId => state.frames[frameId]),
   sceneSet: state => frameId => state.frames[frameId].scenes.map(sceneId => state.scenes[sceneId]),
@@ -91,6 +89,9 @@ export const actions = {
   updateSceneErrors({ commit }, { valid, id }) {
     commit('setSceneErrors', { valid, id });
     commit('updateScenarioValidity');
+  },
+  updateAssetList({ commit }, { assetList }) {
+    commit('setAssetList', { assetList });
   },
   addTagSet({ commit }, { name }) {
     commit('newTagSet', { id: nanoid(), name });
@@ -342,6 +343,9 @@ export const mutations = {
     } else if (!valid && errorIndex === -1) {
       state.status.sceneErrors.push(id);
     }
+  },
+  setAssetList(state, { assetList }) {
+    this._vm.$set(state, 'assetList', assetList);
   },
   newTagSet(state, { id, name }) {
     this._vm.$set(state.tagSets, id, { id, name, tags: [] });
