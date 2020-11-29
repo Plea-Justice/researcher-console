@@ -28,7 +28,7 @@
       <p class="mt-6">
         Copy this link to a custom end block in your Qualtrics survey to have
         participants sent to the simulation. Linking to the simulation and
-        passing in variables through the URL query string is covered in
+        passing in variables through the URL query string is covered
         <a href="https://pleajustice.org/simulation/working-with-qualtrics"
           >here</a
         >.

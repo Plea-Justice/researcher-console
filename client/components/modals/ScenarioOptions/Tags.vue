@@ -3,7 +3,7 @@
     <form @submit.prevent="onSubmit()">
       <b-field
         label="Add Variable Name"
-        message="Conditions can be labeled using these variable levels"
+        message="Conditions can be labeled by level of these variables"
       >
         <b-input v-model.trim="groupName" placeholder="e.g. innocence" />
       </b-field>
