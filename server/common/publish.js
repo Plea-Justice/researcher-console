@@ -20,6 +20,8 @@ function multipleReplace(string, replacements) {
     return string;
 }
 
+const colorSlotDefaults = ['Eye', '', '', 'Hair', 'Outfit', 'Skin'];
+
 /**
  * Prepare an Animate asset for use with the simulation by inserting variables.
  *
@@ -61,20 +63,30 @@ function publish(input) {
         [/"#AC3CA(\d)"/gm, 'window.assetPalettes[$1].colors[4]'],
         [/"#AC2CA(\d)"/gm, 'window.assetPalettes[$1].colorsDark[4]'],
 
-        // TODO: Assign all colors slot names instead (color1, color2, etc.) and make dynamic.
+        // TODO: Assign all colors slot names instead (color1, color2, etc.)
         [/"#3CAC3(\d)"/gm, 'window.assetPalettes[$1].colors[1]'],
         [/"#3CACA(\d)"/gm, 'window.assetPalettes[$1].colors[2]'],
 
         // Customizable features (hair, eyes, etc).
         [/(slot(\d)figure(\d)([a-z]+?)(?<!accessory)(\d)[\s\S]*?)(^.*addTween)/gm,
-            // '$1if (window.assetPalettes[$2].features.figure === $3 && window.assetPalettes[$2].features.$4 === $5)$6'
             '$1if (window.assetPalettes[$2].features.$4 === $5)$6'
         ],
 
         // Base layers and accessories.
-        // Accessory layer has number, but number is unused in selection. Only figure.
+        // The accessory layer number is not actually used in selection. The
+        // figure number determines whether the accessory layer is shown or not.
         [/(slot(\d)figure(\d)[a-z\d]+?\s[\s\S]*?)(^.*addTween)/gm,
             '$1if (window.assetPalettes[$2].features.figure === $3)$4'
+        ],
+
+        // Any additional custom layers. Toggle directly on/off with a list.
+        [/(slot(\d)(?!(figure|accessory))([a-z]+?$)[\s\S]*?)(^.*addTween)/gm,
+            '$1if (window.assetPalettes[$2].toggle.includes("$4"))$5'
+        ],
+
+        // Any additional custom layers. Toggle by number.
+        [/(slot(\d)(?!(figure|accessory))([a-z]+?)(\d)$[\s\S]*?)(^.*addTween)/gm,
+            '$1if (window.assetPalettes[$2].numbered["$4"] === $5)$6'
         ],
 
         // Reference to cache directory for bitmap cached assets.
@@ -90,7 +102,88 @@ function publish(input) {
 
     // Mark file as published and write.
     data += '\n// Published.';
-    fs.writeFileSync(filepath, data);
+    fs.writeFileSync(filepath+'.js', data);
+
+    // Count up customizable layers and colors.
+    const colorable
+        = [...(new Set(data.match(/assetPalettes\[\d\].colors\[\d\]/gm))).values()]
+            .map(str => str.match(/\[(?<slot>\d)\].colors\[(?<color>.*?)\]/))
+            .map(match => ({
+                name: `Color ${match.groups.color} (${colorSlotDefaults[match.groups.color]})`,
+                slot: Number(match.groups.slot),
+                type: 'color',
+                color: Number(match.groups.color)
+            }));
+
+    let switchable
+        = [...(new Set(data.match(/assetPalettes\[\d\].features.[a-z]+? === \d/gm))).values()]
+            .map(str => str.match(/\[(?<slot>\d)\].features.(?<feature>[a-z]+?) === (?<num>\d)/))
+            .map(match => ({
+                name: `${match.groups.feature}`,
+                slot: Number(match.groups.slot),
+                type: 'feature',
+                num: Number(match.groups.num)
+            }))
+            .reduce((acc, cur) => {
+                acc[cur.name + cur.slot] = {
+                    ...cur,
+                    range: Math.max(
+                        cur.num,
+                        acc[cur.name + cur.slot]?.range || 0
+                    )
+                };
+                return acc;
+            }, {});
+
+    switchable = Object.values(switchable).map(x => ({
+        name: x.name,
+        slot: x.slot,
+        type: x.type,
+        range: x.range + 1
+    }));
+
+    const toggleable
+        = (data.match(/assetPalettes\[\d\].toggle.includes\(".*?"\)/gm) || [])
+            .map(str => str.match(/\[(?<slot>\d)\].*?includes\("(?<layer>.*?)"/))
+            .map(match => ({
+                name: match.groups.layer,
+                slot: Number(match.groups.slot),
+                type: 'toggle',
+                layer: match.groups.layer
+            }));
+
+    let numbered
+        = (data.match(/assetPalettes\[\d\].numbered\[.*?\] === \d/gm) || [])
+            .map(str => str.match(/\[(?<slot>\d)\].numbered\["(?<layer>.*?)"\] === (?<num>\d)/))
+            .map(match => ({
+                name: match.groups.layer,
+                slot: Number(match.groups.slot),
+                type: 'numbered',
+                layer: match.groups.layer,
+                num: match.groups.num
+            }))
+            .reduce((acc, cur) => {
+                acc[cur.name + cur.slot] = {
+                    ...cur,
+                    range: Math.max(
+                        cur.num,
+                        acc[cur.name + cur.slot]?.range || 0
+                    )
+                };
+                return acc;
+            }, {});
+
+    numbered = Object.values(numbered).map(x => ({
+        name: x.name,
+        slot: x.slot,
+        type: x.type,
+        layer: x.layer,
+        range: x.range + 1
+    }));
+
+
+
+    return [].concat(colorable, switchable, toggleable, numbered);
 }
 
 if (require.main === module) {
@@ -105,9 +198,10 @@ if (require.main === module) {
             if (process.argv.length < 4) throw Error('Option specified with no file.');
         }
 
-        publish(process.argv[option ? 3 : 2]);
+        const result = publish(process.argv[option ? 3 : 2]);
 
         console.log('\033[33mPublished!\033[m');
+        console.log('Customizables:', result);
     } catch(err) {
         console.log('\033[31m' + `\nError: ${err.message}` + '\033[m\n');
         console.log('Usage:    node publish.js <options> <filename>\n');

@@ -134,9 +134,10 @@ module.exports = function (options) {
             try {
                 await req.files.file.mv(filepath);
 
+                let customizables = null;
                 // Insert avatar customization variables into CreateJS assets.
                 if (path.extname(filepath) === '.js')
-                    publish(filepath);
+                    customizables = publish(filepath);
 
                 const asset = new AssetModel({
                     owner: uid,
@@ -147,6 +148,7 @@ module.exports = function (options) {
                     description: req.body.description,
                     public: req.body.public,
                     readOnly: req.body.readOnly,
+                    customizables: customizables
                 });
 
                 await asset.save();

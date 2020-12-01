@@ -15,6 +15,7 @@ const AssetSchema = new mongoose.Schema({
 
     path:       { type: String, required: true, immutable: true },
     type:       { type: String, required: true, immutable: true },
+    customizables: { type: Object, default: [], immutable: true },
 
     // Default
     description: { type: String, default: '' },
