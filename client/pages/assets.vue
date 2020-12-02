@@ -27,7 +27,7 @@
           @click="openSharedModal()"
           :value="sharedMode"
         >
-          Shared Assets
+          Shared Asset Library
         </ToolBarButton>
       </div>
     </template>
@@ -45,7 +45,7 @@
     <!-- If no assets exists -->
     <p v-if="!numMyAssets" class="empty-text has-text-weight-medium is-size-5">
       No assets exist!
-      <br />Add an asset using the toolbar to get started.
+      <br />Upload a visual asset or copy the public templates to get started.
     </p>
 
     <template v-else>

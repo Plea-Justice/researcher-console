@@ -15,7 +15,7 @@
                 label="Insert a link to your Qualtrics survey."
                 position="is-right"
               >
-                <b-icon icon="info-circle" type="is-warning" size="is-small" />
+                <b-icon icon="info-circle" type="is-info" size="is-small" />
               </b-tooltip>
             </template>
             <form-group label="Name" :validator="$v.scenarioForm.name">

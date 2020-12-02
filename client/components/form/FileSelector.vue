@@ -38,6 +38,7 @@
       :value="{ id: file.id, name: file.name }"
     >
       <p>{{ file.name }}</p>
+      <p class="is-size-7">{{ file.description }}</p>
       <small class="flex-item-meta truncate-text">
         <span>
           {{ file.owner === user.name ? "" : `Shared by ${file.owner} ` }}

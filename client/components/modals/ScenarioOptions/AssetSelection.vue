@@ -8,7 +8,18 @@
     :options="assetSet"
     :preselected="assetList"
     @selected="assetList = $event"
-  />
+  >
+  <template v-slot:litem="{ item }">
+    <span>{{item.name}} ({{item.type}})</span>
+    <p class="is-size-7">{{item.description}}</p>
+    <p v-if="item.citation" class="is-size-7"><i>{{item.citation}}</i></p>
+  </template>
+  <template v-slot:ritem="{ item }">
+    <span>{{item.name}} ({{item.type}})</span>
+    <p class="is-size-7">{{item.description}}</p>
+    <p v-if="item.citation" class="is-size-7"><i>{{item.citation}}</i></p>
+  </template>
+  </Shuttle>
 </template>
 
 <script>

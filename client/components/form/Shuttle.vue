@@ -1,7 +1,6 @@
 <template>
   <b-field :label="label">
     <div class="panel tile is-child is-horizontal">
-      {{ preselected }}
       <div class="panel-block is-flex is-justify-content-space-between">
         <p>
           <b>{{ lhead }}</b>
@@ -38,8 +37,8 @@
           v-for="item of filtered()"
           :key="keyfield ? item[keyfield] : item"
         >
-          <b-checkbox v-model="checked" :native-value="item">
-            {{ textfield ? item[textfield] : item }}
+          <b-checkbox v-model="checked" :native-value="item" expanded>
+            <slot name="litem" v-bind:item="item">{{ textfield ? item[textfield] : item }}</slot>
           </b-checkbox>
         </label>
       </template>
@@ -72,8 +71,8 @@
           v-for="item of selections"
           :key="keyfield ? item[keyfield] : item"
         >
-          <b-checkbox v-model="checked" :native-value="item">
-            {{ textfield ? item[textfield] : item }}
+          <b-checkbox v-model="checked" :native-value="item" expanded>
+            <slot name="ritem" v-bind:item="item">{{ textfield ? item[textfield] : item }}</slot>
           </b-checkbox>
         </label>
       </template>

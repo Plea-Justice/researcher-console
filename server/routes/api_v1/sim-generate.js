@@ -98,6 +98,7 @@ async function generateSimulation(options, req) {
         const frameList = scenario.frameList;
         const conditions = scenario.conditions;
         const conditionList = scenario.conditionList;
+        const tags = scenario.tags;
 
         // Requested assets by type.
         const requested = new Map();
@@ -222,7 +223,8 @@ async function generateSimulation(options, req) {
             // 'timelines' array used by simulation to render each in order.
             'conditions': timelines.map((scene_list, i) => ({
                 'name': `Experimental Condition ${i+1}/${timelines.length}`,
-                'scenes': scene_list
+                'scenes': scene_list,
+                'presets': conditions[conditionList[i]].customizations
             })),
             'survey': scenario.survey || '/no-url-set.html'
         };
@@ -231,7 +233,7 @@ async function generateSimulation(options, req) {
 
         // Generate condition summary table.
         const summary = conditionList.reduce((acc, curr, i)=>
-            acc + `<tr><td>${i+1}</td><td>${conditions[curr].tags}</td></tr>`
+            acc + `<tr><td>${i+1}</td><td>${conditions[curr].tags.map(id => tags[id].name)}</td></tr>`
         , '');
 
         util.fileMultipleReplace(path.join(tmpdir, 'index.html'), [
