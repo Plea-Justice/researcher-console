@@ -15,7 +15,9 @@
 
     <div class="asset-meta content is-small">
       <span> Uploaded {{ asset.created | timeToNow }} </span>
-      <span>{{ asset.owner }}</span>
+      <span class="is-pulled-right">{{ asset.owner }}</span>
+      <p>{{ asset.description }}</p>
+      <p v-if="asset.citation">Citation: {{ asset.citation }}</p>
     </div>
 
     <template v-slot:footer>

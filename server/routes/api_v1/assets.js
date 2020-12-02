@@ -146,6 +146,7 @@ module.exports = function (options) {
                     name: name.replace(/\..*?$/, ''),
                     type: req.body.type,
                     description: req.body.description,
+                    citation: req.body.citation,
                     public: req.body.public,
                     readOnly: req.body.readOnly,
                     customizables: customizables
@@ -169,6 +170,44 @@ module.exports = function (options) {
                 );
             }
         }
+    });
+
+
+    /**
+     * Modify an asset
+     */
+    router.put('/:asset_id', async (req, res) => {
+        const id = req.params.asset_id;
+        const uid = req.session.user.id;
+        let result;
+
+        if (options.noclobber) {
+            res.status(400).json(util.failure('Warning: Resource deletion and overwrite disabled.'));
+            return;
+        }
+
+        try {
+            result = await ScenarioModel.updateOne({
+                _id: id,
+                owner: uid
+            }, { $set: {
+                description: req.body.description,
+                citation: req.body.citation,
+                public: req.body.public,
+                readOnly: req.body.readOnly
+            } }, { omitUndefined: true });
+        } catch (err) {
+            res.status(500).json(util.failure('There was an error updating the asset.', err));
+            return;
+        }
+
+        if (result.n !== 1)
+            res.status(400).json(util.failure('The requested asset does not exist.', result));
+        else if (result.nModified !== 1)
+            res.status(400).json(util.failure('The requested asset could not be updated.', result));
+        else
+            res.status(200).json(util.success('Asset updated.'));
+
     });
 
 

@@ -24,6 +24,44 @@
             maxlength="100"
           />
         </b-field>
+
+
+        <b-field
+          label="Share with Others"
+          class="flex-field"
+          :message="
+            scenarioForm.public
+              ? 'You acknowledge that your asset may be used in others\' experiments.'
+              : ''
+          "
+        >
+          <b-tooltip
+            :active="!user.permitSharing"
+            label="You're not permitted share files, request persmission from an admin"
+            position="is-bottom"
+            type="is-info is-light"
+          >
+            <b-switch
+              :disabled="!user.permitSharing"
+              v-model="scenarioForm.public"
+              type="is-info"
+            >
+              Make Public
+            </b-switch>
+          </b-tooltip>
+        </b-field>
+
+
+
+        <b-field label="Citation"
+          v-if="scenarioForm.public" message="This is how others will cite your work.">
+          <b-input
+            v-model="scenarioForm.citation"
+            placeholder="e.g. Smith, J. (2020). Title of artwork [Digital]."
+            customClass="has-fixed-size"
+            maxlength="100"
+          />
+        </b-field>
       </section>
 
       <footer class="modal-card-foot">
@@ -44,12 +82,18 @@ import { toPascalCase } from "~/assets/util";
 
 export default {
   props: {
+    user: {
+      type: Object,
+      required: true
+    },
     scenario: Object
   },
   data() {
     const scenarioForm = {
       name: "",
       description: "",
+      public: false,
+      citation: "",
       ...this.scenario
     }
 

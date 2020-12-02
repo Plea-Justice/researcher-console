@@ -55,8 +55,26 @@
           />
         </b-field>
 
+        <b-field label="Description">
+          <b-input
+            v-model="assetForm.description"
+            type="textarea"
+            placeholder="Description"
+            customClass="has-fixed-size"
+            maxlength="100"
+          />
+        </b-field>
+
         <div class="flex-field-wrapper">
-          <b-field label="Share with Others" class="flex-field">
+          <b-field
+            label="Share with Others"
+            class="flex-field"
+            :message="
+              assetForm.public
+                ? 'You acknowledge that your asset may be used in others\' experiments.'
+                : ''
+            "
+          >
             <b-tooltip
               :active="!user.permitSharing"
               label="You're not permitted share files, request persmission from an admin"
@@ -74,6 +92,17 @@
           </b-field>
           <HelpSidebar :text="assetsHelp.sharing" title="Asset Types" />
         </div>
+
+
+        <b-field label="Citation"
+          v-if="assetForm.public" message="This is how others will cite your work.">
+          <b-input
+            v-model="assetForm.citation"
+            placeholder="e.g. Smith, J. (2020). Title of artwork [Digital]."
+            customClass="has-fixed-size"
+            maxlength="100"
+          />
+        </b-field>
       </section>
 
       <footer class="modal-card-foot">
@@ -111,6 +140,8 @@ export default {
         file: null,
         public: false,
         readOnly: false,
+        description: "",
+        citation: "",
         ...this.asset
       }
     };

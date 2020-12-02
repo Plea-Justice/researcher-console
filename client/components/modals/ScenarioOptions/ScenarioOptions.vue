@@ -58,14 +58,41 @@
             </form-group>
 
             <form-group label="Share with Others">
-              <b-field>
-                <b-switch
-                  :disabled="!user.permitSharing"
-                  v-model="scenarioForm.public"
-                  type="is-success"
+              <b-field
+                class="flex-field"
+                :message="
+                  scenarioForm.public
+                    ? 'You acknowledge that your asset may be used in others\' experiments.'
+                    : ''
+                "
+              >
+                <b-tooltip
+                  :active="!user.permitSharing"
+                  label="You're not permitted share files, request persmission from an admin"
+                  position="is-bottom"
+                  type="is-info is-light"
                 >
-                  Make Public
-                </b-switch>
+                  <b-switch
+                    :disabled="!user.permitSharing"
+                    v-model="scenarioForm.public"
+                    type="is-info"
+                  >
+                    Make Public
+                  </b-switch>
+                </b-tooltip>
+              </b-field>
+            </form-group>
+
+            <form-group v-if="scenarioForm.public" label="Citation">
+              <b-field
+                message="This is how others will cite your work."
+              >
+                <b-input
+                  v-model="scenarioForm.citation"
+                  placeholder="e.g. Smith, J. (2020). Title of artwork [Digital]."
+                  customClass="has-fixed-size"
+                  maxlength="100"
+                />
               </b-field>
             </form-group>
           </b-tab-item>
@@ -122,6 +149,7 @@ import { helpers } from "vuelidate/lib/validators";
 
 // Content for help fields
 import { scenarioOptionsHelp } from "~/assets/helpText";
+import FormGroup from "../../form/FormGroup.vue";
 
 export default {
   name: "ScenarioOptions",

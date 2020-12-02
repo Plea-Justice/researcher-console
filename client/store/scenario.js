@@ -11,6 +11,7 @@ const initialState = () => ({
   meta: {
     name: '',
     description: '',
+    citation: '',
     survey: '',
     live: '',
     public: false,

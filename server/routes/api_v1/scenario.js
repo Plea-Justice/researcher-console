@@ -51,6 +51,7 @@ module.exports = function (options) {
                 author:      uid,
                 name:       req.body.meta?.name,
                 description: req.body.meta?.description,
+                citation: req.body.meta?.citation,
                 survey:     req.body.meta?.survey,
                 live:       req.body.meta?.live,
                 public:     req.body.meta?.public,
@@ -188,6 +189,7 @@ module.exports = function (options) {
             }, { $set: {
                 name:       req.body.meta?.name,
                 description: req.body.meta?.description,
+                citation: req.body.meta?.citation,
                 survey:     req.body.meta?.survey,
                 live:       req.body.meta?.live,
                 public:     req.body.meta?.public,

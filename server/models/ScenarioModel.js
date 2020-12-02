@@ -15,6 +15,7 @@ const ScenarioSchema = new mongoose.Schema({
 
     // Default
     description: { type: String, default: '' },
+    citation:   { type: String, default: '' },
     public:     { type: Boolean, default: false },
     readOnly:   { type: Boolean, default: false },
     created:    { type: Date, default: Date.now },
@@ -50,6 +51,7 @@ ScenarioSchema.virtual('meta')
             author:     this.author?.username,
 
             description: this.description,
+            citation:   this.citation,
             public:     this.public,
             readOnly:   this.readOnly,
             created:    this.created,

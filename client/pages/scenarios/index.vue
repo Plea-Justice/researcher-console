@@ -122,7 +122,7 @@ export default {
       this.$buefy.modal.open({
         parent: this,
         component: ScenarioForm,
-        props: { scenario },
+        props: { scenario, user: this.user },
         hasModalCard: true,
         trapFocus: true
       });

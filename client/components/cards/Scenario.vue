@@ -9,13 +9,15 @@
     <p class="content description" v-if="scenario.description">
       {{ scenario.description }}
     </p>
-    <p class="content is-small">
+    <div class="content is-small">
       <span v-if="scenario.modified !== scenario.created">
         Last Modified {{ scenario.modified | timeToNow }}
         <br />
       </span>
       <span>Created {{ scenario.created | timeToNow }}</span>
-    </p>
+      <span class="is-pulled-right">{{ scenario.owner }}</span>
+      <p v-if="scenario.citation">Citation: {{scenario.citation}}</p>
+    </div>
     <template v-slot:footer>
       <b-taglist style="margin-left: auto">
         <b-tag v-if="scenario.public" type="is-info">Public</b-tag>

@@ -19,6 +19,7 @@ const AssetSchema = new mongoose.Schema({
 
     // Default
     description: { type: String, default: '' },
+    citation: { type: String, default: '' },
     public:     { type: Boolean, default: false },
     readOnly:   { type: Boolean, default: false },
     created:    { type: Date, default: Date.now },
@@ -38,13 +39,14 @@ AssetSchema.virtual('meta')
             author:     this.author?.username,
 
             description: this.description,
+            citation:   this.citation,
             public:     this.public,
             readOnly:   this.readOnly,
             created:    this.created,
             modified:   this.modified,
             version:    this.version,
 
-            path:     this.path,
+            path:       this.path,
             type:       this.type
         };
     });
