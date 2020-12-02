@@ -102,7 +102,7 @@ function publish(input) {
 
     // Mark file as published and write.
     data += '\n// Published.';
-    fs.writeFileSync(filepath+'.js', data);
+    fs.writeFileSync(filepath, data);
 
     // Count up customizable layers and colors.
     const colorable

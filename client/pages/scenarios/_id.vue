@@ -29,7 +29,7 @@
             >
               <span>Options</span>
               <b-tooltip
-                v-if="!scenarioMeta.survey || scenarioMeta.assetList.length < 1"
+                v-if="!scenarioMeta.survey || scenarioAssetList.length < 1"
                 class="ml-3 is-pulled-right"
                 label="Check that your scenario options are filled."
                 position="is-right"
@@ -241,6 +241,7 @@ export default {
     ...mapGetters({
       scenarioMeta: "scenario/scenarioMeta",
       scenarioStatus: "scenario/status",
+      scenarioAssetList: "scenario/assetList",
       numScenes: "scenario/numScenes",
       frameSet: "scenario/frameSet",
     }),

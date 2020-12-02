@@ -149,6 +149,9 @@ export default {
             message: "Preview ready, check that pop-ups are enabled.",
             type: "is-success",
           });
+
+          window.open(`${process.env.API_URL}/sim-prev/sim-${this.scenarioMeta.id}/`,);
+
         } catch (error) {
           cancel = true;
           loadingToast?.close();

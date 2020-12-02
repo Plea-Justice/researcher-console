@@ -59,8 +59,7 @@ ScenarioSchema.virtual('meta')
             version:    this.version,
 
             survey:     this.survey,
-            live:       this.live,
-            assetList:  this.assetList
+            live:       this.live
         };
     });
 
@@ -78,7 +77,8 @@ ScenarioSchema.virtual('data')
             tags:       this.tags,
             tagSets:    this.tagSets,
             tagSetList: this.tagSetList,
-            status:     this.status
+            status:     this.status,
+            assetList:  this.assetList
         };
     });
 

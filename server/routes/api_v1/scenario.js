@@ -56,7 +56,7 @@ module.exports = function (options) {
                 live:       req.body.meta?.live,
                 public:     req.body.meta?.public,
                 readOnly:   req.body.meta?.readOnly,
-                assetList:  req.body.meta?.assetList,
+                assetList:  req.body.assetList,
                 numScenes:  req.body.numScenes,
                 scenes:     req.body.scenes,
                 frames:     req.body.frames,
@@ -203,7 +203,7 @@ module.exports = function (options) {
                 tags:       req.body.tags,
                 tagSets:    req.body.tagSets,
                 tagSetList: req.body.tagSetList,
-                assetList:  req.body.meta?.assetList,
+                assetList:  req.body.assetList,
                 status:     req.body.status,
                 modified:   Date.now()
             } }, { omitUndefined: true });

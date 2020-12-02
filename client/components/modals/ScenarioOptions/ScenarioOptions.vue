@@ -103,7 +103,7 @@
               <span>Assets</span>
               <!-- FIXME: Tooltip position is-right because other positions appear under tab body or card header. -->
               <b-tooltip
-                v-if="scenarioForm.assetList.length < 1"
+                v-if="scenarioAssetList.length < 1"
                 label="Select assets from your library to use in this scenario."
                 position="is-right"
               >
@@ -133,7 +133,7 @@
 
 <script>
 // Import VueX
-import { mapActions } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 
 // Import Mixins
 import User from "~/mixins/User";
@@ -191,6 +191,9 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      scenarioAssetList: "scenario/assetList"
+    }),
     surveyWarn() {
       let status = false;
       if (this.scenarioForm.survey === "") {

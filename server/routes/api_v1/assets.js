@@ -293,10 +293,11 @@ module.exports = function (options) {
             });
 
             const matches = scenarios.filter(scenario =>
-                scenario.meta.assetList.includes(asset_id));
+                scenario.data.assetList.includes(asset_id));
 
             res.json(util.success('Returned scenarios that reference the asset.',  matches.map(x => x.meta)));
         } catch (err) {
+            console.log(err)
             res.status(500).json(util.failure('References to the asset could not be checked.', err));
         }
     });

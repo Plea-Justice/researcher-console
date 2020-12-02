@@ -47,7 +47,8 @@ AssetSchema.virtual('meta')
             version:    this.version,
 
             path:       this.path,
-            type:       this.type
+            type:       this.type,
+            customizables: this.customizables
         };
     });
 
