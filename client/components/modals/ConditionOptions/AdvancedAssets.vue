@@ -6,71 +6,89 @@
       </p>
     </header>
     <section class="modal-card-body">
+      <i>This is an experimental feature. Check back later.</i>
       <b-tabs v-model="selectedSlotIndex" expanded multiline>
-        <template v-for="(slot, index) in slots">
-          <b-tab-item
-            :key="slot.id"
-            :value="index.toString()"
-            :label="`${index} ${special[index] ? ` (${special[index]})` : ''}`"
-          >
-            <div class="buttons">
-              <b-button type="is-primary"> Reset This Slot </b-button>
-              <b-button type="is-primary"> Reset All Slots </b-button>
+        <template v-for="(slot, index) in customizableSlots">
+          <b-tab-item :key="index" :value="index.toString()">
+            <template v-slot:header>
+              <span>Slot #{{ index }}</span>
+            </template>
+
+            <b-button class="is-small is-pulled-right" type="is-primary">
+              Reset This Slot
+            </b-button>
+
+            <div class="is-size-7">
+              <p class="mb-1">Used by assets:</p>
+              <b-taglist>
+                <b-tag v-for="asset in slot.assets" :key="asset">{{
+                  asset
+                }}</b-tag>
+              </b-taglist>
             </div>
 
             <div class="flex-fields">
-              <div class="numberinputs">
-                <b-field label="Figure" :message="figures[selectedSlot.figure]">
+
+              <div v-if="slot.features.length > 0" class="numberinputs">
+                <h2 class="subtitle">Features</h2>
+                <b-field
+                  v-for="feature in slot.features"
+                  :key="feature"
+                  :label="feature.name | capitalize"
+                >
                   <b-numberinput
                     v-model="selectedSlot.figure"
                     size="is-small"
                     min="0"
-                    :max="figures.length - 1"
-                    controls-position="compact"
-                  />
-                </b-field>
-                <b-field label="Eyes" :message="eyes[selectedSlot.eyes]">
-                  <b-numberinput
-                    v-model="selectedSlot.eyes"
-                    size="is-small"
-                    min="0"
-                    :max="eyes.length - 1"
-                    controls-position="compact"
-                  />
-                </b-field>
-                <b-field label="Hair" :message="hair[selectedSlot.hair]">
-                  <b-numberinput
-                    v-model="selectedSlot.hair"
-                    size="is-small"
-                    min="0"
-                    :max="hair.length - 1"
+                    :max="feature.range - 1"
                     controls-position="compact"
                   />
                 </b-field>
               </div>
 
-              <div>
+              <div v-if="slot.colors.length > 0">
                 <h2 class="subtitle">Colors</h2>
                 <b-field grouped group-multiline>
                   <b-field
-                    v-for="(color, index) in selectedSlot.colors"
-                    :key="`${selectedSlot.id}:${index}:${colors[index]}`"
-                    :label="colors[index]"
+                    v-for="colorfield in slot.colors"
+                    :key="colorfield.color"
+                    :label="colorfield.name"
                   >
-                    <ColorInput v-model="selectedSlot.colors[index]" />
+                    <ColorInput
+                      v-model="selectedSlot.colors[colorfield.color]"
+                    />
                   </b-field>
                 </b-field>
               </div>
 
-              <b-field label="Additional Layers (JSON)">
-                <b-input
-                  v-model="selectedSlot.custom"
-                  type="textarea"
-                  size="is-small"
-                  custom-class="has-fixed-size"
-                  placeholder="{ layer: true, layer2: false }"
-                />
-              </b-field>
+              <div v-if="slot.toggleables.length > 0">
+                <h2 class="subtitle">Toggleable Layers</h2>
+                <b-field grouped group-multiline>
+                  <b-field
+                    v-for="colorfield in slot.toggleables"
+                    :key="colorfield.color"
+                    :label="colorfield.name"
+                  >
+                    <b-switch></b-switch>
+                  </b-field>
+                </b-field>
+              </div>
+
+              <div v-if="slot.numbered.length > 0" class="numberinputs">
+                <h2 class="subtitle">Selectable Layers</h2>
+                <b-field
+                  v-for="layer in slot.numbered"
+                  :key="layer"
+                  :label="layer.name | capitalize"
+                >
+                  <b-numberinput
+                    size="is-small"
+                    min="0"
+                    :max="layer.range - 1"
+                    controls-position="compact"
+                  />
+                </b-field>
+              </div>
             </div>
           </b-tab-item>
         </template>
@@ -84,6 +102,9 @@
 </template>
 
 <script>
+// vuex
+import { mapGetters } from "vuex";
+
 // Import Components
 import ColorInput from "~/components/form/ColorInput";
 
@@ -93,12 +114,12 @@ export default {
   props: {
     index: {
       type: Number,
-      required: true,
+      required: true
     },
     condition: {
       type: Object,
-      required: true,
-    },
+      required: true
+    }
   },
   data() {
     // Initialize slots with the actor defaults.
@@ -110,7 +131,7 @@ export default {
         hair: 0,
         eyes: 0,
         colors: new Array(6).fill(""),
-        custom: "",
+        custom: ""
       }));
     const slots = init();
 
@@ -125,7 +146,7 @@ export default {
       figures: ["Masculine Figure", "Feminine Figure"],
       colors: ["Eyes", "None", "None", "Hair", "Outfit", "Skin"],
 
-      disableAvatar: true,
+      disableAvatar: true
     };
   },
   watch: {
@@ -137,9 +158,78 @@ export default {
     // },
   },
   computed: {
+    ...mapGetters({
+      scenarioAssetList: "scenario/assetList",
+      assets: "assets/assets"
+    }),
+    // The list of assets for this scenario which can be customized.
+    customizableAssets() {
+      return this.scenarioAssetList.reduce(
+        (acc, id) =>
+          this.assets[id].customizables?.length > 0
+            ? acc.concat([this.assets[id]])
+            : acc,
+        []
+      );
+    },
+    // The reduced set of customization slots for the asset list.
+    customizableSlots() {
+      const slots = {};
+
+      const customizables = this.customizableAssets.reduce((acc, asset) => {
+        asset.customizables.forEach(obj => {
+          if (!slots[obj.slot])
+            slots[obj.slot] = {
+              // List of assets utilizing this slot.
+              assets: new Set(),
+              // List of customizable colors in this slot.
+              colors: [],
+              // List of customizable features in this slot.
+              features: [],
+              // Lists of custom layers in this slot.
+              toggleables: [],
+              numbered: []
+            };
+
+          slots[obj.slot].assets.add(asset.name);
+          switch (obj.type) {
+            case "color":
+              slots[obj.slot].colors.push({ name: obj.name, color: obj.color });
+              break;
+            case "feature":
+              slots[obj.slot].features.push({
+                name: obj.name,
+                range: obj.range
+              });
+              break;
+            case "toggleable":
+              slots[obj.slot].toggleables.push({
+                name: obj.name,
+                range: obj.range
+              });
+              break;
+            case "numbered":
+              slots[obj.slot].numbered.push({
+                name: obj.name,
+                range: obj.range
+              });
+              break;
+            default:
+          }
+        });
+
+        return acc.concat(asset.customizables);
+      }, []);
+
+      Object.values(slots).forEach(
+        slot => (slot.assets = [...slot.assets.values()])
+      );
+
+      return slots;
+    },
     selectedSlot() {
       return this.slots[this.selectedSlotIndex] || null;
-    },
+    }
   },
   methods: {
     onSubmit() {
@@ -148,8 +238,8 @@ export default {
       // this.condition.customizations = this.slots;
 
       this.$parent.close();
-    },
-  },
+    }
+  }
 };
 </script>
 

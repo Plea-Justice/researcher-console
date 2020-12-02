@@ -5,7 +5,7 @@
     rhead="Selected for Use"
     keyfield="id"
     textfield="name"
-    :options="assetSet"
+    :options="assetSet.filter(asset => asset.owner === user.name)"
     :preselected="assetList"
     @selected="assetList = $event"
   >
@@ -28,12 +28,15 @@ import Shuttle from "~/components/form/Shuttle";
 
 // Import VueX
 import { mapGetters, mapActions } from "vuex";
+import User from "~/mixins/User";
 
 export default {
   components: { Shuttle },
+  mixins: [User],
   computed: {
     ...mapGetters({
       assetSet: "assets/assetSet",
+      assets: "assets/assets",
       getAssetList: "scenario/assetList",
     }),
     assetList: {
