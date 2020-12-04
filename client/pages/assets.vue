@@ -1,8 +1,8 @@
 <template>
   <ItemLayout
-    :contentTitle="
-      `My Assets: ${this.selectedType} ${`(${this.numSelectedAssets})` || ''}`
-    "
+    :contentTitle="`My Assets: ${this.selectedType} ${
+      `(${this.numSelectedAssets})` || ''
+    }`"
     helpTitle="Asset Management"
     :helpText="assetsHelp.navbar"
   >
@@ -54,15 +54,15 @@
 
         <div class="item-grid">
           <template v-for="asset in myAssetsByType[type]">
-          <Asset
-            :key="asset.id"
-            :asset="asset"
-            v-if="asset.owner === user.name"
-            remove
-            @remove="confirmDelete($event)"
-            edit
-            @edit="openFormModal(asset)"
-          />
+            <Asset
+              :key="asset.id"
+              :asset="asset"
+              v-if="asset.owner === user.name"
+              remove
+              @remove="confirmDelete($event)"
+              edit
+              @edit="openFormModal(asset)"
+            />
           </template>
         </div>
       </div>
@@ -82,7 +82,7 @@ import ItemLayout from "~/components/layouts/ItemLayout";
 import ToolBarButton from "~/components/ToolBarButton";
 import Asset from "~/components/cards/Asset";
 import AssetForm from "~/components/modals/AssetForm";
-import HelpSidebar from "~/components/HelpSidebar";
+import Help from "~/components/modals/Help";
 import DeleteAsset from "../components/modals/DeleteAsset";
 import SharedAssets from "~/components/modals/SharedAssets";
 
@@ -92,7 +92,7 @@ import { assetsHelp } from "~/assets/helpText";
 export default {
   name: "Scenarios",
   mixins: [User],
-  components: { ItemLayout, ToolBarButton, Asset, HelpSidebar },
+  components: { ItemLayout, ToolBarButton, Asset, Help },
   async fetch({ store, params }) {
     await store.dispatch("assets/getAssets");
   },
@@ -103,16 +103,16 @@ export default {
 
       addMode: false,
       sharedMode: false,
-      selectedType: "all"
+      selectedType: "all",
     };
   },
   computed: {
     ...mapGetters({
-      assetSet: "assets/assetSet"
+      assetSet: "assets/assetSet",
     }),
     myAssetsByType() {
       return this.assetSet
-        .filter(asset => asset.owner === this.user.name)
+        .filter((asset) => asset.owner === this.user.name)
         .reduce(
           (obj, asset) => (
             obj[asset.type]
@@ -144,7 +144,7 @@ export default {
     },
     hasSharedAssets() {
       return this.numMyAssets < this.assetSet.length;
-    }
+    },
   },
   methods: {
     openFormModal(asset) {
@@ -153,7 +153,7 @@ export default {
         component: AssetForm,
         props: { user: this.user, asset },
         hasModalCard: true,
-        trapFocus: true
+        trapFocus: true,
       });
     },
     openSharedModal() {
@@ -161,11 +161,11 @@ export default {
         parent: this,
         component: SharedAssets,
         hasModalCard: true,
-        trapFocus: true
+        trapFocus: true,
       });
     },
     ...mapActions({
-      removeAsset: "assets/removeAsset"
+      removeAsset: "assets/removeAsset",
     }),
     confirmDelete(id) {
       let name = "";
@@ -181,9 +181,9 @@ export default {
         props: { id, name, onConfirm: () => this.removeAsset(id) },
         hasModalCard: true,
         customClass: "dialog",
-        trapFocus: true
+        trapFocus: true,
       });
-    }
+    },
   },
   head() {
     return {
@@ -192,11 +192,11 @@ export default {
         {
           hid: "description",
           name: "description",
-          content: "List of available assets"
-        }
-      ]
+          content: "List of available assets",
+        },
+      ],
     };
-  }
+  },
 };
 </script>
 

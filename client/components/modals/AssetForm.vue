@@ -29,7 +29,7 @@
                 {{ assetForm.file.name }}
               </span>
             </b-upload>
-            <HelpSidebar
+            <Help
               :text="assetsHelp.upload"
               title="Asset Uploads"
               class="control"
@@ -44,15 +44,11 @@
             expanded
             required
           >
-            <option v-for="type in allAssetTypes" :key="type" :value="type">{{
-              type | capitalize
-            }}</option>
+            <option v-for="type in allAssetTypes" :key="type" :value="type">
+              {{ type | capitalize }}
+            </option>
           </b-select>
-          <HelpSidebar
-            :text="assetsHelp.type"
-            title="Asset Types"
-            class="control"
-          />
+          <Help :text="assetsHelp.type" title="Asset Types" class="control" />
         </b-field>
 
         <b-field label="Description">
@@ -90,12 +86,14 @@
               </b-switch>
             </b-tooltip>
           </b-field>
-          <HelpSidebar :text="assetsHelp.sharing" title="Asset Types" />
+          <Help :text="assetsHelp.sharing" title="Asset Types" />
         </div>
 
-
-        <b-field label="Citation"
-          v-if="assetForm.public" message="This is how others will cite your work.">
+        <b-field
+          label="Citation"
+          v-if="assetForm.public"
+          message="This is how others will cite your work."
+        >
           <b-input
             v-model="assetForm.citation"
             placeholder="e.g. Smith, J. (2020). Title of artwork [Digital]."
@@ -122,15 +120,15 @@ import { mapGetters, mapActions } from "vuex";
 import { assetsHelp } from "~/assets/helpText";
 
 // Import Components
-import HelpSidebar from "~/components/HelpSidebar";
+import Help from "~/components/modals/Help";
 
 export default {
   props: {
     user: {
       type: Object,
-      required: true
+      required: true,
     },
-    asset: Object
+    asset: Object,
   },
   data() {
     return {
@@ -142,23 +140,23 @@ export default {
         readOnly: false,
         description: "",
         citation: "",
-        ...this.asset
-      }
+        ...this.asset,
+      },
     };
   },
-  components: { HelpSidebar },
+  components: { Help },
   computed: {
     addMode() {
       return !this.asset;
     },
     ...mapGetters({
       assetSet: "assets/assetSet",
-      allAssetTypes: "assets/allAssetTypes"
-    })
+      allAssetTypes: "assets/allAssetTypes",
+    }),
   },
   methods: {
     ...mapActions({
-      addAsset: "assets/addAsset"
+      addAsset: "assets/addAsset",
     }),
     onSubmit() {
       // If that filename already exists
@@ -172,7 +170,7 @@ export default {
       ) {
         this.$buefy.toast.open({
           message: "An asset with the same filename already exists",
-          type: "is-danger"
+          type: "is-danger",
         });
 
         this.assetForm.file = null;
@@ -180,7 +178,7 @@ export default {
       } else if (this.assetForm.file.size > 1024 * 1024 * 20) {
         this.$buefy.toast.open({
           message: `${this.assetForm.file.name} is too large, cannot upload field larger than 20MiB.`,
-          type: "is-danger"
+          type: "is-danger",
         });
       } else {
         // Add the scenario to state
@@ -191,8 +189,8 @@ export default {
           this.$parent.close();
         } catch (error) {}
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

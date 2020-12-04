@@ -451,7 +451,6 @@ export default {
 }
 
 .toolbar-horizontal-sticky {
-  z-index: $buefyOverlapIndex + 2;
   left: 0;
 }
 

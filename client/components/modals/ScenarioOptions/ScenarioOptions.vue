@@ -49,7 +49,7 @@
                   @blur="setFocus(false)"
                   expanded
                 />
-                <HelpSidebar
+                <Help
                   :text="optionsHelp.url"
                   title="Survey URL"
                   class="control"
@@ -84,9 +84,7 @@
             </form-group>
 
             <form-group v-if="scenarioForm.public" label="Citation">
-              <b-field
-                message="This is how others will cite your work."
-              >
+              <b-field message="This is how others will cite your work.">
                 <b-input
                   v-model="scenarioForm.citation"
                   placeholder="e.g. Smith, J. (2020). Title of artwork [Digital]."
@@ -139,7 +137,7 @@ import { mapGetters, mapActions } from "vuex";
 import User from "~/mixins/User";
 
 // Import Components
-import HelpSidebar from "~/components/HelpSidebar";
+import Help from "~/components/modals/Help";
 import AssetSelection from "~/components/modals/ScenarioOptions/AssetSelection";
 import Tags from "~/components/modals/ScenarioOptions/Tags";
 
@@ -154,7 +152,7 @@ import FormGroup from "../../form/FormGroup.vue";
 export default {
   name: "ScenarioOptions",
   mixins: [User],
-  components: { HelpSidebar, AssetSelection, Tags },
+  components: { Help, AssetSelection, Tags },
   props: {
     openTab: String,
   },
@@ -192,7 +190,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      scenarioAssetList: "scenario/assetList"
+      scenarioAssetList: "scenario/assetList",
     }),
     surveyWarn() {
       let status = false;

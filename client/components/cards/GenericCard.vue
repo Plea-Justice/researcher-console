@@ -41,32 +41,20 @@ export default {
     selectable: Boolean,
     invalid: Boolean,
     // Sets if component is in a collapsed state (only header, with flex styling properties)
-    collapsed: Boolean
-  },
-  created() {
-    this.$nextTick(() => this.setShowSlots());
-  },
-  beforeUpdate() {
-    this.$nextTick(() => this.setShowSlots());
-  },
-  data() {
-    return {
-      emptyHeader: false,
-      emptyFooter: false
-    };
+    collapsed: Boolean,
   },
   computed: {
     headerModeStyle() {
       // When collapsed style header as body
       return this.collapsed ? "card-content" : "card-header";
-    }
+    },
+    emptyHeader() {
+      return !this.$slots.header?.[0];
+    },
+    emptyFooter() {
+      return !this.$slots.footer?.[0];
+    },
   },
-  methods: {
-    setShowSlots() {
-      this.emptyHeader = !this.$slots.header?.[0];
-      this.emptyFooter = !this.$slots.footer?.[0];
-    }
-  }
 };
 </script>
 

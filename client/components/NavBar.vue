@@ -1,5 +1,5 @@
 <template>
-  <b-navbar type="is-dark">
+  <b-navbar type="is-dark" class="navbar">
     <template slot="brand">
       <b-navbar-item :tag="path ? 'n-link' : 'div'" :to="path || null">
         <h1 class="subtitle has-text-light">
@@ -60,7 +60,7 @@
         </b-button>
 
         <!-- Help Menu -->
-        <HelpSidebar v-if="helpText" :title="helpTitle" :text="helpText" />
+        <Help v-if="helpText" :title="helpTitle" :text="helpText" />
       </b-navbar-item>
     </template>
   </b-navbar>
@@ -71,7 +71,7 @@
 import User from "~/mixins/User";
 
 // Import Components
-import HelpSidebar from "~/components/HelpSidebar";
+import Help from "~/components/modals/Help";
 
 // Import Utilities
 import { noop } from "~/assets/util";
@@ -79,7 +79,7 @@ import { noop } from "~/assets/util";
 export default {
   name: "NavBar",
   mixins: [User],
-  components: { HelpSidebar },
+  components: { Help },
   props: {
     title: {
       type: String,
@@ -118,7 +118,12 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+// Fix since navbar needs to be higher index than toolbar/conditionbar to open help modal
+.navbar {
+  z-index: 9 !important;
+}
+
 .hide-if-empty:empty {
   display: none;
 }
