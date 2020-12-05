@@ -216,7 +216,7 @@ export default {
         mutation.type.startsWith("scenario/") &&
         !excludedMutators.includes(mutation.type)
       ) {
-        // Else for any mutation in 'scenario' store (except excludions)
+        // Else for any mutation in 'scenario' store (except exclusions)
         this.scenarioStoreHasChanged = true;
       }
     });

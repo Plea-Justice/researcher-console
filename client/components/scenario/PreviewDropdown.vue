@@ -36,7 +36,7 @@ import { mapActions, mapGetters } from "vuex";
 
 // Import Mixins
 import User from "~/mixins/User";
-// import ButtonState from "~/mixins/ButtonState";
+import ButtonStateMixin, { ButtonState } from "~/mixins/ButtonState";
 
 // Import Components
 import ToolBarButton from "~/components/ToolBarButton";
@@ -44,7 +44,7 @@ import SimulationLink from "~/components/modals/SimulationLink";
 
 export default {
   components: { ToolBarButton, SimulationLink },
-  mixins: [User],
+  mixins: [User, ButtonStateMixin],
   props: {
     scenarioMeta: {
       type: Object,
@@ -55,46 +55,14 @@ export default {
     },
   },
   data() {
-    const ButtonStatus = {
-      NORMAL: 0,
-      ERROR: 1,
-      SUCCESS: 2,
-    };
-
-    class ButtonState {
-      constructor() {
-        (this.loading = false), (this.status = ButtonStatus.NORMAL);
-      }
-
-      type(baseType = "") {
-        let type = baseType;
-        if (this.status === ButtonStatus.ERROR) type = "is-danger";
-        else if (this.status === ButtonStatus.SUCCESS) type = "is-success";
-        return type;
-      }
-
-      icon(baseIcon = "") {
-        let icon = baseIcon;
-        if (this.status === ButtonStatus.ERROR) icon = "times";
-        else if (this.status === ButtonStatus.SUCCESS) icon = "check";
-        return icon;
-      }
-
-      setTempStatus(status, duration = 2000) {
-        if (this.loading) this.loading = false;
-        this.status = status;
-
-        setTimeout(() => {
-          this.status = ButtonStatus.NORMAL;
-        }, duration);
-      }
-    }
-
     return {
-      ButtonStatus,
-      previewState: new ButtonState(),
-      publishState: new ButtonState(),
+      previewState: null,
+      publishState: null,
     };
+  },
+  created() {
+    this.previewState = new ButtonState(this.ButtonStatus);
+    this.publishState = new ButtonState(this.ButtonStatus);
   },
   computed: {
     ...mapGetters({
@@ -110,7 +78,6 @@ export default {
       // TODO: Ask on unsaved, invalid, etc.
       // Create an array of warnings & display the messages accordingly
       if (!this.scenarioMeta.survey) {
-        // FIXME: Make this a component
         this.$buefy.dialog.confirm({
           title: "Survey Redirect Not Set",
           message:
@@ -150,8 +117,9 @@ export default {
             type: "is-success",
           });
 
-          window.open(`${process.env.API_URL}/sim-prev/sim-${this.scenarioMeta.id}/`,);
-
+          window.open(
+            `${process.env.API_URL}/sim-prev/sim-${this.scenarioMeta.id}/`
+          );
         } catch (error) {
           cancel = true;
           loadingToast?.close();
@@ -174,28 +142,29 @@ export default {
       }, 100);
 
       try {
-        await this.$axios.post(
+        const response = await this.$axios.post(
           `/api/v1/scenarios/${this.scenarioMeta.id}/download`
         );
+      } finally {
+        this.cancel = true;
+        this.loadingToast?.close();
 
-        // FIXME: succesful return needs to be tested
-        cancel = true;
-        this.publishState.setTempStatus(this.ButtonStatus.SUCCESS);
-        this.$buefy.toast.open({
-          queue: false,
-          duration: 2000,
-          message: "Download ready, check that pop-ups are enabled.",
-          type: "is-success",
-        });
-        window.open(
-          `${process.env.API_URL}/sim-prev/sim-${this.scenarioMeta.id}.zip`
+        this.publishState.setTempStatus(
+          response.success ? this.ButtonStatus.SUCCESS : this.ButtonStatus.ERROR
         );
-      } catch (err) {
-        console.log(err);
 
-        cancel = true;
-        loadingToast?.close();
-        this.publishState.setTempStatus(this.ButtonStatus.ERROR);
+        if (response.success) {
+          this.$buefy.toast.open({
+            queue: false,
+            duration: 2000,
+            message: "Download ready, check that pop-ups are enabled.",
+            type: "is-success",
+          });
+
+          window.open(
+            `${process.env.API_URL}/sim-prev/sim-${this.scenarioMeta.id}.zip`
+          );
+        }
       }
     },
     async publish(title, message, method, url, data) {
@@ -223,17 +192,10 @@ export default {
           }, 100);
 
           try {
-            await this.$axios.post(
+            const response = await this.$axios.post(
               `/api/v1/scenarios/${this.scenarioMeta.id}/publish`,
               { password: pass }
             );
-
-            let cancel = true;
-            loadingToast?.close();
-            this.$buefy.toast.open({
-              message: "Live simulation ready.",
-              type: "is-success",
-            });
 
             this.updateMeta({
               live: `${process.env.LIVE_URL}/sim-${this.scenarioMeta.id}/simulation.html`,
@@ -241,12 +203,22 @@ export default {
             this.saveMeta();
 
             this.liveURLPopup();
-          } catch (err) {
-            console.log(err);
-
+          } finally {
             let cancel = true;
             loadingToast?.close();
-            this.publishState.setTempStatus(this.ButtonStatus.ERROR);
+
+            this.publishState.setTempStatus(
+              response.success
+                ? this.ButtonStatus.SUCCESS
+                : this.ButtonStatus.ERROR
+            );
+
+            if (response.success) {
+              this.$buefy.toast.open({
+                message: "Live simulation ready.",
+                type: "is-success",
+              });
+            }
           }
         },
       });
@@ -264,24 +236,6 @@ export default {
         });
       }
     },
-    /*
-    async wrapSnackbar(callback, message) {
-      if (!this.scenarioStatus.valid) {
-        this.$emit("goToErrors");
-      } else {
-        this.snackbar = this.$buefy.snackbar.open({
-          message: message,
-          position: "is-top",
-          indefinite: true,
-          actionText: null,
-        });
-
-        await callback();
-        this.snackbar.close();
-        this.snackbar = null;
-      }
-    },
-    */
   },
 };
 </script>

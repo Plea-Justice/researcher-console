@@ -11,6 +11,7 @@
             v-model="scenarioForm.name"
             placeholder="Name"
             class="flex-grow"
+            maxlength="30"
             required
           />
         </b-field>
@@ -24,7 +25,6 @@
             maxlength="100"
           />
         </b-field>
-
 
         <b-field
           label="Share with Others"
@@ -51,10 +51,11 @@
           </b-tooltip>
         </b-field>
 
-
-
-        <b-field label="Citation"
-          v-if="scenarioForm.public" message="This is how others will cite your work.">
+        <b-field
+          label="Citation"
+          v-if="scenarioForm.public"
+          message="This is how others will cite your work."
+        >
           <b-input
             v-model="scenarioForm.citation"
             placeholder="e.g. Smith, J. (2020). Title of artwork [Digital]."
@@ -84,9 +85,9 @@ export default {
   props: {
     user: {
       type: Object,
-      required: true
+      required: true,
     },
-    scenario: Object
+    scenario: Object,
   },
   data() {
     const scenarioForm = {
@@ -94,11 +95,11 @@ export default {
       description: "",
       public: false,
       citation: "",
-      ...this.scenario
-    }
+      ...this.scenario,
+    };
 
     return {
-      scenarioForm
+      scenarioForm,
     };
   },
   mounted() {
@@ -106,11 +107,11 @@ export default {
   },
   computed: {
     addMode() {
-      return !this.scenario
+      return !this.scenario;
     },
     ...mapGetters({
-      scenarioSet: "scenarios/scenarioSet"
-    })
+      scenarioSet: "scenarios/scenarioSet",
+    }),
   },
   methods: {
     focus() {
@@ -118,19 +119,19 @@ export default {
     },
     ...mapActions({
       addScenario: "scenarios/addScenario",
-      editScenario: "scenarios/editScenario"
+      editScenario: "scenarios/editScenario",
     }),
     onSubmit() {
       if (
         this.scenarioSet.some(
           ({ id, name }) =>
-            name.toLowerCase() === this.scenarioForm.name.toLowerCase()
-            && id !== this.scenarioForm?.id
+            name.toLowerCase() === this.scenarioForm.name.toLowerCase() &&
+            id !== this.scenarioForm?.id
         )
       ) {
         this.$buefy.toast.open({
           message: "A scenario with the same name already exists",
-          type: "is-danger"
+          type: "is-danger",
         });
 
         // Clear name and re-focus on name input
@@ -145,12 +146,12 @@ export default {
             : this.editScenario({
                 ...this.scenarioForm,
                 name: pascalName,
-              })
+              });
 
           this.$parent.close();
         } catch (error) {}
       }
-    }
-  }
+    },
+  },
 };
 </script>

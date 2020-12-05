@@ -121,7 +121,7 @@ export default {
 <style scoped lang="scss">
 // Fix since navbar needs to be higher index than toolbar/conditionbar to open help modal
 .navbar {
-  z-index: 9 !important;
+  z-index: $buefyOverlapIndex + 3 !important;
 }
 
 .hide-if-empty:empty {

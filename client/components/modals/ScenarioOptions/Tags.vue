@@ -35,7 +35,6 @@ import { mapGetters, mapActions } from "vuex";
 import BTagInput from "~/components/form/BTagInput";
 
 // Import Utils
-import { nanoid } from "nanoid/non-secure";
 import { toPascalCase } from "~/assets/util";
 
 export default {

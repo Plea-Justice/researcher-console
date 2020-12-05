@@ -18,7 +18,7 @@
             :validator="$v.loginForm.email"
             :messages="{
               required: 'Please add an email',
-              email: 'A valid email address is required'
+              email: 'A valid email address is required',
             }"
           >
             <b-input
@@ -44,7 +44,7 @@
             v-if="isRegistration"
             :validator="$v.loginForm.affiliation"
             :messages="{
-              required: 'Please list the institution you are affiliated with'
+              required: 'Please list the institution you are affiliated with',
             }"
           >
             <b-input
@@ -60,7 +60,7 @@
               required: isRegistration
                 ? 'Please make a username'
                 : 'Please enter your username',
-              minLength: 'Username must be at least 3 characters'
+              minLength: 'Username must be at least 3 characters',
             }"
           >
             <b-input
@@ -76,7 +76,7 @@
               required: isRegistration
                 ? 'Please make a password'
                 : 'Please enter your password',
-              minLength: 'Password must be at least 10 characters'
+              minLength: 'Password must be at least 10 characters',
             }"
           >
             <b-input
@@ -90,12 +90,15 @@
 
           <b-button
             native-type="submit"
-            :icon-left="submitIcon"
-            :loading="loading"
-            :type="submitType"
+            :loading="submitState.loading"
+            :label="submitText"
+            :icon-left="
+              submitState.icon(isRegistration ? 'user-plus' : 'sign-in-alt')
+            "
+            :type="submitState.type('is-primary')"
             expanded
-            >{{ submitText }}</b-button
           >
+          </b-button>
 
           <hr />
 
@@ -108,7 +111,7 @@
         <b-message
           v-if="envMode == 'development'"
           class="is-size-7 mt-5"
-          style="width: 35em;"
+          style="width: 35em"
           :closable="false"
           type="is-warning"
           size="small"
@@ -124,16 +127,19 @@
 </template>
 
 <script>
+// Import Mixins
+import ButtonStateMixin, { ButtonState } from "~/mixins/ButtonState";
+
 // Import Vuelidate Rules
 import {
   required,
   minLength,
   maxLength,
-  email
+  email,
 } from "vuelidate/lib/validators";
 
 export default {
-  name: "Login",
+  mixins: [ButtonStateMixin],
   data() {
     // Template for Form
     const LoginForm = {
@@ -141,25 +147,18 @@ export default {
       profession: "",
       affiliation: "",
       username: "",
-      password: ""
-    };
-
-    const SubmitState = {
-      NORMAL: 0,
-      ERROR: 1,
-      SUCCESS: 2
+      password: "",
     };
 
     return {
       LoginForm,
       loginForm: Object.assign({}, LoginForm),
 
-      SubmitState,
-      submitState: SubmitState.NORMAL,
+      submitState: null,
 
       isRegistration: false,
       loading: false,
-      envMode: process.env.MODE
+      envMode: process.env.MODE,
     };
   },
   validations() {
@@ -169,82 +168,63 @@ export default {
           email: {
             required,
             email,
-            maxLength: maxLength(50)
+            maxLength: maxLength(50),
           },
           profession: {
             required,
-            maxLength: maxLength(50)
+            maxLength: maxLength(50),
           },
           affiliation: {
             required,
-            maxLength: maxLength(50)
+            maxLength: maxLength(50),
           },
           username: {
             required,
             minLength: minLength(3),
-            maxLength: maxLength(50)
+            maxLength: maxLength(50),
           },
           password: {
             required,
             minLength: minLength(10),
-            maxLength: maxLength(50)
-          }
-        }
+            maxLength: maxLength(50),
+          },
+        },
       };
     } else {
       return {
         loginForm: {
           username: { required },
-          password: { required }
-        }
+          password: { required },
+        },
       };
     }
   },
+  created() {
+    this.submitState = new ButtonState(this.ButtonStatus);
+  },
   computed: {
-    submitType() {
-      let type = "is-primary";
-      if (this.submitState === this.SubmitState.ERROR) type = "is-danger";
-      else if (this.submitState === this.SubmitState.SUCCESS)
-        type = "is-success";
-      return type;
-    },
-    submitIcon() {
-      let icon = this.isRegistration ? "user-plus" : "sign-in-alt";
-      if (this.submitState === this.SubmitState.ERROR) icon = "times";
-      else if (this.submitState === this.SubmitState.SUCCESS) icon = "check";
-      return icon;
-    },
     submitText() {
       let text = "";
-      if (this.submitState === this.SubmitState.NORMAL)
+      if (this.submitState.status === this.ButtonStatus.NORMAL)
         text = this.isRegistration ? "Create Account" : "Login";
       return text;
-    }
+    },
   },
   methods: {
     toggleFormMode() {
       if (this.isRegistration) this.$v.loginForm.$reset();
       else {
-        Object.keys(this.loginForm).forEach(field => {
+        Object.keys(this.loginForm).forEach((field) => {
           if (this.loginForm[field] !== "") this.$v.loginForm[field].$touch();
         });
       }
       this.isRegistration = !this.isRegistration;
     },
-    setSubmitState(newState) {
-      if (this.loading) this.loading = false;
-      this.submitState = newState;
-      // TODO: Make this a watcher that mounts/unmounts instead?
-      setTimeout(() => {
-        this.submitState = this.SubmitState.NORMAL;
-      }, 2000);
-    },
     async login() {
-      // add field errors for login
-      this.loading = true;
+      this.submitState.loading = true;
 
-      // Only touch invalid fields (we don't want valid fields in login)
-      Object.keys(this.$v.loginForm).forEach(async key => {
+      // Only touch invalid fields (we don't want to show green fields in login)
+      Object.keys(this.$v.loginForm).forEach(async (key) => {
         const validator = this.$v.loginForm[key];
         if (validator?.$invalid) await validator.$touch();
       });
@@ -252,60 +232,63 @@ export default {
       if (this.$v.loginForm.$invalid) {
         this.$buefy.toast.open({
           message: "Please fill in empty fields",
-          type: "is-danger"
+          type: "is-danger",
         });
-        this.loading = false;
-        this.setSubmitState(this.SubmitState.ERROR);
+
+        this.submitState.setTempStatus(this.ButtonStatus.ERROR);
       } else {
         try {
           const { username, password } = this.loginForm;
           const response = await this.$auth.loginWith("local", {
             data: {
               username,
-              password
-            }
+              password,
+            },
           });
-          this.loading = false;
-          this.setSubmitState(this.SubmitState.SUCCESS);
-          this.loginForm = Object.assign({}, this.LoginForm);
-          this.$v.loginForm.$reset();
-        } catch (error) {
-          this.loading = false;
-          this.setSubmitState(this.SubmitState.ERROR);
-          this.loginForm.password = "";
+        } finally {
+          if (response.success) {
+            this.submitState.setTempStatus(this.ButtonStatus.SUCCESS);
+            this.loginForm = Object.assign({}, this.LoginForm);
+            this.$v.loginForm.$reset();
+          } else {
+            this.submitState.setTempStatus(this.ButtonStatus.ERROR);
+            this.loginForm.password = "";
+          }
         }
       }
     },
     async register() {
-      this.loading = true;
+      this.submitState.loading = true;
+
+      // Check fields
       await this.$v.loginForm.$touch();
       if (this.$v.loginForm.$invalid) {
         this.$buefy.toast.open({
           message: "Errors exists, please fix incorrect fields",
-          type: "is-danger"
+          type: "is-danger",
         });
-        this.loading = false;
-        this.setSubmitState(this.SubmitState.ERROR);
+
+        this.submitState.setTempStatus(this.ButtonStatus.ERROR);
       } else {
         try {
           await this.$axios.$post("/api/v1/auth/register", this.loginForm);
           this.loading = false;
-          this.setSubmitState(this.SubmitState.SUCCESS);
-          this.$buefy.toast.open({
-            message: "Account created, logging you in",
-            type: "is-success"
-          });
-
-          setTimeout(() => {
-            this.login();
-          }, 1000);
-        } catch (error) {
-          this.loading = false;
-          this.setSubmitState(this.SubmitState.ERROR);
-          this.loginForm.password = "";
+        } finally {
+          if (response.success) {
+            this.submitState.setTempStatus(this.ButtonStatus.SUCCESS);
+            const successToast = this.$buefy.toast.open({
+              message: "Account created, logging you in",
+              type: "is-success",
+              duration: 1000,
+            });
+            setTimeout(() => this.login(), 1000);
+          } else {
+            this.submitState.setTempStatus(this.ButtonStatus.ERROR);
+            this.loginForm.password = "";
+          }
         }
       }
-    }
+    },
   },
   head() {
     return {
@@ -314,11 +297,11 @@ export default {
         {
           hid: "description",
           name: "description",
-          content: "Authentication Portal"
-        }
-      ]
+          content: "Authentication Portal",
+        },
+      ],
     };
-  }
+  },
 };
 </script>
 
