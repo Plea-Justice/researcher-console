@@ -145,10 +145,12 @@
       <template slot="detail" slot-scope="props">
         <table>
           <tr>
+            <th>Full Name</th>
             <th>User ID</th>
             <th>Last IP Address</th>
           </tr>
           <tr>
+            <td>{{ props.row.fullname }}</td>
             <td>{{ props.row.id }}</td>
             <td>{{ props.row.addresses[0] || "None" }}</td>
           </tr>
