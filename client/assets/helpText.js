@@ -1,9 +1,9 @@
 export const assetsHelp = {
   navbar:
-    "<p>Assets are resource files which make up animated scenes. These include foreground and background images, movie clips exported to Javascript from Adobe Animate, and actor (character) assets exported from Adobe Animate.</p><p>The default plea research assets should appear here. You may add your own by clicking 'Add Asset', uploading a JPEG or PNG image or exported JavaScript asset, and selecting the type of asset you have uploaded.</p>",
+    "<p>Assets are resource files which make up animated scenes. These include foreground and background images, fully premade movie clips, and customizable talking actors.</p><p>The default plea research assets are available through the shared asset library. Copy assets from the shared library to your own to use them in your scenarios.</p><p>If you have permission, you may upload your new assets by clicking 'Add Asset', uploading a JPEG or PNG image or JavaScript asset exported from Adobe Animate, and selecting the type of asset you have uploaded.</p>",
   upload: "<p>Valid filetypes are '.js' animated assets and '.jpg' or '.png' image files.</p>",
   type:
-    "<p>Asset types may be actor, clip, foreground or background.</p><p>Actors are individual characters who may speak whereas clips are premade movie clips that will play through like a video. Both must be files exported from Adobe Animate ending in '.js'. Foregrounds and backgrounds are image files and must end in '.png' or '.jpg'.</p>",
+    "<p>Asset types may be actor, clip, foreground or background.</p><p>Actors are individual characters who may talk, whereas clips are premade animations that play through like video. Both must be files exported from Adobe Animate ending in '.js' and at FHD resolution. Foregrounds and backgrounds are image files and must end in '.png' or '.jpg'.</p>",
   sharing:
     '<p>Assets marked as public will be made available to other users. Only you will be able to edit this asset.</p><p>You may revoke access at any time, but bear in mind that once an asset is shared it may be duplicated by others.</p>'
 };
@@ -15,7 +15,7 @@ export const adminHelp = {
 
 export const scenariosHelp = {
   navbar:
-    '<p>On this page you may create and organize simulated scenarios. Click the name of any scenario to open the storyline editor.</p>'
+    '<p>On this page you may create and organize your scenarios (simulation storylines). Click the name of any scenario to open the editor.</p>'
 };
 
 export const scenarioHelp = {

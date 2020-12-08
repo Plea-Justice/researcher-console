@@ -6,18 +6,38 @@
     <section class="modal-card-body">
       <p>Participants may access your simulation through this link:</p>
       <p class="mt-6 has-text-centered">
+        <b>Avatar Customization then Simulation</b><br/>
         <code>
           <a
-            id="link"
+            id="link1"
             class="p-2"
             style="outline: grey dashed 1px"
-            :href="url"
-            >{{ url }}</a
+            :href="url + 'avatar.html'"
+            >{{ url + 'avatar.html' }}</a
           >
           <b-button
             id="copy"
             class="ml-1"
-            data-clipboard-target="#link"
+            data-clipboard-target="#link1"
+            size="is-small"
+            type="is-primary"
+            icon-left="clipboard"
+            >Copy</b-button
+          >
+        </code><br/><br/>
+        <b>Direct to Simulation</b><br/>
+        <code>
+          <a
+            id="link2"
+            class="p-2"
+            style="outline: grey dashed 1px"
+            :href="url + 'simulation.html' "
+            >{{ url + 'simulation.html' }}</a
+          >
+          <b-button
+            id="copy"
+            class="ml-1"
+            data-clipboard-target="#link2"
             size="is-small"
             type="is-primary"
             icon-left="clipboard"
