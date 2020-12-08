@@ -43,10 +43,11 @@
     </template>
 
     <!-- If no assets exists -->
-    <p v-if="!numMyAssets" class="empty-text has-text-weight-medium is-size-5">
-      No assets exist!
-      <br />Upload a visual asset or copy the public templates to get started.
-    </p>
+    <div v-if="!numMyAssets" class="empty-text has-text-weight-medium is-size-5">
+      <p>Your asset library is empty.</p><br />
+      <p>Assets are needed to create an animated scenario.</p>
+      <p>To get started, upload an asset or copy assets to here from the shared asset library.</p>
+    </div>
 
     <template v-else>
       <div v-for="type in selectedTypes" :key="type" class="section">

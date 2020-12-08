@@ -9,16 +9,25 @@
     :preselected="assetList"
     @selected="assetList = $event"
   >
-  <template v-slot:litem="{ item }">
-    <span>{{item.name}} ({{item.type}})</span>
-    <p class="is-size-7">{{item.description}}</p>
-    <p v-if="item.citation" class="is-size-7"><i>{{item.citation}}</i></p>
-  </template>
-  <template v-slot:ritem="{ item }">
-    <span>{{item.name}} ({{item.type}})</span>
-    <p class="is-size-7">{{item.description}}</p>
-    <p v-if="item.citation" class="is-size-7"><i>{{item.citation}}</i></p>
-  </template>
+    <template v-slot:nooptions>
+      <p>Your assets library is empty.</p>
+      <span>&nbsp;</span>
+      <p>Click "Assets" in the navigation bar to add assets to your account.</p>
+    </template>
+    <template v-slot:litem="{ item }">
+      <span>{{ item.name }} ({{ item.type }})</span>
+      <p class="is-size-7">{{ item.description }}</p>
+      <p v-if="item.citation" class="is-size-7">
+        <i>{{ item.citation }}</i>
+      </p>
+    </template>
+    <template v-slot:ritem="{ item }">
+      <span>{{ item.name }} ({{ item.type }})</span>
+      <p class="is-size-7">{{ item.description }}</p>
+      <p v-if="item.citation" class="is-size-7">
+        <i>{{ item.citation }}</i>
+      </p>
+    </template>
   </Shuttle>
 </template>
 
@@ -37,22 +46,22 @@ export default {
     ...mapGetters({
       assetSet: "assets/assetSet",
       assets: "assets/assets",
-      getAssetList: "scenario/assetList",
+      getAssetList: "scenario/assetList"
     }),
     assetList: {
-      get: function () {
+      get: function() {
         return this.getAssetList;
       },
-      set: function (newValue) {
+      set: function(newValue) {
         this.updateAssetList({ assetList: newValue });
-      },
-    },
+      }
+    }
   },
 
   methods: {
     ...mapActions({
-      updateAssetList: "scenario/updateAssetList",
-    }),
-  },
+      updateAssetList: "scenario/updateAssetList"
+    })
+  }
 };
 </script>

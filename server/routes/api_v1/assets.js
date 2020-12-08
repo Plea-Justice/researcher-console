@@ -187,7 +187,7 @@ module.exports = function (options) {
         }
 
         try {
-            result = await ScenarioModel.updateOne({
+            result = await AssetModel.updateOne({
                 _id: id,
                 owner: uid
             }, { $set: {

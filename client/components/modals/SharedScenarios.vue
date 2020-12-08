@@ -5,6 +5,7 @@
         :key="scenario.id"
         v-if="scenario.public && scenario.owner !== user.name"
         :scenario="scenario"
+        :labels="{duplicate: 'Copy to My Scenarios'}"
         duplicate
         @duplicate="duplicateScenario($event)"
         :link="false"

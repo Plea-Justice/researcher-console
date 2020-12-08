@@ -64,7 +64,7 @@ export const mutations = {
     state.assetList.splice(state.assetList.indexOf(id), 1);
     Vue.delete(state.assets, id);
   },
-  updateAsset(state, { asset }) {
+  updateAsset(state, asset) {
     Vue.set(state.assets, asset.id, asset);
   }
 };

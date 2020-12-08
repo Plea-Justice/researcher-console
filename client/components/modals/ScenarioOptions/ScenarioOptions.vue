@@ -30,7 +30,7 @@
               type="textarea"
               customClass="has-fixed-size"
               placeholder="Description"
-              maxlength="100"
+              maxlength="250"
             />
           </form-group>
 
@@ -61,7 +61,7 @@
               class="flex-field"
               :message="
                 scenarioForm.public
-                  ? 'You acknowledge that your asset may be used in others\' experiments.'
+                  ? 'You acknowledge that your scenario may be used in others\' experiments.'
                   : ''
               "
             >
@@ -178,7 +178,7 @@ export default {
           maxLength: maxLength(30),
         },
         description: {
-          maxLength: maxLength(200),
+          maxLength: maxLength(250),
         },
         survey: {
           url,

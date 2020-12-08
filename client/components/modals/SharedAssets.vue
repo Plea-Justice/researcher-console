@@ -1,10 +1,11 @@
 <template>
-  <SharedItems :name="`My Assets: ${`(${sharedAssetSet.length})` || ''}`">
+  <SharedItems :name="`Shared Assets: ${`(${sharedAssetSet.length})` || ''}`">
     <Asset
       v-for="asset in sharedAssetSet"
       :key="asset.id"
       :asset="asset"
       :itemType="'Scenario'"
+      :labels="{duplicate: 'Copy to My Assets'}"
       duplicate
       @duplicate="copyAsset($event)"
     />
