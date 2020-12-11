@@ -197,7 +197,7 @@ export default {
             );
 
             this.updateMeta({
-              live: `${process.env.LIVE_URL}/sim-${this.scenarioMeta.id}/simulation.html`,
+              live: `${process.env.LIVE_URL}/sim-${this.scenarioMeta.id}/`,
             });
 
             this.liveURLPopup();

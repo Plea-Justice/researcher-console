@@ -55,7 +55,7 @@
         <div class="b-tooltips">
           <b-tooltip
             v-if="remove"
-            :label="`Delete ${itemType}`"
+            :label="labels && labels.remove ? labels.remove : `Delete ${itemType}`"
             type="is-danger"
             position="is-bottom"
           >
@@ -67,14 +67,14 @@
           </b-tooltip>
           <b-tooltip
             v-if="edit"
-            :label="`Edit ${itemType}`"
+            :label="labels && labels.edit ? labels.edit : `Edit ${itemType}`"
             position="is-bottom"
           >
             <b-button @click="$emit('edit', item.id)" icon-left="pencil-alt" />
           </b-tooltip>
           <b-tooltip
             v-if="duplicate"
-            :label="`Duplicate ${itemType}`"
+            :label="labels && labels.duplicate ? labels.duplicate : `Duplicate ${itemType}`"
             position="is-bottom"
           >
             <b-button @click="$emit('duplicate', item.id)" icon-left="clone" />
@@ -105,6 +105,7 @@ export default {
     remove: Boolean,
     edit: Boolean,
     duplicate: Boolean,
+    labels: Object,
     // **** GenericCard Props ****
     selectable: Boolean,
   },

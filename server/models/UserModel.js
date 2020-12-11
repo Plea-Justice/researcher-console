@@ -6,6 +6,7 @@ const UserSchema = new mongoose.Schema({
     username:       { type: String, required: true, unique: true },
     password:       { type: String, required: true },
     email:          { type: String, required: true },
+    fullname:       { type: String, default: '' },
     profession:     { type: String, default: '' },
     affiliation:    { type: String, default: '' },
     addresses:      { type: Map, of: String, default: new Map() },
@@ -30,6 +31,7 @@ UserSchema.virtual('meta')
             name:           this.username,
 
             email:          this.email,
+            fullname:       this.fullname,
             profession:     this.profession,
             affiliation:    this.affiliation,
             addresses:      Array.from(this.addresses.keys()).map(ip => ip.replace(/-/g, '.')),

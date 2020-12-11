@@ -15,6 +15,20 @@
 
           <form-group
             v-if="isRegistration"
+            :validator="$v.loginForm.fullname"
+            :messages="{
+              required: 'Please enter your full name',
+            }"
+          >
+            <b-input
+              v-model="$v.loginForm.fullname.$model"
+              icon="signature"
+              placeholder="Full Name (First Last)"
+            />
+          </form-group>
+
+          <form-group
+            v-if="isRegistration"
             :validator="$v.loginForm.email"
             :messages="{
               required: 'Please add an email',
@@ -143,6 +157,7 @@ export default {
   data() {
     // Template for Form
     const LoginForm = {
+      fullname: "",
       email: "",
       profession: "",
       affiliation: "",
@@ -165,6 +180,10 @@ export default {
     if (this.isRegistration) {
       return {
         loginForm: {
+          fullname: {
+            required,
+            maxLength: maxLength(50),
+          },
           email: {
             required,
             email,
@@ -237,16 +256,18 @@ export default {
 
         this.submitState.setTempStatus(this.ButtonStatus.ERROR);
       } else {
+        let response;
+
         try {
           const { username, password } = this.loginForm;
-          const response = await this.$auth.loginWith("local", {
+          response = await this.$auth.loginWith("local", {
             data: {
               username,
               password,
             },
           });
         } finally {
-          if (response.success) {
+          if (response?.success) {
             this.submitState.setTempStatus(this.ButtonStatus.SUCCESS);
             this.loginForm = Object.assign({}, this.LoginForm);
             this.$v.loginForm.$reset();
@@ -270,11 +291,13 @@ export default {
 
         this.submitState.setTempStatus(this.ButtonStatus.ERROR);
       } else {
+        let response;
+
         try {
-          await this.$axios.$post("/api/v1/auth/register", this.loginForm);
+          response = await this.$axios.$post("/api/v1/auth/register", this.loginForm);
           this.loading = false;
         } finally {
-          if (response.success) {
+          if (response?.success) {
             this.submitState.setTempStatus(this.ButtonStatus.SUCCESS);
             const successToast = this.$buefy.toast.open({
               message: "Account created, logging you in",

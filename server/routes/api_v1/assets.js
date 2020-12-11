@@ -134,7 +134,7 @@ module.exports = function (options) {
             try {
                 await req.files.file.mv(filepath);
 
-                let customizables = null;
+                let customizables = [];
                 // Insert avatar customization variables into CreateJS assets.
                 if (path.extname(filepath) === '.js')
                     customizables = publish(filepath);
@@ -187,7 +187,7 @@ module.exports = function (options) {
         }
 
         try {
-            result = await ScenarioModel.updateOne({
+            result = await AssetModel.updateOne({
                 _id: id,
                 owner: uid
             }, { $set: {

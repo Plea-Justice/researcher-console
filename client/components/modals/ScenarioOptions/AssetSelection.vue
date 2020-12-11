@@ -1,14 +1,14 @@
 <template>
   <div>
     <p class="content">
-      <span
-        v-if="!assetList.length"
-        class="content has-text-warning has-text-weight-bold"
-      >
-        No assets currently selected
+      <span v-if="!assetList.length" class="content">
+        <span class="has-text-warning has-text-weight-bold">
+          No assets currently selected
+        </span>
+        <br />
+        Go to "Assets" in the navigation bar to add assets to your account.
       </span>
-      <br />
-      Select assets for use in this scenario
+      <span v-else>Select assets for use in this scenario</span>
     </p>
 
     <Shuttle
@@ -20,6 +20,13 @@
       :preselected="assetList"
       @selected="assetList = $event"
     >
+      <template v-slot:nooptions>
+        <p>Your assets library is empty.</p>
+        <span>&nbsp;</span>
+        <p>
+          Click "Assets" in the navigation bar to add assets to your account.
+        </p>
+      </template>
       <template v-slot:litem="{ item }">
         <span>{{ item.name }} ({{ item.type }})</span>
         <p class="is-size-7">{{ item.description }}</p>

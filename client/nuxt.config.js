@@ -139,7 +139,8 @@ export default {
         'faEllipsisV',
         'faEllipsisH',
         'faSearch',
-        'faClipboard'
+        'faClipboard',
+        'faSignature'
       ]
     }
   },

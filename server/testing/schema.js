@@ -27,6 +27,7 @@ module.exports = {
             id: { $ref: 'org.pleajustice.server.db.id' },
             name: { type: 'string' },
 
+            fullname: { type: 'string' },
             email: { type: 'string', pattern: '^\\w*?@\\w+\\.[\\w\\.]*\\w$' },
             profession: { type: 'string' },
             affiliation: { type: 'string' },
@@ -47,7 +48,7 @@ module.exports = {
         patternProperties: {
             '^permit': { type: 'boolean' }
         },
-        minProperties: 15,
+        minProperties: 16,
         additionalProperties: false
     },
 
@@ -64,6 +65,7 @@ module.exports = {
             tagSetList: { type: 'array', items: { type: 'string' } },
             tagSets: { type: 'object' },
             tags: { type: 'object' },
+            assetList: { type: 'array', items: { $ref: 'org.pleajustice.server.db.id' } },
             numScenes: { type: 'integer' },
             scenes: { type: 'object' },
             status: { type: 'object' }  // TODO: Sensible default.
@@ -82,16 +84,16 @@ module.exports = {
             owner: { type: 'string' },
             author: { type: 'string' },
             description: { type: 'string' },
+            citation: { type: 'string' },
             public: { type: 'boolean' },
             survey: { type: 'string' },
             live: { type: 'string' },
-            assetList: { type: 'array', items: { $ref: 'org.pleajustice.server.db.id' } },
             readOnly: { type: 'boolean' },
             created: { type: 'string', format: 'date-time' },
             modified: { type: 'string', format: 'date-time' },
             version: { type: 'string', pattern: '^\\d\\.\\d\\.\\d+$' }
         },
-        minProperties: 12, // FIXME: 13 for author
+        minProperties: 13, // FIXME: 14 for author
         additionalProperties: false
     },
 
@@ -113,6 +115,7 @@ module.exports = {
             id: { $ref: 'org.pleajustice.server.db.id' },
             name: { type: 'string' },
             description: { type: 'string' },
+            citation: { type: 'string' },
             type: { type: 'string' },
             path: { type: 'string' },
             owner: { type: 'string' },
@@ -121,9 +124,10 @@ module.exports = {
             readOnly: { type: 'boolean' },
             created: { type: 'string', format: 'date-time' },
             modified: { type: 'string', format: 'date-time' },
+            customizables: { type: 'array', items: { type: 'object' } },
             version: { type: 'string', pattern: '^\\d\\.\\d\\.\\d+$' }
         },
-        minProperties: 11,  // FIXME: 12 for author
+        minProperties: 13,  // FIXME: 14 for author
         additionalProperties: false
 
     },

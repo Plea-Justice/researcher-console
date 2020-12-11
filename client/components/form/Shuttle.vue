@@ -31,6 +31,9 @@
           v-model="query"
         />
       </div>
+      <label v-if="options.length < 1" class="panel-block is-flex-direction-column is-align-items-flex-start">
+        <slot name="nooptions"></slot>
+      </label>
       <template>
         <label
           class="panel-block"

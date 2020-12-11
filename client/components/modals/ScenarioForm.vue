@@ -22,7 +22,7 @@
             type="textarea"
             placeholder="Description"
             customClass="has-fixed-size"
-            maxlength="100"
+            maxlength="250"
           />
         </b-field>
 
@@ -31,7 +31,7 @@
           class="flex-field"
           :message="
             scenarioForm.public
-              ? 'You acknowledge that your asset may be used in others\' experiments.'
+              ? 'You acknowledge that your scenario may be used in others\' experiments.'
               : ''
           "
         >

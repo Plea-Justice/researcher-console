@@ -200,17 +200,17 @@ export default {
     };
   },
   validations() {
-    const alphaNumSpace = helpers.regex(
-      "alphaNumSpace",
-      /^ ?([a-zA-Z0-9]+ ?)*$/
+    const alphaNumExtended = helpers.regex(
+      "alphaNumExtended",
+      /^ ?([a-zA-Z0-9_\-\+\(\)$\. ])*$/
     );
 
     return {
       label: {
         // This should be updated to whatever character set we want to allow for Qualtrics stuff
         required,
-        alphaNumSpace,
-        maxLength: maxLength(25),
+        alphaNumExtended,
+        maxLength: maxLength(50),
       },
     };
   },

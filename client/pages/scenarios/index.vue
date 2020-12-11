@@ -14,7 +14,7 @@
           @click="openSharedModal()"
           :value="sharedMode"
         >
-          Shared Scenarios
+          Shared Scenario Library
         </ToolBarButton>
       </div>
     </template>
@@ -45,8 +45,10 @@
       v-if="!(scenarioSet.length - numSharedScenarios)"
       class="empty-text has-text-weight-medium is-size-5"
     >
-      No scenarios exist!
-      <br />Create a new scenario using the toolbar to get started.
+      Your scenario library is empty!
+      <br />
+      To get started, create a new scenario or copy a template from the shared
+      scenario library.
     </p>
 
     <div v-else class="item-grid">

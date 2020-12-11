@@ -114,6 +114,7 @@ module.exports = function (options) {
 
         const user = new UserModel({
             username: req.body.username,
+            fullname: req.body.fullname,
             profession: req.body.profession,
             affiliation: req.body.affiliation,
             email: req.body.email,

@@ -10,7 +10,7 @@
         type="textarea"
         customClass="has-fixed-size"
         placeholder="Description"
-        maxlength="100"
+        maxlength="250"
       />
     </form-group>
 
@@ -35,7 +35,7 @@
     <form-group label="Share with Others">
       <b-field
         class="flex-field"
-        message="You acknowledge that your asset may be used in others' experiments."
+        message="You acknowledge that your scenario may be used in others' experiments."
       >
         <b-tooltip
           :active="!user.permitSharing"
@@ -110,7 +110,7 @@ export default {
           maxLength: maxLength(30),
         },
         description: {
-          maxLength: maxLength(200),
+          maxLength: maxLength(250),
         },
         survey: {
           url,

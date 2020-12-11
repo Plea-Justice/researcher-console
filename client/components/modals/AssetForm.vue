@@ -2,7 +2,7 @@
   <div class="modal-card" style="width: 30vw">
     <form @submit.prevent="onSubmit()">
       <header class="modal-card-head">
-        <p class="modal-card-title">Add Asset</p>
+        <p class="modal-card-title">{{addMode ? 'Add' : 'Edit' }} Asset</p>
       </header>
       <section class="modal-card-body">
         <b-field v-if="addMode" label="File Upload">
@@ -57,7 +57,7 @@
             type="textarea"
             placeholder="Description"
             customClass="has-fixed-size"
-            maxlength="100"
+            maxlength="250"
           />
         </b-field>
 
@@ -129,6 +129,10 @@ export default {
       required: true,
     },
     asset: Object,
+    mode: {
+      type: String,
+      default: 'add'
+    }
   },
   data() {
     return {
@@ -157,11 +161,12 @@ export default {
   methods: {
     ...mapActions({
       addAsset: "assets/addAsset",
+      editAsset: "assets/editAsset"
     }),
     onSubmit() {
       // If that filename already exists
       // FIXME: check doesn't work (server removes spaces)
-      if (
+      if ( this.assetForm.file &&
         this.assetSet.some(
           ({ name }) =>
             name.toLowerCase() === this.assetForm.file.name.toLowerCase() &&
@@ -175,12 +180,14 @@ export default {
 
         this.assetForm.file = null;
         // TODO: This file upload size is defined in server config.js.
-      } else if (this.assetForm.file.size > 1024 * 1024 * 20) {
+      } else if ( this.assetForm.file &&
+        this.assetForm.file.size > 1024 * 1024 * 20) {
         this.$buefy.toast.open({
           message: `${this.assetForm.file.name} is too large, cannot upload field larger than 20MiB.`,
           type: "is-danger",
         });
       } else {
+        console.log(this.assetForm.file);
         // Add the scenario to state
         try {
           this.addMode
