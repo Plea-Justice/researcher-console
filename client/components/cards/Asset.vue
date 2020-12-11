@@ -22,7 +22,7 @@
 
     <template v-slot:footer>
       <b-taglist style="margin-left: auto">
-        <b-tag v-if="asset.public" type="is-info">Public</b-tag>
+        <b-tag v-if="!hidepublic && asset.public" type="is-info">Public</b-tag>
         <b-tag type="is-primary">{{ asset.type | capitalize }}</b-tag>
       </b-taglist>
     </template>
@@ -38,16 +38,14 @@ export default {
   props: {
     asset: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
+    hidepublic: Boolean,
   },
   data() {
     return {
-      API_URL: process.env.API_URL
+      API_URL: process.env.API_URL,
     };
-  }
+  },
 };
 </script>
-
-<style>
-</style>

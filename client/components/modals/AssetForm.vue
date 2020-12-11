@@ -2,7 +2,7 @@
   <div class="modal-card" style="width: 30vw">
     <form @submit.prevent="onSubmit()">
       <header class="modal-card-head">
-        <p class="modal-card-title">{{addMode ? 'Add' : 'Edit' }} Asset</p>
+        <p class="modal-card-title">{{ addMode ? "Add" : "Edit" }} Asset</p>
       </header>
       <section class="modal-card-body">
         <b-field v-if="addMode" label="File Upload">
@@ -16,19 +16,19 @@
               required
               expanded
             >
-              <span
-                class="button file-cta"
-                :class="{ 'is-fullwidth': !assetForm.file }"
-              >
-                <b-icon class="file-icon" icon="cloud-upload-alt" />
-                <span v-if="!assetForm.file" class="file-label">
-                  Click to upload
-                </span>
-              </span>
-              <span class="file-name control" v-if="assetForm.file">
+              <b-button
+                tag="a"
+                :label="!assetForm.file ? 'Upload' : ''"
+                :expanded="!assetForm.file"
+                icon-left="cloud-upload-alt"
+                type="is-primary"
+                class="file-cta"
+              />
+              <span v-if="assetForm.file" class="file-name control">
                 {{ assetForm.file.name }}
               </span>
             </b-upload>
+
             <Help
               :text="assetsHelp.upload"
               title="Asset Uploads"
@@ -61,33 +61,31 @@
           />
         </b-field>
 
-        <div class="flex-field-wrapper">
+        <b-tooltip
+          :active="!user.permitSharing"
+          label="You're not permitted share files, request persmission from an admin"
+          position="is-bottom"
+          type="is-info is-light"
+        >
           <b-field
             label="Share with Others"
-            class="flex-field"
-            :message="
-              assetForm.public
-                ? 'You acknowledge that your asset may be used in others\' experiments.'
-                : ''
-            "
+            class="field-flex-space"
+            message="You acknowledge that your asset may be used in others' experiments."
+            grouped
           >
-            <b-tooltip
-              :active="!user.permitSharing"
-              label="You're not permitted share files, request persmission from an admin"
-              position="is-bottom"
-              type="is-info is-light"
+            <b-switch
+              :disabled="!user.permitSharing"
+              v-model="assetForm.public"
+              type="is-info"
             >
-              <b-switch
-                :disabled="!user.permitSharing"
-                v-model="assetForm.public"
-                type="is-info"
-              >
-                Make Public
-              </b-switch>
-            </b-tooltip>
+              Make Public
+            </b-switch>
+
+            <div class="control">
+              <Help :text="assetsHelp.sharing" title="Asset Types" />
+            </div>
           </b-field>
-          <Help :text="assetsHelp.sharing" title="Asset Types" />
-        </div>
+        </b-tooltip>
 
         <b-field
           label="Citation"
@@ -131,8 +129,8 @@ export default {
     asset: Object,
     mode: {
       type: String,
-      default: 'add'
-    }
+      default: "add",
+    },
   },
   data() {
     return {
@@ -161,12 +159,13 @@ export default {
   methods: {
     ...mapActions({
       addAsset: "assets/addAsset",
-      editAsset: "assets/editAsset"
+      editAsset: "assets/editAsset",
     }),
     onSubmit() {
       // If that filename already exists
       // FIXME: check doesn't work (server removes spaces)
-      if ( this.assetForm.file &&
+      if (
+        this.assetForm.file &&
         this.assetSet.some(
           ({ name }) =>
             name.toLowerCase() === this.assetForm.file.name.toLowerCase() &&
@@ -180,14 +179,15 @@ export default {
 
         this.assetForm.file = null;
         // TODO: This file upload size is defined in server config.js.
-      } else if ( this.assetForm.file &&
-        this.assetForm.file.size > 1024 * 1024 * 20) {
+      } else if (
+        this.assetForm.file &&
+        this.assetForm.file.size > 1024 * 1024 * 20
+      ) {
         this.$buefy.toast.open({
           message: `${this.assetForm.file.name} is too large, cannot upload field larger than 20MiB.`,
           type: "is-danger",
         });
       } else {
-        console.log(this.assetForm.file);
         // Add the scenario to state
         try {
           this.addMode
@@ -203,45 +203,8 @@ export default {
 
 <!-- Global Styles -->
 <style lang="scss">
-// FIXME: make these global for fixing max-width uploads?
-.field.file {
-  .field-body {
-    max-width: 100%;
-  }
-
-  .field.has-addons {
-    max-width: 100%;
-  }
-
-  .file-name {
-    width: 100%;
-    max-width: unset;
-  }
-
-  .file-name.control {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-}
-
-// Remove default error messages when no-help class is applied
-.field.no-help > .help {
-  display: none;
-}
-</style>
-
-<style scoped lang="scss">
-.flex-field-wrapper {
-  width: 100%;
-  display: flex;
+// Fixes Share so grouped field is spaced
+.field-flex-space > .field-body > .field.is-grouped {
   justify-content: space-between;
-  align-items: flex-end;
-  // set default field margin-bottom
-  margin-bottom: 0.75rem;
-}
-
-.flex-field {
-  // clear field margin-bottom so lines up right in flexbox
-  margin-bottom: 0;
 }
 </style>

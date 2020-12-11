@@ -16,11 +16,13 @@
       </span>
       <span>Created {{ scenario.created | timeToNow }}</span>
       <span class="is-pulled-right">{{ scenario.owner }}</span>
-      <p v-if="scenario.citation">Citation: {{scenario.citation}}</p>
+      <p v-if="scenario.citation">Citation: {{ scenario.citation }}</p>
     </div>
     <template v-slot:footer>
       <b-taglist style="margin-left: auto">
-        <b-tag v-if="scenario.public" type="is-info">Public</b-tag>
+        <b-tag v-if="!hidepublic && scenario.public" type="is-info"
+          >Public</b-tag
+        >
       </b-taglist>
     </template>
   </ItemCard>
@@ -35,14 +37,14 @@ export default {
   props: {
     scenario: {
       type: Object,
-      required: true
+      required: true,
     },
     link: {
       type: Boolean,
       default: true,
-      required: false
-    }
-  }
+    },
+    hidepublic: Boolean,
+  },
 };
 </script>
 

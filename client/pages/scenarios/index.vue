@@ -25,22 +25,6 @@
       </b-field>
     </template>
 
-    <!-- FIXME: switch to owner selector or remove
-    <template v-slot:toolbar-end>
-      <b-field v-if="scenarioSet.length > 1">
-        <b-select v-model="sortBy">
-          <option
-            v-for="option in sortOptions"
-            :key="option.key"
-            :value="option.key"
-          >
-            {{ option.name }}
-          </option>
-        </b-select>
-      </b-field>
-    </template>
-    -->
-
     <p
       v-if="!(scenarioSet.length - numSharedScenarios)"
       class="empty-text has-text-weight-medium is-size-5"
@@ -122,10 +106,12 @@ export default {
           this.$buefy.dialog.confirm({
             title: "Batch Delete Scenarios",
             message:
-              "You will <b>not</b> be warned before deleting individual scenarios while active, deleted scenarios are <b>not recoverable</b>!",
+              "You will <b>not</b> be warned before deleting individual scenarios while active,<br /> deleted scenarios are <b>not recoverable</b>!",
             confirmText: "I Understand",
             type: "is-danger",
+            hasModalCard: true,
             hasIcon: true,
+            trapFocus: true,
             onConfirm: () => (this.batchDeleteState = true),
           });
         else this.batchDeleteState = false;
@@ -168,17 +154,20 @@ export default {
       duplicateScenario: "scenarios/duplicateScenario",
     }),
     deleteScenario(id) {
-      if (!this.batchDelete)
+      if (!this.batchDelete) {
+        const name = this.scenarioSet.find((scenario) => scenario.id === id)
+          .name;
+
         this.$buefy.dialog.confirm({
-          title: "Delete Scenario",
+          title: `Delete ${name}`,
           message:
-            "Deleted scenarios are <b>not recoverable</b>! Are you sure you want to delete this scenario?",
+            "Deleted scenarios are <b>not recoverable</b>!<br /> Are you sure you want to delete this scenario?",
           confirmText: "Delete",
           type: "is-danger",
           hasIcon: true,
           onConfirm: () => this.removeScenario(id),
         });
-      else this.removeScenario(id);
+      } else this.removeScenario(id);
     },
   },
   head() {

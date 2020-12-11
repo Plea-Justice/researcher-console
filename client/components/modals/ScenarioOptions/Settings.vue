@@ -137,8 +137,6 @@ export default {
       this.surveyFocused = focus;
     },
     async onSubmit() {
-      console.log("Submit Called");
-
       await this.$v.scenarioForm.$touch();
       if (this.$v.scenarioForm.$invalid) {
         this.$buefy.toast.open({

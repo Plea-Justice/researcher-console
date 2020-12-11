@@ -1,13 +1,41 @@
 // ******** Buttons ********
 
-// FIXES
+// ******** FIXES ********
 
 // Treats .b-tooltip like .button inside .buttons
 // based on the default .button styling
-// FIXME: should target if inner button isn't .button:not(.is-fullwidth)
+// FIXME: this should technically target if inner button isn't .button:not(.is-fullwidth)
 .buttons .b-tooltip:not(:last-child) {
   margin-right: 0.5rem;
 }
+
+// Fixes upload behavior for fullwidth
+// ********
+.field.file {
+  .field-body {
+    max-width: 100%;
+  }
+
+  .field.has-addons {
+    max-width: 100%;
+  }
+
+  .file-name {
+    width: 100%;
+    max-width: unset;
+  }
+
+  .file-name.control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
+// Remove default error messages when no-help class is applied
+.field.no-help > .help {
+  display: none;
+}
+// ********
 
 // TEMPFIX: issue#10
 // for bulma 0.9.1, should be fixed in next release
@@ -28,6 +56,17 @@
 // ******** Additions/Improvements ********
 
 // Allows modals to size more flexibly (width)
+// ****
+.animation-content {
+  max-width: unset !important;
+}
+
+.dialog .modal-card {
+  // Use custom .modal-card sizes defined below
+  max-width: unset !important;
+  width: unset !important;
+}
+
 .modal-card {
   max-width: 90vw;
   width: minmax(10vw, auto) !important;
@@ -46,3 +85,4 @@
   border-bottom-left-radius: $radius-large;
   border-bottom-right-radius: $radius-large;
 }
+// ****

@@ -51,11 +51,11 @@
     </template>
 
     <!-- If no assets exists -->
-    <div v-if="!numMyAssets" class="empty-text has-text-weight-medium is-size-5">
-      <p>Your asset library is empty.</p><br />
-      <p>Assets are needed to create an animated scenario.</p>
-      <p>To get started, upload an asset or copy assets to here from the shared asset library.</p>
-    </div>
+    <p v-if="!numMyAssets" class="empty-text has-text-weight-medium is-size-5">
+      Your asset library is empty, assets are used to create animated scenarios.
+      <br />
+      Upload or copy asset(s) from the shared asset library to get started.
+    </p>
 
     <template v-else>
       <div v-for="type in selectedTypes" :key="type" class="box">
@@ -126,7 +126,7 @@ export default {
           this.$buefy.dialog.confirm({
             title: "Batch Delete Scenarios",
             message:
-              "You will <b>not</b> be warned before deleting individual assets while active, deleted assets are <b>not recoverable</b>!",
+              "You will <b>not</b> be warned before deleting individual assets while active,<br /> deleted assets are <b>not recoverable</b>!",
             confirmText: "I Understand",
             type: "is-danger",
             hasIcon: true,
@@ -196,9 +196,9 @@ export default {
       removeAsset: "assets/removeAsset",
     }),
     deleteAsset(id) {
-      const name = this.assetSet.find((asset) => asset.id === id).name;
+      if (!this.batchDelete) {
+        const name = this.assetSet.find((asset) => asset.id === id).name;
 
-      if (!this.batchDelete)
         this.$buefy.modal.open({
           parent: this,
           component: DeleteAsset,
@@ -207,7 +207,7 @@ export default {
           customClass: "dialog",
           trapFocus: true,
         });
-      else this.removeScenario(id);
+      } else this.removeAsset(id);
     },
   },
   head() {
@@ -230,9 +230,5 @@ export default {
   display: flex;
   flex-direction: row;
   gap: 0.5rem;
-}
-
-.section:first-child {
-  padding-top: 0;
 }
 </style>

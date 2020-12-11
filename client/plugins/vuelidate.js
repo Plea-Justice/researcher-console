@@ -18,6 +18,7 @@ Vue.use(vuelidateErrorExtractor, {
     alphaNum: 'Only letters and numbers allowed',
     alphaNumSpace: 'Only letters and numbers allowed.',
     alphaNumExtended: 'Only letters, numbers, or _-+()$. allowed.',
-    maxLength: 'Exceeds the max length'
+    maxLength: 'Exceeds the max length',
+    url: "Must be of a proper url format, e.g. 'www.pleajustice.org'"
   }
 });

@@ -267,7 +267,7 @@ export default {
             },
           });
         } finally {
-          if (response?.success) {
+          if (response?.status === 200) {
             this.submitState.setTempStatus(this.ButtonStatus.SUCCESS);
             this.loginForm = Object.assign({}, this.LoginForm);
             this.$v.loginForm.$reset();
@@ -294,10 +294,13 @@ export default {
         let response;
 
         try {
-          response = await this.$axios.$post("/api/v1/auth/register", this.loginForm);
+          response = await this.$axios.$post(
+            "/api/v1/auth/register",
+            this.loginForm
+          );
           this.loading = false;
         } finally {
-          if (response?.success) {
+          if (response?.status === 200) {
             this.submitState.setTempStatus(this.ButtonStatus.SUCCESS);
             const successToast = this.$buefy.toast.open({
               message: "Account created, logging you in",

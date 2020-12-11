@@ -176,11 +176,11 @@ export default {
       adminHelp: adminHelp,
       checked: [],
       users: [],
-      loading: true
+      loading: true,
     };
   },
   computed: {
-    activeCount: function() {
+    activeCount: function () {
       return this.users.reduce(
         (acc, curr) =>
           Date.now() - new Date(curr.lastActive) < 1000 * 60 * 60 * 24 * 7
@@ -188,7 +188,7 @@ export default {
             : acc,
         0
       );
-    }
+    },
   },
   async asyncData({ params, $axios }) {
     let ret = {};
@@ -214,10 +214,10 @@ export default {
         this.adminAPICall(
           "Delete User",
           `Confirm deletion of user(s) [${this.checked.map(
-            x => x.name
+            (x) => x.name
           )}] by typing your password.`,
           "delete",
-          this.checked.map(x => `/api/v1/admin/users/${x.id}`)
+          this.checked.map((x) => `/api/v1/admin/users/${x.id}`)
         );
     },
     modifyPermissions(user, permissions) {
@@ -230,9 +230,8 @@ export default {
       );
     },
     togglePermission(id, permission) {
-      const user = this.users.find(x => x.id === id);
+      const user = this.users.find((x) => x.id === id);
       const permissions = { [permission]: user[permission] ? false : true };
-      console.log(id, permission, user, permissions);
       this.modifyPermissions(user, permissions);
     },
     changePassword() {
@@ -240,25 +239,25 @@ export default {
         this.$buefy.dialog.prompt({
           title: "New Password",
           message: `Enter new password for user(s) [${this.checked.map(
-            x => x.name
+            (x) => x.name
           )}].`,
           inputAttrs: {
             type: "password",
             placeholder: "New Password",
             "password-reveal": true,
-            maxlength: 100
+            maxlength: 100,
           },
           trapFocus: true,
-          onConfirm: newPass =>
+          onConfirm: (newPass) =>
             this.adminAPICall(
               "Confirm Change of Password",
               `Confirm change of password for user(s) [${this.checked.map(
-                x => x.name
+                (x) => x.name
               )}] by typing <u>your</u> password.`,
               "put",
-              this.checked.map(x => `/api/v1/admin/users/${x.id}/password`),
+              this.checked.map((x) => `/api/v1/admin/users/${x.id}/password`),
               { newPassword: newPass }
-            )
+            ),
         });
     },
     adminAPICall(title, message, method, urls, data) {
@@ -269,20 +268,24 @@ export default {
         inputAttrs: {
           type: "password",
           placeholder: "Administrator Password",
-          maxlength: 100
+          maxlength: 100,
         },
         trapFocus: true,
-        onConfirm: pass => Promise.all(
-          urls.map(url => this.$axios({
-            method: method,
-            url: url,
-            data: {
-              password: pass,
-              ...data
-            }
-          }))).then(this.refresh)
+        onConfirm: (pass) =>
+          Promise.all(
+            urls.map((url) =>
+              this.$axios({
+                method: method,
+                url: url,
+                data: {
+                  password: pass,
+                  ...data,
+                },
+              })
+            )
+          ).then(this.refresh),
       });
-    }
+    },
   },
   head() {
     return {
@@ -291,14 +294,14 @@ export default {
         {
           hid: "description",
           name: "description",
-          content: "Administration panel"
-        }
-      ]
+          content: "Administration panel",
+        },
+      ],
     };
   },
   // Do not allow unauthorized users.
   middleware({ redirect, $auth }) {
     if (!$auth.user.permitAdmin) return redirect("/");
-  }
+  },
 };
 </script>

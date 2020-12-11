@@ -13,7 +13,7 @@
       v-for="tagSet in tagSets"
       :key="tagSet.id"
       :label="tagSet.name"
-      :message="tagSet.tags.length < 1 ? 'Add levels of this variable.' : ''"
+      :message="!tagSet.tags.length ? 'Add levels of this variable.' : ''"
     >
       <b-taginput
         :value="tagSet.tags"

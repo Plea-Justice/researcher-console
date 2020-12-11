@@ -18,7 +18,7 @@
 
       <slot v-else name="header" />
 
-      <div>
+      <div class="body">
         <slot name="default" />
       </div>
     </section>
@@ -60,3 +60,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.body {
+  margin-top: 1.5rem;
+}
+</style>

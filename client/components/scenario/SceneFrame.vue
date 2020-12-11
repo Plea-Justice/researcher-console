@@ -222,7 +222,6 @@ export default {
 
     // Automatically force raise frame errors when scenes starts being added
     const unwatch = this.$watch("uniqueScenes", function (newValue) {
-      console.log(newValue);
       if (newValue > 0) {
         this.$v.label.$touch();
         this.updateFrameErrors({

@@ -31,7 +31,6 @@ export const actions = {
   },
   async duplicateAsset({ commit }, id) {
     const response = await this.$axios.$post(`/api/v1/assets/${id}`);
-
     if (response.success) commit('newAsset', { asset: response.result });
   },
   async removeAsset({ commit }, id) {

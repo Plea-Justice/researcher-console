@@ -1,14 +1,14 @@
 <template>
-  <SharedItems name="shared scenarios">
-    <template v-for="scenario in scenarioSet">
+  <SharedItems :name="`shared scenarios (${sharedScenarioSet.length})`">
+    <template v-for="scenario in sharedScenarioSet">
       <Scenario
         :key="scenario.id"
-        v-if="scenario.public && scenario.owner !== user.name"
         :scenario="scenario"
-        :labels="{duplicate: 'Copy to My Scenarios'}"
+        :labels="{ duplicate: 'Copy to My Scenarios' }"
         duplicate
-        @duplicate="duplicateScenario($event)"
+        @duplicate="duplicateScenarioHelper($event)"
         :link="false"
+        hidepublic
       />
     </template>
   </SharedItems>
@@ -30,13 +30,27 @@ export default {
   mixins: [User],
   computed: {
     ...mapGetters({
-      scenarioSet: "scenarios/scenarioSet"
-    })
+      scenarioSet: "scenarios/scenarioSet",
+    }),
+    sharedScenarioSet() {
+      return this.scenarioSet.filter(
+        (scenario) => scenario.public && scenario.owner !== this.user.name
+      );
+    },
   },
   methods: {
     ...mapActions({
-      duplicateScenario: "scenarios/duplicateScenario"
-    })
-  }
+      duplicateScenario: "scenarios/duplicateScenario",
+    }),
+    async duplicateScenarioHelper(id) {
+      const numScenarios = this.scenarioSet.length;
+      await this.duplicateScenario(id);
+      if (this.scenarioSet.length > numScenarios)
+        this.$buefy.toast.open({
+          message: "Copied Scenario",
+          type: "is-success",
+        });
+    },
+  },
 };
 </script>

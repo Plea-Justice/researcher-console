@@ -20,7 +20,8 @@
           </div>
 
           <p class="no-overflow">
-            Deleted assets are not recoverable.<br />
+            Deleted assets are <b>not recoverable!</b>
+            <br />
             Are you sure you want to delete this asset?
           </p>
         </div>

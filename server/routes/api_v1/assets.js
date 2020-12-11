@@ -254,7 +254,7 @@ module.exports = function (options) {
 
         } catch (err) {
             console.log(err);
-            res.status(500).json(util.failure('The asset could not be copied. Check for any assets with the same name.', err));
+            res.status(500).json(util.failure('Asset could not be copied, check for any assets with the same name.', err));
         }
     });
 
@@ -297,7 +297,7 @@ module.exports = function (options) {
 
             res.json(util.success('Returned scenarios that reference the asset.',  matches.map(x => x.meta)));
         } catch (err) {
-            console.log(err)
+            console.log(err);
             res.status(500).json(util.failure('References to the asset could not be checked.', err));
         }
     });
@@ -333,7 +333,7 @@ module.exports = function (options) {
             res.status(200).json(util.success('Asset deleted successfully.'));
         } catch (err) {
             console.log(err);
-            res.status(500).json(util.failure('The asset could not be deleted.', err));
+            res.status(500).json(util.failure('Asset could not be deleted.', err));
         }
     });
 

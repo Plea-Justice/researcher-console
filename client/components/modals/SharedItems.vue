@@ -14,17 +14,10 @@
 <script>
 export default {
   props: {
-    name: String
-  }
+    name: String,
+  },
 };
 </script>
-
-<style>
-/* FIXME: This will break things */
-.animation-content {
-  max-width: unset !important;
-}
-</style>
 
 <style scoped>
 .modal-card {

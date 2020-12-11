@@ -1,13 +1,14 @@
 <template>
-  <SharedItems :name="`Shared Assets: ${`(${sharedAssetSet.length})` || ''}`">
+  <SharedItems :name="`Shared Assets (${sharedAssetSet.length})`">
     <Asset
       v-for="asset in sharedAssetSet"
       :key="asset.id"
       :asset="asset"
       :itemType="'Scenario'"
-      :labels="{duplicate: 'Copy to My Assets'}"
+      :labels="{ duplicate: 'Copy to My Assets' }"
       duplicate
       @duplicate="copyAsset($event)"
+      hidepublic
     />
   </SharedItems>
 </template>
@@ -28,24 +29,24 @@ export default {
   mixins: [User],
   computed: {
     ...mapGetters({
-      assetSet: "assets/assetSet"
+      assetSet: "assets/assetSet",
     }),
     sharedAssetSet() {
       return this.assetSet.filter(
-        asset => asset.public && asset.owner !== this.user.name
+        (asset) => asset.public && asset.owner !== this.user.name
       );
-    }
+    },
   },
   methods: {
     ...mapActions({
-      duplicateAsset: "assets/duplicateAsset"
+      duplicateAsset: "assets/duplicateAsset",
     }),
     copyAsset(id) {
       console.log("Fired");
 
       //FIXME: needs check for duplicates
       this.duplicateAsset(id);
-    }
-  }
+    },
+  },
 };
 </script>
