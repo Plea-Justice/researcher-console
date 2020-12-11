@@ -1,11 +1,5 @@
 <template>
-  <ItemLayout
-    :contentTitle="`My Assets: ${this.selectedType} ${
-      `(${this.numSelectedAssets})` || ''
-    }`"
-    helpTitle="Asset Management"
-    :helpText="assetsHelp.navbar"
-  >
+  <ItemLayout helpTitle="Asset Management" :helpText="assetsHelp.navbar">
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
         <b-tooltip
@@ -19,7 +13,7 @@
             :value="addMode"
             :disabled="!user.permitUploads"
           >
-            Upload
+            Upload New
           </ToolBarButton>
         </b-tooltip>
         <ToolBarButton
@@ -31,15 +25,29 @@
         </ToolBarButton>
       </div>
     </template>
+
     <template v-slot:toolbar-end>
-      <b-field v-if="validTypes.length > 1">
-        <b-select placeholder="Asset Type" v-model="selectedType">
-          <option value="all">All</option>
-          <option v-for="type in validTypes" :key="type" :value="type">
-            {{ type | capitalize }}
-          </option>
-        </b-select>
+      <b-field label="Batch Delete">
+        <b-switch v-model="batchDelete" type="is-danger" />
       </b-field>
+    </template>
+
+    <template v-slot:header>
+      <div class="flex-title">
+        <h1 class="title">
+          My Assets
+          <span>({{ numSelectedAssets }})</span>
+        </h1>
+
+        <b-field v-if="validTypes.length > 1">
+          <b-select placeholder="Asset Type" v-model="selectedType">
+            <option value="all">All</option>
+            <option v-for="type in validTypes" :key="type" :value="type">
+              {{ type | capitalize }}
+            </option>
+          </b-select>
+        </b-field>
+      </div>
     </template>
 
     <!-- If no assets exists -->
@@ -49,7 +57,7 @@
     </p>
 
     <template v-else>
-      <div v-for="type in selectedTypes" :key="type" class="section">
+      <div v-for="type in selectedTypes" :key="type" class="box">
         <h3 class="title">{{ `${type}s` | capitalize }}</h3>
 
         <div class="item-grid">
@@ -59,7 +67,7 @@
               :asset="asset"
               v-if="asset.owner === user.name"
               remove
-              @remove="confirmDelete($event)"
+              @remove="deleteAsset($event)"
               edit
               @edit="openFormModal(asset)"
             />
@@ -101,12 +109,31 @@ export default {
       // import from JS file
       assetsHelp,
 
+      batchDeleteState: false,
       addMode: false,
       sharedMode: false,
       selectedType: "all",
     };
   },
   computed: {
+    batchDelete: {
+      get() {
+        return this.batchDeleteState;
+      },
+      set(newValue) {
+        if (newValue)
+          this.$buefy.dialog.confirm({
+            title: "Batch Delete Scenarios",
+            message:
+              "You will <b>not</b> be warned before deleting individual assets while active, deleted assets are <b>not recoverable</b>!",
+            confirmText: "I Understand",
+            type: "is-danger",
+            hasIcon: true,
+            onConfirm: () => (this.batchDeleteState = true),
+          });
+        else this.batchDeleteState = false;
+      },
+    },
     ...mapGetters({
       assetSet: "assets/assetSet",
     }),
@@ -167,22 +194,19 @@ export default {
     ...mapActions({
       removeAsset: "assets/removeAsset",
     }),
-    confirmDelete(id) {
-      let name = "";
-      for (const asset of this.assetSet)
-        if (asset.id === id) {
-          name = asset.name;
-          break;
-        }
+    deleteAsset(id) {
+      const name = this.assetSet.find((asset) => asset.id === id).name;
 
-      this.$buefy.modal.open({
-        parent: this,
-        component: DeleteAsset,
-        props: { id, name, onConfirm: () => this.removeAsset(id) },
-        hasModalCard: true,
-        customClass: "dialog",
-        trapFocus: true,
-      });
+      if (!this.batchDelete)
+        this.$buefy.modal.open({
+          parent: this,
+          component: DeleteAsset,
+          props: { id, name, onConfirm: () => this.removeAsset(id) },
+          hasModalCard: true,
+          customClass: "dialog",
+          trapFocus: true,
+        });
+      else this.removeScenario(id);
     },
   },
   head() {
@@ -201,33 +225,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.section:first-of-type {
+.flex-title {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.section:first-child {
   padding-top: 0;
-}
-
-.empty-text {
-  position: absolute;
-}
-
-.image-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  height: 100%;
-  width: 100%;
-
-  position: absolute;
-  top: 0;
-  z-index: 1;
-
-  background-color: #ffffff;
-}
-
-.asset-meta {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 0.5rem;
 }
 </style>

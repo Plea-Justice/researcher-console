@@ -80,8 +80,9 @@ export const actions = {
   },
 
   // **** Scenario Actions ****
-  updateMeta({ commit }, meta) {
+  updateMeta({ commit, dispatch }, meta) {
     commit('updateMeta', { meta });
+    dispatch('saveMeta');
   },
   updateFrameErrors({ commit }, { valid, id }) {
     commit('setFrameErrors', { valid, id });
@@ -306,11 +307,8 @@ export const mutations = {
   },
 
   // **** Scenario Mutations ****
-  // TODO: double check update meta
-  updateMeta(state, payload) {
-    Object.keys(state.meta).forEach(key => {
-      if (payload.meta.hasOwnProperty(key)) Vue.set(state.meta, key, payload.meta[key]);
-    });
+  updateMeta(state, { meta }) {
+    this._vm.$set(state, 'meta', { ...this.state.meta, meta });
   },
   updateSceneCount(state, { modifier, frameId }) {
     state.numScenes += modifier;

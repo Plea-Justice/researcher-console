@@ -32,9 +32,8 @@
 
       <div v-else>
         <p class="content" v-if="!conditionTags.length">
-          No labels selected. <br />
-          Label this condition by selecting a level for each of the variables
-          below.
+          No labels selected, Label this condition by selecting a level for each
+          of the variables below.
         </p>
 
         <b-taglist v-else>
@@ -43,21 +42,23 @@
           </b-tag>
         </b-taglist>
 
-        <b-field
-          v-for="tagSet in tagSets"
-          :key="tagSet.id"
-          :label="tagSet.name"
-        >
-          <b-select
-            :value="getSetTagId(tagSet)"
-            @input="tagCondition($event, tagSet)"
+        <div class="fields">
+          <b-field
+            v-for="tagSet in tagSets"
+            :key="tagSet.id"
+            :label="tagSet.name"
           >
-            <option :value="null">None</option>
-            <option v-for="tag in tagSet.tags" :key="tag.id" :value="tag.id">
-              {{ tag.name }}
-            </option>
-          </b-select>
-        </b-field>
+            <b-select
+              :value="getSetTagId(tagSet)"
+              @input="tagCondition($event, tagSet)"
+            >
+              <option :value="null">None</option>
+              <option v-for="tag in tagSet.tags" :key="tag.id" :value="tag.id">
+                {{ tag.name }}
+              </option>
+            </b-select>
+          </b-field>
+        </div>
       </div>
     </section>
   </div>
@@ -144,4 +145,12 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+</style>
 

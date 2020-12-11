@@ -38,7 +38,9 @@
           :key="keyfield ? item[keyfield] : item"
         >
           <b-checkbox v-model="checked" :native-value="item" expanded>
-            <slot name="litem" v-bind:item="item">{{ textfield ? item[textfield] : item }}</slot>
+            <slot name="litem" v-bind:item="item">{{
+              textfield ? item[textfield] : item
+            }}</slot>
           </b-checkbox>
         </label>
       </template>
@@ -72,7 +74,9 @@
           :key="keyfield ? item[keyfield] : item"
         >
           <b-checkbox v-model="checked" :native-value="item" expanded>
-            <slot name="ritem" v-bind:item="item">{{ textfield ? item[textfield] : item }}</slot>
+            <slot name="ritem" v-bind:item="item">{{
+              textfield ? item[textfield] : item
+            }}</slot>
           </b-checkbox>
         </label>
       </template>
@@ -110,11 +114,7 @@ export default {
       default: null,
       required: false,
     },
-    label: {
-      type: String,
-      default: "Select items from the left column.",
-      required: false,
-    },
+    label: String,
     lhead: {
       type: String,
       default: "Options",

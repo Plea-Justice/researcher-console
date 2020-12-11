@@ -19,6 +19,12 @@
       </div>
     </template>
 
+    <template v-slot:toolbar-end>
+      <b-field label="Batch Delete">
+        <b-switch v-model="batchDelete" type="is-danger" />
+      </b-field>
+    </template>
+
     <!-- FIXME: switch to owner selector or remove
     <template v-slot:toolbar-end>
       <b-field v-if="scenarioSet.length > 1">
@@ -34,6 +40,7 @@
       </b-field>
     </template>
     -->
+
     <p
       v-if="!(scenarioSet.length - numSharedScenarios)"
       class="empty-text has-text-weight-medium is-size-5"
@@ -49,7 +56,7 @@
           v-if="scenario.owner === user.name"
           :scenario="scenario"
           remove
-          @remove="confirmDelete($event)"
+          @remove="deleteScenario($event)"
           edit
           @edit="openFormModal(scenario)"
           duplicate
@@ -88,23 +95,42 @@ export default {
     const sortOptions = [
       { name: "Last Modified", key: "modified" },
       { name: "Newest", key: "created" },
-      { name: "Name", key: "name" }
+      { name: "Name", key: "name" },
     ];
 
     return {
       // import from JS file
       scenariosHelp,
 
+      batchDeleteState: false,
       addMode: false,
       sharedMode: false,
 
       sortOptions,
-      sortBy: sortOptions[0].key
+      sortBy: sortOptions[0].key,
     };
   },
   computed: {
+    batchDelete: {
+      get() {
+        return this.batchDeleteState;
+      },
+      set(newValue) {
+        if (newValue)
+          this.$buefy.dialog.confirm({
+            title: "Batch Delete Scenarios",
+            message:
+              "You will <b>not</b> be warned before deleting individual scenarios while active, deleted scenarios are <b>not recoverable</b>!",
+            confirmText: "I Understand",
+            type: "is-danger",
+            hasIcon: true,
+            onConfirm: () => (this.batchDeleteState = true),
+          });
+        else this.batchDeleteState = false;
+      },
+    },
     ...mapGetters({
-      scenarioSet: "scenarios/scenarioSet"
+      scenarioSet: "scenarios/scenarioSet",
     }),
     numSharedScenarios() {
       return this.scenarioSet.reduce(
@@ -114,8 +140,8 @@ export default {
       );
     },
     sortedScenarios() {
-      return this.scenarioSet.sort(scenario => scenario[this.sortBy]);
-    }
+      return this.scenarioSet.sort((scenario) => scenario[this.sortBy]);
+    },
   },
   methods: {
     openFormModal(scenario) {
@@ -124,7 +150,7 @@ export default {
         component: ScenarioForm,
         props: { scenario, user: this.user },
         hasModalCard: true,
-        trapFocus: true
+        trapFocus: true,
       });
     },
     openSharedModal() {
@@ -132,24 +158,26 @@ export default {
         parent: this,
         component: SharedScenarios,
         hasModalCard: true,
-        trapFocus: true
+        trapFocus: true,
       });
     },
     ...mapActions({
       removeScenario: "scenarios/removeScenario",
-      duplicateScenario: "scenarios/duplicateScenario"
+      duplicateScenario: "scenarios/duplicateScenario",
     }),
-    confirmDelete(event) {
-      this.$buefy.dialog.confirm({
-        title: "Delete Scenario",
-        message:
-          "Deleted scenarios are not recoverable! Are you sure you want to delete this scenario?",
-        confirmText: "Delete",
-        type: "is-danger",
-        hasIcon: true,
-        onConfirm: () => this.removeScenario(event)
-      });
-    }
+    deleteScenario(id) {
+      if (!this.batchDelete)
+        this.$buefy.dialog.confirm({
+          title: "Delete Scenario",
+          message:
+            "Deleted scenarios are <b>not recoverable</b>! Are you sure you want to delete this scenario?",
+          confirmText: "Delete",
+          type: "is-danger",
+          hasIcon: true,
+          onConfirm: () => this.removeScenario(id),
+        });
+      else this.removeScenario(id);
+    },
   },
   head() {
     return {
@@ -158,11 +186,11 @@ export default {
         {
           hid: "description",
           name: "description",
-          content: "List of available scenarios"
-        }
-      ]
+          content: "List of available scenarios",
+        },
+      ],
     };
-  }
+  },
 };
 </script>
 

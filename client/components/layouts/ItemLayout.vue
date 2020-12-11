@@ -12,9 +12,15 @@
     </ToolBar>
 
     <section class="section container">
-      <h1 class="title is-capitalized">{{ contentTitle }}</h1>
+      <h1 v-if="contentTitle" class="title is-capitalized">
+        {{ contentTitle }}
+      </h1>
 
-      <slot name="default" />
+      <slot v-else name="header" />
+
+      <div>
+        <slot name="default" />
+      </div>
     </section>
   </div>
 </template>
@@ -33,24 +39,24 @@ export default {
   props: {
     title: {
       type: String,
-      required: false
+      required: false,
     },
     path: {
       type: String,
-      required: false
+      required: false,
     },
     helpTitle: {
       type: String,
-      required: false
+      required: false,
     },
     helpText: {
       type: String,
-      required: false
+      required: false,
     },
     contentTitle: {
       type: String,
-      required: false
-    }
-  }
+      required: false,
+    },
+  },
 };
 </script>

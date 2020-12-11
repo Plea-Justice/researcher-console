@@ -5,7 +5,11 @@
 
       <div class="frame box">
         <!-- Sidebar -->
-        <aside v-show="frame.size || !isOnly" class="sidebar buttons">
+        <aside
+          v-show="frame.size || !isOnly"
+          class="sidebar buttons"
+          :class="{ collapsed: collapsed }"
+        >
           <b-button
             v-if="env.MODE === 'development'"
             :label="frame.size.toString()"
@@ -54,7 +58,7 @@
 
         <div
           class="frame-content"
-          :class="{ 'frame-content-collapsed': collapsed }"
+          :class="{ collapsed: collapsed }"
           :style="{ '--num-scenes': this.frame.scenes.length }"
         >
           <div class="frame-header">
@@ -397,18 +401,18 @@ export default {
   padding: $framePadding;
 }
 
-.frame-content-collapsed {
-  display: flex;
-  align-items: center;
-
-  $scene: $frameSceneGap + $sceneWidth;
-  min-width: calc(#{$scene} * var(--num-scenes) - #{$frameSceneGap});
-  width: max-content;
-}
-
 .frame-content {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+
+  &.collapsed {
+    display: flex;
+    justify-content: center;
+    $scene: $frameSceneGap + $sceneWidth;
+    min-width: calc(#{$scene} * var(--num-scenes) - #{$frameSceneGap});
+    width: max-content;
+  }
 }
 
 .frame-header {

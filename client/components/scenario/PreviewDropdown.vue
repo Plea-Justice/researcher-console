@@ -72,7 +72,6 @@ export default {
   methods: {
     ...mapActions({
       updateMeta: "scenario/updateMeta",
-      saveMeta: "scenario/saveMeta",
     }),
     async preview() {
       // TODO: Ask on unsaved, invalid, etc.
@@ -200,7 +199,6 @@ export default {
             this.updateMeta({
               live: `${process.env.LIVE_URL}/sim-${this.scenarioMeta.id}/simulation.html`,
             });
-            this.saveMeta();
 
             this.liveURLPopup();
           } finally {

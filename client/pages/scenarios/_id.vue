@@ -22,21 +22,21 @@
               />
             </b-tooltip>
 
-            <ToolBarButton
-              @click="openScenarioOptions()"
-              :value="mode"
-              icon-left="cog"
+            <b-tooltip
+              :active="!scenarioMeta.survey || scenarioAssetList.length < 1"
+              :label="optionWarnings.message || ''"
+              type="is-warning is-light"
+              position="is-bottom"
             >
-              <span>Options</span>
-              <b-tooltip
-                v-if="!scenarioMeta.survey || scenarioAssetList.length < 1"
-                class="ml-3 is-pulled-right"
-                label="Check that your scenario options are filled."
-                position="is-right"
-              >
-                <b-icon icon="info-circle" type="is-info" size="is-small" />
-              </b-tooltip>
-            </ToolBarButton>
+              <ToolBarButton
+                @click="openScenarioOptions(optionWarnings.tab)"
+                :value="mode"
+                label="Options"
+                icon-left="cog"
+                :icon-right="optionWarnings.flag ? 'info-circle' : ''"
+                :type="optionWarnings.flag ? 'is-warning' : ''"
+              />
+            </b-tooltip>
 
             <b-button
               @click="collapseAll()"
@@ -50,8 +50,8 @@
               @click="addCondition()"
               :value="mode"
               :disabled="!numScenes"
-              >Add Condition
-            </ToolBarButton>
+              label="Add Condition"
+            />
           </div>
 
           <div class="level-item buttons">
@@ -60,24 +60,24 @@
               @click="toggleHandler($event, 'swap')"
               :mode="Modes.SWAP"
               :disabled="numScenes < 2"
-              >Swap
-            </ToolBarButton>
+              label="Swap"
+            />
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'copy')"
               :mode="Modes.COPY"
               :disabled="numScenes < 2"
-              >Copy
-            </ToolBarButton>
+              label="Copy"
+            />
 
             <ToolBarButton
               v-model="mode"
               @click="toggleHandler($event, 'bind')"
               :mode="Modes.BIND"
               :disabled="numScenes < 2"
-              >Bind
-            </ToolBarButton>
+              label="Bind"
+            />
           </div>
         </template>
 
@@ -203,6 +203,7 @@ export default {
       "scenario/setSceneErrors",
       "scenario/setFrameErrors",
       "scenario/updateScenarioValidity",
+      "scenario/saveMeta",
     ];
 
     this.$store.subscribe((mutation, state) => {
@@ -230,6 +231,7 @@ export default {
     // CTRL + S to save. Use a library if we add more hotkeys.
     this._listenKeySave = (e) => {
       if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+        //FIXME: this should click the save button instead
         e.preventDefault();
         this.saveHelper();
       }
@@ -245,6 +247,20 @@ export default {
       numScenes: "scenario/numScenes",
       frameSet: "scenario/frameSet",
     }),
+    optionWarnings() {
+      if (!this.scenarioMeta.survey || !this.scenarioAssetList.length)
+        return {
+          flag: true,
+          message: !this.scenarioAssetList.length
+            ? "No assets selected to use with this scenario"
+            : "Some scenario options missing",
+          tab: !this.scenarioAssetList.length ? "assets" : "settings",
+        };
+      else
+        return {
+          flag: false,
+        };
+    },
     numErrors() {
       const { frameErrors, sceneErrors } = this.scenarioStatus;
       return frameErrors.length + sceneErrors.length;
@@ -310,6 +326,8 @@ export default {
       }
     },
     async saveHelper() {
+      // TODO: send out request to validate all groups (frames & scene cards)
+
       if (this.scenarioStoreHasChanged) {
         this.saving = true;
         if (this.scenarioStatus.valid) {
@@ -377,10 +395,11 @@ export default {
         });
       });
     },
-    openScenarioOptions() {
+    openScenarioOptions(tab = "") {
       this.$buefy.modal.open({
         parent: this,
         component: ScenarioOptions,
+        props: { openTab: tab },
         hasModalCard: true,
         trapFocus: true,
       });

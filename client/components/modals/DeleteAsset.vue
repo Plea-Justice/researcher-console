@@ -14,7 +14,7 @@
             <ul>
               <li v-for="ref in references" :key="ref.id">
                 {{ ref.name }}
-                &emsp;<span class="is-size-7">(Owned by: {{ref.owner}})</span>
+                &emsp;<span class="is-size-7">(Owned by: {{ ref.owner }})</span>
               </li>
             </ul>
           </div>
@@ -42,39 +42,41 @@ export default {
   props: {
     id: {
       type: String,
-      required: true
+      required: true,
     },
     name: {
       type: String,
-      required: true
+      required: true,
     },
     onConfirm: {
       type: Function,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
-      references: null
+      references: null,
     };
   },
   mounted() {
-    this.$axios.$get(`/api/v1/assets/${this.id}/references`).then(response => {
-      if (response.success) this.references = response.result;
-    });
+    this.$axios
+      .$get(`/api/v1/assets/${this.id}/references`)
+      .then((response) => {
+        if (response.success) this.references = response.result;
+      });
   },
   methods: {
     closeModal() {
       this.$parent.close();
     },
     ...mapActions({
-      removeAsset: "assets/removeAsset"
+      removeAsset: "assets/removeAsset",
     }),
     confirmHelper() {
       this.onConfirm();
       this.closeModal();
-    }
-  }
+    },
+  },
 };
 </script>
 
