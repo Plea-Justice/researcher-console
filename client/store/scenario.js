@@ -198,11 +198,9 @@ export const actions = {
     const prevSceneIdx = frame.scenes.indexOf(id) - 1;
     const prevScene = prevSceneIdx >= 0 ? state.scenes[frame.scenes[prevSceneIdx]] : undefined;
 
-    if (typeof prevScene?.props === 'string' || prevScene?.bound) {
+    if (prevScene?.props) {
       commit('setScene', { id, scene: { id, props: null } });
       dispatch('bindScenes', [prevScene.id, id]);
-    } else if ((prevScene?.props ?? null) !== null) {
-      commit('setScene', { id, scene: { id, props: { ...prevScene.props } } });
     } else {
       commit('setScene', { id, scene: { id, props: {} } });
     }
@@ -236,12 +234,14 @@ export const actions = {
       }
     }
 
-    // TODO: add a way to do deletion directly instead of depending on conditions & frames?
-    commit('setScene', { id, scene: { id, props: null } });
-    const frameId = state.frameList[getters.frameSet.findIndex(({ scenes }) => scenes.includes(id))];
-    commit('updateSceneCount', { modifier: -1, frameId });
-    // unset scene error if removed scene was invalid
-    dispatch('updateSceneErrors', { id, valid: true });
+    if (state.scenes[id].props !== null) {
+      // TODO: add a way to do deletion directly instead of depending on conditions & frames?
+      commit('setScene', { id, scene: { id, props: null } });
+      const frameId = state.frameList[getters.frameSet.findIndex(({ scenes }) => scenes.includes(id))];
+      commit('updateSceneCount', { modifier: -1, frameId });
+      // unset scene error if removed scene was invalid
+      dispatch('updateSceneErrors', { id, valid: true });
+    }
   },
   updateScene({ commit, dispatch }, { id, valid, props }) {
     commit('setSceneProps', {
@@ -254,8 +254,20 @@ export const actions = {
   copyScenes({ commit, state }, [parentId, ...childIds]) {
     childIds.forEach(id => commit('setScene', { id, scene: { ...state.scenes[parentId], id } }));
   },
-  bindScenes({ commit, dispatch, state }, [parentId, ...childIds]) {
+  bindScenes({ commit, dispatch, state, getters }, [parentId, ...childIds]) {
     const parent = state.scenes[parentId];
+
+    const refFrame = getters.frameSet.find(frame => frame.scenes.includes(parentId));
+
+    let unorderedId = false;
+    for (const id of refFrame.scenes) {
+      if (id === parentId) break;
+      else if (childIds.includes(id)) {
+        unorderedId = id;
+        break;
+      }
+    }
+
     // TODO: Update key directly?
     // Update parent's bound reference counter
     commit('setScene', {
@@ -271,6 +283,10 @@ export const actions = {
         props: parent.id
       })
     );
+
+    if (unorderedId) {
+      dispatch('swapScene', [parentId, unorderedId]);
+    }
   },
   unbindScene({ commit, dispatch, state }, { id, parentId }) {
     const childId = id;
@@ -288,7 +304,7 @@ export const actions = {
     commit('setScene', { id: parentId, scene: { ...parent, bound: parent.bound - 1 } });
   },
   swapScene({ commit, state }, [id1, id2]) {
-    // TODO: Splice frame instead?
+    // TODO: Splice swap references directly instead of resetting objects
     const scene1 = { ...state.scenes[id1], id: id2 };
     commit('setScene', { id: id1, scene: { ...state.scenes[id2], id: id1 } });
     commit('setScene', { id: id2, scene: scene1 });
@@ -387,7 +403,6 @@ export const mutations = {
       state.frameList.forEach(frameId => {
         const currFrame = state.frames[frameId];
         // Remove that conditions scene's from each frame
-        // TODO: fix this being a direct mutation?
         const removedSceneId = currFrame.scenes.splice(index, 1);
 
         // Remove scene from scenes
