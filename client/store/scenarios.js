@@ -1,6 +1,4 @@
 /* eslint no-shadow: ["error", { "allow": ["state", "getters"] }] */
-// eslint-disable-next-line import/no-extraneous-dependencies
-import Vue from 'vue';
 
 export const state = () => ({
   scenarios: {},
@@ -50,21 +48,21 @@ export const mutations = {
   },
   newScenario(state, scenario) {
     // Add new scenario to state
-    Vue.set(state.scenarios, scenario.id, scenario);
+    this._vm.$set(state.scenarios, scenario.id, scenario);
     state.scenarioList.unshift(scenario.id);
   },
   deleteScenario(state, payload) {
     // Remove scenario
     state.scenarioList.splice(state.scenarioList.indexOf(payload.id), 1);
-    Vue.delete(state.scenarios, payload.id);
+    this._vm.$delete(state.scenarios, payload.id);
   },
   updateScenario(state, payload) {
-    Vue.set(state.scenarios, payload.id, payload);
+    this._vm.$set(state.scenarios, payload.id, payload);
   },
   copyScenario(state, payload) {
     const copiedScenario = Object.assign({}, payload);
 
-    Vue.set(state.scenarios, payload.id, copiedScenario);
+    this._vm.$set(state.scenarios, payload.id, copiedScenario);
     state.scenarioList.push(payload.id);
   }
 };

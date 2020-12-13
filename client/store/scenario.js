@@ -1,7 +1,4 @@
 /* eslint no-shadow: ["error", { "allow": ["state", "getters"] }] */
-// eslint-disable-next-line import/no-extraneous-dependencies
-import Vue from 'vue';
-// FIXME: use this.$set
 
 import { nanoid } from 'nanoid/non-secure';
 
@@ -254,7 +251,7 @@ export const actions = {
   copyScenes({ commit, state }, [parentId, ...childIds]) {
     childIds.forEach(id => commit('setScene', { id, scene: { ...state.scenes[parentId], id } }));
   },
-  bindScenes({ commit, dispatch, state, getters }, [parentId, ...childIds]) {
+  bindScenes({ dispatch, state, getters }, [parentId, ...childIds]) {
     const parent = state.scenes[parentId];
 
     const refFrame = getters.frameSet.find(frame => frame.scenes.includes(parentId));
@@ -268,18 +265,19 @@ export const actions = {
       }
     }
 
-    // TODO: Update key directly?
     // Update parent's bound reference counter
-    commit('setScene', {
+    const valid = !state.status.sceneErrors.includes(parentId);
+    dispatch('updateScene', {
       id: parent.id,
-      scene: { ...parent, bound: parent.bound ? parent.bound + childIds.length : childIds.length }
+      valid,
+      bound: parent.bound ? parent.bound + childIds.length : childIds.length
     });
 
     // Update children to reference parentId
     childIds.forEach(id =>
       dispatch('updateScene', {
         id,
-        valid: !state.status.sceneErrors.includes(parentId),
+        valid,
         props: parent.id
       })
     );
@@ -329,15 +327,15 @@ export const mutations = {
   updateSceneCount(state, { modifier, frameId }) {
     state.numScenes += modifier;
     const frame = state.frames[frameId];
-    Vue.set(state.frames, frameId, { ...frame, size: (frame.size += modifier) });
+    this._vm.$set(state.frames, frameId, { ...frame, size: (frame.size += modifier) });
   },
   updateScenarioValidity(state) {
     const hasErrors = state.status.sceneErrors.length || state.status.frameErrors.length;
     // if no errors, update valid key
     if (state.status.valid && hasErrors) {
-      Vue.set(state.status, 'valid', false);
+      this._vm.$set(state.status, 'valid', false);
     } else if (!state.status.valid && !hasErrors) {
-      Vue.set(state.status, 'valid', true);
+      this._vm.$set(state.status, 'valid', true);
     }
   },
   setFrameErrors(state, { valid, id }) {
@@ -378,7 +376,7 @@ export const mutations = {
   // **** Condition Mutations ****
   newCondition(state) {
     const id = nanoid();
-    Vue.set(state.conditions, id, { id, tags: [], customizations: {} });
+    this._vm.$set(state.conditions, id, { id, tags: [], customizations: {} });
     state.conditionList.push(id);
 
     // Copy last condition into new condition
@@ -387,7 +385,7 @@ export const mutations = {
 
       // Create new scene & add to frame
       const sceneId = nanoid();
-      Vue.set(state.scenes, sceneId, { id: sceneId, props: null });
+      this._vm.$set(state.scenes, sceneId, { id: sceneId, props: null });
       // TODO: fix these being direct mutations?
       frame.scenes.push(sceneId);
     });
@@ -406,12 +404,12 @@ export const mutations = {
         const removedSceneId = currFrame.scenes.splice(index, 1);
 
         // Remove scene from scenes
-        Vue.delete(state.scenes, removedSceneId);
+        this._vm.$delete(state.scenes, removedSceneId);
       });
     }
 
     state.conditionList.splice(index, 1);
-    Vue.delete(state.conditions, id);
+    this._vm.$delete(state.conditions, id);
   },
   setConditionTags(state, { conditionId, tags }) {
     // this._vm.$set(state.conditions[conditionId], 'tags', tags);
@@ -421,24 +419,24 @@ export const mutations = {
   // **** Frame Mutations ****
   newFrame(state, { index, id, frame }) {
     // Create frame
-    Vue.set(state.frames, id, frame);
+    this._vm.$set(state.frames, id, frame);
     state.frameList.splice(index, 0, id);
   },
   deleteFrame(state, { id }) {
     const frame = state.frames[id];
 
     // Remove scenes in frame
-    state.frames[id].scenes.forEach(sceneId => Vue.delete(state.scenes, sceneId));
+    state.frames[id].scenes.forEach(sceneId => this._vm.$delete(state.scenes, sceneId));
 
     // Update scene count
     state.numScenes -= frame.size;
 
     // Remove frame
     state.frameList.splice(state.frameList.indexOf(id), 1);
-    Vue.delete(state.frames, id);
+    this._vm.$delete(state.frames, id);
   },
   setFrameProp(state, { id, key, value }) {
-    Vue.set(state.frames[id], key, value);
+    this._vm.$set(state.frames[id], key, value);
   },
   moveFrame(state, { id, modifier }) {
     const fromIndex = state.frameList.indexOf(id);
@@ -451,10 +449,10 @@ export const mutations = {
   // **** Scene Mutations ****
   // FIXME: mark this as an unprotected mutation, use least possible
   setScene(state, { id, scene }) {
-    Vue.set(state.scenes, id, scene);
+    this._vm.$set(state.scenes, id, scene);
   },
   setSceneProps(state, { id, props }) {
     // Update scene
-    Vue.set(state.scenes, id, { ...state.scenes[id], props });
+    this._vm.$set(state.scenes, id, { ...state.scenes[id], props });
   }
 };

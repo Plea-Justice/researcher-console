@@ -1,7 +1,4 @@
 /* eslint no-shadow: ["error", { "allow": ["state", "getters"] }] */
-// eslint-disable-next-line import/no-extraneous-dependencies
-import Vue from 'vue';
-
 export const state = () => ({
   assets: {},
   assetList: [],
@@ -55,15 +52,15 @@ export const mutations = {
     // Add new asset to state
 
     // TODO: Order assets?
-    Vue.set(state.assets, asset.id, asset);
+    this._vm.$set(state.assets, asset.id, asset);
     state.assetList.unshift(asset.id);
   },
   deleteAsset(state, { id }) {
     // Remove asset
     state.assetList.splice(state.assetList.indexOf(id), 1);
-    Vue.delete(state.assets, id);
+    this._vm.$delete(state.assets, id);
   },
   updateAsset(state, asset) {
-    Vue.set(state.assets, asset.id, asset);
+    this._vm.$set(state.assets, asset.id, asset);
   }
 };
