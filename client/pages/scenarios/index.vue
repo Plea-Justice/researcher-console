@@ -10,12 +10,26 @@
           Create New
         </ToolBarButton>
         <ToolBarButton
-          v-if="numSharedScenarios"
+          v-if="hasSharedScenarios"
           @click="openSharedModal()"
           :value="sharedMode"
         >
           Shared Scenario Library
         </ToolBarButton>
+      </div>
+
+      <div class="level-item">
+        <b-field v-if="myScenarioSet.length > 1">
+          <b-autocomplete
+            v-model="searchName"
+            :data="searchList"
+            placeholder="Search by asset name"
+            icon="search"
+            clearable
+          >
+            <template slot="empty">No results found</template>
+          </b-autocomplete>
+        </b-field>
       </div>
     </template>
 
@@ -26,7 +40,7 @@
     </template>
 
     <p
-      v-if="!(scenarioSet.length - numSharedScenarios)"
+      v-if="!myScenarioSet.length"
       class="empty-text has-text-weight-medium is-size-5"
     >
       Your scenario library is empty!
@@ -36,7 +50,7 @@
     </p>
 
     <div v-else class="item-grid">
-      <template v-for="scenario in scenarioSet">
+      <template v-for="scenario in selectedScenarios">
         <Scenario
           :key="scenario.id"
           v-if="scenario.owner === user.name"
@@ -91,6 +105,7 @@ export default {
       batchDeleteState: false,
       addMode: false,
       sharedMode: false,
+      searchName: "",
 
       sortOptions,
       sortBy: sortOptions[0].key,
@@ -120,15 +135,28 @@ export default {
     ...mapGetters({
       scenarioSet: "scenarios/scenarioSet",
     }),
-    numSharedScenarios() {
-      return this.scenarioSet.reduce(
-        (acc, scenario) =>
-          scenario.owner !== this.user.name ? (acc += 1) : acc,
-        0
-      );
+    myScenarioSet() {
+      return this.scenarioSet
+        .filter((scenario) => scenario.owner === this.user.name)
+        .sort((scenario) => scenario[this.sortBy]);
     },
-    sortedScenarios() {
-      return this.scenarioSet.sort((scenario) => scenario[this.sortBy]);
+    hasSharedScenarios() {
+      return this.scenarioSet.length > this.myScenarioSet.length;
+    },
+    searchList() {
+      return this.myScenarioSet
+        .map((scenario) => scenario.name)
+        .filter(
+          (name) =>
+            name.toLowerCase().indexOf(this.searchName.toLowerCase()) >= 0
+        );
+    },
+    selectedScenarios() {
+      return this.searchName === ""
+        ? this.myScenarioSet
+        : this.myScenarioSet.filter((scenario) =>
+            this.searchList.includes(scenario.name)
+          );
     },
   },
   methods: {

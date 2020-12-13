@@ -25,7 +25,7 @@
           <b-button
             @click="removeScene(isBound ? bound : scene.id)"
             type="is-danger is-light"
-            icon-left="trash-alt"
+            icon-left="trash"
           />
         </p>
 

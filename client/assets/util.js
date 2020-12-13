@@ -1,6 +1,8 @@
 // Define empty function
 export function noop() {}
 
+export const toCapitalCase = string => (!string ? '' : string.toString()[0].toUpperCase() + string.slice(1));
+
 export const toPascalCase = text =>
   text.length
     ? text

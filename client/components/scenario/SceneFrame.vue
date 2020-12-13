@@ -51,7 +51,7 @@
             :disabled="isSelectable"
             type="is-text"
             class="has-text-danger"
-            icon-left="trash-alt"
+            icon-left="trash"
             size="is-medium"
           />
         </aside>

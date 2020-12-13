@@ -23,6 +23,18 @@
         >
           Shared Asset Library
         </ToolBarButton>
+
+        <b-field v-if="myAssetSet.length > 1">
+          <b-autocomplete
+            v-model="searchName"
+            :data="searchList"
+            placeholder="Search by asset name"
+            icon="search"
+            clearable
+          >
+            <template slot="empty">No results found</template>
+          </b-autocomplete>
+        </b-field>
       </div>
     </template>
 
@@ -34,13 +46,10 @@
 
     <template v-slot:header>
       <div class="flex-title">
-        <h1 class="title">
-          My Assets
-          <span>({{ numSelectedAssets }})</span>
-        </h1>
+        <h1 class="title">My Assets ({{ selectedAssets.length }})</h1>
 
-        <b-field v-if="validTypes.length > 1">
-          <b-select placeholder="Asset Type" v-model="selectedType">
+        <b-field v-if="validTypes.length > 1" horizontal>
+          <b-select v-model="selectedType" :disabled="isSearched">
             <option value="all">All</option>
             <option v-for="type in validTypes" :key="type" :value="type">
               {{ type | capitalize }}
@@ -51,18 +60,29 @@
     </template>
 
     <!-- If no assets exists -->
-    <p v-if="!numMyAssets" class="empty-text has-text-weight-medium is-size-5">
+    <p
+      v-if="!myAssetSet.length"
+      class="empty-text has-text-weight-medium is-size-5"
+    >
       Your asset library is empty, assets are used to create animated scenarios.
       <br />
       Upload or copy asset(s) from the shared asset library to get started.
     </p>
 
-    <template v-else>
-      <div v-for="type in selectedTypes" :key="type" class="box">
+    <template v-else v-for="type in validTypes">
+      <div
+        v-if="selectedAssets.some((asset) => asset.type === type)"
+        :key="type"
+        class="box"
+      >
         <h3 class="title">{{ `${type}s` | capitalize }}</h3>
 
         <div class="item-grid">
-          <template v-for="asset in myAssetsByType[type]">
+          <template
+            v-for="asset in selectedAssets.filter(
+              (asset) => asset.type === type
+            )"
+          >
             <Asset
               :key="asset.id"
               :asset="asset"
@@ -113,6 +133,7 @@ export default {
       batchDeleteState: false,
       addMode: false,
       sharedMode: false,
+      searchName: "",
       selectedType: "all",
     };
   },
@@ -135,43 +156,41 @@ export default {
         else this.batchDeleteState = false;
       },
     },
+    isSearched() {
+      return this.searchName !== "";
+    },
     ...mapGetters({
       assetSet: "assets/assetSet",
     }),
-    myAssetsByType() {
-      return this.assetSet
-        .filter((asset) => asset.owner === this.user.name)
-        .reduce(
-          (obj, asset) => (
-            obj[asset.type]
-              ? obj[asset.type].push(asset)
-              : (obj[asset.type] = [asset]),
-            obj
-          ),
-          {}
-        );
+    myAssetSet() {
+      return this.assetSet.filter((asset) => asset.owner === this.user.name);
     },
     validTypes() {
-      return Object.keys(this.myAssetsByType).sort();
+      return [...new Set(this.myAssetSet.map((asset) => asset.type))];
     },
-    selectedTypes() {
-      return this.selectedType === "all"
-        ? this.validTypes
-        : [this.selectedType];
+    searchList() {
+      return this.myAssetSet
+        .map((asset) => asset.name)
+        .filter(
+          (name) =>
+            name.toLowerCase().indexOf(this.searchName.toLowerCase()) >= 0
+        );
     },
-    numMyAssets() {
-      return Object.values(this.myAssetsByType).reduce(
-        (acc, assets) => (acc += assets.length),
-        0
-      );
-    },
-    numSelectedAssets() {
-      return this.selectedType === "all"
-        ? this.numMyAssets
-        : this.myAssetsByType[this.selectedType].length;
+    selectedAssets() {
+      if (this.searchName !== "") {
+        return this.myAssetSet.filter((asset) =>
+          this.searchList.includes(asset.name)
+        );
+      } else if (this.selectedType !== "all") {
+        return this.myAssetSet.filter(
+          (asset) => asset.type === this.selectedType
+        );
+      } else {
+        return this.myAssetSet;
+      }
     },
     hasSharedAssets() {
-      return this.numMyAssets < this.assetSet.length;
+      return this.assetSet.length > this.myAssetSet.length;
     },
   },
   methods: {

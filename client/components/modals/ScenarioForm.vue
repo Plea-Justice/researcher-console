@@ -79,7 +79,7 @@
 import { mapGetters, mapActions } from "vuex";
 
 // Import Utils
-import { toPascalCase } from "~/assets/util";
+import { toCapitalCase } from "~/assets/util";
 
 export default {
   props: {
@@ -139,17 +139,17 @@ export default {
         this.focus();
       } else {
         // Add scenario to state
-        const pascalName = toPascalCase(this.scenarioForm.name);
+        const capitalName = toCapitalCase(this.scenarioForm.name);
         try {
           this.addMode
-            ? this.addScenario({ ...this.scenarioForm, name: pascalName })
+            ? this.addScenario({ ...this.scenarioForm, name: capitalName })
             : this.editScenario({
                 ...this.scenarioForm,
-                name: pascalName,
+                name: capitalName,
               });
-
+        } finally {
           this.$parent.close();
-        } catch (error) {}
+        }
       }
     },
   },

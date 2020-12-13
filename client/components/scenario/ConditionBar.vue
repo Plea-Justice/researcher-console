@@ -23,7 +23,11 @@
                 <h1 class="subtitle">Condition {{ index + 1 }}</h1>
               </b-button>
 
-              <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-right">
+              <b-dropdown
+                aria-role="list"
+                class="is-pulled-right"
+                position="is-bottom-right"
+              >
                 <b-button
                   type="is-light"
                   size="is-small"
@@ -31,8 +35,16 @@
                   class="custom-small"
                   slot="trigger"
                 />
-                <b-dropdown-item @click="openTags(condition, index)" aria-role="listitem">Variable Tags</b-dropdown-item>
-                <b-dropdown-item @click="openAdvancedAssets(condition, index)" aria-role="listitem">Customize Assets</b-dropdown-item>
+                <b-dropdown-item
+                  @click="openTags(condition, index)"
+                  aria-role="listitem"
+                  >Variable Tags</b-dropdown-item
+                >
+                <b-dropdown-item
+                  @click="openAdvancedAssets(condition, index)"
+                  aria-role="listitem"
+                  >Customize Assets</b-dropdown-item
+                >
               </b-dropdown>
             </div>
 

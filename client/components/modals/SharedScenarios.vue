@@ -1,6 +1,23 @@
 <template>
-  <SharedItems :name="`shared scenarios (${sharedScenarioSet.length})`">
-    <template v-for="scenario in sharedScenarioSet">
+  <SharedItems>
+    <template v-slot:header>
+      <h1 class="modal-card-title">
+        Shared Scenarios ({{ selectedScenarios.length }})
+      </h1>
+      <b-field v-if="sharedScenarioSet.length > 1">
+        <b-autocomplete
+          v-model="searchName"
+          :data="searchList"
+          placeholder="Search by asset name"
+          icon="search"
+          clearable
+        >
+          <template slot="empty">No results found</template>
+        </b-autocomplete>
+      </b-field>
+    </template>
+
+    <template v-for="scenario in selectedScenarios">
       <Scenario
         :key="scenario.id"
         :scenario="scenario"
@@ -28,6 +45,11 @@ import Scenario from "~/components/cards/Scenario";
 export default {
   components: { SharedItems, Scenario },
   mixins: [User],
+  data() {
+    return {
+      searchName: "",
+    };
+  },
   computed: {
     ...mapGetters({
       scenarioSet: "scenarios/scenarioSet",
@@ -36,6 +58,21 @@ export default {
       return this.scenarioSet.filter(
         (scenario) => scenario.public && scenario.owner !== this.user.name
       );
+    },
+    searchList() {
+      return this.sharedScenarioSet
+        .map((scenario) => scenario.name)
+        .filter(
+          (name) =>
+            name.toLowerCase().indexOf(this.searchName.toLowerCase()) >= 0
+        );
+    },
+    selectedScenarios() {
+      return this.searchName === ""
+        ? this.sharedScenarioSet
+        : this.sharedScenarioSet.filter((scenario) =>
+            this.searchList.includes(scenario.name)
+          );
     },
   },
   methods: {
