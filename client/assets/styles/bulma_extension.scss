@@ -53,6 +53,16 @@
   margin-bottom: 0.75rem;
 }
 
+// Fixes .buttons adding margin when used on a .level-item
+.level-item.buttons {
+  margin-bottom: 0 !important;
+
+  // Fixes buttons not lining up due to extra margin in .level-item
+  & .button {
+    margin-bottom: 0;
+  }
+}
+
 // ******** Additions/Improvements ********
 
 // Allows modals to size more flexibly (width)

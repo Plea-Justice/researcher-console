@@ -51,7 +51,7 @@
             :disabled="isSelectable"
             type="is-text"
             class="has-text-danger"
-            icon-left="trash-alt"
+            icon-left="trash"
             size="is-medium"
           />
         </aside>
@@ -87,6 +87,7 @@
               <b-tooltip
                 :label="sceneCounterLabel"
                 position="is-right"
+                type="is-info"
                 animated
               >
                 <b-button
@@ -113,6 +114,7 @@
               <Scene
                 v-if="typeof scene.props === 'string'"
                 :bound="scene.id"
+                :boundIndex="frame.scenes.findIndex((id) => id === scene.props)"
                 :scene="getSiblingScene(scene.props)"
                 :index="index"
                 :collapsed="collapsed"

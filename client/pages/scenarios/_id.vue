@@ -40,7 +40,7 @@
 
             <b-button
               @click="collapseAll()"
-              :icon-left="`${collapsed ? 'expand' : 'compress'}-alt`"
+              :icon-left="`${collapsed ? 'expand' : 'compress'}-arrows-alt`"
               :disabled="numScenes < 1 || frameSet.length <= 1"
             />
           </div>

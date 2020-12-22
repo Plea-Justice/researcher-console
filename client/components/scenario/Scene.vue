@@ -15,7 +15,9 @@
       :collapsed="collapsed"
       :invalid="$v.form.$invalid"
     >
-      <p>{{ scene.bound }}</p>
+      <p v-if="env.MODE === 'development' && isBoundParent">
+        Bound Scenes: {{ scene.bound }}
+      </p>
 
       <!-- Scene Type Toggle -->
       <b-field class="is-capitalized field-centered">
@@ -23,14 +25,14 @@
           <b-button
             @click="removeScene(isBound ? bound : scene.id)"
             type="is-danger is-light"
-            icon-left="trash-alt"
+            icon-left="trash"
           />
         </p>
 
         <template v-if="isBound">
           <p class="control bound-label">
             <b-button type="is-light" disabled expanded>
-              Bound: Scene {{ index }}
+              Bound: Scene {{ boundIndex + 1 }}
             </b-button>
           </p>
           <p class="control">
@@ -105,7 +107,7 @@
         />
       </form-group>
 
-      <!-- FIXME: currenty only supports script modal (static) use programmatic modal? -->
+      <!-- TODO: currenty only supports script modal (static) use programmatic modal? -->
       <b-modal
         v-model="inputModalActive"
         has-modal-card
@@ -193,6 +195,7 @@ export default {
       required: false,
       default: false,
     },
+    boundIndex: Number,
   },
   data() {
     const defaultType = Object.keys(spec.sceneTypes)[0];
@@ -203,6 +206,8 @@ export default {
     };
 
     return {
+      env: { MODE: process.env.MODE },
+
       validSceneTypes: Object.keys(spec.sceneTypes),
       form,
 
@@ -280,17 +285,27 @@ export default {
     isBound() {
       return !!this.bound;
     },
+    isBoundParent() {
+      return !this.isBound && this.scene.bound;
+    },
     isSelectable() {
       let result = this.selectable;
+      // If a parent has already selected (at least the second item)
       if (typeof this.selectable !== "boolean") {
         result = true;
 
+        // If a filter defines scene must be in the same condition
         if (
           this.selectable.filters.includes("condition") &&
           this.selectable.parent.scene !== this.index
         )
           result = false;
 
+        // don't allow selection of a bound parent
+        // bound parent must be the first item selected if chaining (adding) additional bound scenes
+        if (this.scene.bound) result = false;
+
+        // If it's already in the list it's not selectable
         if (this.selectable.selectionList.includes(this.scene.id))
           result = false;
       }

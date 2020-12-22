@@ -55,14 +55,16 @@
         <div class="b-tooltips">
           <b-tooltip
             v-if="remove"
-            :label="labels && labels.remove ? labels.remove : `Delete ${itemType}`"
+            :label="
+              labels && labels.remove ? labels.remove : `Delete ${itemType}`
+            "
             type="is-danger"
             position="is-bottom"
           >
             <b-button
               @click="$emit('remove', item.id)"
               type="is-danger"
-              icon-left="trash-alt"
+              icon-left="trash"
             />
           </b-tooltip>
           <b-tooltip
@@ -74,7 +76,11 @@
           </b-tooltip>
           <b-tooltip
             v-if="duplicate"
-            :label="labels && labels.duplicate ? labels.duplicate : `Duplicate ${itemType}`"
+            :label="
+              labels && labels.duplicate
+                ? labels.duplicate
+                : `Duplicate ${itemType}`
+            "
             position="is-bottom"
           >
             <b-button @click="$emit('duplicate', item.id)" icon-left="clone" />

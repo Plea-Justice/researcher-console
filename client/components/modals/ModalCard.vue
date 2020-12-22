@@ -1,6 +1,6 @@
 <template>
   <b-modal
-    v-model="value"
+    v-model="innerValue"
     has-modal-card
     trap-focus
     :aria-role="ariaRole"
@@ -28,7 +28,7 @@ export default {
   props: {
     value: {
       type: Boolean,
-      value: false,
+      default: false,
     },
     title: String,
     isDark: Boolean,

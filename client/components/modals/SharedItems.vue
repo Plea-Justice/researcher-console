@@ -2,6 +2,7 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p v-if="name" class="modal-card-title is-capitalized">{{ name }}</p>
+      <slot v-else name="header" />
     </header>
     <section class="modal-card-body">
       <div class="item-grid">
@@ -22,11 +23,6 @@ export default {
 <style scoped>
 .modal-card {
   width: 90vw;
-}
-
-.modal-card-body {
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
 }
 
 .item-grid {
