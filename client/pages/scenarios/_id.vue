@@ -104,6 +104,7 @@
     <section class="section" v-if="env.MODE === 'development'">
       <p>Scenes: {{ numScenes }}</p>
       <p>{{ scenarioStatus }}</p>
+      <p>{{ scenarioMeta }}</p>
     </section>
 
     <section ref="frames" class="padded-responsive-container responsive-center">

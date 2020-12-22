@@ -140,8 +140,9 @@ export default {
           });
       }, 100);
 
+      let response;
       try {
-        const response = await this.$axios.post(
+        response = await this.$axios.post(
           `/api/v1/scenarios/${this.scenarioMeta.id}/download`
         );
       } finally {
@@ -149,10 +150,10 @@ export default {
         this.loadingToast?.close();
 
         this.publishState.setTempStatus(
-          response.success ? this.ButtonStatus.SUCCESS : this.ButtonStatus.ERROR
+          response?.data?.success ? this.ButtonStatus.SUCCESS : this.ButtonStatus.ERROR
         );
 
-        if (response.success) {
+        if (response?.data?.success) {
           this.$buefy.toast.open({
             queue: false,
             duration: 2000,
@@ -190,8 +191,9 @@ export default {
               });
           }, 100);
 
+          let response;
           try {
-            const response = await this.$axios.post(
+            response = await this.$axios.post(
               `/api/v1/scenarios/${this.scenarioMeta.id}/publish`,
               { password: pass }
             );
@@ -206,12 +208,12 @@ export default {
             loadingToast?.close();
 
             this.publishState.setTempStatus(
-              response.success
+              response?.data?.success
                 ? this.ButtonStatus.SUCCESS
                 : this.ButtonStatus.ERROR
             );
 
-            if (response.success) {
+            if (response?.data?.success) {
               this.$buefy.toast.open({
                 message: "Live simulation ready.",
                 type: "is-success",

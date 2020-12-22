@@ -10,7 +10,7 @@
         <code>
           <a
             id="link1"
-            class="p-2"
+            class="p-2 is-size-7"
             style="outline: grey dashed 1px"
             :href="url + 'avatar.html'"
             >{{ url + 'avatar.html' }}</a
@@ -29,7 +29,7 @@
         <code>
           <a
             id="link2"
-            class="p-2"
+            class="p-2 is-size-7"
             style="outline: grey dashed 1px"
             :href="url + 'simulation.html' "
             >{{ url + 'simulation.html' }}</a

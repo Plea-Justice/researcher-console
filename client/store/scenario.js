@@ -308,7 +308,7 @@ export const mutations = {
 
   // **** Scenario Mutations ****
   updateMeta(state, { meta }) {
-    this._vm.$set(state, 'meta', { ...this.state.meta, meta });
+    this._vm.$set(state, 'meta', { ...state.meta, ...meta });
   },
   updateSceneCount(state, { modifier, frameId }) {
     state.numScenes += modifier;

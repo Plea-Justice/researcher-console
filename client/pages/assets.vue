@@ -13,7 +13,7 @@
             :value="addMode"
             :disabled="!user.permitUploads"
           >
-            Upload New
+            Upload New Asset
           </ToolBarButton>
         </b-tooltip>
         <ToolBarButton
@@ -27,9 +27,12 @@
     </template>
 
     <template v-slot:toolbar-end>
-      <b-field label="Batch Delete">
-        <b-switch v-model="batchDelete" type="is-danger" />
-      </b-field>
+       <div class="level-item buttons">
+        <ToolBarButton @click="batchDelete = !batchDelete"
+          :type="batchDelete ? 'is-danger' : 'is-default'">
+          Batch Mode
+        </ToolBarButton>
+       </div>
     </template>
 
     <template v-slot:header>
@@ -126,7 +129,7 @@ export default {
           this.$buefy.dialog.confirm({
             title: "Batch Delete Scenarios",
             message:
-              "You will <b>not</b> be warned before deleting individual assets while active,<br /> deleted assets are <b>not recoverable</b>!",
+              "Use this if you want to delete more than one item at a time.<br /><br />You will <b>not</b> be warned before deleting individual assets while active,<br /> deleted assets are <b>not recoverable</b>!",
             confirmText: "I Understand",
             type: "is-danger",
             hasIcon: true,

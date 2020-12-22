@@ -6,9 +6,8 @@
           No assets currently selected
         </span>
         <br />
-        Go to "Assets" in the navigation bar to add assets to your account.
       </span>
-      <span v-else>Select assets for use in this scenario</span>
+      <span>Select assets from your asset library to use them in this scenario.</span>
     </p>
 
     <Shuttle

@@ -7,7 +7,7 @@
     <template v-slot:toolbar-start>
       <div class="level-item buttons">
         <ToolBarButton @click="openFormModal()" :value="addMode">
-          Create New
+          Create New Scenario
         </ToolBarButton>
         <ToolBarButton
           v-if="numSharedScenarios"
@@ -20,9 +20,12 @@
     </template>
 
     <template v-slot:toolbar-end>
-      <b-field label="Batch Delete">
-        <b-switch v-model="batchDelete" type="is-danger" />
-      </b-field>
+       <div class="level-item buttons">
+        <ToolBarButton @click="batchDelete = !batchDelete"
+          :type="batchDelete ? 'is-danger' : 'is-default'">
+          Batch Mode
+        </ToolBarButton>
+       </div>
     </template>
 
     <p
@@ -106,7 +109,7 @@ export default {
           this.$buefy.dialog.confirm({
             title: "Batch Delete Scenarios",
             message:
-              "You will <b>not</b> be warned before deleting individual scenarios while active,<br /> deleted scenarios are <b>not recoverable</b>!",
+              "Use this if you want to delete more than one item at a time.<br /><br />You will <b>not</b> be warned before deleting individual scenarios while active,<br /> deleted scenarios are <b>not recoverable</b>!",
             confirmText: "I Understand",
             type: "is-danger",
             hasModalCard: true,
