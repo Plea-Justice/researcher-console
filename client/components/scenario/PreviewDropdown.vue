@@ -19,12 +19,12 @@
         Publish
       </ToolBarButton>
 
-      <b-dropdown-item @click="download">Manual Download</b-dropdown-item>
+      <b-dropdown-item @click="download">Download for Manual Distribution</b-dropdown-item>
       <b-dropdown-item @click="publish" :disabled="!user.permitHosting">
-        Publish Live
+        Publish for Immediate Distribution
       </b-dropdown-item>
       <b-dropdown-item v-if="scenarioMeta.live" @click="liveURLPopup">
-        <b-tag type="is-success">Active Live Link</b-tag>
+        <b-tag type="is-success">Active Simulation Link</b-tag>
       </b-dropdown-item>
     </b-dropdown>
   </div>
@@ -202,7 +202,6 @@ export default {
               live: `${process.env.LIVE_URL}/sim-${this.scenarioMeta.id}/`,
             });
 
-            this.liveURLPopup();
           } finally {
             let cancel = true;
             loadingToast?.close();
@@ -215,9 +214,11 @@ export default {
 
             if (response?.data?.success) {
               this.$buefy.toast.open({
-                message: "Live simulation ready.",
+                message: "Live simulation ready. See publishing dropdown for distribution link.",
                 type: "is-success",
               });
+
+              this.liveURLPopup();
             }
           }
         },

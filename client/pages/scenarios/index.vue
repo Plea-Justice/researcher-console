@@ -23,7 +23,7 @@
           <b-autocomplete
             v-model="searchName"
             :data="searchList"
-            placeholder="Search by asset name"
+            placeholder="Search by scenario name"
             icon="search"
             clearable
           >

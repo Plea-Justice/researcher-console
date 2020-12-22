@@ -253,8 +253,8 @@ export default {
         return {
           flag: true,
           message: !this.scenarioAssetList.length
-            ? "No assets selected to use with this scenario"
-            : "Some scenario options missing",
+            ? "You have not selected any assets to use with this scenario."
+            : "Some scenario options have not been set.",
           tab: !this.scenarioAssetList.length ? "assets" : "settings",
         };
       else

@@ -3,7 +3,7 @@
     <p class="content">
       <span v-if="!assetList.length" class="content">
         <span class="has-text-warning has-text-weight-bold">
-          No assets currently selected
+          You have not selected any assets to use in this scenario.
         </span>
         <br />
       </span>
