@@ -90,7 +90,11 @@ module.exports = function (options) {
         let obj;
 
         try {
-            obj = await ScenarioModel.findOne({ _id: id, owner: uid });
+            obj = await ScenarioModel.findOne(
+                await util.userIsAdmin(uid)
+                    ? { _id: id }
+                    : { _id: id, owner: uid }
+            );
         } catch (err) {
             res.status(500).json(util.failure('There was an error retrieving the scenario.', err));
             return;
@@ -183,30 +187,34 @@ module.exports = function (options) {
         }
 
         try {
-            result = await ScenarioModel.updateOne({
-                _id: id,
-                owner: uid
-            }, { $set: {
-                name:       req.body.meta?.name,
-                description: req.body.meta?.description,
-                citation: req.body.meta?.citation,
-                survey:     req.body.meta?.survey,
-                live:       req.body.meta?.live,
-                public:     req.body.meta?.public,
-                readOnly:   req.body.meta?.readOnly,
-                numScenes:  req.body.numScenes,
-                scenes:     req.body.scenes,
-                frames:     req.body.frames,
-                frameList:  req.body.frameList,
-                conditions: req.body.conditions,
-                conditionList: req.body.conditionList,
-                tags:       req.body.tags,
-                tagSets:    req.body.tagSets,
-                tagSetList: req.body.tagSetList,
-                assetList:  req.body.assetList,
-                status:     req.body.status,
-                modified:   Date.now()
-            } }, { omitUndefined: true });
+            result = await ScenarioModel.updateOne(
+
+                await util.userIsAdmin(uid)
+                    ? { _id: id }
+                    : { _id: id, owner: uid }
+
+                , { $set: {
+                    name:       req.body.meta?.name,
+                    description: req.body.meta?.description,
+                    citation: req.body.meta?.citation,
+                    survey:     req.body.meta?.survey,
+                    live:       req.body.meta?.live,
+                    public:     req.body.meta?.public,
+                    readOnly:   req.body.meta?.readOnly,
+                    numScenes:  req.body.numScenes,
+                    scenes:     req.body.scenes,
+                    frames:     req.body.frames,
+                    frameList:  req.body.frameList,
+                    conditions: req.body.conditions,
+                    conditionList: req.body.conditionList,
+                    tags:       req.body.tags,
+                    tagSets:    req.body.tagSets,
+                    tagSetList: req.body.tagSetList,
+                    assetList:  req.body.assetList,
+                    status:     req.body.status,
+                    modified:   Date.now()
+                } }, { omitUndefined: true }
+            );
         } catch (err) {
             res.status(500).json(util.failure('There was an error updating the scenario.', err));
             return;

@@ -9,7 +9,7 @@
       @blur="onBlur()"
       :before-adding="validateTagInput"
       :disabled="$attrs.disabled"
-      placeholder="Name Buttons"
+      :placeholder="placeholder"
       attached
       allow-duplicates
     />
@@ -23,6 +23,10 @@ export default {
     value: {
       required: true,
       type: null
+    },
+    placeholder: {
+      type: String,
+      default: 'Name Buttons...'
     }
   },
   data() {

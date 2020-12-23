@@ -17,16 +17,24 @@
       "icon": "file-image"
     },
     "script": {
-      "type": "input"
+      "type": "input",
+      "placeholder":"Dialogue or question text here..."
+    },
+    "embedded": {
+      "name": "embedded data variable name to export",
+      "type": "fixedinput",
+      "placeholder": "Name of embedded data variable to record response (e.g. \"choice\")."
     },
     "buttons": {
-      "type": "tag-input"
+      "name": "Possible Responses",
+      "type": "tag-input",
+      "placeholder": "Multiple choices, in order (coded 0, 1, 2...)."
     }
   },
 
   "sceneTypes": {
     "clip": ["clip"],
     "dialogue": ["actor", "foreground", "background", "script"],
-    "question": ["background", "script", "buttons"]
+    "question": ["background", "script", "embedded", "buttons"]
   }
 }

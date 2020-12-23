@@ -175,7 +175,8 @@ async function generateSimulation(options, req) {
                             'actor': addAsset(scene.actor),
                             'bg': addAsset(scene.background),
                             'fg': addAsset(scene.foreground),
-                            'buttons': scene.buttons
+                            'buttons': scene.buttons,
+                            'embedded': scene.embedded
                         }
                     );
                     break;

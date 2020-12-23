@@ -60,7 +60,7 @@
         v-for="field in validFieldNames"
         :key="field"
         :validator="$v.form[field]"
-        :label="field"
+        :label="spec.scene[field].name ? spec.scene[field].name : field"
         label-position="inside"
         class="is-capitalized"
         v-slot="{ maxlength }"
@@ -83,7 +83,7 @@
         <template v-else-if="isType(field, 'input')">
           <b-input
             v-model="$v.form[field].$model"
-            :placeholder="`${field}...` | capitalize"
+            :placeholder="spec.scene[field].placeholder"
             :maxlength="maxlength"
             :disabled="isBound"
             icon="expand-alt"
@@ -96,6 +96,18 @@
           />
         </template>
 
+        <template v-else-if="isType(field, 'fixedinput')">
+          <b-input
+            v-model="$v.form[field].$model"
+            :placeholder="spec.scene[field].placeholder"
+            maxlength="50"
+            :disabled="isBound"
+            class="absolute-counter"
+            custom-class="has-fixed-size"
+            expanded
+          />
+        </template>
+
         <!-- FIXME: make sure tag input updates $dirty correctly -->
         <BTagInput
           v-else-if="isType(field, 'tag-input')"
@@ -103,6 +115,7 @@
           :icon="getIcon(field)"
           :disabled="isBound"
           class="is-capitalized"
+          :placeholder="spec.scene[field].placeholder"
           expanded
         />
       </form-group>
@@ -124,7 +137,7 @@
             <form-group :validator="$v.form.script" v-slot="{ maxlength }">
               <b-input
                 v-model="$v.form.script.$model"
-                :placeholder="`Script...`"
+                :placeholder="spec.scene['script'].placeholder"
                 :maxlength="maxlength"
                 :disabled="isBound"
                 type="textarea"
@@ -210,6 +223,7 @@ export default {
 
       validSceneTypes: Object.keys(spec.sceneTypes),
       form,
+      spec,
 
       inputModalActive: false,
     };

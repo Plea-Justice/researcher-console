@@ -68,6 +68,9 @@
 </template>
 
 <script>
+// Import VueX
+import { mapGetters, mapActions } from "vuex";
+
 // Import Components
 import Help from "~/components/modals/Help";
 
@@ -133,6 +136,9 @@ export default {
     },
   },
   methods: {
+    ...mapActions({
+      updateMeta: "scenario/updateMeta",
+    }),
     setFocus(focus) {
       this.surveyFocused = focus;
     },
@@ -145,6 +151,7 @@ export default {
           duration: 2000,
         });
       } else {
+        this.updateMeta(this.scenarioForm)
         this.$emit("close");
       }
     },
