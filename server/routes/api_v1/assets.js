@@ -49,9 +49,13 @@ module.exports = function (options) {
         try {
             const assets = {};
 
-            const obj = await AssetModel.find({
-                $or: [{ owner: uid }, { public: true }]
-            });
+            const obj = await AssetModel.find(
+                await util.userIsAdmin(uid)
+                    ? { /* Administrator may access all assets. */ }
+                    : {
+                        $or: [{ owner: uid }, { public: true }]
+                    }
+            );
 
             const list = obj.map(asset => asset.meta);
             const assetList = list.map(asset => asset.id);
