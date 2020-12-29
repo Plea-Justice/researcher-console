@@ -15,8 +15,10 @@
       :collapsed="collapsed"
       :invalid="$v.form.$invalid"
     >
-      <p v-if="env.MODE === 'development' && isBoundParent">
-        Bound Scenes: {{ scene.bound }}
+      <p v-if="env.MODE === 'development'">
+        Bound: {{ bound }}<br/>
+        Parent Index: {{ parentIndex }}<br/>
+        {{ scene }}
       </p>
 
       <!-- Scene Type Toggle -->
@@ -32,7 +34,7 @@
         <template v-if="isBound">
           <p class="control bound-label">
             <b-button type="is-light" disabled expanded>
-              Bound: Scene {{ boundIndex + 1 }}
+              Bound to Condition {{ parentIndex + 1 }}
             </b-button>
           </p>
           <p class="control">
@@ -208,7 +210,7 @@ export default {
       required: false,
       default: false,
     },
-    boundIndex: Number,
+    parentIndex: Number,
   },
   data() {
     const defaultType = Object.keys(spec.sceneTypes)[0];

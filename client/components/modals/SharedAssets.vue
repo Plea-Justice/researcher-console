@@ -3,7 +3,7 @@
     <template v-slot:header>
       <div class="flex-title">
         <h1 class="modal-card-title">
-          My Assets ({{ selectedAssets.length }})
+          Shared Assets ({{ selectedAssets.length }})
         </h1>
 
         <template v-if="sharedAssetSet.length > 1">

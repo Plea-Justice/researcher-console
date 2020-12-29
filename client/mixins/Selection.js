@@ -52,7 +52,7 @@ export default {
         actions: {
           [Select.SCENE]: this.bindScenes
         },
-        messages: ['Select a scene to bind to', 'Select scene(s) to bind']
+        messages: ['Select a parent scene to which others will be bound', 'Select scene(s) to bind']
       },
       [Modes.SWAP]: {
         type: Select.SCENE,

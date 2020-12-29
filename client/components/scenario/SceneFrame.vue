@@ -114,7 +114,7 @@
               <Scene
                 v-if="typeof scene.props === 'string'"
                 :bound="scene.id"
-                :boundIndex="frame.scenes.findIndex((id) => id === scene.props)"
+                :parentIndex="frame.scenes.findIndex((id) => id === scene.props)"
                 :scene="getSiblingScene(scene.props)"
                 :index="index"
                 :collapsed="collapsed"

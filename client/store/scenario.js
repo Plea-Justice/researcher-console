@@ -251,14 +251,21 @@ export const actions = {
   copyScenes({ commit, state }, [parentId, ...childIds]) {
     childIds.forEach(id => commit('setScene', { id, scene: { ...state.scenes[parentId], id } }));
   },
-  bindScenes({ dispatch, state, getters }, [parentId, ...childIds]) {
-    const parent = state.scenes[parentId];
+  bindScenes({ commit, dispatch, state, getters }, [parentId, ...childIds]) {
+    let parent = state.scenes[parentId];
 
-    const refFrame = getters.frameSet.find(frame => frame.scenes.includes(parentId));
+    // If the parent is bound too, find an unbound ancestor.
+    while (typeof parent.props === 'string') {
+      parent = state.scenes[parent.props];
+    }
 
+    // Get the frame in which scenes are being bound.
+    const refFrame = getters.frameSet.find(frame => frame.scenes.includes(parent.id));
+
+    // Determine if the parent is to the left of all children.
     let unorderedId = false;
     for (const id of refFrame.scenes) {
-      if (id === parentId) break;
+      if (id === parent.id) break;
       else if (childIds.includes(id)) {
         unorderedId = id;
         break;
@@ -266,14 +273,16 @@ export const actions = {
     }
 
     // Update parent's bound reference counter
-    const valid = !state.status.sceneErrors.includes(parentId);
-    dispatch('updateScene', {
+    const valid = !state.status.sceneErrors.includes(parent.id);
+    commit('setScene', {
       id: parent.id,
-      valid,
-      bound: parent.bound ? parent.bound + childIds.length : childIds.length
+      scene: {
+        ...parent,
+        bound: parent.bound ? parent.bound + childIds.length : childIds.length
+      }
     });
 
-    // Update children to reference parentId
+    // Update children to reference parentId.
     childIds.forEach(id =>
       dispatch('updateScene', {
         id,
@@ -282,8 +291,9 @@ export const actions = {
       })
     );
 
+    // If the parent is not the leftmost, swap with the leftmost chid so that it is.
     if (unorderedId) {
-      dispatch('swapScene', [parentId, unorderedId]);
+      dispatch('swapScene', [parent.id, unorderedId]);
     }
   },
   unbindScene({ commit, dispatch, state }, { id, parentId }) {
