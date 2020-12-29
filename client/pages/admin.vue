@@ -155,6 +155,29 @@
             <td>{{ props.row.addresses[0] || "None" }}</td>
           </tr>
         </table>
+        <br/>
+        <table>
+          <tr>
+            <th>Scenario</th>
+            <th>ID</th>
+            <th>Description</th>
+            <th>Public</th>
+            <th>Author</th>
+            <th>Citation</th>
+            <th>Last Modified</th>
+          </tr>
+          <template v-for="scenario in scenariosByUser[props.row.name]">
+            <tr :key="scenario.id">
+              <td>{{ scenario.name }}</td>
+              <td><n-link :to="`/scenarios/${scenario.id}`">{{ scenario.id }}</n-link></td>
+              <td>{{ scenario.description }}</td>
+              <td>{{ scenario.public }}</td>
+              <td>{{ scenario.author }}</td>
+              <td>{{ scenario.citation }}</td>
+              <td>{{ scenario.modified | timeToNow }}</td>
+            </tr>
+          </template>
+        </table>
       </template>
     </b-table>
   </GenericLayout>
@@ -189,6 +212,15 @@ export default {
         0
       );
     },
+    scenariosByUser: function () {
+      return Object.values(this.scenarios).reduce(
+        (acc, curr) => ({
+          ...acc,
+          [curr.owner]: (acc[curr.owner] || []).concat(curr),
+        }),
+        {}
+      );
+    },
   },
   async asyncData({ params, $axios }) {
     let ret = {};
@@ -198,6 +230,13 @@ export default {
       ret["users"] = data.result;
     } catch (err) {
       ret["users"] = null;
+    }
+
+    try {
+      const { data } = await $axios.get("/api/v1/scenarios");
+      ret["scenarios"] = data.result.scenarios;
+    } catch (err) {
+      ret["scenaios"] = null;
     }
 
     ret["loading"] = false;

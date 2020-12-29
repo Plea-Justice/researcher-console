@@ -19,9 +19,13 @@ module.exports = function (options) {
         let objs;
 
         try {
-            objs = await ScenarioModel.find({
-                $or: [{ owner: uid }, { public: true }]
-            });
+            objs = await ScenarioModel.find(
+                await util.userIsAdmin(uid)
+                    ? { /* Administrator may access all assets. */ }
+                    : {
+                        $or: [{ owner: uid }, { public: true }]
+                    }
+            );
         } catch (err) {
             res.status(500).json(util.failure('There was an error fetching the scenario list.', err));
             return;
