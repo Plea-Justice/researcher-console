@@ -300,7 +300,7 @@ export default {
           );
           this.loading = false;
         } finally {
-          if (response?.status === 200) {
+          if (response?.success) {
             this.submitState.setTempStatus(this.ButtonStatus.SUCCESS);
             const successToast = this.$buefy.toast.open({
               message: "Account created, logging you in",

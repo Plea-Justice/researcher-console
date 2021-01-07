@@ -131,6 +131,10 @@
               />
             </div>
           </div>
+
+          <div v-if="env.MODE === 'development'">
+            {{ frame }}
+          </div>
         </div>
       </div>
     </div>
