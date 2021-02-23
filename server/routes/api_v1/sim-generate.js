@@ -54,6 +54,19 @@ module.exports = function (options) {
             fs.emptyDirSync(servdir);
             fs.copySync(tmpdir, servdir);
 
+            await ScenarioModel.updateOne(
+
+                await util.userIsAdmin(uid)
+                    ? { _id: id }
+                    : { _id: id, owner: uid }
+
+                , { $set: {
+                    live:       `${process.env.LIVE_URL}/sim-${id}/`,
+                    modified:  Date.now(),
+                    published:   Date.now()
+                } }, { omitUndefined: true }
+            );
+
             res.status(200).json(util.success('Live simulation ready.'));
         } catch (err) {
             res.status(500).json(util.failure('Error publishing simulation.', err));

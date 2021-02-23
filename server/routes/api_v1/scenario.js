@@ -202,7 +202,6 @@ module.exports = function (options) {
                     description: req.body.meta?.description,
                     citation: req.body.meta?.citation,
                     survey:     req.body.meta?.survey,
-                    live:       req.body.meta?.live,
                     public:     req.body.meta?.public,
                     readOnly:   req.body.meta?.readOnly,
                     numScenes:  req.body.numScenes,

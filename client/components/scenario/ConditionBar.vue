@@ -1,6 +1,6 @@
 <template>
   <!-- Titles -->
-  <div class="titlebar-wrapper">
+  <div class="titlebar-wrapper" :style="{ top: extraVSpace ? '6rem' : '4rem' }">
     <div class="titlebar padded-responsive-container">
       <div :style="titleBarCssVars" class="title-wrapper">
         <div class="conditions">
@@ -76,6 +76,11 @@ import ConditionTags from "~/components/modals/ConditionOptions/Tags";
 export default {
   props: {
     selectable: [Object, Boolean],
+    // Leave extra space above the condition bar for warning messages.
+    extraVSpace: {
+      type: Boolean,
+      default: false
+    }
   },
   computed: {
     ...mapGetters({
@@ -132,7 +137,6 @@ export default {
 .titlebar-wrapper {
   // Sticky below toolbar
   @include sticky();
-  top: 4rem;
 
   margin-bottom: 1rem;
 

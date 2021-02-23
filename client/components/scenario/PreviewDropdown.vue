@@ -32,7 +32,7 @@
 
 <script>
 // Import VueX
-import { mapActions, mapGetters } from "vuex";
+import { mapGetters } from "vuex";
 
 // Import Mixins
 import User from "~/mixins/User";
@@ -46,10 +46,6 @@ export default {
   components: { ToolBarButton, SimulationLink },
   mixins: [User, ButtonStateMixin],
   props: {
-    scenarioMeta: {
-      type: Object,
-      required: true,
-    },
     parent: {
       type: Object,
     },
@@ -66,13 +62,11 @@ export default {
   },
   computed: {
     ...mapGetters({
+      scenarioMeta: "scenario/scenarioMeta",
       scenarioStatus: "scenario/status",
     }),
   },
   methods: {
-    ...mapActions({
-      updateMeta: "scenario/updateMeta",
-    }),
     async preview() {
       // TODO: Ask on unsaved, invalid, etc.
       // Create an array of warnings & display the messages accordingly
@@ -171,7 +165,7 @@ export default {
       this.$buefy.dialog.prompt({
         title: "Publish Simulation",
         message:
-          "This action will overwrite any previously published simulations. Enter your password to confirm.",
+          "This action will overwrite any previously published simulations and any unsaved changes will be destroyed.<br/>Enter your password to confirm.",
         type: "is-warning",
         inputAttrs: {
           type: "password",
@@ -198,9 +192,7 @@ export default {
               { password: pass }
             );
 
-            this.updateMeta({
-              live: `${process.env.LIVE_URL}/sim-${this.scenarioMeta.id}/`,
-            });
+            this.$emit('published');
 
           } finally {
             let cancel = true;
@@ -230,10 +222,7 @@ export default {
           parent: this,
           component: SimulationLink,
           hasModalCard: true,
-          trapFocus: true,
-          props: {
-            url: this.scenarioMeta.live,
-          },
+          trapFocus: true
         });
       }
     },

@@ -124,9 +124,9 @@ export default {
     onSubmit() {
       if (
         this.scenarioSet.some(
-          ({ id, name }) =>
+          ({ id, name, owner }) =>
             name.toLowerCase() === this.scenarioForm.name.toLowerCase() &&
-            id !== this.scenarioForm?.id
+            id !== this.scenarioForm?.id && owner === this.user.name
         )
       ) {
         this.$buefy.toast.open({

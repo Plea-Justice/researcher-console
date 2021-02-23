@@ -22,6 +22,7 @@ const ScenarioSchema = new mongoose.Schema({
     modified:   { type: Date, default: Date.now },
     version:    { type: String, default: '1.0.0' },
 
+    published:   { type: Date, default: 0 },
     survey:     { type: String, default: '' },
     live:       { type: String, default: '' },
 
@@ -58,6 +59,7 @@ ScenarioSchema.virtual('meta')
             modified:   this.modified,
             version:    this.version,
 
+            published:  this.published,
             survey:     this.survey,
             live:       this.live
         };

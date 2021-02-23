@@ -12,8 +12,8 @@
             id="link1"
             class="p-2 is-size-7"
             style="outline: grey dashed 1px"
-            :href="url + 'avatar.html'"
-            >{{ url + 'avatar.html' }}</a
+            :href="scenarioMeta.live + 'avatar.html'"
+            >{{ scenarioMeta.live + 'avatar.html' }}</a
           >
           <b-button
             id="copy"
@@ -31,8 +31,8 @@
             id="link2"
             class="p-2 is-size-7"
             style="outline: grey dashed 1px"
-            :href="url + 'simulation.html' "
-            >{{ url + 'simulation.html' }}</a
+            :href="scenarioMeta.live + 'simulation.html' "
+            >{{ scenarioMeta.live + 'simulation.html' }}</a
           >
           <b-button
             id="copy"
@@ -75,19 +75,13 @@
 
 <script>
 // Import VueX
-import { mapActions } from "vuex";
+import { mapGetters } from "vuex";
 
 // Import clipboard
 import ClipboardJS from "clipboard";
 
 export default {
   name: "SimulationLink",
-  props: {
-    url: {
-      type: String,
-      required: true,
-    },
-  },
   mounted() {
     const clipboard = new ClipboardJS("#copy");
     clipboard.on("success", () =>
@@ -96,6 +90,11 @@ export default {
         type: "is-success"
       })
     );
+  },
+  computed: {
+    ...mapGetters({
+      scenarioMeta: 'scenario/scenarioMeta'
+    })
   },
   methods: {
     closeModal() {

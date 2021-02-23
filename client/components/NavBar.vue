@@ -35,7 +35,7 @@
     <template slot="end">
       <b-navbar-item v-if="user.sessions > 1" tag="div">
         <b-tag type="is-warning" size="is-small">
-          Another user may be active
+         You may be logged in from more than one device.
         </b-tag>
       </b-navbar-item>
       <b-navbar-item tag="div" class="buttons">

@@ -4,10 +4,14 @@
  *
  * Use this script with Node.js. This script modifies JavaScript exported by
  * Adobe Animate so that it may work with the simulation.
+ *
+ * Compatible with Animate v20.0.4. Other versions may export code in an
+ * incompatible format.
  */
 
 const fs = require('fs');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 let option = false;
 let force = false;
@@ -36,6 +40,8 @@ function publish(input) {
 
     const file = path.parse(input);
     const filepath = path.format(file);
+
+    const id = uuidv4();
 
     if (file.ext !== '.js') throw Error('File must be of type \'.js\'.');
 
@@ -92,6 +98,11 @@ function publish(input) {
         // Reference to cache directory for bitmap cached assets.
         [/"images\//g, '"assets/cache/'],
 
+        // Replace the existing 'composition ID' to avoid collisions due to a
+        // duplicated .js/.fla file.
+        [/(?<=compositions\[|id: )'\w{32}'/gm,
+            `"${id}"`],
+
         // Lookup table to retrieve the composition ID from the filename.
         [/^}\)\(createjs = createjs\|\|{}, AdobeAn = AdobeAn\|\|{}\);$/gm,
             `\nFILE_TO_ID = window.FILE_TO_ID || {}; FILE_TO_ID["${file.name}"] = lib.properties.id;\n$&`
@@ -104,10 +115,13 @@ function publish(input) {
     data += '\n// Published.';
     fs.writeFileSync(filepath, data);
 
-    // Count up customizable layers and colors.
-    const colorable
+    /* Parse file for references to the customizable colors.
+     */
+    const colorable // Search for matching strings. Use a set to find uniques.
         = [...(new Set(data.match(/assetPalettes\[\d\].colors\[\d\]/gm))).values()]
+            // For each match, extract the slot number and color number.
             .map(str => str.match(/\[(?<slot>\d)\].colors\[(?<color>.*?)\]/))
+            // Create an object to specify each color slot.
             .map(match => ({
                 name: `Color ${match.groups.color} (${colorSlotDefaults[match.groups.color]})`,
                 slot: Number(match.groups.slot),
@@ -115,15 +129,21 @@ function publish(input) {
                 color: Number(match.groups.color)
             }));
 
-    let switchable
+    /* Parse file for feature layers.
+     * Features of the actors (hair, eyes, and figure) are selectable by number.
+     */
+    let switchable // Search for matching strings. Use a set to find uniques.
         = [...(new Set(data.match(/assetPalettes\[\d\].features.[a-z]+? === \d/gm))).values()]
+            // For each match, extract the slot number, feature name and number.
             .map(str => str.match(/\[(?<slot>\d)\].features.(?<feature>[a-z]+?) === (?<num>\d)/))
+            // Create an object to specify each switchable slot.
             .map(match => ({
                 name: `${match.groups.feature}`,
                 slot: Number(match.groups.slot),
                 type: 'feature',
                 num: Number(match.groups.num)
             }))
+            // From this list, determine the number range to display.
             .reduce((acc, cur) => {
                 acc[cur.name + cur.slot] = {
                     ...cur,
@@ -135,6 +155,7 @@ function publish(input) {
                 return acc;
             }, {});
 
+    // Consolidate and remove unwanted properties.
     switchable = Object.values(switchable).map(x => ({
         name: x.name,
         slot: x.slot,
@@ -142,9 +163,15 @@ function publish(input) {
         range: x.range + 1
     }));
 
-    const toggleable
+    /* Parse file for layers that can be turned on or off.
+     * This is to support custom layers outside the scope of features. Layers in
+     * this category may only be enabled or disabled.
+     */
+    const toggleable // Search for matching strings.
         = (data.match(/assetPalettes\[\d\].toggle.includes\(".*?"\)/gm) || [])
+            // For each match, extract the slot number and layer name.
             .map(str => str.match(/\[(?<slot>\d)\].*?includes\("(?<layer>.*?)"/))
+            // Create an object to specify each toggleable slot.
             .map(match => ({
                 name: match.groups.layer,
                 slot: Number(match.groups.slot),
@@ -152,9 +179,15 @@ function publish(input) {
                 layer: match.groups.layer
             }));
 
-    let numbered
+    /* Parse file for layers that can be selected by their number.
+     * This is to support custom layers outside the scope of features. This
+     * includes, for instance, layers named "slot3bg0", "slot3bg1", "slot3bg2".
+     */
+    let numbered // Search for matching strings.
         = (data.match(/assetPalettes\[\d\].numbered\[.*?\] === \d/gm) || [])
+            // For each match, extract the slot number, layer name and number.
             .map(str => str.match(/\[(?<slot>\d)\].numbered\["(?<layer>.*?)"\] === (?<num>\d)/))
+            // Create an object to specify each numbered slot.
             .map(match => ({
                 name: match.groups.layer,
                 slot: Number(match.groups.slot),
@@ -162,6 +195,7 @@ function publish(input) {
                 layer: match.groups.layer,
                 num: match.groups.num
             }))
+            // From this list, determine the number range to display.
             .reduce((acc, cur) => {
                 acc[cur.name + cur.slot] = {
                     ...cur,
@@ -173,6 +207,7 @@ function publish(input) {
                 return acc;
             }, {});
 
+    // Consolidate and remove unwanted properties.
     numbered = Object.values(numbered).map(x => ({
         name: x.name,
         slot: x.slot,

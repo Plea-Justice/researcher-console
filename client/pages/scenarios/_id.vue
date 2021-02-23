@@ -1,6 +1,7 @@
 <template>
   <ScenarioLayout ref="layout" :title="scenarioMeta.name" :logout="onLogout">
     <template ref="header">
+      <b-loading is-full-page can-cancel :active="loading"></b-loading>
       <ToolBar ref="toolbar" class="toolbar-horizontal-sticky">
         <template v-slot:start>
           <div class="level-item buttons">
@@ -84,25 +85,31 @@
         <template v-slot:end>
           <div class="level-item">
             <PreviewDropdown
-              :scenarioMeta="scenarioMeta"
               @goToErrors="goToErrors()"
               @openScenarioOptions="openScenarioOptions"
+              @published="$fetch()"
             />
           </div>
         </template>
       </ToolBar>
+
+      <div class="messagebar" v-if="messages">
+        {{ messages }}
+      </div>
 
       <ConditionBar
         ref="conditionbar"
         @remove="removeConditionHelper($event)"
         @selected="addToSelection($event, Select.CONDITION)"
         :selectable="isSelectable(Select.CONDITION)"
+        :extraVSpace="scenarioStoreHasChanged"
       />
     </template>
 
     <!-- Debug Info -->
     <section class="section" v-if="env.MODE === 'development'">
       <p>Scenes: {{ numScenes }}</p>
+      <p>State Changed: {{ scenarioStoreHasChanged }}</p>
       <p>{{ scenarioStatus }}</p>
       <p>{{ scenarioMeta }}</p>
     </section>
@@ -172,6 +179,7 @@ export default {
       scenarioStoreHasChanged: false,
       headerHeight: 0,
 
+      loading: false,
       saving: false,
       saveStatus: {
         valid: {
@@ -193,14 +201,19 @@ export default {
       snackbar: null,
     };
   },
-  async fetch({ store, params }) {
+  async fetch() {
+    this.loading = true;
     await Promise.all([
-      store.dispatch("scenario/getScenario", params.id),
-      store.dispatch("assets/getAssets"),
+      this.getScenario(this.$route.params.id),
+      this.getAssets()
     ]);
+    this.scenarioStoreHasChanged = false;
+    this.loading = false;
   },
   created() {
     const excludedMutators = [
+      "scenario/resetState",
+      "scenario/setScenario",
       "scenario/setSceneErrors",
       "scenario/setFrameErrors",
       "scenario/updateScenarioValidity",
@@ -215,6 +228,7 @@ export default {
         this.scenarioStoreHasChanged = false;
       } else if (
         !this.scenarioStoreHasChanged &&
+        !this.loading &&
         mutation.type.startsWith("scenario/") &&
         !excludedMutators.includes(mutation.type)
       ) {
@@ -248,6 +262,13 @@ export default {
       numScenes: "scenario/numScenes",
       frameSet: "scenario/frameSet",
     }),
+    messages() {
+      if (this.scenarioStoreHasChanged)
+        return "Unsaved changes. Click \"Save\" to keep your changes."
+      if (Date.parse(this.scenarioMeta.published) < Date.parse(this.scenarioMeta.modified))
+        return "Saved changes are not visible to participants until the scenario has been published."
+      return false;
+    },
     optionWarnings() {
       if (!this.scenarioMeta.survey || !this.scenarioAssetList.length)
         return {
@@ -330,6 +351,7 @@ export default {
       // TODO: send out request to validate all groups (frames & scene cards)
 
       if (this.scenarioStoreHasChanged) {
+        this.loading = true;
         this.saving = true;
         if (this.scenarioStatus.valid) {
           await this.saveScenario();
@@ -341,6 +363,7 @@ export default {
         } else {
           this.goToErrors();
         }
+        this.loading = false;
         this.saving = false;
       } else {
         this.$buefy.toast.open({
@@ -410,6 +433,8 @@ export default {
       this.$auth.logout();
     },
     ...mapActions({
+      getScenario: "scenario/getScenario",
+      getAssets: "assets/getAssets",
       addCondition: "scenario/addCondition",
       removeCondition: "scenario/removeCondition",
       saveScenario: "scenario/saveScenario",
@@ -479,4 +504,22 @@ export default {
   margin-left: auto;
   margin-right: auto;
 }
+
+.messagebar {
+  @include sticky();
+  top: 4rem;
+  font-size: $size-7;
+
+  min-width: 100%;
+  width: max-content;
+  background-color: $warning;
+
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 4rem;
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
 </style>

@@ -29,10 +29,10 @@
 
             <div class="flex-fields">
 
-              <div v-if="slot.features.length > 0" class="numberinputs">
+              <div v-if="slot.feature.length > 0" class="numberinputs">
                 <h2 class="subtitle">Features</h2>
                 <b-field
-                  v-for="feature in slot.features"
+                  v-for="feature in slot.feature"
                   :key="feature"
                   :label="feature.name | capitalize"
                 >
@@ -61,11 +61,11 @@
                 </b-field>
               </div>
 
-              <div v-if="slot.toggleables.length > 0">
+              <div v-if="slot.toggleable.length > 0">
                 <h2 class="subtitle">Toggleable Layers</h2>
                 <b-field grouped group-multiline>
                   <b-field
-                    v-for="colorfield in slot.toggleables"
+                    v-for="colorfield in slot.toggleable"
                     :key="colorfield.color"
                     :label="colorfield.name"
                   >
@@ -176,6 +176,11 @@ export default {
     customizableSlots() {
       const slots = {};
 
+      const add = (map, obj)=>{
+        if (!map.has(obj.name))
+          map.set(obj.name, obj);
+      }
+
       const customizables = this.customizableAssets.reduce((acc, asset) => {
         asset.customizables.forEach(obj => {
           if (!slots[obj.slot])
@@ -183,33 +188,23 @@ export default {
               // List of assets utilizing this slot.
               assets: new Set(),
               // List of customizable colors in this slot.
-              colors: [],
+              colors: new Map(),
               // List of customizable features in this slot.
-              features: [],
+              feature: new Map(),
               // Lists of custom layers in this slot.
-              toggleables: [],
-              numbered: []
+              toggleable: new Map(),
+              numbered: new Map()
             };
 
           slots[obj.slot].assets.add(asset.name);
           switch (obj.type) {
             case "color":
-              slots[obj.slot].colors.push({ name: obj.name, color: obj.color });
+              add(slots[obj.slot].colors, { name: obj.name, color: obj.color });
               break;
             case "feature":
-              slots[obj.slot].features.push({
-                name: obj.name,
-                range: obj.range
-              });
-              break;
             case "toggleable":
-              slots[obj.slot].toggleables.push({
-                name: obj.name,
-                range: obj.range
-              });
-              break;
             case "numbered":
-              slots[obj.slot].numbered.push({
+              add(slots[obj.slot][obj.type], {
                 name: obj.name,
                 range: obj.range
               });
@@ -222,7 +217,13 @@ export default {
       }, []);
 
       Object.values(slots).forEach(
-        slot => (slot.assets = [...slot.assets.values()])
+        slot => {
+          slot.assets = [...slot.assets.values()];
+          slot.colors = [...slot.colors.values()];
+          slot.feature = [...slot.feature.values()];
+          slot.toggleable = [...slot.toggleable.values()];
+          slot.numbered = [...slot.numbered.values()];
+        }
       );
 
       return slots;
