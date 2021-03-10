@@ -1,6 +1,9 @@
 {
   "name": "researcher-console-server",
   "version": "1.0.0",
+  "description": "Configuration console for the plea simulation.",
+  "author": "The Plea Justice Project",
+  "license": "GPL-3.0-only",
   "private": true,
   "scripts": {
     "start": "node ./bin/www",

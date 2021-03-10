@@ -1,8 +1,9 @@
 {
   "name": "researcher-console-frontend",
   "version": "1.0.0",
-  "description": "Plea simulation researcher portal.",
-  "author": "marcebdev",
+  "description": "Configuration console for the plea simulation.",
+  "author": "The Plea Justice Project",
+  "license": "GPL-3.0-only",
   "private": true,
   "scripts": {
     "dev": "nuxt",

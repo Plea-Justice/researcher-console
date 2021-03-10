@@ -1,3 +1,9 @@
+/* Copyright (C) 2021 The Plea Justice Project
+ *
+ * Please see https://pleajustice.org for information about this project's
+ * licensing and how you can make a contribution.
+ */
+
 // Mongoose database.
 const mongoose = require('mongoose');
 const autopopulate = require('mongoose-autopopulate');

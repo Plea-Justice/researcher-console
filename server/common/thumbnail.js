@@ -1,3 +1,9 @@
+/* Copyright (C) 2021 The Plea Justice Project
+ *
+ * Please see https://pleajustice.org for information about this project's
+ * licensing and how you can make a contribution.
+ */
+
 // Run this script as a child process with two arguments.
 // node thumbnail.js [asset path] [output path]
 

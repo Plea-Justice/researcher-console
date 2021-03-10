@@ -1,3 +1,9 @@
+/* Copyright (C) 2021 The Plea Justice Project
+ *
+ * Please see https://pleajustice.org for information about this project's
+ * licensing and how you can make a contribution.
+ */
+
 /**
  * See app.js for routing to this point.
  * Applicable documentation at https://expressjs.com/en/guide/routing.html.

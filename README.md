@@ -209,3 +209,7 @@ The API defines endpoints for managing scenarios, assets, and user authenticatio
 | `PUT` | `/api/v1/admin/users/{user_id}/password` | Set the permissions of a user. |
 | `PUT` | `/api/v1/admin/users/{user_id}/attributes` | Set other properties of a user. |
 | `DELETE` | `/api/v1/admin/users/{user_id}` | Delete a user. |
+
+---
+
+Copyright (C) 2021, The Plea Justice Project. Licensed under GPLv3.

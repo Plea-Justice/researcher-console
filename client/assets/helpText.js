@@ -1,3 +1,9 @@
+/* Copyright (C) 2021 The Plea Justice Project
+ *
+ * Please see https://pleajustice.org for information about this project's
+ * licensing and how you can make a contribution.
+ */
+
 export const assetsHelp = {
   navbar:
     "<p>Assets are resource files which make up animated scenes. These include foreground and background images, fully premade movie clips, and customizable talking actors.</p><p>The default plea research assets are available through the shared asset library. Copy assets from the shared library to your own to use them in your scenarios.</p><p>If you have permission, you may upload your new assets by clicking 'Add Asset', uploading a JPEG or PNG image or JavaScript asset exported from Adobe Animate, and selecting the type of asset you have uploaded.</p>",
