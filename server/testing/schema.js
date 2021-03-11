@@ -91,9 +91,10 @@ module.exports = {
             readOnly: { type: 'boolean' },
             created: { type: 'string', format: 'date-time' },
             modified: { type: 'string', format: 'date-time' },
+            published: { type: 'string', format: 'date-time' },
             version: { type: 'string', pattern: '^\\d\\.\\d\\.\\d+$' }
         },
-        minProperties: 13, // FIXME: 14 for author
+        minProperties: 14,
         additionalProperties: false
     },
 
