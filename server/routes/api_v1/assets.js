@@ -11,7 +11,7 @@ module.exports = function (options) {
     const router = express.Router();
 
     const util = require('../../common/util');
-    const { publish } = require('../../common/publish');
+    const { publish } = require('../../common/scripts/publish-animate-html5/publish');
     const { fork } = require('child_process');
 
     const fs = require('fs-extra');

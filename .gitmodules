@@ -1,0 +1,6 @@
+[submodule "server/common/scripts"]
+	path = server/common/scripts
+	url = git@github.com:Plea-Justice/scripts.git
+[submodule "server/common/simulation"]
+	path = server/common/simulation
+	url = git@github.com:Plea-Justice/pleabargain-simulation.git

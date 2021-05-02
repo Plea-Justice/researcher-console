@@ -40,19 +40,15 @@ module.exports = {
     // Directory from which to serve live studies.
     sim_serve_dir: './data/simulations/',
 
-    // Whether to copy a template to each user's data directory.
-    assets_template: true,
-    assets_dir: './data/default-assets/',
-
     // Location of the simulation template with simulation as toplevel index.html.
-    sim_dir: '../../pleabargain-simulation/',
+    sim_dir: './common/simulation/',
 
     // Maximum upload size in MiB.
     max_upload_mb: 20,
 
     // Secret for signing session id cookies.
     // This should be random, non-guessable, and replaced with a new string for production.
-    session_secret: '371fe6a5-ceed-4ce6-871c-ae28f4d837de',
+    session_secret: process.env.SESSION_SECRET || '371fe6a5-ceed-4ce6-871c-ae28f4d837de',
 
     // Serve the client? (Boolean)
     serve_client: true,

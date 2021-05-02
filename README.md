@@ -2,24 +2,25 @@
 
 The researcher console is a web-based interface for configuring the [plea bargain simulation](https://github.com/Plea-Justice/pleabargain-simulation). A project overview and detailed documentation are available at [pleajustice.org](https://pleajustice.org).
 
-## Dependencies
+## Dependencies and Installation
 
-* [Node.js](https://nodejs.org/en/)
-* [MongoDB](https://www.mongodb.com/)
+The researcher console primarily relies on [Node.js](https://nodejs.org/en/) and [MongoDB](https://www.mongodb.com/)..
 
-A Unix platform is recommended. The live server and test system run Ubuntu Server 20.04.
+A Unix platform is recommended. Development has been done under Ubuntu Server 20.04 with Node 14.14.0 and Mongo 4.4.5.
 
-Node may be installed with [`nvm`](https://github.com/nvm-sh/nvm). Additional Node based software will be automatically installled by [`npm`](https://www.npmjs.com/).
+Node may be installed with [`nvm`](https://github.com/nvm-sh/nvm). Additional Node based software will be automatically installed by [`npm`](https://www.npmjs.com/).
 
-The npm package, `cross-zip` requires the host system to support `zip` or Windows Powershell. Note that `zip` must be manually installed on some Unix systems such as Ubuntu Server.
+The npm package, `cross-zip` requires the host system to support either the `zip` command or Windows Powershell. Note that `zip` must be manually installed on some Unix systems such as Ubuntu Server.
 
-Running a live server on HTTP port `80` or with HTTPS on port `443` may require [reverse proxy](https://en.wikipedia.org/wiki/Reverse_proxy), especially if other sites must also be served on the same host. The [Nginx](https://nginx.org/) webserver supports reverse proxy. [Let's Enycrypt's Certbot](https://certbot.eff.org/) can be used to obtain SSL certificates. Note that a webserver may impose restrictions such as upload filesize limits that may interfere with the console. Check the software's manual for configuration options to lift such restrictions.
+Running a live server on HTTP port `80` or with HTTPS on port `443` may require [reverse proxy](https://en.wikipedia.org/wiki/Reverse_proxy), especially if other sites must also be served on the same host. The [Nginx](https://nginx.org/) webserver supports reverse proxy. [Let's Encrypt's Certbot](https://certbot.eff.org/) can be used to obtain SSL certificates. Note that a webserver may impose restrictions such as upload file size limits that may interfere with the console. Check the software's manual for configuration options to lift such restrictions.
 
 MongoDB is necessary to support the backend. After installing the database, start the Mongo service and set the URI of the database in `server/config.js`. By default, Mongo will run on port `27017`. The database may be given any name. No further configuration is needed, however it is recommended that the database is set up with credentials and that its port is not accessible from the network.
 
+Once the appropriate dependencies are installed, clone the repository using the `--recurse-submodules` option (the server pulls in the [simulation](https://github.com/Plea-Justice/pleabargain-simulation) and [scripts](https://github.com/Plea-Justice/scripts) repositories as [Git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules)). As described below, `cd` into and run `npm install` for both the `client/` and `server/` subdirectories. The client and server both use [`dotenv`](https://www.npmjs.com/package/dotenv) for certain configuration options such as the name of the Mongo database. Set `MODE=development` in each `.env` for additional debugging information. Edit (or create) and double check the configuration before starting a live server.
+
 ## Client
 
-The console frontend is built with [Nuxt.js](https://nuxtjs.org), which provides additional features to [Vue.js](https://vuejs.org/) for single page applications. Vue components are from [Buefy](https://buefy.org/), based on the [Bulma](https://bulma.io/) CSS framework. [Axios](https://github.com/axios/axios) handles XHR requests to the server.
+The console frontend is built with [Nuxt.js](https://nuxtjs.org), a higher level framework for [Vue.js](https://vuejs.org/). Vue components are from [Buefy](https://buefy.org/), based on the [Bulma](https://bulma.io/) CSS framework. [Axios](https://github.com/axios/axios) handles XHR requests to the server.
 
 ### Building the Frontend
 
@@ -32,6 +33,7 @@ $ npm install
 
 # Configure client options.
 $ vim nuxt.config.js
+$ vim .env
 
 # Serve the client for development with hot reload at localhost:3001.
 $ npm run dev
@@ -64,22 +66,22 @@ $ npm install
 
 # Configure server options.
 $ vim config.js
+$ vim .env
 
 # Start the server for development with hot reload using nodemon.
-$ npm install -g nodemon
-$ nodemon
+$ npm run dev
 
 # Start the server for production.
 $ npm run start
 ```
 
-Configuration is stored in `server/config.js`. The client must be enabled in this file. Make sure to define separate databases for development and production and select the appropriate database in this file. Additionally, make sure that any file path options point to their respective and desired locations on the host system. In production, set `session_secret` to a new, random, and secure string.
+Configuration is stored in `server/config.js`. In production, the client should be generated as a static site which the server can serve if enabled in this file. Make sure to define separate databases for development and production and select the appropriate database in this file or the `.env`. Additionally, make sure that any file path options point to their respective and desired locations on the host system. In production, set `session_secret` to a new, random, and secure string. To keep the Git repository clean of sensitive data, consider creating a `.env` file with these options instead.
 
 Express creates `bin/www`, the server entry point. This file imports the application definition at `app.js` which requires middleware dependencies and sets up routes, mounting the client at root. Additional routes are defined in `routes/` including `api_v1`, where the API is defined.
 
 Note that there is not currently a `systemd` or other service in place to autorestart the server. After reboot it must be started manually.
 
-For backend testing, `curl`, a browser extension, or graphical app such as [Postman](https://www.postman.com/) are recommended.
+For backend testing, `curl`, a browser extension, or graphical app such as [Postman](https://www.postman.com/) are recommended. Basic checks against a JSON schema for each response type are defined under `server/testing`. Ensure that these files remain up to date and test frequently with `npm run test`. Reference the JSON schemata in this directory to understand the data generally sent back by the server.
 
 ### Running Side-By-Side
 
@@ -174,7 +176,7 @@ Ensure that a path exists for the server's data and that the server has write pe
 
 ### Server API (v1)
 
-API endpoints will always respond with a JSON object of the following format.
+API endpoints must always respond with a JSON object of the following format.
 ```javascript
 {
     success: Boolean,
