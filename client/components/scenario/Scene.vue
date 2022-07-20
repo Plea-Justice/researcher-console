@@ -62,10 +62,10 @@
         v-for="field in validFieldNames"
         :key="field"
         :validator="$v.form[field]"
-        :label="spec.scene[field].name ? spec.scene[field].name : field"
+        :label="spec.scene[field].name ? spec.scene[field].name : field.charAt(0).toUpperCase() + field.slice(1)"
         label-position="inside"
-        class="is-capitalized"
         v-slot="{ maxlength }"
+        
       >
         <!--
           `options` prop needs a preloaded value because .includes in
@@ -81,8 +81,16 @@
           expanded
         />
 
-        <!-- Textarea -->
+        <template v-else-if="isType(field, 'input')" >
+          <EditableInput :id="scene.id" 
+          :field="field"
+          :text="form.script"
+          @save-text="saveText"/>
+        </template>
+
+        <!--
         <template v-else-if="isType(field, 'input')">
+          <div>
           <b-input
             v-model="$v.form[field].$model"
             :placeholder="spec.scene[field].placeholder"
@@ -95,8 +103,11 @@
             custom-class="has-fixed-size"
             type="textarea"
             expanded
+            
           />
+          </div>
         </template>
+        -->
 
         <template v-else-if="isType(field, 'fixedinput')">
           <b-input
@@ -109,6 +120,8 @@
             expanded
           />
         </template>
+
+        
 
         <!-- FIXME: make sure tag input updates $dirty correctly -->
         <BTagInput
@@ -183,6 +196,7 @@ import { helpers } from "vuelidate/lib/validators";
 import GenericCard from "~/components/cards/GenericCard";
 import FileSelector from "~/components/form/FileSelector";
 import BTagInput from "~/components/form/BTagInput";
+import EditableInput from "~/components/form/EditableInput";
 
 // Import Helper Functions
 import { debounce } from "~/assets/util";
@@ -196,6 +210,7 @@ export default {
     GenericCard,
     FileSelector,
     BTagInput,
+    EditableInput,
   },
   props: {
     scene: {
@@ -211,6 +226,7 @@ export default {
       default: false,
     },
     parentIndex: Number,
+    
   },
   data() {
     const defaultType = Object.keys(spec.sceneTypes)[0];
@@ -246,6 +262,7 @@ export default {
       id: this.scene.id,
       valid: !this.$v.form.$invalid,
     });
+
   },
   watch: {
     // Update form for inbound changes
@@ -292,7 +309,7 @@ export default {
           required,
         },
         script: {
-          maxLength: maxLength(220),
+          maxLength: maxLength(400),
         },
       },
     };
@@ -351,6 +368,9 @@ export default {
     },
   },
   methods: {
+    saveText(e){
+      this.form[e.field] = e.text;
+    },
     toggleInputModal() {
       this.inputModalActive = !this.inputModalActive;
     },
@@ -412,6 +432,7 @@ export default {
     height: 180px;
   }
 }
+
 </style>
 
 <style lang="scss" scoped>

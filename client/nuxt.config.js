@@ -28,7 +28,7 @@ export default {
     // URL of the backend server.
     API_URL: process.env.API_URL || 'http://localhost:3000',
     // URL of this client application.
-    CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:3000',
+    CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:3001',
     // Address of the webserver from which permanent simulations are hosted.
     LIVE_URL: process.env.LIVE_URL || 'http://localhost:3000/sim-serve'
   },

@@ -39,6 +39,7 @@
           :type="batchDelete ? 'is-danger' : 'is-default'">
           Batch Mode
         </ToolBarButton>
+        
        </div>
     </template>
 

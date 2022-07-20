@@ -3,6 +3,7 @@
     <template ref="header">
       <ToolBar ref="toolbar" class="toolbar-horizontal-sticky">
         <template v-slot:start>
+          
           <div class="level-item buttons">
             <b-tooltip
               :active="!!saveState.tooltip"
