@@ -96,6 +96,9 @@ export default {
       // useLayers: false,
       // useLayersText: false,
       solid: [
+        'faBold',
+        'faItalic',
+        'faUnderline',
         'faPlus',
         'faMinus',
         'faTimes',

@@ -1,19 +1,27 @@
 <template>
     <div>
         <div :id="id" class ="editableInput" contenteditable="true"
-        @click="onClick"
         @blur="onBlur"
         @paste="onPaste"
-        @input="onInput"> {{text}} </div>
+        @input="onInput"
+        @focus="onClick"
+        >
+        
+         {{text}} 
+        </div>
+        <b-button class="bold" @click="bold" size="is-small" icon-left='bold'></b-button>
+        <b-button class="italic" @click="italic" size="is-small" icon-left='italic'></b-button>
+        <b-button class="underline" @click="underline" size="is-small" icon-left='underline'></b-button>
 
         <span v-show="success" class="ontop"><b-icon :icon="icon" :type="iconType"></b-icon></span>
         <span v-show="clicked" class="counter"> {{ counter }} </span>
-        <b-tooltip class="info" label="You can create stylized text! Press 'Ctrl' + 'I' for italics,
-        'Ctrl' + 'U' for underline or 'Ctrl' + 'B' for bold."
+        <b-tooltip class="info" label="You can create stylized text! Use the buttons on the side for bold, italic and underlined."
         position="is-right">
-            <span><font-awesome-icon icon="info-circle" size="xs"/></span>
+        <span><font-awesome-icon icon="info-circle" size="xs"/></span>
         </b-tooltip>
+        
     </div>
+    
 </template>
 
 <script>
@@ -71,6 +79,10 @@ export default {
                 label = e.target.parentElement.parentElement.firstChild;
             }
             let text = e.target.innerHTML;
+            if(text === '<br>'){
+                text = '';
+                e.target.innerHTML = '';
+            }
 
             this.counter = e.target.innerText.length + "/220";
 
@@ -107,9 +119,25 @@ export default {
                 e.target.style.borderColor = "rgb(219, 219, 219)";
                 e.target.style.boxShadow = "";
                 this.success = false;
+                e.target.innerHTML = "";
+                this.$emit('save-text', {'text': '', 'field': this.field});
+                e.target.style.borderColor = "rgb(140,108,244)";
+                e.target.style.boxShadow = "0px 0px 0px 2px rgb(225,217,252)";
             }
 
         },
+        bold(){
+            document.execCommand('bold');
+            document.getElementById(this.id).focus();
+        },
+        italic(){
+            document.execCommand('italic');
+            document.getElementById(this.id).focus();
+        },
+        underline(){
+            document.execCommand('underline')
+            document.getElementById(this.id).focus();
+        }
     }
 }
 
@@ -120,8 +148,8 @@ export default {
 <style scoped>
 
 .editableInput {
-  height: unset !important;
-  width: 100%;
+  min-height: 94px;
+  width: 90%;
   top: unset !important;
   left: unset !important;
   right: 0.5em !important;
@@ -142,24 +170,41 @@ export default {
   border-color: rgb(181, 181, 181);
 }
 
+.bold{
+    position:absolute;
+    top: 0;
+    right: 0;
+    border-radius: 5px;
+}
+
+.italic{
+    position:absolute;
+    top: 32px;
+    right: 0;
+    border-radius: 5px;
+}
+
+.underline {
+    position:absolute;
+    top: 64px;
+    right: 0;
+    border-radius: 5px;
+}
+
 .ontop{
   z-index: 9;
   position: absolute;
   top: 0;
-  right: 0;
-  padding-right: 7px;
+  right: 12%;
   padding-top: 5px;
 }
 
 .counter{
   z-index: 9;
   position: absolute;
-  bottom: 0;
-  right: 0;
-  padding-bottom: 2px;
-  padding-right: 10px;
+  bottom: 2%;
+  right: 12%;
   font-size: 12px;
-
 }
 
 .info{
