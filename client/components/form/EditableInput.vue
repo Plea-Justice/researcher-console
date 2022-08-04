@@ -92,6 +92,14 @@ export default {
             text = text.replace(/&amp;/g, '&');
             text = text.replace(/&quot;/g, '"');
             text = text.replace(/&apos;/g, "'");
+            text = text.replace(/<br>/g, '');
+            text = text.replace(/<div>/g, '');
+            text = text.replace(/<\/div>/g, '');
+            text = text.replace(/<em>/g, '<i>');
+            text = text.replace(/<\/em>/g, '</i>');
+            text = text.replace(/<strong>/g, '<b>');
+            text = text.replace(/<\/strong>/g, '</b>');
+            
             if(e.target.innerText.length <= 220 && e.target.innerText.length > 0){
                 e.target.style.borderColor = "rgb(72, 199, 116)";
                 if(label !== null){
