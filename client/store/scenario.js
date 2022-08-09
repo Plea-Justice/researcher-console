@@ -19,7 +19,8 @@ const initialState = () => ({
     live: '',
     public: false,
     readOnly: false,
-    version: ''
+    version: '',
+    collaborators: [],
   },
   tagSetList: [],
   tagSets: {},

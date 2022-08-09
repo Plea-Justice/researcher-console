@@ -30,6 +30,7 @@ module.exports = function (options) {
         res.json(util.success('Returned user list.', list));
     });
 
+
     /******************************************************
     * All methods below this line will require a password.
     */ router.use(mandatoryRoute);
