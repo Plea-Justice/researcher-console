@@ -121,6 +121,7 @@ export default {
         'faUser',
         'faUserPlus',
         'faUserCircle',
+        'faUsers',
         'faEnvelope',
         'faLock',
         'faClone',
@@ -145,7 +146,7 @@ export default {
         'faEllipsisH',
         'faSearch',
         'faClipboard',
-        'faSignature'
+        'faSignature',
       ]
     }
   },
