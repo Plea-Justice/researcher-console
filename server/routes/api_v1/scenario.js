@@ -15,8 +15,51 @@ module.exports = function (options) {
     const util = require('../../common/util');
 
     const ScenarioModel = require('../../models/ScenarioModel');
+    const UserModel = require('../../models/UserModel');
 
-
+    /*
+    Get a User's ID from their email
+    */
+    router.get('/email/:email', async (req, res) => {
+        const email = req.params.email;
+        let obj;
+        try {
+            obj = await UserModel.findOne(
+                {email: email}
+            )
+        } catch(err){
+            res.send('');
+            return;
+        }
+        if(obj !== null){
+            res.send(obj._id);
+        }
+        else {
+            res.send('');
+        }
+        
+    })
+    /*
+    Get a User's email from their ID
+    */
+    router.get('/id/:user_id', async (req, res) => {
+        const id = req.params.user_id;
+        let obj;
+        try{
+            obj = await UserModel.findById(id);
+        }
+        catch(err){
+            res.send('');
+            return;
+        }
+        if(obj != null){
+            res.send(obj.email);
+            
+        }
+        else {
+            res.send(id);
+        }
+    })
     /**
      * Get a list of the current user's scenarios.
      */
@@ -29,13 +72,15 @@ module.exports = function (options) {
                 await util.userIsAdmin(uid)
                     ? { /* Administrator may access all assets. */ }
                     : {
-                        $or: [{ owner: uid }, { public: true }]
+                        $or: [ { owner: uid }, { public: true }, {collaborators: uid}],
                     }
             );
+            
         } catch (err) {
             res.status(500).json(util.failure('There was an error fetching the scenario list.', err));
             return;
         }
+
 
         res.status(200).json(util.success('User\'s scenario metadata list returned.',
             {
@@ -60,6 +105,7 @@ module.exports = function (options) {
                 owner:       uid,
                 author:      uid,
                 name:       req.body.meta?.name,
+                collaborators:  req.body.meta?.collaborators,
                 description: req.body.meta?.description,
                 citation: req.body.meta?.citation,
                 survey:     req.body.meta?.survey,
@@ -103,7 +149,9 @@ module.exports = function (options) {
             obj = await ScenarioModel.findOne(
                 await util.userIsAdmin(uid)
                     ? { _id: id }
-                    : { _id: id, owner: uid }
+                    : { 
+                        $or: [{_id: id, owner: uid}, {_id: id, collaborators: uid}],
+                    }
             );
         } catch (err) {
             res.status(500).json(util.failure('There was an error retrieving the scenario.', err));
@@ -133,7 +181,7 @@ module.exports = function (options) {
         try {
             obj = (await ScenarioModel.findOne({
                 _id: id,
-                $or: [{ owner: uid }, { public: true }]
+                $or: [{ owner: uid }, { public: true }, { collaborators: uid }]
             })).toObject();
 
             // Rename the copy. Increment copy count if chained.
@@ -165,6 +213,7 @@ module.exports = function (options) {
             obj.name = name + suffix ;
             obj.owner = uid;
             obj.public = false;
+            obj.collaborators = [];
             delete obj._id;
             delete obj.survey;
             delete obj.live;
@@ -201,11 +250,14 @@ module.exports = function (options) {
 
                 await util.userIsAdmin(uid)
                     ? { _id: id }
-                    : { _id: id, owner: uid }
+                    : { 
+                        $or: [{_id: id, owner: uid}, {_id: id, collaborators: uid}],
+                    }
 
                 , { $set: {
                     name:       req.body.meta?.name,
                     description: req.body.meta?.description,
+                    collaborators: req.body.meta?.collaborators,
                     citation: req.body.meta?.citation,
                     survey:     req.body.meta?.survey,
                     live:       req.body.meta?.live,

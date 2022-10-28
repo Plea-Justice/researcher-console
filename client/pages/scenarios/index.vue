@@ -52,22 +52,40 @@
       To get started, create a new scenario or copy a template from the shared
       scenario library.
     </p>
-
-    <div v-else class="item-grid">
-      <template v-for="scenario in selectedScenarios">
-        <Scenario
-          :key="scenario.id"
-          v-if="scenario.owner === user.name"
-          :scenario="scenario"
-          remove
-          @remove="deleteScenario($event)"
-          edit
-          @edit="openFormModal(scenario)"
-          duplicate
-          @duplicate="duplicateScenario($event)"
-        />
-      </template>
+    <div v-else>
+      <div  class="item-grid">
+        <template v-for="scenario in selectedScenarios">
+          <Scenario
+            :key="scenario.id"
+            v-if="scenario.owner === user.name"
+            :scenario="scenario"
+            remove
+            @remove="deleteScenario($event)"
+            edit
+            @edit="openFormModal(scenario)"
+            duplicate
+            @duplicate="duplicateScenario($event)"
+          />
+        </template>
+      </div>
+      <div v-if="selectedSharedScenarios.length !== 0">
+        <hr/>
+        <div class="share">  Shared with You <font-awesome-icon icon="users" /> </div>
+        <div class="item-grid">
+          <template v-for="scenario in selectedSharedScenarios">
+            <Scenario
+              :key="scenario.id"
+              :scenario="scenario"
+              edit
+              @edit="openFormModal(scenario)"
+              duplicate
+              @duplicate="duplicateScenario($event)"
+            />
+          </template>
+        </div>
+      </div>
     </div>
+    
   </ItemLayout>
 </template>
 
@@ -148,12 +166,19 @@ export default {
       return this.scenarioSet.length > this.myScenarioSet.length;
     },
     searchList() {
-      return this.myScenarioSet
+      let a = this.myScenarioSet
         .map((scenario) => scenario.name)
         .filter(
           (name) =>
             name.toLowerCase().indexOf(this.searchName.toLowerCase()) >= 0
         );
+      let b = this.sharedScenarios
+        .map((scenario) => scenario.name)
+        .filter(
+          (name) =>
+            name.toLowerCase().indexOf(this.searchName.toLowerCase()) >= 0
+        );
+      return [...a, ...b];
     },
     selectedScenarios() {
       return this.searchName === ""
@@ -162,6 +187,16 @@ export default {
             this.searchList.includes(scenario.name)
           );
     },
+    sharedScenarios(){
+      return this.scenarioSet.filter((scenario) => scenario.collaborators.includes(this.user.id));
+    },
+    selectedSharedScenarios(){
+      return this.searchName === ""
+        ? this.sharedScenarios
+        : this.sharedScenarios.filter((scenario) =>
+            this.searchList.includes(scenario.name)
+          );
+    }
   },
   methods: {
     openFormModal(scenario) {
@@ -220,5 +255,10 @@ export default {
 <style scoped>
 .empty-text {
   position: absolute;
+}
+
+.share {
+  font-size: 20px;
+  padding-bottom: 10px;
 }
 </style>

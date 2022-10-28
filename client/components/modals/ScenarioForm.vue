@@ -26,6 +26,7 @@
           />
         </b-field>
 
+        <div v-if="!scenario.collaborators.includes(user.id)">
         <b-field
           label="Share with Others"
           class="flex-field"
@@ -63,6 +64,7 @@
             maxlength="100"
           />
         </b-field>
+      </div>
       </section>
 
       <footer class="modal-card-foot">
