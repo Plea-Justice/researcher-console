@@ -19,8 +19,7 @@ const initialState = () => ({
     live: '',
     public: false,
     readOnly: false,
-    version: '',
-    collaborators: [],
+    version: ''
   },
   tagSetList: [],
   tagSets: {},

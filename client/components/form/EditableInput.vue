@@ -74,20 +74,10 @@ export default {
             return false;
         },
         onInput(e){
-            if(e.target.children.length > 0){
-                var children = Array.from(e.target.children);
-                for(let i = 0; i < children.length; i++){
-                    if(children[i].tagName === 'DIV' || children[i].tagName === 'SPAN'){
-                        const text = document.createTextNode(children[i].innerText)
-                        e.target.insertBefore(text, children[i]);
-                        children[i].remove();
-                    }
-                }
-            }
             var label = null;
-            // if(e.target.parentElement.parentElement.firstChild.className === "label"){
-            //     label = e.target.parentElement.parentElement.firstChild;
-            // }
+            if(e.target.parentElement.parentElement.firstChild.className === "label"){
+                label = e.target.parentElement.parentElement.firstChild;
+            }
             let text = e.target.innerHTML;
             if(text === '<br>'){
                 text = '';
@@ -103,12 +93,12 @@ export default {
             text = text.replace(/&quot;/g, '"');
             text = text.replace(/&apos;/g, "'");
             text = text.replace(/<br>/g, ' ');
+            text = text.replace(/<div>/g, ' ');
+            text = text.replace(/<\/div>/g, '');
             text = text.replace(/<em>/g, '<i>');
             text = text.replace(/<\/em>/g, '</i>');
             text = text.replace(/<strong>/g, '<b>');
             text = text.replace(/<\/strong>/g, '</b>');
-
-            console.log(text);
 
             if(e.target.innerText.length <= 220 && e.target.innerText.length > 0){
                 e.target.style.borderColor = "rgb(72, 199, 116)";
@@ -142,7 +132,6 @@ export default {
                 e.target.style.borderColor = "rgb(140,108,244)";
                 e.target.style.boxShadow = "0px 0px 0px 2px rgb(225,217,252)";
             }
-            
 
         },
         bold(){
