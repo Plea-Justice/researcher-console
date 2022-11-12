@@ -22,7 +22,6 @@
             ref="settings"
             @close="close()"
             :scenarioMeta="scenarioMeta"
-            :id="user.id"
           />
         </b-tab-item>
 
