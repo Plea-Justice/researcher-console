@@ -75,6 +75,7 @@ export default {
         },
         onInput(e){
             if(e.target.children.length > 0){
+                
                 var children = Array.from(e.target.children);
                 for(let i = 0; i < children.length; i++){
                     if(children[i].tagName === 'DIV' || children[i].tagName === 'SPAN'){
@@ -82,6 +83,7 @@ export default {
                         e.target.insertBefore(text, children[i]);
                         children[i].remove();
                     }
+                    this.removeChildrenStyle(children[i]);
                 }
             }
             var label = null;
@@ -156,6 +158,15 @@ export default {
         underline(){
             document.execCommand('underline')
             document.getElementById(this.id).focus();
+        },
+        removeChildrenStyle(child){
+            child.removeAttribute('style');
+            if(child.children.length > 0){
+                var children = Array.from(child.children);
+                for(let i = 0; i < children.length; i++){
+                    this.removeChildrenStyle(children[i]);
+                }
+            }
         }
     }
 }
