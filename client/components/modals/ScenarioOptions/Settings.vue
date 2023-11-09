@@ -1,4 +1,4 @@
-<template>
+<template @close="please">
   <div>
     <form-group label="Name" :validator="$v.scenarioForm.name">
       <b-input v-model="$v.scenarioForm.name.$model" maxlength="30" />
@@ -68,19 +68,25 @@
       
       <form-group label="Add a Collaborator">
         <b-field>
-          <b-input
-            v-model="collabId"
-            placeholder="User's email"
-            @focus="setFocus(true)"
-            @blur="setFocus(false)"
-            expanded/>
-            <b-button @click="addCollab()" type="is-dark" icon-left="user-plus"
+          
+            <b-autocomplete
+                expanded
+                v-model="collabEmail"
+                :data="filteredDataArray"
+                placeholder="User's email"
+                clearable
+                @select="option => selected = option">
+                <template #empty>No results found</template>
+            </b-autocomplete>
+            <b-button @click="openIds()" type="is-dark" icon-left="user-plus"
             style="border-radius: 0px 4px 4px 0px;"/>
+            
         </b-field>
-        
       </form-group>
-      <li v-for="collaborator in collabEmails" v-bind:key="collaborator"> 
-            {{ collaborator }}
+      
+      <li v-for="collaborator in collabEmails" v-bind:key="collaborator" style="margin-top: 10px;
+  margin-bottom: 10px;"> 
+            {{collaborator}}
             <b-button 
             style="float:right;" 
             @click="removeCollab(collaborator)"  
@@ -93,12 +99,13 @@
 </template>
 
 <script>
+
 // Import VueX
 import { mapGetters, mapActions } from "vuex";
 
 // Import Components
 import Help from "~/components/modals/Help";
-;
+import UserSelection from "~/components/modals/ScenarioOptions/UserSelection";
 
 // Import Mixins
 import User from "~/mixins/User";
@@ -110,9 +117,13 @@ import { helpers } from "vuelidate/lib/validators";
 // Content for help fields
 import { scenarioOptionsHelp } from "~/assets/helpText";
 
+
+
+
+
 export default {
   mixins: [User],
-  components: { Help },
+  components: { Help, UserSelection},
   props: {
     scenarioMeta: {
       type: Object,
@@ -128,6 +139,9 @@ export default {
       collaborators: [...this.scenarioMeta.collaborators],
       collabEmails: [],
       collabId: '',
+      collabEmail: '',
+      db_emails: [],
+      db_users:[],
     };
   },
   validations() {
@@ -152,10 +166,12 @@ export default {
     };
   },
   mounted(){
+    
     this.collaborators.forEach(async element => {
       const response = await this.$axios.$get(`/api/v1/scenarios/id/${element}`);
       this.collabEmails.push(response);
     })
+    this.getEmails();
   },
   computed: {
     surveyWarn() {
@@ -172,9 +188,35 @@ export default {
     },
     isOwner() {
       return !this.scenarioMeta.collaborators.includes(this.id);
-    }
+    },
+    filteredDataArray() {
+      return this.db_emails.filter((option) => {
+          return option
+              .toString()
+              .toLowerCase()
+              .indexOf(this.collabEmail.toLowerCase()) == 0
+      })
+    },
+    
   },
   methods: {
+    openFormModal() {
+      this.$buefy.modal.open({
+        parent: this,
+        component: UserSelection,
+        props: { db_users: this.db_users, 
+        scenarioMeta: this.scenarioMeta,
+        id: this.id},
+        hasModalCard: true,
+        trapFocus: true,
+      });
+    },
+    async getEmails(){
+      console.log("attempting");
+      const resp = await this.$axios.$get(`/api/v1/scenarios/email_list/`);
+      this.db_emails = resp;
+      // console.log(resp);
+    },
     ...mapActions({
       updateMeta: "scenario/updateMeta",
     }),
@@ -249,6 +291,13 @@ export default {
           }
       })
       
+    },
+    async openIds(){
+      if(this.collabEmail != ''){
+        const response = await this.$axios.$get(`/api/v1/scenarios/emails/${this.collabEmail}`);
+        this.db_users = response;
+        this.openFormModal();
+      }
     },
   },
 };

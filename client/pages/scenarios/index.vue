@@ -44,7 +44,7 @@
     </template>
 
     <p
-      v-if="!myScenarioSet.length"
+      v-if="!myScenarioSet.length && !selectedSharedScenarios.length"
       class="empty-text has-text-weight-medium is-size-5"
     >
       Your scenario library is empty!
@@ -68,7 +68,7 @@
           />
         </template>
       </div>
-      <div v-if="selectedSharedScenarios.length !== 0">
+      <div v-if="selectedSharedScenarios.length">
         <hr/>
         <div class="share">  Shared with You <font-awesome-icon icon="users" /> </div>
         <div class="item-grid">

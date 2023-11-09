@@ -17,6 +17,18 @@ module.exports = function (options) {
     const ScenarioModel = require('../../models/ScenarioModel');
     const UserModel = require('../../models/UserModel');
 
+    router.get('/email_list/', async(req, res) =>{
+        let list;
+        try{
+            list = await UserModel.distinct('email');
+            console.log(list);
+        }
+        catch(err){
+            res.send('');
+            return;
+        }
+        res.send(list);
+    })
     /*
     Get a User's ID from their email
     */
@@ -38,6 +50,24 @@ module.exports = function (options) {
             res.send('');
         }
         
+    })
+    /*
+    Get User's IDs from their email
+    */
+    router.get('/emails/:email', async (req, res) => {
+        const email = req.params.email;
+        let obj;
+        try {
+            obj = await UserModel.find(
+                {email: email}, {_id: 1, username: 1, fullname: 1, email: 1}
+            )
+        } catch(err){
+            res.send('');
+            return;
+        }
+        res.send(obj)
+        // console.log("here");
+        // console.log(obj);
     })
     /*
     Get a User's email from their ID
